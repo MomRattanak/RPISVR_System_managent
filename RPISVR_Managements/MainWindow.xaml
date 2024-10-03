@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="RPISVR_Managements.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RPISVR_Managements"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="Application_Controls" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!--Set Row-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!--TitleBar-->
+        <Grid x:Name="AppTitleBar" Height="48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
+                <ColumnDefinition x:Name="IconColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="TitleColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="LeftDragColumn" Width="*"/>
+                <ColumnDefinition x:Name="SearchColumn" Width="4*" MinWidth="220"/>
+                <ColumnDefinition x:Name="RightDragColumn" Width="*" MinWidth="48"/>
+                <ColumnDefinition x:Name="AccountColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <!--Title Bar Items-->
+            <Image x:Name="TitleBarIcon"
+               Source="/Assets/RPISSVR_logo.png"
+               Grid.Column="1"
+               Width="32" Height="32"
+               Margin="8,0,4,0"/>
+            <TextBlock x:Name="TitleBarTextBlock"
+               Text="ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យសិស្សនិស្សិត" 
+               Style="{StaticResource Font_KH_Body}"             
+               Grid.Column="2"
+               VerticalAlignment="Center">
+            </TextBlock>
+            <AutoSuggestBox x:Name="TitleBarSearchBox" 
+                Grid.Column="4" 
+                QueryIcon="Find"
+                Style="{StaticResource Stye_KH_AutoSuggestBox_TitleBar}"
+                PlaceholderText="ស្វែងរកតាមរយៈម៉ីនុយ"
+                VerticalAlignment="Center"
+                MaxWidth="600"/>
+            <PersonPicture x:Name="PersonAccountPic" 
+                Grid.Column="6" 
+                Height="32" Margin="0,0,16,0"/>
+            
+        </Grid>
+
+        <!--NavigationView-->
+        <NavigationView x:Name="Main_Navigation"  Grid.Row="1"          
+                FontFamily="Khmer OS Battambang"
+                IsBackButtonVisible="Auto"
+                IsSettingsVisible="False" Loaded="MainNV_Load" SelectionChanged="Main_NV_Items_SelectionChanged" OpenPaneLength="303">
+            
+            <NavigationView.MenuItems>
+                
+                        <!--Home-->
+                        <NavigationViewItem x:Name="HomePage" Content="ទំព័រដើម" Icon="Home" Style="{StaticResource KH_Font_NavigationView}" Tag="HomePage">
+                            <!--Tooltip-Home-->
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ទំព័រដើម" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                        </NavigationViewItem>
+                                   
+                        <!--Student_Information-->
+                        <NavigationViewItem x:Name="Student_Information" Content="ទិន្នន័យសិស្សនិស្សិត" Icon="People" Style="{StaticResource KH_Font_NavigationView}" Tag="">
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ទិន្នន័យសិស្សនិស្សិត (បញ្ចូល,ពិនិត្យ,របាយការណ៍)" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.MenuItems>
+                                
+                                <!--Insert_Student_Info-->
+                                <NavigationViewItem x:Name="Insert_Student_Info" Content="បញ្ចូលទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Insert_Student_Info">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE8FA;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បញ្ចូលទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                
+                                <!--Check_Student_Info-->
+                                <NavigationViewItem x:Name="Check_Student_Info2" Content="ពិនិត្យទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Student_Info">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE8CF;"/>
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ពិនិត្យទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+             
+                                <!--Report_Student_Info-->
+                                <NavigationViewItem x:Name="Report_Student_Info" Content="របាយការណ៍សិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Student_Info">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE7EE;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍សិស្សិនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                   
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+
+                        <!--Classroom-->
+                        <NavigationViewItem Content="ថ្នាក់រៀន"  Style="{StaticResource KH_Font_NavigationView}" Tag="">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xF57F;" />
+                            </NavigationViewItem.Icon>
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ថ្នាក់រៀន (បង្កើត,រៀបចំ,តាមដាន)" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.MenuItems>
+                                
+                                <!--Create_Classroom-->
+                                <NavigationViewItem x:Name="Add_Classroom_S" Content="បង្កើតថ្នាក់រៀន" Style="{StaticResource KH_Font_NavigationView}" Tag="Add_Classrooms">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE82E;"/>
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បង្កើតថ្នាក់រៀន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                
+                                <!--Prepare_Classroom_Student-->
+                                <NavigationViewItem x:Name="Prepare_Classroom_S" Content="រៀបចំសិស្សនិស្សិតតាមថ្នាក់" Style="{StaticResource KH_Font_NavigationView}" Tag="Prepare_Classroom_S">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE82D;"/>
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="រៀបចំសិស្សនិស្សិតតាមថ្នាក់" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                
+                                <!--Check_Classroom-->
+                                <NavigationViewItem x:Name="CheckClassInfo_Classroom" Content="ត្រួតពិនិត្យថ្នាក់រៀន" Style="{StaticResource KH_Font_NavigationView}" Tag="CheckClassInfo_Classroom">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xF763;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ត្រួតពិនិត្យថ្នាក់រៀន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                             
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+
+                        <!--Student Score-->
+                        <NavigationViewItem Content="ពិន្ទុសិស្សនិស្សិត" Icon="Calculator" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ពិន្ទុសិស្សនិស្សិត (បញ្ចូល,ពិនិត្យ,របាយការណ៍)" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.MenuItems>
+                                <!--Insert_Student_Score-->
+                                <NavigationViewItem x:Name="Insert_Student_Score_Info" Content="បញ្ចូលពិន្ទុសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Insert_Student_Score_Info">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-add-user-group-woman-man-48.png" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បញ្ចូលពិន្ទុសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                
+                                <!--Check_Student_Score-->
+                                <NavigationViewItem x:Name="Check_Student_Score_Info" Content="ពិនិត្យទិន្នន័យពិន្ទុ" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Student_Score_Info">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xEE57;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ពិនិត្យទិន្នន័យពិន្ទុ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                                
+                                <!--Report_Student_Score-->
+                                <NavigationViewItem x:Name="Report_Student_Score_Info" Content="របាយការណ៍ពិន្ទុ" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Student_Score_Info">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xF585;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍ពិន្ទុ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+
+                        <!--Attendance List-->
+                        <NavigationViewItem Content="វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE73A;" />
+                            </NavigationViewItem.Icon>
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="វត្តមាន និងអវត្តមាន សិស្សនិស្សិត និងគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.MenuItems>
+
+                                <!--Insert Attendance Student-->
+                                <NavigationViewItem x:Name="Insert_Attendance_Students" Content="បញ្ចូលវត្តមានសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Icon="Add" Tag="Insert_Attendance_Students">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បញ្ចូលវត្តមានសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Insert Attendance Teacher-->
+                                <NavigationViewItem x:Name="Insert_Attendance_Teacher" Content="បញ្ចូលវត្តមានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Tag="Insert_Attendance_Teacher">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បញ្ចូលវត្តមានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xECC8;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Check Attendance Student-->
+                                <NavigationViewItem x:Name="Check_Attendance_Students" Content="ពិនិត្យវត្តមានសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Icon="ContactInfo" Tag="Check_Attendance_Students">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ពិនិត្យវត្តមានសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Check Attendance Teacher-->
+                                <NavigationViewItem x:Name="Check_Attendance_Teacher" Content="ពិនិត្យវត្តមានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Attendance_Teacher">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ពិនិត្យវត្តមានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xEA4A;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Report Attendance Teacher Late-->
+                                <NavigationViewItem x:Name="Report_Attendance_Teacher_Late" Content="បញ្ចូលចំនួនម៉ោងចូលយឺត (គ្រូ)" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_Teacher_Late">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បញ្ចូលចំនួនម៉ោងចូលយឺត (គ្រូបច្ចេកទេស)" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE87A;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Report Attendance-->
+                                <NavigationViewItem x:Name="Report_Attendance_All" Content="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE73D;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="ការសុំច្បាប់" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE9D5;" />
+                            </NavigationViewItem.Icon>
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ការសុំច្បាប់របស់គ្រូបច្ចេកទេស និងសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            
+                            <!--Request_Attendance-->
+                            <NavigationViewItem.MenuItems>
+
+                                <!--Request_Attendance_Teacher-->
+                                <NavigationViewItem x:Name="Request_Attendance_Teacher_Info" Content="សំណើសុំច្បាប់គ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}"  Tag="Request_Attendance_Teacher_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="សំណើសុំច្បាប់របស់គ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-add-to-inbox-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Request_Attendance_Teacher_Check-->
+                                <NavigationViewItem x:Name="Check_Request_Attendance_Info" Content="ទិន្នន័យសុំច្បាប់គ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}"  Tag="Check_Request_Attendance_Info">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-curriculum-48.png" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ទិន្នន័យសុំច្បាប់គ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Request_Attendance_Student-->
+                                <NavigationViewItem x:Name="Request_Attendance_Student_Info" Content="សំណើសុំច្បាប់សិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}"  Tag="Request_Attendance_Student_Info">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-add-male-user-group-48.png" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="សំណើសុំច្បាប់សិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Request_Attendance_Check_Student-->
+                                <NavigationViewItem x:Name="Check_Request_Attendance_Student_Info" Content="ទិន្នន័យសុំច្បាប់សិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Request_Attendance_Student_Info">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-curriculum-40.png" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ទិន្នន័យសុំច្បាប់សិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Report_Request_Attendance-->
+                                <NavigationViewItem x:Name="Report_Request_Attendance_Info" Content="របាយការណ៍នៃការសុំច្បាប់" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Request_Attendance_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍នៃការសុំច្បាប់" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-sorting-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                        
+                        <!--Teacher_Information-->
+                        <NavigationViewItem Content="ព័ត៌មានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Icon="Calendar" Tag="SamplePage4">
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="ព័ត៌មានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.MenuItems>
+                                
+                                <!--Insert_Teacher_Information-->
+                                <NavigationViewItem x:Name="Insert_Teacher_Info" Content="បញ្ចូលទិន្នន័យគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Icon="AddFriend"  Tag="Insert_Teacher_Info"/>
+
+                                <!--Check_Teacher_Information-->
+                                <NavigationViewItem x:Name="Check_Teacher_Info" Content="ពិនិត្យទិន្នន័យគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Teacher_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ពិនិត្យទិន្នន័យគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE7EE;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+
+                        <!--Administrative letter-->
+                        <NavigationViewItem Content="លិខិតរដ្ឋបាល" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE8BF;" />
+                            </NavigationViewItem.Icon>
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="លិខិតរដ្ឋបាល (លិខិតបញ្ជាក់ការសិក្សា, ព្រឹត្តិបត្រពិន្ទុ, សញ្ញាបត្របណ្ដោះអាសន្ន)" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+
+                            <NavigationViewItem.MenuItems>
+
+                                <!--Certificate of Education-->
+                                <NavigationViewItem x:Name="Certificate_of_Education_Info" Content="លិខិតបញ្ជាក់ការសិក្សា" Style="{StaticResource KH_Font_NavigationView}"  Tag="Certificate_of_Education_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="លិខិតបញ្ជាក់ការសិក្សា" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-report-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Transcript of Study Records-->
+                                <NavigationViewItem x:Name="Transcript_of_Study_Records_Info" Content="ព្រឹត្តិបត្រពិន្ទុ" Style="{StaticResource KH_Font_NavigationView}" Tag="Transcript_of_Study_Records_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ព្រឹត្តិបត្រពិន្ទុ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-graph-report2-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                
+                                <!--Provision Certificate-->
+                                <NavigationViewItem x:Name="Provision_Certificate_Info" Content="សញ្ញាបត្របណ្ដោះអាសន្ន" Style="{StaticResource KH_Font_NavigationView}" Tag="Provision_Certificate_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="សញ្ញាបត្របណ្ដោះអាសន្ន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-report-card-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+
+                        <!--List_and_Reports-->
+                        <NavigationViewItem x:Name="System_List_and_Reports" Content="បញ្ជី និងរបាយការណ៍" Style="{StaticResource KH_Font_NavigationView}" Tag="">
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="បញ្ជី និងរបាយការណ៍" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.Icon>
+                                <ImageIcon Source="/Assets/icons8-applet-48.png" />
+                            </NavigationViewItem.Icon>
+                            <NavigationViewItem.MenuItems>
+                               
+                                <!--Students_Report-->
+                                <NavigationViewItem x:Name="Student_Name_Table_Info" Content="តារាងបញ្ជីឈ្មោះសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Student_Name_Table_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="តារាងបញ្ជីឈ្មោះសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-user-manual-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Student_Score-->
+                                <NavigationViewItem x:Name="Student_Score_Table_Info" Content="តារាងពិន្ទុសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Student_Score_Table_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="តារាងពិន្ទុសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-report-card-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Student_Exam_Result-->
+                                <NavigationViewItem x:Name="Student_Exam_Result_Info" Content="លទ្ធផលប្រឡងសិស្សនិស្សិត" Style="{StaticResource KH_Font_NavigationView}" Tag="Student_Exam_Result_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="លទ្ធផលប្រឡងសិស្សនិស្សិត" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-edit-graph-report-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                                <!--Teacher_Time_Teach-->
+                                <NavigationViewItem x:Name="Teacher_Time_Teach_Info" Content="ចំនួនម៉ោងបង្រៀនគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Tag="Teacher_Time_Teach_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="ចំនួនម៉ោងបង្រៀនរបស់គ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-hide-sidepanel-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Time_Table_Info-->
+                        <NavigationViewItem x:Name="Time_Table_Info" Content="តារាងចំនួនម៉ោង" Style="{StaticResource KH_Font_NavigationView}" Tag="Time_Table_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="តារាងចំនួនម៉ោង" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-more-details-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--List of skill levels and shifts-->
+                        <NavigationViewItem x:Name="List_of_skill_levels_and_shifts_Info" Content="តារាងកម្រិតជំនាញ និងវេនសិក្សា" Style="{StaticResource KH_Font_NavigationView}" Tag="List_of_skill_levels_and_shifts_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="តារាងកម្រិត ជំនាញ និងវេនសិក្សា" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-time-card-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Schedule-->
+                        <NavigationViewItem x:Name="Schedule_Info" Content="កាលវិភាគ" Style="{StaticResource KH_Font_NavigationView}" Tag="Schedule_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="កាលវិភាគ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-schedule-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Curriculum-->
+                        <NavigationViewItem x:Name="Curriculum_Info" Content="កម្មវិធីសិក្សា" Style="{StaticResource KH_Font_NavigationView}" Tag="Curriculum_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="កម្មវិធីសិក្សា" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-view-schedule-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Report_Attendance-->
+                        <NavigationViewItem x:Name="Report_Attendance_All_Info" Content="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-schedule-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Report_Attendance_Late-->
+                        <NavigationViewItem x:Name="Report_Attendance_Teacher_Late_Info" Content="របាយការណ៍ចូលយឺតចេញមុន" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_Teacher_Late">
+                            <ToolTipService.ToolTip>
+                                <TextBlock Text="របាយការណ៍ចូលយឺតចេញមុន" Style="{StaticResource KH_Tooltip}"/>
+                            </ToolTipService.ToolTip>
+                            <NavigationViewItem.Icon>
+                                <ImageIcon Source="/Assets/icons8-system-report-48.png" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+
+                        <!--Monthly_Report-->
+                        <NavigationViewItem x:Name="Monthly_Report_Info" Content="របាយការណ៍ប្រចាំខែ" Style="{StaticResource KH_Font_NavigationView}" Tag="Monthly_Report_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍ប្រចាំខែ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-financial-analytics-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Semi-Annual Report-->
+                        <NavigationViewItem x:Name="Semi_Annual_Report_Info" Content="របាយការណ៍ប្រចាំឆមាស" Style="{StaticResource KH_Font_NavigationView}" Tag="Semi_Annual_Report_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍ប្រចាំឆមាស" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-bar-chart-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+
+                        <!--Annual Report-->
+                        <NavigationViewItem x:Name="Annual_Report_Info" Content="របាយការណ៍ប្រចាំឆ្នាំ" Style="{StaticResource KH_Font_NavigationView}" Tag="Annual_Report_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="របាយការណ៍ប្រចាំឆ្នាំ" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/icons8-investment-portfolio-48.png" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                                 
+            </NavigationView.MenuItems>
+            
+            <!--FootMenu in Buttom-->
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Name="System_Settings" Content="ការកំណត់" Style="{StaticResource KH_Font_NavigationView}" Icon="Setting" Tag="System_Settings">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="ការកំណត់" Style="{StaticResource KH_Tooltip}"/>
+                    </ToolTipService.ToolTip>
+                </NavigationViewItem>
+              
+                <NavigationViewItem x:Name="System_Helps_Info" Content="ជំនួយ" Style="{StaticResource KH_Font_NavigationView}" Icon="Help" Tag="System_Helps_Info">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="ជំនួយ" Style="{StaticResource KH_Tooltip}"/>
+                    </ToolTipService.ToolTip>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+            
+            <!--TabView-->
+
+            
+            <TabView x:Name="TabView" FontFamily="Khmer OS Battambang" IsAddTabButtonVisible="False" CanDragTabs="True" Background="{ThemeResource CardBackgroundFillColorDefault}" TabItemsChanged="TabView_TabItemsChanged" TabCloseRequested="TabView_TabCloseRequested" Loaded="TabView_Load" Style="{StaticResource TabView_ToolTip_KH}">
+                <TabView.TabStripFooter>
+                    <Button  Click="CloseAllTabs_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/Student_Info_Icon/icons8-close-tab-48.png" Width="15" Height="15"/>
+                        </StackPanel>
+                        <ToolTipService.ToolTip>
+                            <TextBlock Text="បិទផ្ទាំងទាំងអស់" Style="{StaticResource KH_Tooltip}"/>
+                        </ToolTipService.ToolTip>
+                    </Button>
+                </TabView.TabStripFooter>
+            </TabView>
+        </NavigationView>
+        <!--Content Frame-->
+        <Frame x:Name="contentFrame"/>
+    </Grid>
+</Window>

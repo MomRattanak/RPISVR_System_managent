@@ -1,0 +1,1118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="RPISVR_Managements.Student_Informations.Insert_Student_Informations.Insert_Student_Info"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RPISVR_Managements.Student_Informations.Insert_Student_Informations"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    DataContext="{Binding StudentViewModel,Mode=TwoWay}"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Text_Header" Height="Auto"/>
+            <RowDefinition x:Name="Information_Insert" Height="280"/>
+            <RowDefinition x:Name="All_Button" Height="Auto"/>
+            <RowDefinition x:Name="Information_Show" Height="5*"/>
+
+        </Grid.RowDefinitions>
+
+
+        <StackPanel x:Name="P_Header" Grid.Row="0" Margin="5">
+            <TextBlock x:Name="P_T_Header" 
+                     Text="បញ្ចូលទិន្នន័យសិស្សនិស្សិត" 
+                     Style="{StaticResource Font_KH_Title}"/>
+        </StackPanel>
+        <StackPanel x:Name="P_InsertInfomation" Grid.Row="1" Margin="5" Padding="5" CornerRadius="3" BorderBrush="Aqua" BorderThickness="2">
+            <ScrollView x:Name="Scroll_P_Insert" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                <StackPanel>
+                    <RelativePanel>
+
+                        <TextBox x:Name="Stu_ID" 
+                               Header="ID សិស្សនិស្សិត" 
+                               Style="{StaticResource Style_KH_TextBox}"
+                               Text="{Binding Stu_ID, Mode=TwoWay}"
+                               BorderBrush="{Binding StuIDBorderBrush}"
+                               IsReadOnly="True"/>
+
+                        <TextBox x:Name="Stu_FirstName_KH" 
+                               Header="គោត្តនាម" 
+                               PlaceholderText="បញ្ចូល (ត្រកូល)" 
+                               RelativePanel.Below="Stu_ID" 
+                               Style="{StaticResource Style_KH_TextBox}"
+                               Text="{Binding Stu_FirstName_KH, Mode=TwoWay}"
+                               BorderBrush="{Binding Stu_FirstName_KH_BorderBrush}"/>
+                        
+                            
+
+                        <TextBox x:Name="Stu_LastName_KH" 
+                               Header="នាម" 
+                               PlaceholderText="បញ្ចូល (ឈ្មោះ)" 
+                               RelativePanel.Below="Stu_FirstName_KH" 
+                               Style="{StaticResource Style_KH_TextBox}"
+                                Text="{Binding Stu_LastName_KH, Mode=TwoWay}"
+                               BorderBrush="{Binding Stu_LastName_KH_BorderBrush}"/>
+                       
+
+                        <TextBox x:Name="Stu_FirstName_EN" 
+                                 Text="{Binding Stu_FirstName_EN, Mode=TwoWay}"
+                               Header="ត្រកូល (ឡាតាំង)" 
+                               PlaceholderText="FIRST_NAME" 
+                               RelativePanel.RightOf="Stu_ID"                                   
+                               Style="{StaticResource Style_KH_TextBox}"
+                               BorderBrush="{Binding Stu_FirstName_EN_BorderBrush}"/>
+
+                        <TextBox x:Name="Stu_LastName_EN" 
+                                 Text="{Binding Stu_LastName_EN, Mode=TwoWay}"
+                               Header="ឈ្មោះ (ឡាតាំង)" 
+                               PlaceholderText="LAST_NAME" 
+                               RelativePanel.RightOf="Stu_FirstName_KH" 
+                               RelativePanel.Below="Stu_FirstName_EN" 
+                               Style="{StaticResource Style_KH_TextBox}"
+                               BorderBrush="{Binding Stu_LastName_EN_BorderBrush}"/>
+
+                        <ToggleSwitch x:Name="Stu_Gender"
+                                    Header="ភេទ" 
+                                    OnContent="ស្រី" 
+                                    OffContent="ប្រុស"
+                                    RelativePanel.Below="Stu_StateFamily"
+                                    RelativePanel.RightOf="Stu_EducationLevels"                                   
+                                    Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                    Margin="5,5,5,0"
+                                    IsOn="{Binding IsMale, Mode=TwoWay}"/>
+
+                        <!--<DatePicker x:Name="Stu_Birthday" 
+                                Header="ថ្ងៃខែឆ្នាំកំណើត"   
+                                RelativePanel.RightOf="Stu_FirstName_EN" 
+                                Style="{StaticResource Stye_KH_Picker}"
+                                Margin="5,10,5,0"
+                                Date="{Binding Stu_Birthday, Mode=TwoWay}" />-->
+
+                        <StackPanel x:Name="Stu_Birthday" VerticalAlignment="Center" RelativePanel.RightOf="Stu_FirstName_EN" >
+
+                            <RelativePanel>
+                                <TextBlock x:Name="Text_BT" Text="ថ្ងៃខែឆ្នាំកំណើត" Style="{StaticResource Style_KH_TextBox}"/>
+
+                                 <!--Day ComboBox--> 
+                                <ComboBox x:Name="DayPicker"
+                                            RelativePanel.Below="Text_BT"  
+                                            Style="{StaticResource Stye_KH_Combobox}"
+                                            ItemsSource="{Binding Days}"
+                                            SelectedItem="{Binding SelectedDay, Mode=TwoWay}"
+                                            Width="100"                      
+                                            Margin="5,10,0,0" />
+
+                                 <!--Khmer Month ComboBox--> 
+                                <ComboBox x:Name="KhmerMonthPicker"
+                                          RelativePanel.RightOf="DayPicker"
+                                          RelativePanel.Below="Text_BT" 
+                                          Style="{StaticResource Stye_KH_Combobox}"                                        
+                                          ItemsSource="{Binding KhmerMonths}"
+                                          SelectedItem="{Binding SelectedKhmerMonth, Mode=TwoWay}"
+                                          Width="100"
+                                          Margin="0,10,0,0" />
+
+                                 <!--Year ComboBox--> 
+                                <ComboBox x:Name="YearPicker"
+                                          RelativePanel.RightOf="KhmerMonthPicker"
+                                          RelativePanel.Below="Text_BT" 
+                                          Style="{StaticResource Stye_KH_Combobox}"
+                                          ItemsSource="{Binding Years}"
+                                          MaxDropDownHeight="500"
+                                          SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+                                          Width="100"
+                                          Margin="0,10,5,0" />
+                            </RelativePanel>
+                        </StackPanel>
+
+                        <ToggleSwitch x:Name="Stu_StateFamily"
+                                    Header="ស្ថានភាពគ្រួសារ"
+                                    OnContent="មានគ្រួសារ"
+                                    OffContent="នៅលីវ"          
+                                    RelativePanel.Below="Stu_Birthday"
+                                    RelativePanel.RightOf="Stu_LastName_EN"
+                                    Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                    Margin="5,15,5,0"
+                                    IsOn="{Binding IsSingle,Mode=TwoWay}"/>
+
+                        <ComboBox x:Name="Stu_EducationLevels"
+                                Header="កម្រិតសិក្សា"
+                                RelativePanel.Below="Stu_LastName_EN"
+                                RelativePanel.RightOf="Stu_LastName_KH"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5,5,5,0"
+                                SelectedItem="{Binding Stu_EducationLevels,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_EducationLevels_BorderBrush}">
+                            <x:String>បរិញ្ញាបត្រ</x:String>
+                            <x:String>បរិញ្ញាបត្ររង</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Subject"
+                                Header="ជំនាញ"                                 
+                                RelativePanel.RightOf="Stu_Birthday"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5,5,5,5"
+                                SelectedItem="{Binding Stu_EducationSubjects,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_EducationSubjects_BorderBrush}">
+
+                            <x:String>វិទ្យាសាស្ត្រកុំព្យូទ័រ</x:String>
+                            <x:String>អគ្គិសនី</x:String>
+                            <x:String>អេឡិចត្រូនិក</x:String>
+                            <x:String>រថយន្ត</x:String>
+
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_StudyTime"
+                                Header="វេនសិក្សា"
+                                RelativePanel.Below="Stu_Subject"
+                                RelativePanel.RightOf="Stu_StateFamily"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="150,5,5,0"
+                                SelectedItem="{Binding Stu_StudyTimeShift,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_StudyTimeShift_BorderBrush}">
+                            <x:String>វេនចន្ទសុក្រ(ព្រឹក)</x:String>
+                            <x:String>វេនចន្ទសុក្រ(រសៀល)</x:String>
+                            <x:String>វេនសៅរ៍អាទិត្យ</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_TypeStudy"
+                                Header="ប្រភេទសិក្សា"
+                                RelativePanel.Below="Stu_StudyTime"
+                                RelativePanel.RightOf="Stu_Gender"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="150,5,5,0"
+                                SelectedItem="{Binding Stu_EducationType,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_TypeStudy_BorderBrush}">
+                            <x:String>ថ្នាក់អាហារូបករណ៍</x:String>
+                            <x:String>ថ្នាក់បង់ថ្លៃ</x:String>
+                            <x:String>វគ្គខ្លី</x:String>
+                        </ComboBox>
+
+                        <NumberBox x:Name="Stu_PhoneNumber"
+                               Header="លេខទូរស័ព្ទផ្ទាល់ខ្លួន"                                                                
+                               RelativePanel.RightOf="Stu_Subject"
+                               Style="{StaticResource Stye_KH_NumberBox}"
+                               Width="150"
+                               Margin="5,5,0,0"
+                               Minimum="0"
+                               Text="{Binding Stu_PhoneNumber,Mode=TwoWay}"
+                               ValidationMode="InvalidInputOverwritten"
+                               BorderBrush="{Binding Stu_PhoneNumber_BorderBrush}"/>
+
+                        <NumberBox x:Name="Stu_NationalID"
+                                 Header="លេខអត្តសញ្ញាណប័ណ្ណ"
+                                 RelativePanel.Below="Stu_PhoneNumber"
+                                 RelativePanel.RightOf="Stu_StudyTime"                                      
+                                 Style="{StaticResource Stye_KH_NumberBox}"
+                                 Margin="5,5,5,0"
+                                 Width="150"
+                                 Text="{Binding Stu_NationalID,Mode=TwoWay}"
+                                 BorderBrush="{Binding Stu_NationalID_BorderBrush}"/>
+                        <ComboBox x:Name="Stu_StudyingTime"
+                                Header="ឆ្នាំទី"
+                                RelativePanel.RightOf="Stu_TypeStudy"
+                                RelativePanel.Below="Stu_NationalID"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5,7,0,0"
+                                SelectedItem="{Binding Stu_StudyingTime,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_StudyingTime_BorderBrush}">
+                            <x:String>1</x:String>
+                            <x:String>2</x:String>
+                            <x:String>3</x:String>
+                            <x:String>4</x:String>
+                            <x:String>4.5</x:String>
+                        </ComboBox>
+                                
+
+                        <Line X1="10" Y1="10" X2="10" Y2="230" 
+                                x:Name="Line_1"
+                                Stroke="Aqua" 
+                                StrokeThickness="2"
+                                RelativePanel.RightOf="Stu_PhoneNumber"
+                            Margin="0,0,10,0"/>
+
+                        <TextBlock x:Name="Title_Place"
+                                 Text="ទីកន្លែងកំណើត"
+                                 Foreground="Aqua"
+                                 RelativePanel.RightOf="Line_1"
+                                 Style="{StaticResource Font_KH_Body}"
+                                 Margin="0,5,0,0"/>
+
+                        <ComboBox x:Name="Stu_Birth_Province"
+                               Header="ខេត្ត"
+                               RelativePanel.Below="Title_Place"
+                               RelativePanel.RightOf="Line_1"
+                               Style="{StaticResource Stye_KH_Combobox}"
+                               Margin="5"
+                               SelectedItem="{Binding Stu_Birth_Province,Mode=TwoWay}"
+                               BorderBrush="{Binding Stu_Birth_Province_BorderBrush}">
+                            <x:String>ស្វាយរៀង</x:String>
+                            <x:String>ភ្នំពេញ</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Birth_Distric"
+                                Header="ស្រុក/ខណ្ឌ"
+                                RelativePanel.RightOf="Stu_Birth_Province"
+                                RelativePanel.Below="Title_Place"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Birth_Distric,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Birth_Distric_BorderBrush}">
+                            <x:String>ស្វាយទាប</x:String>
+                            <x:String>ក្រុងស្វាយរៀង</x:String>
+                        </ComboBox>
+
+
+                        <ComboBox x:Name="Stu_Birth_Commune"
+                                Header="ឃុំ/សង្កាត់"
+                                RelativePanel.RightOf="Stu_Birth_Distric"
+                                RelativePanel.Below="Title_Place"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Birth_Commune,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Birth_Commune_BorderBrush}">
+                            <x:String>រមាំងថ្កោល</x:String>
+                            <x:String>សំបួរ</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Birth_Village"
+                                Header="ភូមិ"
+                                RelativePanel.RightOf="Stu_Birth_Commune"
+                                RelativePanel.Below="Title_Place"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Birth_Village,Mode=TwoWay}"
+                                BorderBrush="{Binding  Stu_Birth_Village_BorderBrush}">
+                            <x:String>ទន្លៀង</x:String>
+                            <x:String>វាលល្ងើត</x:String>
+                        </ComboBox>
+
+                        <Line X1="0" Y1="10" X2="660" Y2="10" 
+                             x:Name="Line_2"
+                             Stroke="Aqua" 
+                             StrokeThickness="2"
+                             RelativePanel.RightOf="Line_1"
+                             RelativePanel.Below="Stu_Birth_Province"
+                             Margin="-10,0,0,0"/>
+
+                        <TextBlock x:Name="Title_Place02"
+                                 Text="អាស័យដ្ឋានបច្ចុប្បន្ន"
+                                 RelativePanel.RightOf="Line_1"
+                                 RelativePanel.Below="Line_2"
+                                 Foreground="Aqua"
+                                 Style="{StaticResource Font_KH_Body}"
+                                 Margin="0,5,0,0"/>
+
+                        <ComboBox x:Name="Stu_Live_Pro"
+                                Header="ខេត្ត"
+                                RelativePanel.Below="Title_Place02"
+                                RelativePanel.RightOf="Line_1"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Live_Pro,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Live_Pro_BorderBrush}">
+                            <x:String>ស្វាយរៀង</x:String>
+                            <x:String>ភ្នំពេញ</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Live_Dis"
+                                Header="ស្រុក/ខណ្ឌ"
+                                RelativePanel.RightOf="Stu_Live_Pro"
+                                RelativePanel.Below="Title_Place02"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Live_Dis,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Live_Dis_BorderBrush}">
+                            <x:String>ស្វាយទាប</x:String>
+                            <x:String>ក្រុងស្វាយរៀង</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Live_Comm"
+                                Header="ឃុំ/សង្កាត់"
+                                RelativePanel.RightOf="Stu_Live_Dis"
+                                RelativePanel.Below="Title_Place02"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Live_Comm,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Live_Comm_BorderBrush}">
+                            <x:String>រមាំងថ្កោល</x:String>
+                            <x:String>សំបួរ</x:String>
+                        </ComboBox>
+
+                        <ComboBox x:Name="Stu_Live_Vill"
+                                Header="ភូមិ"
+                                RelativePanel.RightOf="Stu_Live_Comm"
+                                RelativePanel.Below="Title_Place02"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_Live_Vill,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_Live_Vill_BorderBrush}">
+                            <x:String>ទន្លៀង</x:String>
+                            <x:String>វាលល្ងើត</x:String>
+                        </ComboBox>
+
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                            x:Name="Line_3"
+                            Stroke="Aqua" 
+                            StrokeThickness="2"
+                            RelativePanel.RightOf="Line_2"
+                            Margin="0,0,5,0"/>
+
+                        <AutoSuggestBox x:Name="Stu_Jobs"
+                                      Header="មុខរបររបស់សិស្ស/និស្សិត"
+                                      RelativePanel.RightOf="Line_3"                                        
+                                      Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                      Margin="5"
+                                      Text="{Binding Stu_Jobs,Mode=TwoWay}">
+                        </AutoSuggestBox>
+
+                        <AutoSuggestBox x:Name="Stu_School"
+                                      Header="មកពីសាលា/វិទ្យាល័យ"
+                                      RelativePanel.RightOf="Stu_Jobs"                                      
+                                      Style="{StaticResource Stye_KH_AutoSuggestBox}" 
+                                      Margin="5"
+                                      Text="{Binding Stu_School,Mode=TwoWay}"/>
+                        <ComboBox x:Name="Stu_StudyYear"
+                                Header="ឆ្នាំសិក្សា"
+                                RelativePanel.RightOf="Stu_School"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="5"
+                                SelectedItem="{Binding Stu_StudyYear,Mode=TwoWay}"
+                                BorderBrush="{Binding Stu_StudyYear_BorderBrush}">
+                               
+                            <x:String>2021-2022</x:String>
+                            <x:String>2022-2023</x:String>
+                            <x:String>2023-2024</x:String>
+                            <x:String>2024-2025</x:String>
+                            <x:String>2025-2026</x:String>
+                            <x:String>2026-2027</x:String>
+                        </ComboBox>
+                        <ComboBox x:Name="Stu_Semester"
+                                  Header="ឆមាស"
+                                  RelativePanel.RightOf="Stu_StudyYear"
+                                  Style="{StaticResource Stye_KH_Combobox}"
+                                  Margin="5"
+                                  SelectedItem="{Binding Stu_Semester,Mode=TwoWay}"
+                                  BorderBrush="{Binding Stu_Semester_BorderBrush}">
+                            <x:String>1</x:String>
+                            <x:String>2</x:String>
+                        </ComboBox>
+
+                        <TextBox x:Name="Stu_Mother_Name"
+                               Header="ឈ្មោះម្ដាយ"
+                               RelativePanel.Below="Stu_Jobs"
+                               RelativePanel.RightOf="Line_3"
+                               Style="{StaticResource Style_KH_TextBox}"
+                               Margin="5"
+                               Text="{Binding Stu_Mother_Name,Mode=TwoWay}"/>
+
+                        <NumberBox x:Name="Stu_Mother_Phone"
+                                 Header="លេខទូរស័ព្ទម្ដាយ"
+                                 RelativePanel.RightOf="Stu_Mother_Name"
+                                 RelativePanel.Below="Stu_School"
+                                 Style="{StaticResource Stye_KH_NumberBox}"
+                                 Margin="5"
+                                 Text="{Binding Stu_Mother_Phone,Mode=TwoWay}"/>
+
+                        <AutoSuggestBox x:Name="Stu_Mother_Job"
+                                      Header="មុខរបរម្ដាយ"
+                                      RelativePanel.RightOf="Stu_Mother_Phone"
+                                      RelativePanel.Below="Stu_StudyYear"
+                                      Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                      Margin="5"
+                                      Text="{Binding Stu_Mother_Job,Mode=TwoWay}"/>
+
+                        <TextBox x:Name="Stu_Father_Name"
+                               Header="ឪពុកឈ្មោះ"
+                               RelativePanel.Below="Stu_Mother_Name"
+                               RelativePanel.RightOf="Line_3"
+                               Style="{StaticResource Style_KH_TextBox}"
+                               Margin="5"
+                               Text="{Binding Stu_Father_Name,Mode=TwoWay}"/>
+
+                        <NumberBox x:Name="Stu_Father_Phone"
+                                 Header="លេខទូរស័ព្ទឪពុក"
+                                 RelativePanel.RightOf="Stu_Father_Name"
+                                 RelativePanel.Below="Stu_Mother_Phone"
+                                 Style="{StaticResource Stye_KH_NumberBox}"
+                                 Margin="5"
+                                 Text="{Binding Stu_Father_Phone,Mode=TwoWay}"/>
+
+                        <AutoSuggestBox x:Name="Stu_Father_Job"
+                                      Header="មុខរបរឪពុក"
+                                      RelativePanel.RightOf="Stu_Father_Phone"
+                                      RelativePanel.Below="Stu_Mother_Job"
+                                      Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                      Margin="5"
+                                      Text="{Binding Stu_Father_Job,Mode=TwoWay}"/>
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                            x:Name="Line_5"
+                            Stroke="Aqua" 
+                            StrokeThickness="2"
+                            RelativePanel.RightOf="Stu_Semester"
+                            Margin="5,5,5,0"/>
+                        <Button x:Name="Stu_ChooseImage"                                     
+                                    Style="{StaticResource Stye_KH_Button}"
+                                    RelativePanel.RightOf="Line_5"
+                                    Margin="5"
+                                    Width="200"
+                                    Click="btn_chooseimage_stu"
+                                    IsEnabled="{Binding IsOn,ElementName=Stu_Image_YesNo}">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                            </Button.Resources>
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-test-account-48.png" Width="28" Height="28" />
+                                    <TextBlock Text="ជ្រើសរូបថតសិស្សនិស្សិត" Margin="6,4,0,0"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <ToggleSwitch x:Name="Stu_Image_YesNo"
+                                    OffContent="គ្មានរូបថត"
+                                    OnContent="មានរូបថត"
+                                    Header="រូបថតសិស្សនិស្សិត"
+                                    Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                    RelativePanel.RightOf="Line_5"
+                                    RelativePanel.Below="Stu_ChooseImage"
+                                    Margin="10,0,0,0"
+                                    IsOn="{Binding IsStuImage_Yes,Mode=TwoWay}"/>
+                        <Image x:Name="Stu_ShowImage"
+                             Width="100"
+                             Height="130"
+                             Source="{Binding Stu_Image_Source,Mode=TwoWay}"
+                             RelativePanel.RightOf="Line_5"
+                             RelativePanel.Below="Stu_Image_YesNo" 
+                             />
+                        <NumberBox x:Name="Stu_Image_Total_Big"
+                                 Header="ចំនួនរូបថតធំ"
+                                 Value="0"
+                                 IsEnabled="{Binding IsOn,ElementName=Stu_Image_YesNo}"
+                                 Text="{Binding Stu_Image_Total_Big,Mode=TwoWay}"
+                                 Style="{StaticResource Stye_KH_NumberBox}"
+                                 RelativePanel.RightOf="Stu_ShowImage"
+                                 RelativePanel.Below="Stu_Image_YesNo"
+                                 Width="75"
+                                 Margin="5,0,0,0"
+                                 BorderBrush="{Binding Stu_Image_Total_Big_BorderBrush}"/>
+                        <NumberBox x:Name="Stu_Image_TotalSmall"
+                                 Header="ចំនួនរូបថតតូច"
+                                 Value="0"
+                                 IsEnabled="{Binding IsOn,ElementName=Stu_Image_YesNo}"
+                                 Text="{Binding Stu_Image_TotalSmall,Mode=TwoWay}"
+                                 Style="{StaticResource Stye_KH_NumberBox}"
+                                 RelativePanel.RightOf="Stu_ShowImage"
+                                 RelativePanel.Below="Stu_Image_Total_Big"
+                                 Width="75"
+                                 Margin="5,0,0,0"
+                                 BorderBrush="{Binding Stu_Image_TotalSmall_BorderBrush}"/>
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                             x:Name="Line_7"
+                             Stroke="Aqua" 
+                             StrokeThickness="2"
+                             RelativePanel.RightOf="Stu_ChooseImage"
+                             Margin="5,5,5,0"/>
+
+                        <Button x:Name="Stu_ChooseImageDegree"   
+                                Click="btn_chooseimage_Degree"
+                                Style="{StaticResource Stye_KH_TogleButton}"
+                                RelativePanel.RightOf="Line_7"
+                                Margin="5"
+                                Width="200"
+                                IsEnabled="{Binding IsOn, ElementName=Stu_ImageIDegree_YesNo}">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                            </Button.Resources>
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-external-link-48.png" Width="28" Height="28" />
+                                    <TextBlock Text="ជ្រើសរូបសញ្ញាបត្រ" Margin="6,4,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <ToggleSwitch x:Name="Stu_ImageIDegree_YesNo"
+                                      OnContent="មាន"
+                                      OffContent="គ្មាន"
+                                      Header="សញ្ញាបត្រ"
+                                      IsOn="{Binding Is_ImageDegree_YesNo,Mode=TwoWay}"
+                                      Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                      RelativePanel.RightOf="Line_7"
+                                      RelativePanel.Below="Stu_ChooseImageDegree"
+                                      Margin="10,0,0,0"/>
+                        <Image x:Name="Stu_ShowImageDegree"
+                                 Width="100"
+                                 Height="130"
+                                 Margin="5,0,0,0"
+                                 Source="{Binding Stu_Image_Degree_Source,Mode=TwoWay}"
+                                 RelativePanel.RightOf="Line_7"
+                                 RelativePanel.Below="Stu_ImageIDegree_YesNo"/>
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                               x:Name="Line_8"
+                               Stroke="Aqua" 
+                               StrokeThickness="2"
+                               RelativePanel.RightOf="Stu_ChooseImageDegree"
+                               Margin="5,5,5,0"/>
+                        <Button x:Name="Stu_ChooseImage_Birth_certificate"   
+                                Click="btn_chooseImage_Birth_certificate"
+                                Style="{StaticResource Stye_KH_TogleButton}"
+                                RelativePanel.RightOf="Line_8"
+                                Margin="5"
+                                Width="200"
+                                IsEnabled="{Binding IsOn,ElementName=Stu_ImageIBirth_Cert_YesNo}">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                            </Button.Resources>
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image Source="/Assets/Icon/icons8-external-link-48.png" Width="28" Height="28" />-->
+                                    <TextBlock Text="ជ្រើសរូបសំបុត្រកំណើត" Margin="0" Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <ToggleSwitch x:Name="Stu_ImageIBirth_Cert_YesNo"
+                                      OnContent="មាន"
+                                      OffContent="គ្មាន"
+                                      Header="សំបុត្រកំណើត"
+                                      IsOn="{Binding Is_ImageBirth_Cert_YesNo,Mode=TwoWay}"
+                                      Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                      RelativePanel.RightOf="Line_8"
+                                      RelativePanel.Below="Stu_ChooseImage_Birth_certificate"
+                                      Margin="10,0,0,0"/>
+                        <Image x:Name="Stu_ShowImage_Birth_Certifacate"
+                                         Width="100"
+                                         Height="130"
+                                         Margin="5,0,0,0"
+                                         Source="{Binding Stu_ImageBirth_Cert_Source,Mode=TwoWay}"
+                                         RelativePanel.RightOf="Line_8"
+                                         RelativePanel.Below="Stu_ImageIBirth_Cert_YesNo"/>
+
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                            x:Name="Line_9"
+                            Stroke="Aqua" 
+                            StrokeThickness="2"
+                            RelativePanel.RightOf="Stu_ChooseImage_Birth_certificate"
+                            Margin="5,5,5,0"/>
+                        <Button x:Name="Stu_ChooseImageIDNation"   
+                                  Click="btn_chooseimage_nationID"
+                                  Style="{StaticResource Stye_KH_TogleButton}"
+                                  RelativePanel.RightOf="Line_9"
+                                  Margin="5"
+                                  Width="200"
+                                  IsEnabled="{Binding IsOn, ElementName=Stu_ImageIDNation_YesNo}">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                            </Button.Resources>
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image Source="/Assets/Icon/icons8-external-link-48.png" Width="28" Height="28" />-->
+                                    <TextBlock Text="ជ្រើសរូបអត្តសញ្ញាណប័ណ្ណ" Margin="0" Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <ToggleSwitch x:Name="Stu_ImageIDNation_YesNo"
+                                      OnContent="មាន"
+                                      OffContent="គ្មាន"
+                                      Header="អត្តសញ្ញាណប័ណ្ណ"
+                                      IsOn="{Binding Is_Stu_ImageIDNation_YesNo,Mode=TwoWay}"
+                                      Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                      RelativePanel.RightOf="Line_9"
+                                      RelativePanel.Below="Stu_ChooseImageIDNation"
+                                      Margin="10,0,0,0"/>
+                        <Image x:Name="Stu_ShowImageIDNation"
+                                 Width="200"
+                                 Height="140"
+                                 Margin="5,0,0,0"
+                                 Source="{Binding Stu_ImageIDNation_Source,Mode=TwoWay}"
+                                 RelativePanel.RightOf="Line_9"
+                                 RelativePanel.Below="Stu_ImageIDNation_YesNo"/>
+                        <Line X1="0" Y1="10" X2="0" Y2="230" 
+                               x:Name="Line_10"
+                               Stroke="Aqua" 
+                               StrokeThickness="2"
+                               RelativePanel.RightOf="Stu_ChooseImageIDNation"
+                               Margin="5,5,5,0"/>
+                        <Button x:Name="Stu_ChooseImage_Poor_card"   
+                                Click="btn_chooseImage_Poor_card"
+                                Style="{StaticResource Stye_KH_TogleButton}"
+                                RelativePanel.RightOf="Line_10"
+                                Margin="5"
+                                Width="200"
+                                IsEnabled="{Binding IsOn,ElementName=Stu_ImagePoor_Card_YesNo}">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                            </Button.Resources>
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image Source="/Assets/Icon/icons8-external-link-48.png" Width="28" Height="28" />-->
+                                    <TextBlock Text="ជ្រើសរូបប័ណ្ណក្រីក្រ" Margin="0" Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <ToggleSwitch x:Name="Stu_ImagePoor_Card_YesNo"
+                                      OnContent="មានរូប"
+                                      OffContent="គ្មានរូប"
+                                      Header="ប័ណ្ណក្រីក្រ"
+                                      IsOn="{Binding Is_ImagePoor_Card_YesNo,Mode=TwoWay}"
+                                      Style="{StaticResource Stye_KH_ToggleSwitch}"
+                                      RelativePanel.RightOf="Line_10"
+                                      RelativePanel.Below="Stu_ChooseImage_Poor_card"
+                                      Margin="10,0,0,0"/>
+                        <Image x:Name="Stu_ShowImage_Poor_card"
+                                 Width="200"
+                                 Height="140"
+                                 Margin="5,0,0,0"
+                                 Source="{Binding Stu_ImagePoor_Card_Source,Mode=TwoWay}"
+                                 RelativePanel.RightOf="Line_10"
+                                 RelativePanel.Below="Stu_ImagePoor_Card_YesNo"/>
+
+                    </RelativePanel>
+                </StackPanel>
+            </ScrollView>
+        </StackPanel>
+
+        <StackPanel x:Name="P_Button" Grid.Row="2" Orientation="Horizontal" Margin="5,5,15,0" HorizontalAlignment="Right">
+            <!-- TextBlock to show error messages -->
+            <StackPanel HorizontalAlignment="Left">
+                <Image Source="{Binding ErrorImageSource}" Width="30" Height="30" Stretch="Uniform" />
+                <TextBlock  Text="{Binding ErrorMessage, Mode=TwoWay}" 
+                            Foreground="{Binding MessageColor}" 
+                            Margin="10,5,10,0" 
+                            />
+            </StackPanel>
+
+
+            <Button x:Name="ISI_Add" Style="{StaticResource Stye_KH_Button}" Click="ISI_Click_Add_Student_Info" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsInsertEnabled}">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-add-48.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="បញ្ចូល" Margin="30,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ISI_Update" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsUpdateEnabled}" Style="{StaticResource Stye_KH_Button}" Click="Test_DialogFont">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-sync-48.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="ធ្វើបច្ចុប្បន្នភាព" Margin="2,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ISI_Delete" Command="{Binding ClearCommand}"  Style="{StaticResource Stye_KH_Button}" >
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-broom-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="សម្អាតទិន្នន័យ" Margin="10,0,0,0"/>
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+
+        <Grid x:Name="Informations_Show" Grid.Row="3" Margin="5" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3">
+            <RelativePanel>
+                <ScrollView x:Name="Search_Infos" VerticalScrollMode="Enabled" Width="250">
+                    <StackPanel>
+                        <Expander x:Name="Expander_Search" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-search-property-48.png" Width="28" Height="28"/>
+                                    <TextBlock Text="ស្វែងរកទិន្នន័យ"
+                                             x:Name="Text_Search"
+                                             Padding="10,5,0,0"
+                                             Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <AutoSuggestBox x:Name="Search_ByID"
+                                           Header="ស្វែងរកតា​មរយៈ ID"
+                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                           Margin="0,0,5,0"
+                                           Width="180"
+                                           CornerRadius="3"/>
+                                    <AutoSuggestBox x:Name="Search_ByName_KH"
+                                           Header="ស្វែងរកតាមឈ្មោះ ភាសាខ្មែរ"
+                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                           Margin="0,5,5,0"
+                                           CornerRadius="3"
+                                           Width="180"/>
+                                    <AutoSuggestBox x:Name="Search_ByName_EN"
+                                           Header="ស្វែងរកតាមឈ្មោះ ENGLISH"
+                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                           Margin="0,5,5,0"
+                                           CornerRadius="3"
+                                           Width="180"/>
+                                    <AutoSuggestBox x:Name="Search_ByPhoneNumber"
+                                           Header="ស្វែងរកតាមលេខទូរស័ព្ទ"
+                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                           Margin="0,5,5,0"
+                                           CornerRadius="3"
+                                           Width="180"/>
+                                    <AutoSuggestBox x:Name="Search_ByNationID"
+                                           Header="ស្វែងរកតាមលេខអត្តសញ្ញាណប័ណ្ណ"
+                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
+                                           Margin="0,5,5,0"
+                                           CornerRadius="3"
+                                           Width="180"/>
+                                    <Line X1="0" Y1="10" X2="240" Y2="10" 
+                                        x:Name="Line_4"
+                                        Stroke="Aqua" 
+                                        StrokeThickness="3"
+                                        Margin="0,0,5,0"/>
+                                    <ComboBox x:Name="Search_BySkill"
+                                            Header="ស្វែងរកតាមរយៈជំនាញ"
+                                            Style="{StaticResource Stye_KH_Combobox}"
+                                            Margin="5"
+                                            CornerRadius="3"
+                                            Width="180"/>
+                                    <ComboBox x:Name="Search_ByStudyTime"
+                                            Header="ស្វែងរកតាមរយៈវេនសិក្សា"
+                                            Style="{StaticResource Stye_KH_Combobox}"
+                                            Margin="5"
+                                            CornerRadius="3"
+                                            Width="180"/>
+                                    <ToggleButton x:Name="btn_Search_2Combo"                                                  
+                                                Style="{StaticResource Stye_KH_TogleButton}"
+                                                Margin="5"
+                                                CornerRadius="3"
+                                                Width="120" >
+                                        <ToggleButton.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/Assets/Icon/icons8-search-48.png" Width="28" Height="28"/>
+                                                <TextBlock Text="ស្វែងរក" Padding="19,5,0,0"/>
+                                            </StackPanel>
+                                        </ToggleButton.Content>
+                                    </ToggleButton>
+
+
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
+
+                        <Expander x:Name="Expander_Edit" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-edit-property-48.png" Width="28" Height="28" />
+                                    <TextBlock Text="កែសម្រួលទិន្នន័យ"
+                                             x:Name="Text_Edit"
+                                             Padding="10,5,0,0"
+                                             Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel>
+                                    <Button x:Name="btn_Edit" 
+                                          Style="{StaticResource Stye_KH_Button}">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <Image Source="/Assets/Icon/icons8-edit.gif" Width="20" Height="20" Margin="0,0,20,0"/>
+                                                <TextBlock Text="កែសម្រួល"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
+
+                        <Expander x:Name="Expander_InsertMissingInfo" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-add-properties-48.png" Width="28" Height="28" />
+                                    <TextBlock Text="បញ្ចូលទិន្នន័យបន្ថែម"
+                                             Padding="10,5,0,0"
+                                             Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+
+                            <Expander.Content>
+                                <StackPanel>
+                                    <Button x:Name="btn_InsertEducation_Levels"
+                                            Click="InsertEducation_Levels"
+                                            Style="{StaticResource Stye_KH_Button}"
+                                            HorizontalContentAlignment="Left" >
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម កម្រិតសិក្សា"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="btn_InsertSkill_Plus"
+                                            Click="InsertSkill"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left" >
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ជំនាញ"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertStudyTimeShift"
+                                            Click="InsertStudyTimeShift"
+                                          Style="{StaticResource Stye_KH_Button}"                                            
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម វេនសិក្សា"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertTypeStudy_Plus"
+                                            Click="InsertTypeStudy"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ប្រភេទសិក្សា"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertStudyingTime_Plus"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ឆ្នាំទី"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertJob_Plus"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម មុខរបរ"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertSchool_Plus"
+                                            Click="InsertSchool"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម វិទ្យាល័យ"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Line X1="0" Y1="0" X2="230" Y2="0" 
+                                        x:Name="Line_6"
+                                        Stroke="Aqua" 
+                                        StrokeThickness="5"                                          
+                                        Margin="0,5,5,10"/>
+
+                                    <Button x:Name="btn_InsertProvince_Plus"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ខេត្ត"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertDistric_Plus"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ស្រុក"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertCommon_Plus"
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ឃុំ"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button x:Name="btn_InsertVillage_Plus"                                            
+                                          Style="{StaticResource Stye_KH_Button}"
+                                          HorizontalContentAlignment="Left">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel>
+                                            <TextBlock Text="បន្ថែម ភូមិ"/>
+                                        </StackPanel>
+                                    </Button>
+
+
+
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
+
+                    </StackPanel>
+                </ScrollView>
+
+                <StackPanel x:Name="Table_Stu_Info_Header" RelativePanel.RightOf="Search_Infos" Orientation="Horizontal" >
+                    <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="40,0,0,0">
+                        <Button Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPreviousPage}">
+                            <Button.Content>
+                                <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-left-96.png" Width="20" Height="20"/>
+                            </Button.Content>
+                        </Button>
+                        <TextBlock Text="{Binding CurrentPage}" Margin="5,5,0,0"/>
+                        <TextBlock Text="/" Margin="5,5,0,0"/>
+                        <TextBlock Text="{Binding TotalPages}" Margin="5,5,5,0"/>
+                        <Button Command="{Binding NextPageCommand}">
+                            <Button.Content>
+                                <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-right-96.png" Width="20" Height="20"/>
+                            </Button.Content>
+                        </Button>
+
+                    </StackPanel>
+                </StackPanel>
+                <ScrollView x:Name="Table_Infos" RelativePanel.RightOf="Search_Infos" RelativePanel.Below="Table_Stu_Info_Header" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible" >
+                    <StackPanel>
+                        <!--Header-->
+                        <StackPanel Orientation="Horizontal" Spacing="10" Background="Green">
+
+                            <TextBlock Text="ID" Width="50"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Collapsed"/>
+                            <TextBlock Text="រូបភាព" Width="60" Margin="40,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខសម្គាល់" Width="80"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="គោត្តនាម" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="នាម" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ត្រកូល(ឡាតាំង)" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឈ្មោះ(ឡាតាំង)" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ថ្ងៃខែឆ្នាំកំណើត" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ជំនាញ" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឆ្នាំទី" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="កម្រិតសិក្សា" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="វេនសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឆមាស" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ប្រភេទសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ស្ថានភាពគ្រួសារ" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខទូរស័ព្ទ (0)" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខអត្តសញ្ញាណប័ណ្ណ" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="មកពីសាលា/វិទ្យាល័យ" Width="240" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="មុខរបរសិស្សនិស្សិត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ភូមិកំណើត" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឃុំ/សង្កាត់កំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ស្រុក/ខណ្ឌកំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="រាជធានី/ខេត្តកំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ភូមិរស់នៅបច្ចុប្បន្ន" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឃុំ/សង្កាត់រស់នៅបច្ចុប្បន្ន" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ស្រុក/ខណ្ឌរស់នៅបច្ចុប្បន្ន" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="រាជធានី/ខេត្តរស់នៅបច្ចុប្បន្ន" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឈ្មោះម្ដាយ" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="មុខរបរម្ដាយ" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខទូរស័ព្ទម្ដាយ(0)" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឈ្មោះឪពុក" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="មុខរបរឪពុក" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខទូរស័ព្ទឪពុក(0)" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="រូបថតសិស្សនិស្សិត" Width="180" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ទិន្នន័យរូបសិស្សនិស្សិត" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ចំនួនរូបថតធំ(4x6)" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ចំនួនរូបថតតូច(3x4)" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="សញ្ញាបត្រ" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ទិន្នន័យរូបសញ្ញាបត្រ" Width="210" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="សំបុត្រកំណើត" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ទិន្នន័យរូបសំបុត្រកំណើត" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="អត្តសញ្ញាណប័ណ្ណ" Width="180" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ទិន្នន័យរូបអត្តសញ្ញាណប័ណ្ណ" Width="210" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ប័ណ្ណក្រីក្រ" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ទិន្នន័យរូបប័ណ្ណក្រីក្រ" Width="230" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="អ្នកបញ្ចូលទិន្នន័យ" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="កាលបរិច្ឆេទបញ្ចូល" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="អ្នកធ្វើបច្ចុប្បន្នភាពចុងក្រោយ" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="កាលបរិច្ឆេទធ្វើបច្ចុប្បន្នភាពចុងក្រោយ" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                        </StackPanel>
+                        <ListView ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
+                                        <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
+                                        <TextBlock Text="{Binding ID}" Width="30" Visibility="Collapsed"/>
+                                        <TextBlock Text="{Binding Stu_ID}" Width="100"/>
+                                        <TextBlock Text="{Binding Stu_FirstName_KH}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_LastName_KH}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_FirstName_EN}" Width="90"/>
+                                        <TextBlock Text="{Binding Stu_LastName_EN}" Width="90"/>
+                                        <TextBlock Text="{Binding Stu_Gender}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_BirthdayDateOnly}" Width="90"/>
+                                        <TextBlock Text="{Binding Stu_EducationSubjects}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StudyingTime}" Width="50"/>
+                                        <TextBlock Text="{Binding Stu_EducationLevels }" Width="70" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StudyTimeShift}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Semester}" Width="80"/>
+                                        <TextBlock Text="{Binding Stu_EducationType}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StateFamily }" Width="60" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_PhoneNumber}" Width="120"/>
+                                        <TextBlock Text="{Binding Stu_NationalID}" Width="130"/>
+                                        <TextBlock Text="{Binding Stu_School}" Width="270" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Jobs}" Width="90"/>
+                                        <TextBlock Text="{Binding Stu_Birth_Village}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Birth_Commune}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Birth_Distric}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Birth_Province }" Width="130" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Live_Vill}" Width="130" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Live_Comm}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Live_Dis}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Live_Pro }" Width="130" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Mother_Name}" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Mother_Job}" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Mother_Phone }" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Father_Name }" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Father_Job}" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Father_Phone}" Width="125" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Image_YesNo}" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Image_Source}" Width="300" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Image_Total_Big}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Image_TotalSmall}" Width="70" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Images_Degree_Yes_No}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Image_Degree_Source}" Width="300" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImageBirth_Cert_YesNo}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImageBirth_Cert_Source}" Width="300" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImageIDNation_YesNo}" Width="80" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImageIDNation_Source}" Width="300" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImagePoor_Card_YesNo}" Width="80" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_ImagePoor_Card_Source}" Width="300" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Insert_by_ID}" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Insert_DateTime}" Width="200" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Update_By_ID}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Update_DateTime}" Width="200" Style="{StaticResource Font_KH_Body}"/>
+                                    </StackPanel>
+
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </ScrollView>
+            </RelativePanel>
+        </Grid>
+    </Grid>
+</Page>

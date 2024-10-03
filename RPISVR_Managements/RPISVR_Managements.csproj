@@ -1,0 +1,340 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>RPISVR_Managements</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Addition_Informations\Add_Education_Levels.xaml" />
+    <None Remove="Addition_Informations\Add_Education_Skill.xaml" />
+    <None Remove="Addition_Informations\Add_StudyTimeShift.xaml" />
+    <None Remove="Addition_Informations\Add_TypeStudy.xaml" />
+    <None Remove="Administrative_letter\Certificate_of_Education_Info.xaml" />
+    <None Remove="Administrative_letter\Provision_Certificate_Info.xaml" />
+    <None Remove="Administrative_letter\Transcript_of_Study _Records_Info.xaml" />
+    <None Remove="Attendance\Attendance_Report\Report_Attendance_All.xaml" />
+    <None Remove="Attendance\Attendance_Report\Report_Attendance_Teacher_Late.xaml" />
+    <None Remove="Attendance\Attendance_Student\Check_Attendance_Students.xaml" />
+    <None Remove="Attendance\Attendance_Student\Insert_Attendance_Students.xaml" />
+    <None Remove="Attendance\Attendance_Teacher\Check_Attendance_Teacher.xaml" />
+    <None Remove="Attendance\Attendance_Teacher\Insert_Attendance_Teacher.xaml" />
+    <None Remove="Classroom\Add_Classroom\Add_Classrooms.xaml" />
+    <None Remove="Classroom\Check_Classroom\CheckClassInfo_Classroom.xaml" />
+    <None Remove="Classroom\Prepare_Classroom\Prepare_Classroom_S.xaml" />
+    <None Remove="Dialog_Control\DeleteConfirmationDialog.xaml" />
+    <None Remove="Home\HomePage.xaml" />
+    <None Remove="List_and_Reports\Curriculum\Curriculum_Info.xaml" />
+    <None Remove="List_and_Reports\List_of_skill_levels_and_shifts\List_of_skill_levels_and_shifts_Info.xaml" />
+    <None Remove="List_and_Reports\Monthly_Report\Monthly_Report_Info.xaml" />
+    <None Remove="List_and_Reports\Schedule\Schedule_Info.xaml" />
+    <None Remove="List_and_Reports\Semi-Annual Report\Semi_Annual_Report_Info.xaml" />
+    <None Remove="List_and_Reports\Students_Name_Table\Student_Name_Table_Info.xaml" />
+    <None Remove="List_and_Reports\Students_Report\Students_Reports.xaml" />
+    <None Remove="List_and_Reports\Student_Exam_Result\Student_Exam_Result_Info.xaml" />
+    <None Remove="List_and_Reports\Student_Score\Student_Score_Table_Info.xaml" />
+    <None Remove="List_and_Reports\Teacher_Time_Teach\Teacher_Time_Teach_Info.xaml" />
+    <None Remove="List_and_Reports\Time_Table_Information\Time_Table_Info.xaml" />
+    <None Remove="List_and_Reports\Yearly_Report\Annual_Report_Info.xaml" />
+    <None Remove="Request_Attendance\Report_Request_Attendance\Report_Request_Attendance_Info.xaml" />
+    <None Remove="Request_Attendance\Request_Attendance_Student\Check_Request_Attendance_Student_Info.xaml" />
+    <None Remove="Request_Attendance\Request_Attendance_Student\Request_Attendance_Student_Info.xaml" />
+    <None Remove="Request_Attendance\Request_Attendance_Teacher\Check_Request_Attendance_Info.xaml" />
+    <None Remove="Request_Attendance\Request_Attendance_Teacher\Request_Attendance_Teacher_Info.xaml" />
+    <None Remove="Setting\System_Setting\Setting_In_Database.xaml" />
+    <None Remove="Setting\System_Setting\Setting_In_System.xaml" />
+    <None Remove="Setting\System_Setting\System_Settings.xaml" />
+    <None Remove="Student_Informations\Check_Student_Informations\Check_Student_Info.xaml" />
+    <None Remove="Student_Informations\Insert_Student_Informations\Insert_Student_Info.xaml" />
+    <None Remove="Student_Informations\Report_Student_Informations\Report_Student_Info.xaml" />
+    <None Remove="Student_Score\Check_Student_Score\Check_Student_Score_Info.xaml" />
+    <None Remove="Student_Score\Insert_Student_Score\Insert_Student_Score_Info.xaml" />
+    <None Remove="Student_Score\Report_Student_Score\Report_Student_Score_Info.xaml" />
+    <None Remove="System_Helps\System_Helps_Info.xaml" />
+    <None Remove="Teacher_Information\Check_Teacher_Information\Check_Teacher_Info.xaml" />
+    <None Remove="Teacher_Information\Insert_Teacher_Information\Insert_Teacher_Info.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000" />
+    <PackageReference Include="MySql.Data" Version="9.0.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Student_Info_Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Dialog_Control\DeleteConfirmationDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Addition_Informations\Add_TypeStudy.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Addition_Informations\Add_StudyTimeShift.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Addition_Informations\Add_Education_Skill.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Addition_Informations\Add_Education_Levels.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Setting\System_Setting\Setting_In_Database.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Setting\System_Setting\Setting_In_System.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="System_Helps\System_Helps_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Yearly_Report\Annual_Report_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Semi-Annual Report\Semi_Annual_Report_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Monthly_Report\Monthly_Report_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Curriculum\Curriculum_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Schedule\Schedule_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\List_of_skill_levels_and_shifts\List_of_skill_levels_and_shifts_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Time_Table_Information\Time_Table_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Teacher_Time_Teach\Teacher_Time_Teach_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Student_Score\Student_Score_Table_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Student_Exam_Result\Student_Exam_Result_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Students_Name_Table\Student_Name_Table_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Administrative_letter\Provision_Certificate_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Administrative_letter\Transcript_of_Study _Records_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Administrative_letter\Certificate_of_Education_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Teacher_Information\Check_Teacher_Information\Check_Teacher_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Teacher_Information\Insert_Teacher_Information\Insert_Teacher_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Request_Attendance\Report_Request_Attendance\Report_Request_Attendance_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Request_Attendance\Request_Attendance_Student\Check_Request_Attendance_Student_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Request_Attendance\Request_Attendance_Student\Request_Attendance_Student_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Request_Attendance\Request_Attendance_Teacher\Check_Request_Attendance_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Request_Attendance\Request_Attendance_Teacher\Request_Attendance_Teacher_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Report\Report_Attendance_All.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Report\Report_Attendance_Teacher_Late.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Teacher\Check_Attendance_Teacher.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Teacher\Insert_Attendance_Teacher.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Student\Check_Attendance_Students.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Attendance\Attendance_Student\Insert_Attendance_Students.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Score\Report_Student_Score\Report_Student_Score_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Score\Check_Student_Score\Check_Student_Score_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Score\Insert_Student_Score\Insert_Student_Score_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Classroom\Check_Classroom\CheckClassInfo_Classroom.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Classroom\Prepare_Classroom\Prepare_Classroom_S.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Classroom\Add_Classroom\Add_Classrooms.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Informations\Report_Student_Informations\Report_Student_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="List_and_Reports\Students_Report\Students_Reports.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Informations\Check_Student_Informations\Check_Student_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Home\HomePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Setting\System_Setting\System_Settings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Informations\Insert_Student_Informations\Insert_Student_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <!--
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+</Project>

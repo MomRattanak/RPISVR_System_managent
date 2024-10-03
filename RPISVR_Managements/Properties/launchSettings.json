@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RPISVR_Managements (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RPISVR_Managements (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

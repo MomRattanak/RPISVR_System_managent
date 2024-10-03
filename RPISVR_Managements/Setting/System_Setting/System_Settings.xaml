@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="RPISVR_Managements.Setting.System_Setting.System_Settings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RPISVR_Managements.Setting.System_Setting"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Top_Information" Height="120"/>
+            <RowDefinition x:Name="Setting_Data_Info" Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!--Top Information-->
+        <StackPanel Orientation="Vertical" Margin="0,10,0,10" Grid.Row="0">
+            <Grid Background="{StaticResource ControlFillColorDefaultBrush}" CornerRadius="5">
+                <!--Setting User Image and Name-->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Source="/Assets/RPISSVR_logo.png" Width="100" Height="100" />
+                
+                <!--User name and model-->
+                <StackPanel Grid.Column="1" Margin="10,10,0,0">
+                    <TextBlock x:Name="Setting_RPI_Name"
+                               Text="វិទ្យាស្ថានពហុបច្ចេកទេសភូមិភាគតេជោសែនស្វាយរៀង"
+                               Style="{StaticResource Font_KH_Title}"
+                               FontSize="16" 
+                               FontWeight="Bold"/>
+                    <TextBlock x:Name="setting_user_name"
+                               Text="ឈ្មោះ មុំ រតនៈ"
+                               Style="{StaticResource Font_KH_Body}" 
+                               FontSize="12" 
+                               />
+                    <TextBlock x:Name="setting_user_role"
+                               Text="តួនាទី និស្សិត"
+                               Style="{StaticResource Font_KH_Body}"
+                               FontSize="12" 
+                              />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Margin="10,20,15,0">
+                    <RelativePanel>
+                        <StackPanel x:Name="setting_network_connect" HorizontalAlignment="Center">
+                            <Image Source="{Binding ImageSource}" Width="30" Height="30" Stretch="Uniform" />
+                            <TextBlock Text="{Binding Message}" Style="{StaticResource Font_KH_Body}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel x:Name="setting_database_connect" RelativePanel.RightOf="setting_network_connect" Margin="10,0,0,0">
+                            <ImageIcon Source="{Binding ImageSourceDatabase}" Width="30" Height="30"/>
+                            <TextBlock Text="{Binding  ConnectionStatus}" Style="{StaticResource Font_KH_Body}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </RelativePanel>
+                </StackPanel>
+                
+            </Grid>
+        </StackPanel>
+
+        <Grid  Background="{StaticResource ControlFillColorDefaultBrush}" CornerRadius="5" Margin="0,0,0,0" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="Text_Info" Height="50"/>
+                <RowDefinition x:Name="Scroll_Data_Info" Height="*"/>
+            </Grid.RowDefinitions>
+            
+                <TextBlock x:Name="Setting_Text" Text="ការកំណត់" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="SemiBold" Margin="10,10,10,0" Grid.Row="0"/>
+            <ScrollViewer x:Name="Scroll_Setting_Data_Info"
+                            VerticalScrollMode="Enabled"
+                            VerticalScrollBarVisibility="Auto" 
+                            Grid.Row="1">
+                <StackPanel>
+                    <Expander x:Name="Setting_in_system" HorizontalAlignment="Stretch" Grid.Row="1">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/Setting/icons8-settings-48.png" Width="28" Height="28"/>
+                            <TextBlock Text="ការកំណត់ទូទៅនៅក្នុងប្រព័ន្ធ"                                       
+                                         Padding="10,5,0,0"
+                                         Style="{StaticResource Font_KH_Body}"/>
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <Expander.Content>
+                            <Grid HorizontalAlignment="Left">
+                                <StackPanel HorizontalAlignment="Left" Margin="10" Grid.Column="0">
+                                    <ComboBox x:Name="ThemeComboBox" Header="ពណ៌ផ្ទៃរបស់កម្មវិធី" SelectionChanged="ThemeComboBox_SelectionChanged" Style="{StaticResource Stye_KH_Combobox}" Width="150">
+                                        <ComboBoxItem Content="ពណ៌ស" />
+                                        <ComboBoxItem Content="ពណ៌ខ្មៅ" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Left" Margin="10" Grid.Column="1">
+                                    <ComboBox x:Name="ThemeComboBox1" Header="ពណ៌ផ្ទៃរបស់កម្មវិធី" SelectionChanged="ThemeComboBox_SelectionChanged" Style="{StaticResource Stye_KH_Combobox}" Width="150">
+                                        <ComboBoxItem Content="ពណ៌ស" />
+                                        <ComboBoxItem Content="ពណ៌ខ្មៅ" IsSelected="True"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+                                
+                                
+                            
+                    </Expander.Content>
+                </Expander>
+
+                <Expander x:Name="Setting_in_Database" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/Setting/icons8-database-administrator-48.png" Width="28" Height="28"/>
+                            <TextBlock Text="ការកំណត់នៅក្នុងប្រព័ន្ធទិន្នន័យ"                                       
+                                         Padding="10,5,0,0"
+                                         Style="{StaticResource Font_KH_Body}"/>
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <Expander.Content>
+          
+                            <Grid  BorderBrush="Aqua" BorderThickness="2" CornerRadius="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                           
+                                <StackPanel>
+                                    
+                                
+                                    <Grid HorizontalAlignment="Left">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Left StackPanel for Local Connection -->
+                                        <StackPanel x:Name="Setting_Connect_Local" Grid.Column="0" HorizontalAlignment="Left">
+                                            <Image Source="{Binding ImageSource}" Height="100" Width="100" Stretch="Uniform"/>
+                                            <TextBox x:Name="Setting_Network_Text" Text="{Binding Message,Mode=TwoWay}" Style="{StaticResource Style_KH_TextBox}" IsReadOnly="True"/>
+                                            <Button Click="Btn_Click_Test_NetworkAsync" Margin="10,20,10,10" Background="#605EFF">
+                                                <Button.Resources>
+                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#2440F2" />
+                                                </Button.Resources>
+                                                <StackPanel>
+                                                    <TextBlock Text="តេស្ដការតភ្ជាប់បណ្ដាញ"
+                                                                Style="{StaticResource Font_KH_Body}"/>
+                                                </StackPanel>
+                                                
+                                            </Button>
+                                        </StackPanel>
+
+                                        <!-- Right StackPanel for Online Connection -->
+                                        <StackPanel x:Name="Setting_Connect_Database1" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left">
+                                            <Image Source="{Binding ImageSourceDatabase}" Height="100" Width="100" Stretch="Uniform"/>
+                                            <TextBox x:Name="Setting_Database_Text" Text="{Binding ConnectionStatus,Mode=TwoWay}" Style="{StaticResource Style_KH_TextBox}" IsReadOnly="True"/>
+                                            <Button Command="{Binding TestConnectionCommand}" Margin="10,20,10,10" Background="#605EFF">
+                                                <Button.Resources>
+                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#2440F2" />
+                                                </Button.Resources>
+                                                <StackPanel>
+                                                    <TextBlock Text="តេស្ដការតភ្ជាប់ទិន្នន័យ"
+                                                            Style="{StaticResource Font_KH_Body}"/>
+                                                </StackPanel>
+
+                                            </Button>
+                                        </StackPanel>
+                                       
+                                    </Grid>
+                                </StackPanel>
+                            
+                            </Grid>
+                        
+                        </Expander.Content>
+
+                    </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+            <!-- Frame to host the content -->
+           
+        
+        
+
+        
+    </Grid>
+   
+</Page>
