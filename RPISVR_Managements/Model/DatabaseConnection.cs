@@ -934,5 +934,179 @@ namespace RPISVR_Managements.Model
         }
         //End Education Skill
 
+        //Start Education StudyTimeShift
+        //Method to Insert_Education_StudyTimeShifts to Database 
+        public bool Insert_Education_StudyTimeShifts(Education_StudyTimeShift education_studytimeshift_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO education_studytimeshift_info(edu_studytimeshift_id, edu_studytimeshift_name_kh, edu_studytimeshift_name_en, edu_studytimeshift_name_short)" +
+                        "VALUES (@edu_studytimeshift_id,@edu_studytimeshift_name_kh,@edu_studytimeshift_name_en,@edu_studytimeshift_name_short)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_id", education_studytimeshift_info.StudyTimeShift_ID);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_kh", education_studytimeshift_info.StudyTimeShift_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_en", education_studytimeshift_info.StudyTimeShift_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_short", education_studytimeshift_info.StudyTimeShift_Name_Short);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Insert Education_StudyTimeShift Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Get STS_ID
+        public (int STS_ID, string StudyTimeShift_ID) Get_STS_ID_and_StudyTimeShift_ID()
+        {
+            int STS_ID = 0;
+            string Last_StudyTimeShift_ID = "EDU_ST000";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(ID) AS ID, MAX(edu_studytimeshift_id) AS Last_StudyTimeShift_ID FROM education_studytimeshift_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            STS_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("ID");
+                            Last_StudyTimeShift_ID = reader.IsDBNull(1) ? "EDU_ST000" : reader.GetString("Last_StudyTimeShift_ID");
+                        }
+                    }
+                }
+            }
+            STS_ID++;
+            string StudyTimeShift_ID = IncrementStudyTimeShift_ID(Last_StudyTimeShift_ID);
+
+            return (STS_ID, StudyTimeShift_ID);
+        }
+        //Method to Increase Skill_ID
+        public string IncrementStudyTimeShift_ID(String currentStudyTimeShift_ID)
+        {
+            // Assuming the format is always "EDU_ST" + 3-digit number
+            string prefix = "EDU_ST";
+            string numericPart = currentStudyTimeShift_ID.Substring(6); // Extract the numeric part after "EDU_ST"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string StudyTimeShift_ID = prefix + newNumericPart;
+            return StudyTimeShift_ID;
+        }
+        //Method to fetch education_studytimeshift Information
+        public List<Education_StudyTimeShift> LoadEducation_StudyTimeShift()
+        {
+            Debug.WriteLine("Starting LoadEducation_StudyTimeShift method...");
+            List<Education_StudyTimeShift> education_studytimeshift_info = new List<Education_StudyTimeShift>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    Debug.WriteLine("Database connection established.");
+
+                    string query = "SELECT edu_studytimeshift_id, edu_studytimeshift_name_kh, edu_studytimeshift_name_en, edu_studytimeshift_name_short FROM education_studytimeshift_info ORDER BY edu_studytimeshift_id DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Education_StudyTimeShift education_studytimeshifts = new Education_StudyTimeShift()
+                                {
+                                    StudyTimeShift_ID = reader.GetString("edu_studytimeshift_id"),
+                                    StudyTimeShift_Name_KH = reader.IsDBNull(reader.GetOrdinal("edu_studytimeshift_name_kh")) ? string.Empty : reader.GetString("edu_studytimeshift_name_kh"),
+                                    StudyTimeShift_Name_EN = reader.IsDBNull(reader.GetOrdinal("edu_studytimeshift_name_en")) ? string.Empty : reader.GetString("edu_studytimeshift_name_en"),
+                                    StudyTimeShift_Name_Short = reader.IsDBNull(reader.GetOrdinal("edu_studytimeshift_name_short")) ? string.Empty : reader.GetString("edu_studytimeshift_name_short"),
+                                };
+                                education_studytimeshift_info.Add(education_studytimeshifts);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Education_StudyTimeShifts loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql LoadEducation_Skills Error: " + ex.ToString());
+            }
+
+            Debug.WriteLine("Exiting LoadEducation_Skill method...");
+            return education_studytimeshift_info;
+        }
+        //Update Education_StudyTimeShift
+        public bool Update_Education_StudyTimeShift_Information(Education_StudyTimeShift education_studytimeshift_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE education_studytimeshift_info SET edu_studytimeshift_name_kh = @edu_studytimeshift_name_kh,edu_studytimeshift_name_en = @edu_studytimeshift_name_en,edu_studytimeshift_name_short = @edu_studytimeshift_name_short WHERE edu_studytimeshift_id = @edu_studytimeshift_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_id", education_studytimeshift_info.StudyTimeShift_ID);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_kh", education_studytimeshift_info.StudyTimeShift_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_en", education_studytimeshift_info.StudyTimeShift_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_name_short", education_studytimeshift_info.StudyTimeShift_Name_Short);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Education_StudyTimeShift Error: " + ex.ToString());
+                return false;
+            }
+        }
+        // Delete Education_StudyTimeShift
+        public bool Delete_Education_StudyTimeShift_Information(Education_StudyTimeShift education_studytimeshift_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM education_studytimeshift_info WHERE edu_studytimeshift_id = @edu_studytimeshift_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_studytimeshift_id", education_studytimeshift_info.StudyTimeShift_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Delete Education_Skill Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //End Education_StudyTimeShift
     }
 }
