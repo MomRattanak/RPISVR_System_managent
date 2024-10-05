@@ -18,6 +18,7 @@ using MySql.Data.MySqlClient;
 using Microsoft.UI.Xaml.Controls;
 using RPISVR_Managements.Dialog_Control;
 using Microsoft.UI.Xaml;
+using System.Diagnostics.Eventing.Reader;
 
 namespace RPISVR_Managements.ViewModel
 {
@@ -28,10 +29,14 @@ namespace RPISVR_Managements.ViewModel
         //Data in ListView
         private ObservableCollection<Education_Levels> _education_level;
         private ObservableCollection<Education_Skills> _education_skill;
+        private ObservableCollection<Education_StudyTimeShift> _education_studytimeshift;
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
-        //Get_Lasr_Sk_ID
+        //Get_Last_Sk_ID
         private DatabaseConnection _education_SkillModel;
+        //Get_Last_STS_ID
+        private DatabaseConnection _education_StudyTimeShiftModel;
+
         //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
         public ICommand ClearCommand_Education_Level { get; }
@@ -40,6 +45,10 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand_Add_Skill_Information { get; }
         public ICommand ClearCommand_Education_Skill { get; }
         public ICommand DeleteCommand_Education_Skill { get; }
+        //Command Education_StudyTimeShift
+        public ICommand SubmitCommand_Add_StudyTimeShift_Information { get; }
+        public ICommand ClearCommand_Education_StudyTimeShift { get; }
+        public ICommand DeleteCommand_Education_StudyTimeShift { get; }
 
 
         public AdditioinInformationViewModel()
@@ -80,10 +89,97 @@ namespace RPISVR_Managements.ViewModel
             var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
             Sk_ID = sk_id;
             Skill_ID = edu_skill_id;
-            Debug.WriteLine("Sk_ID: " + Sk_ID);
-            Debug.WriteLine("Skill_ID: " + Skill_ID);
 
-
+            //Education_StudyTimeShift Mode
+            //Submit Command
+            SubmitCommand_Add_StudyTimeShift_Information = new RelayCommand(async () => await SubmitAsync_Education_StudyTimeShifts());
+            //Clear Command
+            ClearCommand_Education_StudyTimeShift = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Education_StudyTimeShift = new RelayCommand(async () => await Delete_Education_StudyTimeShift_Info());
+            //Data to ListView
+            Education_StudyTimeShift_ListView = new ObservableCollection<Education_StudyTimeShift>();
+            //Load Data to ListView
+            LoadEducation_StudyTimeShift();
+            //Get STS_ID
+            _education_StudyTimeShiftModel = new DatabaseConnection();
+            var (sts_id, studytimeshift_id) = _education_StudyTimeShiftModel.Get_STS_ID_and_StudyTimeShift_ID();
+            STS_ID = sts_id;
+            StudyTimeShift_ID = studytimeshift_id;
+            Debug.WriteLine("STS_ID: " + STS_ID);
+            Debug.WriteLine("StudyTimeShift_ID: " + StudyTimeShift_ID);
+        }
+        //STS_ID
+        private int _STS_ID;
+        public int STS_ID
+        {
+            get => _STS_ID;
+            set
+            {
+                if (_STS_ID != value)
+                {
+                    _STS_ID = value;
+                    OnPropertyChanged(nameof(STS_ID));
+                }
+            }
+        }
+        //StudyTimeShift_ID
+        private string _StudyTimeShift_ID;
+        public string StudyTimeShift_ID
+        {
+            get => _StudyTimeShift_ID;
+            set
+            {
+                if (_StudyTimeShift_ID != value)
+                {
+                    _StudyTimeShift_ID = value;
+                    OnPropertyChanged(nameof(StudyTimeShift_ID));
+                    ValidateStudyTimeShift_ID();
+                }
+            }
+        }
+        //StudyTimeShift_Name_KH
+        private string _StudyTimeShift_Name_KH;
+        public string StudyTimeShift_Name_KH
+        {
+            get => _StudyTimeShift_Name_KH;
+            set
+            {
+                if (_StudyTimeShift_Name_KH != value)
+                {
+                    _StudyTimeShift_Name_KH = value;
+                    OnPropertyChanged(nameof(StudyTimeShift_Name_KH));
+                    ValidateStudyTimeShift_Name_KH();
+                }
+            }
+        }
+        //StudyTimeShift_Name_EN
+        private string _StudyTimeShift_Name_EN;
+        public string StudyTimeShift_Name_EN
+        {
+            get => _StudyTimeShift_Name_EN;
+            set
+            {
+                if (_StudyTimeShift_Name_EN != value)
+                {
+                    _StudyTimeShift_Name_EN = value;
+                    OnPropertyChanged(nameof(StudyTimeShift_Name_EN));
+                }
+            }
+        }
+        //StudyTimeShift_Name_Short
+        private string _StudyTimeShift_Name_Short;
+        public string StudyTimeShift_Name_Short
+        {
+            get => _StudyTimeShift_Name_Short;
+            set
+            {
+                if (_StudyTimeShift_Name_Short != value)
+                {
+                    _StudyTimeShift_Name_Short = value;
+                    OnPropertyChanged(nameof(StudyTimeShift_Name_Short));
+                }
+            }
         }
         //Sk_ID
         private int _sk_id;
@@ -297,6 +393,50 @@ namespace RPISVR_Managements.ViewModel
                 Skill_Name_ENBorderBrush = new SolidColorBrush(Colors.Green);
             }
         }
+        //Real-time validation method StudyTimeShift_ID
+        public SolidColorBrush StudyTimeShift_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(StudyTimeShift_IDBorderBrush));
+            }
+        }
+        //ValidateStudyTimeShift_ID
+        private void ValidateStudyTimeShift_ID()
+        {
+            if (string.IsNullOrEmpty(StudyTimeShift_ID))
+            {
+                StudyTimeShift_IDBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                StudyTimeShift_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method StudyTimeShift_Name_KH
+        public SolidColorBrush StudyTimeShift_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(StudyTimeShift_Name_KHBorderBrush));
+            }
+        }
+        //ValidateStudyTimeShift_Name_KH
+        private void ValidateStudyTimeShift_Name_KH()
+        {
+            if (string.IsNullOrEmpty(StudyTimeShift_Name_KH))
+            {
+                StudyTimeShift_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                StudyTimeShift_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
         //Color Border Error in Input Box.
         private SolidColorBrush _ErrorBorderBrush = new SolidColorBrush(Colors.Transparent); // Default transparent border
         //Update Color
@@ -379,6 +519,34 @@ namespace RPISVR_Managements.ViewModel
                 EduLevelNameKHBorderBrush = new SolidColorBrush(Colors.Green);
             }
         }
+        //DeleteEducation_StudyTimeShiftfromDatabase
+        public void Delete_Education_StudyTimeShifts()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteEducation_StudyTimeShift = Education_StudyTimeShift_ListView.FirstOrDefault(s => s.StudyTimeShift_ID == StudyTimeShift_ID);
+            if (DeleteEducation_StudyTimeShift != null)
+            {
+                DeleteEducation_StudyTimeShift.StudyTimeShift_ID = StudyTimeShift_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_Education_StudyTimeShift_Information(DeleteEducation_StudyTimeShift);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + StudyTimeShift_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + StudyTimeShift_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
         //DeleteEducation_SkillfromDatabase
         public void Delete_Education_Skills()
         {
@@ -435,6 +603,58 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
             }
         }
+        //SaveEducation_StudyTimeShifttoDatabase
+        public void SaveEducation_StudyTimeShifts()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            //Update Mode
+            var UpdateEducation_StudyTimeShift = Education_StudyTimeShift_ListView.FirstOrDefault(s => s.StudyTimeShift_ID == StudyTimeShift_ID);
+            //Education_StudyTimeShift_ListView Get from top (Selected ListView).
+            if (UpdateEducation_StudyTimeShift != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateEducation_StudyTimeShift.StudyTimeShift_ID = StudyTimeShift_ID;
+                UpdateEducation_StudyTimeShift.StudyTimeShift_Name_KH = StudyTimeShift_Name_KH;
+                UpdateEducation_StudyTimeShift.StudyTimeShift_Name_EN = StudyTimeShift_Name_EN;
+                UpdateEducation_StudyTimeShift.StudyTimeShift_Name_Short = StudyTimeShift_Name_Short;
+
+                bool sucess = dbConnection.Update_Education_StudyTimeShift_Information(UpdateEducation_StudyTimeShift);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + StudyTimeShift_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + StudyTimeShift_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Education_StudyTimeShift education_studytimeshift_info = new Education_StudyTimeShift
+                {
+                    StudyTimeShift_ID = this.StudyTimeShift_ID,
+                    StudyTimeShift_Name_KH = this.StudyTimeShift_Name_KH,
+                    StudyTimeShift_Name_EN = this.StudyTimeShift_Name_EN,
+                    StudyTimeShift_Name_Short = this.StudyTimeShift_Name_Short,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Education_StudyTimeShifts(education_studytimeshift_info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+            
+                
+        }
         //SaveEducation_SkilltoDatabase
         public void Save_Education_Skills()
         {
@@ -485,22 +705,40 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
-        //Method to get data to ListView
-        //Data to ListView
-        //private ObservableCollection<Education_Skills> _education_skill;
-        public ObservableCollection<Education_Skills> Education_Skill_ListView
+        
+        //SubmitAsync_Education_StudyTimeShifts
+        public async Task SubmitAsync_Education_StudyTimeShifts()
         {
-            get => _education_skill;
-            set
+            ValidateStudyTimeShift_ID();
+            ValidateStudyTimeShift_Name_KH();
+
+            //Validate StudyTimeShift_ID
+            if (string.IsNullOrEmpty(StudyTimeShift_ID))
             {
-                _education_skill = value;
-                OnPropertyChanged(nameof(Education_Skill_ListView));  // Notify the UI when the Students collection changes
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
             }
+            //Validate StudyTimeShift_Name_KH
+            if (string.IsNullOrEmpty(StudyTimeShift_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល វេនសិក្សា";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Debug.WriteLine($"ID: " + StudyTimeShift_ID);
+            Debug.WriteLine($"Name: " + StudyTimeShift_Name_KH);
+
+            SaveEducation_StudyTimeShifts();
+            LoadEducation_StudyTimeShift();
+            Clear_Education_StudyTimeShift();
+            await Task.CompletedTask;
         }
-        //
+
+        //SubmitAsync_Education_Skills
         public async Task SubmitAsync_Education_Skills()
         {
-            Debug.WriteLine("Test Command");
             ValidateEdu_Skill_ID();
             ValidateSkill_Name_KH();
 
@@ -598,7 +836,13 @@ namespace RPISVR_Managements.ViewModel
             LoadEducation_Skills();
             await Task.CompletedTask;
         }
-
+        public async Task Delete_Education_StudyTimeShift_Info()
+        {
+            Delete_Education_StudyTimeShifts();
+            Clear_Education_StudyTimeShift();
+            LoadEducation_StudyTimeShift();
+            await Task.CompletedTask;
+        }
         public async Task SubmitAsync_Education_Levels()
         {
            ValidateEdu_Level_ID();
@@ -640,9 +884,24 @@ namespace RPISVR_Managements.ViewModel
         {
             Clear_Education_Level_Text();
             Clear_Education_Skill_Text();
+            Clear_Education_StudyTimeShift();
             await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Education_StudyTimeShift()
+        {
+            //Get STS_ID
+            _education_StudyTimeShiftModel = new DatabaseConnection();
+            var (sts_id, studytimeshift_id) = _education_StudyTimeShiftModel.Get_STS_ID_and_StudyTimeShift_ID();
+            STS_ID = sts_id;
+            StudyTimeShift_ID = studytimeshift_id;
+            Debug.WriteLine("STS_ID: " + STS_ID);
+            Debug.WriteLine("StudyTimeShift_ID: " + StudyTimeShift_ID);
+            //Skill_ID = string.Empty;
+            StudyTimeShift_Name_KH = string.Empty;
+            StudyTimeShift_Name_EN = string.Empty;
+            StudyTimeShift_Name_Short = string.Empty;
+        }
         public void Clear_Education_Skill_Text()
         {
             //Get Edu_ID
@@ -675,7 +934,24 @@ namespace RPISVR_Managements.ViewModel
 
         //Method to get data to ListView
         //Data to ListView
-        //private ObservableCollection<Education_Levels> _education_level;
+        public ObservableCollection<Education_StudyTimeShift> Education_StudyTimeShift_ListView
+        {
+            get => _education_studytimeshift;
+            set
+            {
+                _education_studytimeshift = value;
+                OnPropertyChanged(nameof(Education_StudyTimeShift_ListView));  // Notify the UI when the Students collection changes
+            }
+        } 
+        public ObservableCollection<Education_Skills> Education_Skill_ListView
+        {
+            get => _education_skill;
+            set
+            {
+                _education_skill = value;
+                OnPropertyChanged(nameof(Education_Skill_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
         public ObservableCollection<Education_Levels> Education_Level_ListView
         {
             get => _education_level;
@@ -683,6 +959,28 @@ namespace RPISVR_Managements.ViewModel
             {
                 _education_level = value;
                 OnPropertyChanged(nameof(Education_Level_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //Load Education_StutyTimeShift
+        private void LoadEducation_StudyTimeShift()
+        {
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+            var education_studytimeshift_list = _dbConnection.LoadEducation_StudyTimeShift();
+            if (education_studytimeshift_list != null && education_studytimeshift_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Education_StudyTimeShift_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var education_studytimeshift in education_studytimeshift_list)
+                {
+                    Education_StudyTimeShift_ListView.Add(education_studytimeshift);
+                }
+                Education_StudyTimeShift_ListView = new ObservableCollection<Education_StudyTimeShift>(education_studytimeshift_list);
             }
         }
         //Load Education_Skill
@@ -736,7 +1034,27 @@ namespace RPISVR_Managements.ViewModel
                 Debug.WriteLine("No education levels found.");
             }
         }
-        //Select Education Skill in the ListView
+
+        //Select Education StudyTimeShift in to the ListView
+        private Education_StudyTimeShift _selectedEducation_StudyTimeShift;
+        public Education_StudyTimeShift SelectedEducation_StudyTimeShift
+        {
+            get => _selectedEducation_StudyTimeShift;
+            set
+            {
+                _selectedEducation_StudyTimeShift = value;
+                OnPropertyChanged();
+                if(_selectedEducation_StudyTimeShift != null)
+                {
+                    StudyTimeShift_ID = _selectedEducation_StudyTimeShift.StudyTimeShift_ID;
+                    StudyTimeShift_Name_KH = _selectedEducation_StudyTimeShift.StudyTimeShift_Name_KH;
+                    StudyTimeShift_Name_EN = _selectedEducation_StudyTimeShift .StudyTimeShift_Name_EN;
+                    StudyTimeShift_Name_Short = _selectedEducation_StudyTimeShift.StudyTimeShift_Name_Short;
+                }
+                OnPropertyChanged(nameof(SelectedEducation_StudyTimeShift));
+            }
+        }
+        //Select Education Skill in to the ListView
         private Education_Skills _selectedEducation_Skill;
         public Education_Skills SelectedEducation_Skill
         {

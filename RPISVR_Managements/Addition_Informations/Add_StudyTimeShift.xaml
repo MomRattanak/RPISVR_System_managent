@@ -20,65 +20,86 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel x:Name="Top" Grid.Column="0" Grid.Row="0">
-            <TextBlock Text="បន្ថែមវេនសិក្សា"
+            <TextBlock Text="បន្ថែម វេនសិក្សា"
                         Style="{StaticResource Font_KH_Title}"
                FontSize="18"/>
         </StackPanel>
 
-        <ScrollView Grid.Column="0" Grid.Row="1" Margin="0,30,0,5" BorderBrush="Aqua" BorderThickness="3">
+        <ScrollView Grid.Column="0" Grid.Row="1" Margin="0,30,0,0" BorderBrush="Aqua" BorderThickness="3">
             <StackPanel x:Name="Insert" >
                 <TextBox x:Name="StudyTimeShift_ID"
                  Header="លេខសម្គាល់"
+                         IsReadOnly="True"
+                         Text="{Binding StudyTimeShift_ID,Mode=TwoWay}"
+                         BorderBrush="{Binding StudyTimeShift_IDBorderBrush}"
                  Style="{StaticResource Style_KH_TextBox}"/>
                 <TextBox x:Name="StudyTimeShift_Name_KH"
                  Header="បញ្ចូល ឈ្មោះវេនសិក្សា(ខ្មែរ)"
+                         Text="{Binding StudyTimeShift_Name_KH,Mode=TwoWay}"
+                         BorderBrush="{Binding StudyTimeShift_Name_KHBorderBrush}"
                  Style="{StaticResource Style_KH_TextBox}"/>
                 <TextBox x:Name="StudyTimeShift_Name_EN"
                  Header="បញ្ចូល ឈ្មោះវេនសិក្សា(ENG)"
+                         Text="{Binding StudyTimeShift_Name_EN,Mode=TwoWay}"
                  Style="{StaticResource Style_KH_TextBox}"/>
                 <TextBox x:Name="StudyTimeShift_Name_Short"
                  Header = "ពាក្យកាត់ (ENG)"
+                         Text="{Binding StudyTimeShift_Name_Short,Mode=TwoWay}"
                  Style="{StaticResource Style_KH_TextBox}"/>
             </StackPanel>
         </ScrollView>
 
 
-        <ListView Grid.Column="1" Grid.Row="1" Margin="5,30,0,0" ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3" CornerRadius="5">
+        <ListView x:Name="Education_StudyTimeShift_ListView" 
+                  ItemsSource="{Binding Education_StudyTimeShift_ListView}" 
+                  SelectedItem="{Binding SelectedEducation_StudyTimeShift,Mode=TwoWay}"
+                  Grid.Column="1" Grid.Row="1" Margin="5,30,0,0" 
+                  ScrollViewer.HorizontalScrollMode="Auto" 
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                  BorderBrush="Aqua" BorderThickness="3" CornerRadius="5">
             <ListView.Header>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ID" Width="120"/>
-                    <TextBlock Text="Name" Width="120"/>
-                    <TextBlock Text="EN" Width="120"/>
-                    <TextBlock Text="S" Width="120"/>
+                <StackPanel Orientation="Horizontal" Background="Green">
+                    <TextBlock Text="លេខសម្គាល់" Width="110" Margin="20,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                    <TextBlock Text="វេនសិក្សា" Width="160" Style="{StaticResource Font_KH_Body}"/>
+                    <TextBlock Text="ពាក្យអង់គ្លេស" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                    <TextBlock Text="ពាក្យកាត់" Width="120" Style="{StaticResource Font_KH_Body}"/>
                 </StackPanel>
-
             </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding StudyTimeShift_ID}" Width="80"/>
+                        <TextBlock Text="{Binding StudyTimeShift_Name_KH}" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                        <TextBlock Text="{Binding StudyTimeShift_Name_EN}" Width="210"/>
+                        <TextBlock Text="{Binding StudyTimeShift_Name_Short}" Width="90"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
         <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
 
-            <Button x:Name="btn_add_subject" Margin="5,10,0,0" Background="{StaticResource AccentFillColorTertiaryBrush}">
+            <Button x:Name="btn_add_studytimeshift" Command="{Binding SubmitCommand_Add_StudyTimeShift_Information,Mode=TwoWay}" Margin="5,10,0,0" Background="Green">
                 <Button.Content>
                     <TextBlock Text="រក្សាទុក" Style="{StaticResource Font_KH_Body}"/>
                 </Button.Content>
             </Button>
 
-            <Button x:Name="btn_delete_subject" Margin="5,10,0,0">
+            <Button x:Name="btn_delete_studytimeshift" Command="{Binding DeleteCommand_Education_StudyTimeShift}" Margin="5,10,0,0" Background="Red">
                 <Button.Content>
                     <TextBlock Text="លុប" Style="{StaticResource Font_KH_Body}"/>
                 </Button.Content>
             </Button>
 
-            <Button x:Name="btn_clear_subject" Margin="5,10,0,0">
+            <Button x:Name="btn_clear_skilltimeshift" Command="{Binding ClearCommand_Education_StudyTimeShift}" Margin="5,10,0,0">
                 <Button.Content>
                     <TextBlock Text="សម្អាត" Style="{StaticResource Font_KH_Body}"/>
                 </Button.Content>
             </Button>
 
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="3">
+            <TextBlock x:Name="Edu_Error_Message" Text="{Binding Edu_Error_Message ,Mode=TwoWay}" Style="{StaticResource Font_KH_Body}" Foreground="{Binding MessageColor}" Margin="10,20,0,0"/>
         </StackPanel>
 
     </Grid>
