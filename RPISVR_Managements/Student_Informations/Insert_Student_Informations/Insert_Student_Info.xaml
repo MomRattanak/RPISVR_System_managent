@@ -800,7 +800,7 @@
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/Icon/icons8-edit-property-48.png" Width="28" Height="28" />
-                                    <TextBlock Text="កែសម្រួលទិន្នន័យ"
+                                    <TextBlock Text="លុបទិន្នន័យ"
                                              x:Name="Text_Edit"
                                              Padding="10,5,0,0"
                                              Style="{StaticResource Font_KH_Body}"/>
@@ -808,15 +808,15 @@
                             </Expander.Header>
                             <Expander.Content>
                                 <StackPanel>
-                                    <Button x:Name="btn_Edit" 
+                                    <Button x:Name="btn_Delete" 
                                           Style="{StaticResource Stye_KH_Button}">
                                         <Button.Resources>
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
                                         </Button.Resources>
                                         <Button.Content>
                                             <StackPanel Orientation="Horizontal" Margin="0">
-                                                <Image Source="/Assets/Icon/icons8-edit.gif" Width="20" Height="20" Margin="0,0,20,0"/>
-                                                <TextBlock Text="កែសម្រួល"/>
+                                                <Image Source="/Assets/Student_Info_Icon/icons8-delete-48.png" Width="20" Height="20" Margin="0,0,20,0" />
+                                                <TextBlock Text="លុបទិន្នន័យ"/>
                                             </StackPanel>
                                         </Button.Content>
                                     </Button>
@@ -890,11 +890,11 @@
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
                                         </Button.Resources>
                                         <StackPanel>
-                                            <TextBlock Text="បន្ថែម ឆ្នាំទី"/>
+                                            <TextBlock Text="បន្ថែម ឆ្នាំសិក្សា"/>
                                         </StackPanel>
                                     </Button>
 
-                                    <Button x:Name="btn_InsertJob_Plus"
+                                    <!--<Button x:Name="btn_InsertJob_Plus"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>
@@ -906,8 +906,7 @@
                                     </Button>
 
                                     <Button x:Name="btn_InsertSchool_Plus"
-                                            Click="InsertSchool"
-                                          Style="{StaticResource Stye_KH_Button}"
+                                            Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
@@ -915,7 +914,7 @@
                                         <StackPanel>
                                             <TextBlock Text="បន្ថែម វិទ្យាល័យ"/>
                                         </StackPanel>
-                                    </Button>
+                                    </Button>-->
 
                                     <Line X1="0" Y1="0" X2="230" Y2="0" 
                                         x:Name="Line_6"
