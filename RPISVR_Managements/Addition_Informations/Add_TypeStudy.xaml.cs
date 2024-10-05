@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using RPISVR_Managements.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,16 +14,16 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace RPISVR_Managements.Addition_Informations
 {
     public sealed partial class Add_TypeStudy : UserControl
     {
+        public AdditioinInformationViewModel ViewModel { get; set; }
         public Add_TypeStudy()
         {
             this.InitializeComponent();
+            ViewModel = new AdditioinInformationViewModel();
+            this.DataContext = ViewModel;
         }
     }
 }

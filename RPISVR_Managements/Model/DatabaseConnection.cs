@@ -1108,5 +1108,184 @@ namespace RPISVR_Managements.Model
             }
         }
         //End Education_StudyTimeShift
+
+        //Start Education_TypeStudy
+        //Method to Insert_Education_TypeStudys to Database 
+        public bool Insert_Education_TypeStudys(Education_TypeStudy education_typestudy_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO education_typestudy_info(edu_typestudy_id, edu_typestudy_name_kh, edu_typestudy_name_en, edu_typestudy_name_short)" +
+                        "VALUES (@edu_typestudy_id,@edu_typestudy_name_kh,@edu_typestudy_name_en,@edu_typestudy_name_short)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@edu_typestudy_id", education_typestudy_info.TypeStudy_ID);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_kh", education_typestudy_info.TypeStudy_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_en", education_typestudy_info.TypeStudy_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_short", education_typestudy_info.TypeStudy_Name_Short);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Insert Education_TypeStudy Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Method to fetch educatinon_typestudy Information from Database
+        public List<Education_TypeStudy> LoadEducation_TypeStudy()
+        {
+            Debug.WriteLine("Starting LoadEducation_TypeStudy method...");
+
+            List<Education_TypeStudy> education_typestudy_info = new List<Education_TypeStudy>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    Debug.WriteLine("Database connection established.");
+
+                    string query = "SELECT edu_typestudy_id, edu_typestudy_name_kh, edu_typestudy_name_en, edu_typestudy_name_short FROM education_typestudy_info ORDER BY edu_typestudy_id DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Education_TypeStudy education_typestudys = new Education_TypeStudy()
+                                {
+                                    TypeStudy_ID = reader.GetString("edu_typestudy_id"),
+                                    TypeStudy_Name_KH = reader.IsDBNull(reader.GetOrdinal("edu_typestudy_name_kh")) ? string.Empty : reader.GetString("edu_typestudy_name_kh"),
+                                    TypeStudy_Name_EN = reader.IsDBNull(reader.GetOrdinal("edu_typestudy_name_en")) ? string.Empty : reader.GetString("edu_typestudy_name_en"),
+                                    TypeStudy_Name_Short = reader.IsDBNull(reader.GetOrdinal("edu_typestudy_name_short")) ? string.Empty : reader.GetString("edu_typestudy_name_short"),
+                                };
+                                education_typestudy_info.Add(education_typestudys);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Education_Level loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql LoadEducation_Level Error: " + ex.ToString());
+            }
+            Debug.WriteLine("Exiting LoadEducation_Level method...");
+            return education_typestudy_info;
+        }
+        //Update Education_TypeStudy
+        public bool Update_Education_TypeStudy_Information(Education_TypeStudy education_typestudy_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE education_typestudy_info SET edu_typestudy_name_kh = @edu_typestudy_name_kh,edu_typestudy_name_en = @edu_typestudy_name_en,edu_typestudy_name_short = @edu_typestudy_name_short WHERE edu_typestudy_id = @edu_typestudy_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_typestudy_id", education_typestudy_info.TypeStudy_ID);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_kh", education_typestudy_info.TypeStudy_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_en", education_typestudy_info.TypeStudy_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_typestudy_name_short", education_typestudy_info.TypeStudy_Name_Short);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Education_TypeStudy Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Method to Select Last TS_ID and TypeStudy_ID
+        public (int TS_ID, string TypeStudy_ID) Get_TS_ID_and_TypeStudy_ID()
+        {
+            int TS_ID = 0;
+            string Last_TypeStudy_ID = "EDU_TS00";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(ID) AS ID, MAX(edu_typestudy_id) AS Last_TypeStudy_ID FROM education_typestudy_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            TS_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("ID");
+                            Last_TypeStudy_ID = reader.IsDBNull(1) ? "EDU_TS000" : reader.GetString("Last_TypeStudy_ID");
+                        }
+
+                    }
+                }
+            }
+            TS_ID++;
+            string TypeStudy_ID = IncrementTypeStudy_ID(Last_TypeStudy_ID);
+
+            return (TS_ID, TypeStudy_ID);
+
+        }
+
+        //Method to Increase TS_ID
+        public string IncrementTypeStudy_ID(String currentTypeStudy_ID)
+        {
+            // Assuming the format is always "RPI" + 3-digit number
+            string prefix = "EDU_TS";
+            string numericPart = currentTypeStudy_ID.Substring(6); // Extract the numeric part after "EDU_TS"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 7-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string TypeStudy_ID = prefix + newNumericPart;
+
+            return TypeStudy_ID;
+        }
+        // Delete Education_TypeStudy
+        public bool Delete_Education_TypeStudy_Information(Education_TypeStudy education_typestudy_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM education_typestudy_info WHERE edu_typestudy_id = @edu_typestudy_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_typestudy_id", education_typestudy_info.TypeStudy_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Delete Education_TypeStudy Error: " + ex.ToString());
+                return false;
+            }
+        }
     }
 }

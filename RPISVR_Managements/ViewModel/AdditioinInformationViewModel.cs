@@ -19,6 +19,7 @@ using Microsoft.UI.Xaml.Controls;
 using RPISVR_Managements.Dialog_Control;
 using Microsoft.UI.Xaml;
 using System.Diagnostics.Eventing.Reader;
+using Windows.Graphics.Printing;
 
 namespace RPISVR_Managements.ViewModel
 {
@@ -30,12 +31,16 @@ namespace RPISVR_Managements.ViewModel
         private ObservableCollection<Education_Levels> _education_level;
         private ObservableCollection<Education_Skills> _education_skill;
         private ObservableCollection<Education_StudyTimeShift> _education_studytimeshift;
+        private ObservableCollection<Education_TypeStudy> _education_typestudy;
+
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
         //Get_Last_Sk_ID
         private DatabaseConnection _education_SkillModel;
         //Get_Last_STS_ID
         private DatabaseConnection _education_StudyTimeShiftModel;
+        //Get_Last_TS_ID
+        private DatabaseConnection _education_TypeStudyModel;
 
         //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
@@ -49,6 +54,10 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand_Add_StudyTimeShift_Information { get; }
         public ICommand ClearCommand_Education_StudyTimeShift { get; }
         public ICommand DeleteCommand_Education_StudyTimeShift { get; }
+        //Command Education_TypeStudy
+        public ICommand SubmitCommand_Add_TypeStudy_Information { get; }
+        public ICommand ClearCommand_Education_TypeStudy { get; }
+        public ICommand DeleteCommand_Education_TypeStudy { get; }
 
 
         public AdditioinInformationViewModel()
@@ -106,8 +115,24 @@ namespace RPISVR_Managements.ViewModel
             var (sts_id, studytimeshift_id) = _education_StudyTimeShiftModel.Get_STS_ID_and_StudyTimeShift_ID();
             STS_ID = sts_id;
             StudyTimeShift_ID = studytimeshift_id;
-            Debug.WriteLine("STS_ID: " + STS_ID);
-            Debug.WriteLine("StudyTimeShift_ID: " + StudyTimeShift_ID);
+
+            //Education_TypeStudy Mode
+            //Submit Command
+            SubmitCommand_Add_TypeStudy_Information = new RelayCommand(async () => await SubmitAsync_Education_TypeStudys());
+            //Clear Command
+            ClearCommand_Education_TypeStudy = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Education_TypeStudy = new RelayCommand(async () => await Delete_Education_TypeStudy_Info());
+            //Data to ListView
+            Education_TypeStudy_ListView = new ObservableCollection<Education_TypeStudy>();
+            //Load Data to ListView
+            LoadEducation_TypeStudy();
+            //Get STS_ID
+            _education_TypeStudyModel = new DatabaseConnection();
+            var (ts_id, typestudy_id) = _education_TypeStudyModel.Get_TS_ID_and_TypeStudy_ID();
+            TS_ID = ts_id;
+            TypeStudy_ID = typestudy_id;
+            
         }
         //STS_ID
         private int _STS_ID;
@@ -885,9 +910,25 @@ namespace RPISVR_Managements.ViewModel
             Clear_Education_Level_Text();
             Clear_Education_Skill_Text();
             Clear_Education_StudyTimeShift();
+            Clear_Education_TypeStudy_Text();
             await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Education_TypeStudy_Text()
+        {
+            //Get TS_ID
+            _education_TypeStudyModel = new DatabaseConnection();
+            var (ts_id, typestudy_id) = _education_TypeStudyModel.Get_TS_ID_and_TypeStudy_ID();
+            TS_ID = ts_id;
+            TypeStudy_ID = typestudy_id;
+            Debug.WriteLine("TS_ID: " + TS_ID);
+            Debug.WriteLine("TypeStudy_ID: " + TypeStudy_ID);
+
+            //Skill_ID = string.Empty;
+            TypeStudy_Name_KH = string.Empty;
+            TypeStudy_Name_EN = string.Empty;
+            TypeStudy_Name_Short = string.Empty;
+        }
         public void Clear_Education_StudyTimeShift()
         {
             //Get STS_ID
@@ -897,14 +938,14 @@ namespace RPISVR_Managements.ViewModel
             StudyTimeShift_ID = studytimeshift_id;
             Debug.WriteLine("STS_ID: " + STS_ID);
             Debug.WriteLine("StudyTimeShift_ID: " + StudyTimeShift_ID);
-            //Skill_ID = string.Empty;
+           
             StudyTimeShift_Name_KH = string.Empty;
             StudyTimeShift_Name_EN = string.Empty;
             StudyTimeShift_Name_Short = string.Empty;
         }
         public void Clear_Education_Skill_Text()
         {
-            //Get Edu_ID
+            //Get Sk_ID
             _education_SkillModel = new DatabaseConnection();
             var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
             Sk_ID = sk_id;
@@ -1093,8 +1134,296 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SelectedEducation_Level));
             }
         }
- 
 
+        //Start Education_AddTypeStudy
+        //ST_ID
+        private int _ts_id;
+        public int TS_ID
+        {
+            get => _ts_id;
+            set
+            {
+                if (_ts_id != value)
+                {
+                    _ts_id = value;
+                    OnPropertyChanged(nameof(TS_ID));
+                }
+            }
+        }
+        //TypeStudy_ID
+        private string _TypeStudy_ID;
+        public string TypeStudy_ID
+        {
+            get => _TypeStudy_ID;
+            set
+            {
+                if(_TypeStudy_ID != value)
+                {
+                    _TypeStudy_ID = value;
+                    OnPropertyChanged(nameof(TypeStudy_ID));
+                    ValidateTypeStudy_ID();
+                }
+            }
+        }
+        //TypeStudy_Name_KH
+        private string _TypeStudy_Name_KH;
+        public string TypeStudy_Name_KH
+        {
+            get => _TypeStudy_Name_KH;
+            set
+            {
+                if(_TypeStudy_Name_KH != value)
+                {
+                    _TypeStudy_Name_KH = value;
+                    OnPropertyChanged(nameof(TypeStudy_Name_KH));
+                    ValidateTypeStudy_Name_KH();
+                }
+            }
+        }
+        //TypeStudy_Name_EN
+        private string _TypeStudy_Name_EN;
+        public string TypeStudy_Name_EN
+        {
+            get => _TypeStudy_Name_EN;
+            set
+            {
+                if( _TypeStudy_Name_EN != value)
+                {
+                    _TypeStudy_Name_EN = value;
+                    OnPropertyChanged(nameof(TypeStudy_Name_EN));
+                }
+            }
+        }
+        //TypeStudy_Name_Short
+        private string _TypeStudy_Name_Short;
+        public string TypeStudy_Name_Short
+        {
+            get => _TypeStudy_Name_Short;
+            set
+            {
+                _TypeStudy_Name_Short = value;
+                OnPropertyChanged(nameof(TypeStudy_Name_Short));
+            }
+        }
+        //Real-time validation method TypeStudy_ID
+        public SolidColorBrush TypeStudy_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(TypeStudy_IDBorderBrush));
+            }
+        }
+        //ValidateEdu_Level_Name_KH
+        private void ValidateTypeStudy_ID()
+        {
+            if (string.IsNullOrEmpty(TypeStudy_ID))
+            {
+                TypeStudy_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                TypeStudy_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method TypeStudy_Name_KH
+        public SolidColorBrush TypeStudy_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(TypeStudy_Name_KHBorderBrush));
+            }
+        }
+        //ValidateTypeStudy_Name_KH
+        private void ValidateTypeStudy_Name_KH()
+        {
+            if (string.IsNullOrEmpty(TypeStudy_Name_KH))
+            {
+                TypeStudy_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                TypeStudy_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //SubmitAsync_Education_TypeStudys
+        public async Task SubmitAsync_Education_TypeStudys()
+        {
+            ValidateTypeStudy_ID();
+            ValidateTypeStudy_Name_KH();
+            // Clear any previous error message
+            Edu_Error_Message = string.Empty;
+            MessageColor = null;
+
+            //Validate Edu_Level_ID
+            if (string.IsNullOrEmpty(TypeStudy_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            //Validate Edu_Level_Name_KH
+            if (string.IsNullOrEmpty(TypeStudy_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ប្រភេទសិក្សា";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }    
+
+            SaveEducation_TypeStudys();
+            LoadEducation_TypeStudy();
+            Clear_Education_TypeStudy_Text();
+            await Task.CompletedTask;
+        }
+        //SaveEducation_TypeStudytoDatabase
+        public void SaveEducation_TypeStudys()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            //Update Mode
+            var UpdateEducation_TypeStudy = Education_TypeStudy_ListView.FirstOrDefault(s => s.TypeStudy_ID == TypeStudy_ID);
+            //Education_TypeStudy_ListView Get from top (Selected ListView).
+            if (UpdateEducation_TypeStudy != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateEducation_TypeStudy.TypeStudy_ID = TypeStudy_ID;
+                UpdateEducation_TypeStudy.TypeStudy_Name_KH = TypeStudy_Name_KH;
+                UpdateEducation_TypeStudy.TypeStudy_Name_EN = TypeStudy_Name_EN;
+                UpdateEducation_TypeStudy.TypeStudy_Name_Short = TypeStudy_Name_Short;
+
+                bool sucess = dbConnection.Update_Education_TypeStudy_Information(UpdateEducation_TypeStudy);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + TypeStudy_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + TypeStudy_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Education_TypeStudy education_typestudy_info = new Education_TypeStudy
+                {
+                    TypeStudy_ID = this.TypeStudy_ID,
+                    TypeStudy_Name_KH = this.TypeStudy_Name_KH,
+                    TypeStudy_Name_EN = this.TypeStudy_Name_EN,
+                    TypeStudy_Name_Short = this.TypeStudy_Name_Short,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Education_TypeStudys(education_typestudy_info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+        }
+        //Data to ListView
+        public ObservableCollection<Education_TypeStudy> Education_TypeStudy_ListView
+        {
+            get => _education_typestudy;
+            set
+            {
+                _education_typestudy = value;
+                OnPropertyChanged(nameof(Education_TypeStudy_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //LoadEducation_TypeStudy
+        public void LoadEducation_TypeStudy()
+        {
+            // Ensure _dbConnection is properly initialized
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+
+            var education_typestudy_list = _dbConnection.LoadEducation_TypeStudy();
+
+            if (education_typestudy_list != null && education_typestudy_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Education_TypeStudy_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var education_typestudy in education_typestudy_list)
+                {
+                    Education_TypeStudy_ListView.Add(education_typestudy);
+                }
+                Education_TypeStudy_ListView = new ObservableCollection<Education_TypeStudy>(education_typestudy_list);
+            }
+            else
+            {
+                Debug.WriteLine("No education typestudy found.");
+            }
+        }
+        //Select Education_TypeStudy in the ListView
+        private Education_TypeStudy _selectedEducation_TypeStudy;
+        public Education_TypeStudy SelectedEducation_TypeStudy
+        {
+            get => _selectedEducation_TypeStudy;
+            set
+            {
+                _selectedEducation_TypeStudy = value;
+                OnPropertyChanged();
+
+                if (_selectedEducation_TypeStudy != null)
+                {
+                    TypeStudy_ID = _selectedEducation_TypeStudy.TypeStudy_ID;
+                    TypeStudy_Name_KH = _selectedEducation_TypeStudy.TypeStudy_Name_KH;
+                    TypeStudy_Name_EN = _selectedEducation_TypeStudy.TypeStudy_Name_EN;
+                    TypeStudy_Name_Short = _selectedEducation_TypeStudy.TypeStudy_Name_Short;
+                }
+                OnPropertyChanged(nameof(SelectedEducation_TypeStudy));
+            }
+        }
+        //DeleteEducation_TypeStudyfromDatabase
+        public void Delete_Education_TypeStudys()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteEducation_TypeStudy = Education_TypeStudy_ListView.FirstOrDefault(s => s.TypeStudy_ID == TypeStudy_ID);
+            if (DeleteEducation_TypeStudy != null)
+            {
+                DeleteEducation_TypeStudy.TypeStudy_ID = TypeStudy_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_Education_TypeStudy_Information(DeleteEducation_TypeStudy);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + TypeStudy_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + TypeStudy_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
+        //
+        public async Task Delete_Education_TypeStudy_Info()
+        {
+            Delete_Education_TypeStudys();
+            LoadEducation_TypeStudy();
+            Clear_Education_TypeStudy_Text();
+
+            await Task.CompletedTask;
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
