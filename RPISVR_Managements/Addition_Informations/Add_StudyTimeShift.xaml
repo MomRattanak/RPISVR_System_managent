@@ -28,7 +28,7 @@
         <ScrollView Grid.Column="0" Grid.Row="1" Margin="0,30,0,5" BorderBrush="Aqua" BorderThickness="3">
             <StackPanel x:Name="Insert" >
                 <TextBox x:Name="StudyTimeShift_ID"
-                 Header="ID"
+                 Header="លេខសម្គាល់"
                  Style="{StaticResource Style_KH_TextBox}"/>
                 <TextBox x:Name="StudyTimeShift_Name_KH"
                  Header="បញ្ចូល ឈ្មោះវេនសិក្សា(ខ្មែរ)"
