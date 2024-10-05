@@ -31,10 +31,10 @@ namespace RPISVR_Managements.Addition_Informations
         public Add_Education_Levels()
         {
             this.InitializeComponent();
-            //this.DataContext = new AdditioinInformationViewModel(this.Content.XamlRoot);
+            //this.DataContext = new AdditioinInformationViewModel();
 
 
-            ViewModel = new AdditioinInformationViewModel(this.Content.XamlRoot);
+            ViewModel = new AdditioinInformationViewModel();
             this.DataContext = ViewModel;
             // Subscribe to ErrorMessage changes from the ViewModel
             //var viewModel = (AdditioinInformationViewModel)this.DataContext;

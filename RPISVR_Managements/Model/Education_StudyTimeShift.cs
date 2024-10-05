@@ -8,7 +8,7 @@ namespace RPISVR_Managements.Model
 {
     public class Education_StudyTimeShift
     {
-        public int ID { get; set; }
+        public int STS_ID { get; set; }
         public string StudyTimeShift_ID { get; set; }
         public string StudyTimeShift_Name_KH { get; set; }
         public string StudyTimeShift_Name_EN { get; set; }

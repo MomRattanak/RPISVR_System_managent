@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using RPISVR_Managements.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,9 +21,13 @@ namespace RPISVR_Managements.Addition_Informations
 {
     public sealed partial class Add_Education_Skill : UserControl
     {
+        public AdditioinInformationViewModel ViewModel { get; set; }
         public Add_Education_Skill()
         {
             this.InitializeComponent();
+
+            ViewModel = new AdditioinInformationViewModel();
+            this.DataContext = ViewModel;
         }
     }
 }

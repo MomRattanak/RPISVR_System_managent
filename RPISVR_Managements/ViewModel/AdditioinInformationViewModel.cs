@@ -27,19 +27,27 @@ namespace RPISVR_Managements.ViewModel
         private readonly DatabaseConnection _dbConnection;
         //Data in ListView
         private ObservableCollection<Education_Levels> _education_level;
+        private ObservableCollection<Education_Skills> _education_skill;
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
-        //Command
+        //Get_Lasr_Sk_ID
+        private DatabaseConnection _education_SkillModel;
+        //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
         public ICommand ClearCommand_Education_Level { get; }
-        //public ICommand DeleteCommand { get; set; }
         public ICommand DeleteCommand_Education_Level { get; }
+        //Command Educatioin_Skill
+        public ICommand SubmitCommand_Add_Skill_Information { get; }
+        public ICommand ClearCommand_Education_Skill { get; }
+        public ICommand DeleteCommand_Education_Skill { get; }
 
 
-        public AdditioinInformationViewModel(XamlRoot xamlRoot)
+        public AdditioinInformationViewModel()
         {
             //Database 
             _dbConnection = new DatabaseConnection();
+
+            //Education_Level Mode
             //Submit Command
             SubmitCommand_Add_Information = new RelayCommand(async () => await SubmitAsync_Education_Levels());
             //Clear Command
@@ -56,13 +64,99 @@ namespace RPISVR_Managements.ViewModel
             Edu_ID = edu_id;
             Edu_Level_ID = edu_level_id;
 
-            Debug.WriteLine("Edu_ID: " + Edu_ID);
-            Debug.WriteLine("Edu_Level_ID: " + Edu_Level_ID);
+            //Education_Skill Mode
+            //Submit Command
+            SubmitCommand_Add_Skill_Information = new RelayCommand(async () => await SubmitAsync_Education_Skills());
+            //Clear Command
+            ClearCommand_Education_Skill = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Education_Skill = new RelayCommand(async () => await Delete_Education_Skill_Info());
+            //Data to ListView
+            Education_Skill_ListView = new ObservableCollection<Education_Skills>();
+            //Load Data to ListView
+            LoadEducation_Skills();
+            //Get Edu_ID
+            _education_SkillModel = new DatabaseConnection();
+            var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
+            Sk_ID = sk_id;
+            Skill_ID = edu_skill_id;
+            Debug.WriteLine("Sk_ID: " + Sk_ID);
+            Debug.WriteLine("Skill_ID: " + Skill_ID);
 
-           
 
         }
-        
+        //Sk_ID
+        private int _sk_id;
+        public int Sk_ID
+        {
+            get => _sk_id;
+            set
+            {
+                if (_sk_id != value)
+                {
+                    _sk_id = value;
+                    OnPropertyChanged(nameof(Sk_ID));
+                }
+            }
+        }
+        //Skill_ID
+        private string _skill_id;
+        public string Skill_ID
+        {
+            get => _skill_id;
+            set
+            {
+                if (_skill_id != value)
+                {
+                    _skill_id = value;
+                    OnPropertyChanged(nameof(Skill_ID));
+                    ValidateEdu_Skill_ID();
+                }
+            }
+        }
+        //Skill_Name_KH
+        private string _skill_name_kh;
+        public string Skill_Name_KH
+        {
+            get => _skill_name_kh;
+            set
+            {
+                if( _skill_name_kh != value)
+                {
+                    _skill_name_kh = value;
+                    OnPropertyChanged(nameof(Skill_Name_KH));
+                    ValidateSkill_Name_KH();
+                }
+            }
+        }
+        //Skill_Name_EN
+        private string _skill_name_en;
+        public string Skill_Name_EN
+        {
+            get => _skill_name_en;
+            set
+            {
+                if (_skill_name_en != value)
+                {
+                    _skill_name_en = value;
+                    OnPropertyChanged(nameof(Skill_Name_EN));
+                }
+            }
+        }
+        //Skill_Name_EN
+        private string _skill_name_short;
+        public string Skill_Name_Short
+        {
+            get => _skill_name_short;
+            set
+            {
+                if (_skill_name_short != value)
+                {
+                    _skill_name_short = value;
+                    OnPropertyChanged(nameof(Skill_Name_Short));
+                }
+            }
+        }
 
         //Edu_ID
         private int _edu_id;
@@ -137,9 +231,75 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
+        //Real-time validation method Skill_ID
+        public SolidColorBrush SkIDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SkIDBorderBrush));
+            }
+        }
+        //ValidateSkill_ID
+        private void ValidateEdu_Skill_ID()
+        {
+            if (string.IsNullOrEmpty(Skill_ID))
+            {
+                SkIDBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                SkIDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Skill_Name_KH
+        public SolidColorBrush Skill_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Skill_Name_KHBorderBrush));
+            }
+        }
+        //ValidateSkill_Name_KH
+        private void ValidateSkill_Name_KH()
+        {
+            if (string.IsNullOrEmpty(Skill_Name_KH))
+            {
+                Skill_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Skill_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Skill_Name_EN
+        public SolidColorBrush Skill_Name_ENBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Skill_Name_ENBorderBrush));
+            }
+        }
+        //ValidateSkill_Name_EN
+        private void ValidateSkill_Name_EN()
+        {
+            if (string.IsNullOrEmpty(Skill_Name_EN))
+            {
+                Skill_Name_ENBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Skill_Name_ENBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
         //Color Border Error in Input Box.
         private SolidColorBrush _ErrorBorderBrush = new SolidColorBrush(Colors.Transparent); // Default transparent border
-                                                                                             //Update Color
+        //Update Color
         private void UpdateMessageColor()
         {
             //    // Change the message color depending on the message content
@@ -219,6 +379,34 @@ namespace RPISVR_Managements.ViewModel
                 EduLevelNameKHBorderBrush = new SolidColorBrush(Colors.Green);
             }
         }
+        //DeleteEducation_SkillfromDatabase
+        public void Delete_Education_Skills()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteEducation_Skill = Education_Skill_ListView.FirstOrDefault(s => s.Skill_ID == Skill_ID);
+            if (DeleteEducation_Skill != null)
+            {
+                DeleteEducation_Skill.Skill_ID = Skill_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_Education_Skill_Information(DeleteEducation_Skill);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_Level_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_Level_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
         //DeleteEducation_LevelsfromDatabase
         public void Delete_Education_Levels()
         {
@@ -246,6 +434,104 @@ namespace RPISVR_Managements.ViewModel
                 Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
                 MessageColor = new SolidColorBrush(Colors.Red);
             }
+        }
+        //SaveEducation_SkilltoDatabase
+        public void Save_Education_Skills()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            //Update Mode
+            var UpdateEducation_Skill = Education_Skill_ListView.FirstOrDefault(s => s.Skill_ID == Skill_ID);
+            //Education_Level_ListView Get from top (Selected ListView).
+            if (UpdateEducation_Skill != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateEducation_Skill.Skill_ID = Skill_ID;
+                UpdateEducation_Skill.Skill_Name_KH = Skill_Name_KH;
+                UpdateEducation_Skill.Skill_Name_EN = Skill_Name_EN;
+                UpdateEducation_Skill.Skill_Name_Short = Skill_Name_Short;
+
+                bool sucess = dbConnection.Update_Education_Skill_Information(UpdateEducation_Skill);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Skill_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Skill_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Education_Skills education_skill_info = new Education_Skills
+                {
+                    Skill_ID = this.Skill_ID,
+                    Skill_Name_KH = this.Skill_Name_KH,
+                    Skill_Name_EN = this.Skill_Name_EN,
+                    Skill_Name_Short = this.Skill_Name_Short,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Education_Skills(education_skill_info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+        }
+        //Method to get data to ListView
+        //Data to ListView
+        //private ObservableCollection<Education_Skills> _education_skill;
+        public ObservableCollection<Education_Skills> Education_Skill_ListView
+        {
+            get => _education_skill;
+            set
+            {
+                _education_skill = value;
+                OnPropertyChanged(nameof(Education_Skill_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //
+        public async Task SubmitAsync_Education_Skills()
+        {
+            Debug.WriteLine("Test Command");
+            ValidateEdu_Skill_ID();
+            ValidateSkill_Name_KH();
+
+            //Validate Skill_ID
+            if (string.IsNullOrEmpty(Skill_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            //Validate Skill_Name_KH
+            if (string.IsNullOrEmpty(Skill_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ជំនាញ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Debug.WriteLine("Education_Skill Insert Mode");
+            Debug.WriteLine($"Skill_ID: "+Skill_ID);
+            Debug.WriteLine($"Skill_Name_KH: " + Skill_Name_KH);
+            Debug.WriteLine($"Skill_Name_EN: " + Skill_Name_EN);
+            Debug.WriteLine($"Skill_Name_Short: " + Skill_Name_Short);
+
+            // Clear any previous error message
+            Edu_Error_Message = string.Empty;
+            MessageColor = null;
+
+            Save_Education_Skills();
+            LoadEducation_Skills();
+            Clear_Education_Skill_Text();
+            await Task.CompletedTask;
         }
         //SaveEducation_LevelstoDatabase
         public void Save_Education_Levels()
@@ -303,6 +589,14 @@ namespace RPISVR_Managements.ViewModel
             Delete_Education_Levels();
             Clear_Education_Level_Text();
             LoadEducation_Levels();
+            await Task.CompletedTask;
+        }
+        public async Task Delete_Education_Skill_Info()
+        {
+            Delete_Education_Skills();
+            Clear_Education_Skill_Text();
+            LoadEducation_Skills();
+            await Task.CompletedTask;
         }
 
         public async Task SubmitAsync_Education_Levels()
@@ -345,8 +639,24 @@ namespace RPISVR_Managements.ViewModel
         public async Task ClearAsync()
         {
             Clear_Education_Level_Text();
+            Clear_Education_Skill_Text();
+            await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Education_Skill_Text()
+        {
+            //Get Edu_ID
+            _education_SkillModel = new DatabaseConnection();
+            var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
+            Sk_ID = sk_id;
+            Skill_ID = edu_skill_id;
+            Debug.WriteLine("Sk_ID: " + Sk_ID);
+            Debug.WriteLine("Skill_ID: " + Skill_ID);
+            //Skill_ID = string.Empty;
+            Skill_Name_KH = string.Empty;
+            Skill_Name_EN = string.Empty;
+            Skill_Name_Short = string.Empty;
+        }
         public void Clear_Education_Level_Text()
         {
             //Get Edu_ID
@@ -373,6 +683,28 @@ namespace RPISVR_Managements.ViewModel
             {
                 _education_level = value;
                 OnPropertyChanged(nameof(Education_Level_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //Load Education_Skill
+        private void LoadEducation_Skills()
+        {
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+            var education_skill_list = _dbConnection.LoadEducation_Skill();
+            if(education_skill_list != null && education_skill_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Education_Skill_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var education_skill in education_skill_list)
+                {
+                    Education_Skill_ListView.Add(education_skill);
+                }
+                Education_Skill_ListView = new ObservableCollection<Education_Skills>(education_skill_list);
             }
         }
         //Load Education_Level
@@ -402,6 +734,25 @@ namespace RPISVR_Managements.ViewModel
             else
             {
                 Debug.WriteLine("No education levels found.");
+            }
+        }
+        //Select Education Skill in the ListView
+        private Education_Skills _selectedEducation_Skill;
+        public Education_Skills SelectedEducation_Skill
+        {
+            get => _selectedEducation_Skill;
+            set
+            {
+                _selectedEducation_Skill = value;
+                OnPropertyChanged();
+                if(_selectedEducation_Skill != null)
+                {
+                    Skill_ID = _selectedEducation_Skill.Skill_ID;
+                    Skill_Name_KH = _selectedEducation_Skill.Skill_Name_KH;
+                    Skill_Name_EN = _selectedEducation_Skill.Skill_Name_EN;
+                    Skill_Name_Short = _selectedEducation_Skill.Skill_Name_Short;
+                }
+                OnPropertyChanged(nameof(SelectedEducation_Skill));
             }
         }
         //Select Education Level in the ListView

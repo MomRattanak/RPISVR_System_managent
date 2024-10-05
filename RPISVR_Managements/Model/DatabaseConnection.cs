@@ -572,7 +572,8 @@ namespace RPISVR_Managements.Model
         }
 
         //Method for Addition_Information
-
+        
+        //Start Education Level
         //Get Edu_Level_ID
         //Method to Select Last Edu_Level_ID
         public (int Edu_ID, string Edu_Level_ID) Get_Edu_ID_and_Edu_Level_ID()
@@ -605,8 +606,6 @@ namespace RPISVR_Managements.Model
             return (Edu_ID, Edu_Level_ID);
 
         }
-
-        //
         //Method to Increase Edu_Level_ID
         public string IncrementEdu_Level_ID(String currentEdu_Level_ID)
         {
@@ -625,7 +624,6 @@ namespace RPISVR_Managements.Model
 
             return Edu_Level_ID;
         }
-        //End
 
         //Method to Insert_Education_Levels to Database 
         public bool Insert_Education_Levels(Education_Levels education_info)
@@ -657,7 +655,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
-
+        
         //Method to fetch educatinon_level Information from Database
         public List<Education_Levels> LoadEducation_Level()
         {
@@ -701,6 +699,7 @@ namespace RPISVR_Managements.Model
             Debug.WriteLine("Exiting LoadEducation_Level method...");
             return education_level_info;
         }
+        
         //Delete Education_Level
         public bool Delete_Education_Level_Information(Education_Levels education_level_info)
         {
@@ -728,6 +727,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+        
         //Update Education_Level
         public bool Update_Education_Level_Information(Education_Levels education_level_info)
         {
@@ -754,7 +754,185 @@ namespace RPISVR_Managements.Model
             {
                 Debug.WriteLine("Update Education Level Error: " + ex.ToString());
                 return false;
+            } 
+        }
+        //End Education Level
+
+        //Start Education Skill
+        //Method to Insert_Education_Skills to Database 
+        public bool Insert_Education_Skills(Education_Skills education_skill_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO education_skill_info(edu_skill_id, edu_skill_name_kh, edu_skill_name_en, edu_skill_name_short)" +
+                        "VALUES (@edu_skill_id,@edu_skill_name_kh,@edu_skill_name_en,@edu_skill_name_short)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@edu_skill_id", education_skill_info.Skill_ID);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_kh", education_skill_info.Skill_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_en", education_skill_info.Skill_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_short", education_skill_info.Skill_Name_Short);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Insert Education_Skill Error: " + ex.ToString());
+                return false;
             }
         }
+        //Method to fetch education_skill Information
+        public List<Education_Skills> LoadEducation_Skill()
+        {
+            Debug.WriteLine("Starting LoadEducation_Skill method...");
+            List<Education_Skills> education_skill_info = new List<Education_Skills>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    Debug.WriteLine("Database connection established.");
+
+                    string query = "SELECT edu_skill_id, edu_skill_name_kh, edu_skill_name_en, edu_skill_name_short FROM education_skill_info ORDER BY edu_skill_id DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Education_Skills education_skills = new Education_Skills()
+                                {
+                                    Skill_ID = reader.GetString("edu_skill_id"),
+                                    Skill_Name_KH = reader.IsDBNull(reader.GetOrdinal("edu_skill_name_kh")) ? string.Empty : reader.GetString("edu_skill_name_kh"),
+                                    Skill_Name_EN = reader.IsDBNull(reader.GetOrdinal("edu_skill_name_en")) ? string.Empty : reader.GetString("edu_skill_name_en"),
+                                    Skill_Name_Short = reader.IsDBNull(reader.GetOrdinal("edu_skill_name_short")) ? string.Empty : reader.GetString("edu_skill_name_short"),
+                                };
+                                education_skill_info.Add(education_skills);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Education_Skills loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql LoadEducation_Skills Error: " + ex.ToString());
+            }
+
+            Debug.WriteLine("Exiting LoadEducation_Skill method...");
+            return education_skill_info;
+        }
+        //Get Skill_ID
+        public (int Sk_ID, string Skill_ID) Get_Sk_ID_and_Skill_ID()
+        {
+            int Sk_ID = 0;
+            string Last_Skill_ID = "EDU_S000";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(ID) AS ID, MAX(edu_skill_id) AS Last_Skill_ID FROM education_skill_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            Sk_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("ID");
+                            Last_Skill_ID = reader.IsDBNull(1) ? "EDU_S000" : reader.GetString("Last_Skill_ID");
+                        }
+                    }
+                }
+            }
+            Sk_ID++;
+            string Skill_ID = IncrementSkill_ID(Last_Skill_ID);
+
+            return (Sk_ID, Skill_ID);
+        }
+        //Method to Increase Skill_ID
+        public string IncrementSkill_ID(String currentSkill_ID)
+        {
+            // Assuming the format is always "RPI" + 3-digit number
+            string prefix = "EDU_S";
+            string numericPart = currentSkill_ID.Substring(5); // Extract the numeric part after "EDU_L"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string Skill_ID = prefix + newNumericPart;
+
+            return Skill_ID;
+        }
+        //Update Education_Skill
+        public bool Update_Education_Skill_Information(Education_Skills education_skill_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE education_skill_info SET edu_skill_name_kh = @edu_skill_name_kh,edu_skill_name_en = @edu_skill_name_en,edu_skill_name_short = @edu_skill_name_short WHERE edu_skill_id = @edu_skill_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_skill_id", education_skill_info.Skill_ID);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_kh", education_skill_info.Skill_Name_KH);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_en", education_skill_info.Skill_Name_EN);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_short", education_skill_info.Skill_Name_Short);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Education_Skill Error: " + ex.ToString());
+                return false;
+            }
+        }
+        // Delete Education_Skill
+        public bool Delete_Education_Skill_Information(Education_Skills education_skill_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM education_skill_info WHERE edu_skill_id = @edu_skill_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_skill_id", education_skill_info.Skill_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Delete Education_Skill Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //End Education Skill
+
     }
 }
