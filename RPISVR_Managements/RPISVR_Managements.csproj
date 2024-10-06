@@ -16,6 +16,7 @@
     <None Remove="Addition_Informations\Add_Education_Levels.xaml" />
     <None Remove="Addition_Informations\Add_Education_Skill.xaml" />
     <None Remove="Addition_Informations\Add_Education_StudyYear.xaml" />
+    <None Remove="Addition_Informations\Add_Provinces.xaml" />
     <None Remove="Addition_Informations\Add_StudyTimeShift.xaml" />
     <None Remove="Addition_Informations\Add_TypeStudy.xaml" />
     <None Remove="Administrative_letter\Certificate_of_Education_Info.xaml" />
@@ -93,6 +94,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Student_Info_Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Addition_Informations\Add_Provinces.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Addition_Informations\Add_Education_StudyYear.xaml">

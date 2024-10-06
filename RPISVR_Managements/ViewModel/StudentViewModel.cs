@@ -2032,8 +2032,7 @@ namespace RPISVR_Managements.ViewModel
             Stu_Delete_Info = this.Stu_Delete_Info;
 
         }
-        // Define an event to notify the View
-        public event EventHandler RequestStuIDFocus;
+      
         //Validation Check TextBox
         public async Task SubmitAsync()
         {
@@ -2326,6 +2325,8 @@ namespace RPISVR_Managements.ViewModel
             ClearStudentInfo();
             IsInsertEnabled = true;
             IsUpdateEnabled = false;
+
+            await Task.CompletedTask;
         }
         // Example method to display error messages
         private Task ShowErrorMessageAsync(string message)

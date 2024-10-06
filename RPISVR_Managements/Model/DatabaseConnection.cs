@@ -1458,5 +1458,176 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+        //End Education_StudyYear
+
+        //Start Add_Province
+        public bool Insert_Provinces(Provinces_Info provinces_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO province_info (PV_ID, province_name_kh, province_name_en) VALUES(@PV_ID, @province_name_kh, @province_name_en)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@PV_ID", provinces_info.PV_ID);
+                    cmd.Parameters.AddWithValue("@province_name_kh", provinces_info.Province_Name_KH);
+                    cmd.Parameters.AddWithValue("@province_name_en", provinces_info.Province_Name_EN);
+                    
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Insert Provinces Info Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Data Province to ListView
+        public List<Provinces_Info> LoadProvinces_Info()
+        {
+            Debug.WriteLine("Starting LoadProvince Info method...");
+
+            List<Provinces_Info> province_info = new List<Provinces_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    
+                    string query = "SELECT PV_ID, province_name_kh, province_name_en FROM province_info ORDER BY PV_ID DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Provinces_Info provinces = new Provinces_Info()
+                                {
+                                    PV_ID = reader.GetString("PV_ID"),
+                                    Province_Name_KH = reader.IsDBNull(reader.GetOrdinal("province_name_kh")) ? string.Empty : reader.GetString("province_name_kh"),
+                                    Province_Name_EN = reader.IsDBNull(reader.GetOrdinal("province_name_en")) ? string.Empty : reader.GetString("province_name_en"),
+                                };
+                                province_info.Add(provinces);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Province loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Load Provinces Error: " + ex.ToString());
+            }
+            return province_info;
+        }
+        //Update Province
+        public bool Update_Provinces_Information(Provinces_Info provinces_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE province_info SET province_name_kh = @province_name_kh, province_name_en = @province_name_en WHERE PV_ID = @PV_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@PV_ID", provinces_info.PV_ID);
+                    cmd.Parameters.AddWithValue("@province_name_kh", provinces_info.Province_Name_KH);
+                    cmd.Parameters.AddWithValue("@province_name_en", provinces_info.Province_Name_EN);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Province Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Method to Select Last P_ID and PV_ID
+        public (int P_ID, string PV_ID) Get_P_ID_and_PV_ID()
+        {
+            int P_ID = 0;
+            string Last_PV_ID = "PRO_000";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(province_id) AS P_ID, MAX(PV_ID) AS Last_PV_ID FROM province_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            P_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("P_ID");
+                            Last_PV_ID = reader.IsDBNull(1) ? "PRO_000" : reader.GetString("Last_PV_ID");
+                        }
+
+                    }
+                }
+            }
+            P_ID++;
+            string PV_ID = IncrementPV_ID(Last_PV_ID);
+
+            return (P_ID, PV_ID);
+
+        }
+        //Method to Increase PV_ID
+        public string IncrementPV_ID(String currentPV_ID)
+        {
+            // Assuming the format is always "PRO_" + 3-digit number
+            string prefix = "PRO_";
+            string numericPart = currentPV_ID.Substring(4); // Extract the numeric part after "PRO_"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string PV_ID = prefix + newNumericPart;
+
+            return PV_ID;
+        }
+        //Delete Province
+        public bool Delete_Province_Information(Provinces_Info province_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM province_info WHERE PV_ID = @pv_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@pv_id", province_info.PV_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Delete Province_Info Error: " + ex.ToString());
+                return false;
+            }
+        }
     }
 }
