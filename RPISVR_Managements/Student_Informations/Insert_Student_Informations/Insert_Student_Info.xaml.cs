@@ -398,10 +398,16 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
                 };
             await dialog.ShowAsync();
         }
-
-        private void InsertSchool(object sender, RoutedEventArgs e)
+    
+        private async void InsertStudyYear(object sender, RoutedEventArgs e)
         {
-
+            var dialog = new ContentDialog
+            {
+                Content = new Add_Education_StudyYear(),
+                CloseButtonText = "Close",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
     }
 }

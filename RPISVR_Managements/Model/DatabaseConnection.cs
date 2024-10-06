@@ -572,7 +572,7 @@ namespace RPISVR_Managements.Model
         }
 
         //Method for Addition_Information
-        
+
         //Start Education Level
         //Get Edu_Level_ID
         //Method to Select Last Edu_Level_ID
@@ -655,7 +655,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
-        
+
         //Method to fetch educatinon_level Information from Database
         public List<Education_Levels> LoadEducation_Level()
         {
@@ -699,7 +699,7 @@ namespace RPISVR_Managements.Model
             Debug.WriteLine("Exiting LoadEducation_Level method...");
             return education_level_info;
         }
-        
+
         //Delete Education_Level
         public bool Delete_Education_Level_Information(Education_Levels education_level_info)
         {
@@ -727,7 +727,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
-        
+
         //Update Education_Level
         public bool Update_Education_Level_Information(Education_Levels education_level_info)
         {
@@ -754,7 +754,7 @@ namespace RPISVR_Managements.Model
             {
                 Debug.WriteLine("Update Education Level Error: " + ex.ToString());
                 return false;
-            } 
+            }
         }
         //End Education Level
 
@@ -1214,7 +1214,7 @@ namespace RPISVR_Managements.Model
         public (int TS_ID, string TypeStudy_ID) Get_TS_ID_and_TypeStudy_ID()
         {
             int TS_ID = 0;
-            string Last_TypeStudy_ID = "EDU_TS00";
+            string Last_TypeStudy_ID = "EDU_TS000";
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
@@ -1273,6 +1273,177 @@ namespace RPISVR_Managements.Model
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
                     cmd.Parameters.AddWithValue("@edu_typestudy_id", education_typestudy_info.TypeStudy_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Delete Education_TypeStudy Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //End Education_TypeStudy
+
+        //Start Education_StudyYear
+        //Method to Insert_Education_StudyYear to Database 
+        public bool Insert_Education_StudyYears(Education_StudyYear education_studyyear_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO education_studyyear_info (edu_studyyear_id, edu_studyyear_name) VALUES(@edu_studyyear_id, @edu_studyyear_name)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@edu_studyyear_id", education_studyyear_info.Edu_StudyYear_ID);
+                    cmd.Parameters.AddWithValue("@edu_studyyear_name", education_studyyear_info.Edu_StudyYear_Name);
+                    
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Insert Education_StudyYear Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Method to fetch educatinon_studyyear Information from Database
+        public List<Education_StudyYear> LoadEducation_StudyYear()
+        {
+            Debug.WriteLine("Starting LoadEducation_StudyYear method...");
+
+            List<Education_StudyYear> education_studyyear_info = new List<Education_StudyYear>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    Debug.WriteLine("Database connection established.");
+
+                    string query = "SELECT edu_studyyear_id, edu_studyyear_name FROM education_studyyear_info ORDER BY edu_studyyear_id DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Education_StudyYear education_studyyears = new Education_StudyYear()
+                                {
+                                    Edu_StudyYear_ID = reader.GetString("edu_studyyear_id"),
+                                    Edu_StudyYear_Name = reader.IsDBNull(reader.GetOrdinal("edu_studyyear_name")) ? string.Empty : reader.GetString("edu_studyyear_name"),
+                                };
+                                education_studyyear_info.Add(education_studyyears);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Education_StudyYear loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql LoadEducation_StudyYear Error: " + ex.ToString());
+            }
+            Debug.WriteLine("Exiting LoadEducation_Level method...");
+            return education_studyyear_info;
+        }
+        //Update Education_StudyYear
+        public bool Update_Education_StudyYear_Information(Education_StudyYear education_studyyear_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE education_studyyear_info SET edu_studyyear_name = @edu_studyyear_name WHERE edu_studyyear_id = @edu_studyyear_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_studyyear_id", education_studyyear_info.Edu_StudyYear_ID);
+                    cmd.Parameters.AddWithValue("@edu_studyyear_name", education_studyyear_info.Edu_StudyYear_Name);
+                   
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Education_StudyYear Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Method to Select Last SY_ID and Edu_StudyYear_ID
+        public (int SY_ID, string Edu_StudyYear_ID) Get_SY_ID_and_Edu_StudyYear_ID()
+        {
+            int SY_ID = 0;
+            string Last_StudyYear_ID = "EDU_SY000";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(ID) AS ID, MAX(edu_studyyear_id) AS Last_StudyYear_ID FROM education_studyyear_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            SY_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("ID");
+                            Last_StudyYear_ID = reader.IsDBNull(1) ? "EDU_SY000" : reader.GetString("Last_StudyYear_ID");
+                        }
+
+                    }
+                }
+            }
+            SY_ID++;
+            string Edu_StudyYear_ID = IncrementStudyYear_ID(Last_StudyYear_ID);
+
+            return (SY_ID, Edu_StudyYear_ID);
+
+        }
+        //Method to Increase SY_ID
+        public string IncrementStudyYear_ID(String currentStudyYear_ID)
+        {
+            // Assuming the format is always "EDU_SY" + 3-digit number
+            string prefix = "EDU_SY";
+            string numericPart = currentStudyYear_ID.Substring(6); // Extract the numeric part after "EDU_SY"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string Edu_StudyYear_ID = prefix + newNumericPart;
+
+            return Edu_StudyYear_ID;
+        }
+        //Delete Education_StudyYear
+        public bool Delete_Education_StudyYear_Information(Education_StudyYear education_studyyear_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM education_studyyear_info WHERE edu_studyyear_id = @edu_studyyear_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@edu_studyyear_id", education_studyyear_info.Edu_StudyYear_ID);
 
                     // Execute the query
                     int rowsAffected = cmd.ExecuteNonQuery();

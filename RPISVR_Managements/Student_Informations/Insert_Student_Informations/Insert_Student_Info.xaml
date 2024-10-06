@@ -755,12 +755,12 @@
                                            Margin="0,5,5,0"
                                            CornerRadius="3"
                                            Width="180"/>
-                                    <AutoSuggestBox x:Name="Search_ByNationID"
+                                    <!--<AutoSuggestBox x:Name="Search_ByNationID"
                                            Header="ស្វែងរកតាមលេខអត្តសញ្ញាណប័ណ្ណ"
                                            Style="{StaticResource Stye_KH_AutoSuggestBox}"
                                            Margin="0,5,5,0"
                                            CornerRadius="3"
-                                           Width="180"/>
+                                           Width="180"/>-->
                                     <Line X1="0" Y1="10" X2="240" Y2="10" 
                                         x:Name="Line_4"
                                         Stroke="Aqua" 
@@ -887,6 +887,7 @@
                                     </Button>
 
                                     <Button x:Name="btn_InsertStudyingTime_Plus"
+                                            Click="InsertStudyYear"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>

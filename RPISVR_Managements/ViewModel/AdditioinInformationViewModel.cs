@@ -20,6 +20,7 @@ using RPISVR_Managements.Dialog_Control;
 using Microsoft.UI.Xaml;
 using System.Diagnostics.Eventing.Reader;
 using Windows.Graphics.Printing;
+using System.Data.Common;
 
 namespace RPISVR_Managements.ViewModel
 {
@@ -27,11 +28,13 @@ namespace RPISVR_Managements.ViewModel
     {
         //Database
         private readonly DatabaseConnection _dbConnection;
+
         //Data in ListView
         private ObservableCollection<Education_Levels> _education_level;
         private ObservableCollection<Education_Skills> _education_skill;
         private ObservableCollection<Education_StudyTimeShift> _education_studytimeshift;
         private ObservableCollection<Education_TypeStudy> _education_typestudy;
+        private ObservableCollection<Education_StudyYear> _education_studyyear;
 
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
@@ -41,6 +44,8 @@ namespace RPISVR_Managements.ViewModel
         private DatabaseConnection _education_StudyTimeShiftModel;
         //Get_Last_TS_ID
         private DatabaseConnection _education_TypeStudyModel;
+        //Get_Last_SY_ID
+        private DatabaseConnection _education_StudyYearModel;
 
         //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
@@ -58,6 +63,10 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand_Add_TypeStudy_Information { get; }
         public ICommand ClearCommand_Education_TypeStudy { get; }
         public ICommand DeleteCommand_Education_TypeStudy { get; }
+        //Command Education_StudyYear
+        public ICommand SubmitCommand_Add_StudyYear_Information { get; }
+        public ICommand ClearCommand_Education_StudyYear { get; }
+        public ICommand DeleteCommand_Education_StudyYear { get; }
 
 
         public AdditioinInformationViewModel()
@@ -132,7 +141,24 @@ namespace RPISVR_Managements.ViewModel
             var (ts_id, typestudy_id) = _education_TypeStudyModel.Get_TS_ID_and_TypeStudy_ID();
             TS_ID = ts_id;
             TypeStudy_ID = typestudy_id;
-            
+
+            //Education_StudyYear Mode
+            //Submit Command
+            SubmitCommand_Add_StudyYear_Information = new RelayCommand(async () => await SubmitAsync_Education_StudyYears());
+            //Clear Command
+            ClearCommand_Education_StudyYear = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Education_StudyYear = new RelayCommand(async () => await Delete_Education_StudyYear_Info());
+            //Data to ListView
+            Education_StudyYear_ListView = new ObservableCollection<Education_StudyYear>();
+            //Load Data to ListView
+            LoadEducation_StudyYear();
+            //Get TS_ID
+            _education_StudyYearModel = new DatabaseConnection();
+            var (sy_id, studyyear_id) = _education_StudyYearModel.Get_SY_ID_and_Edu_StudyYear_ID();
+            SY_ID = sy_id;
+            Edu_StudyYear_ID = studyyear_id;
+
         }
         //STS_ID
         private int _STS_ID;
@@ -911,9 +937,21 @@ namespace RPISVR_Managements.ViewModel
             Clear_Education_Skill_Text();
             Clear_Education_StudyTimeShift();
             Clear_Education_TypeStudy_Text();
+            Clear_Education_StudyYear_Text();
             await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Education_StudyYear_Text()
+        {
+            //Get TS_ID
+            _education_StudyYearModel = new DatabaseConnection();
+            var (sy_id, studyyear_id) = _education_StudyYearModel.Get_SY_ID_and_Edu_StudyYear_ID();
+            SY_ID = sy_id;
+            Edu_StudyYear_ID = studyyear_id;
+           
+            //Edu_StudyYear_ID = string.Empty;
+            Edu_StudyYear_Name = string.Empty;
+        }
         public void Clear_Education_TypeStudy_Text()
         {
             //Get TS_ID
@@ -936,9 +974,7 @@ namespace RPISVR_Managements.ViewModel
             var (sts_id, studytimeshift_id) = _education_StudyTimeShiftModel.Get_STS_ID_and_StudyTimeShift_ID();
             STS_ID = sts_id;
             StudyTimeShift_ID = studytimeshift_id;
-            Debug.WriteLine("STS_ID: " + STS_ID);
-            Debug.WriteLine("StudyTimeShift_ID: " + StudyTimeShift_ID);
-           
+
             StudyTimeShift_Name_KH = string.Empty;
             StudyTimeShift_Name_EN = string.Empty;
             StudyTimeShift_Name_Short = string.Empty;
@@ -950,8 +986,7 @@ namespace RPISVR_Managements.ViewModel
             var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
             Sk_ID = sk_id;
             Skill_ID = edu_skill_id;
-            Debug.WriteLine("Sk_ID: " + Sk_ID);
-            Debug.WriteLine("Skill_ID: " + Skill_ID);
+           
             //Skill_ID = string.Empty;
             Skill_Name_KH = string.Empty;
             Skill_Name_EN = string.Empty;
@@ -964,9 +999,7 @@ namespace RPISVR_Managements.ViewModel
             var (edu_id, edu_level_id) = _education_LevelModel.Get_Edu_ID_and_Edu_Level_ID();
             Edu_ID = edu_id;
             Edu_Level_ID = edu_level_id;
-
-            Debug.WriteLine("Edu_ID: " + Edu_ID);
-            Debug.WriteLine("Edu_Level_ID: " + Edu_Level_ID);
+ 
             //Edu_Level_ID = string.Empty;
             Edu_Level_Name_KH = string.Empty;
             Edu_Level_Name_EN = string.Empty;
@@ -1415,7 +1448,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
             }
         }
-        //
+        //For command Delete
         public async Task Delete_Education_TypeStudy_Info()
         {
             Delete_Education_TypeStudys();
@@ -1424,6 +1457,265 @@ namespace RPISVR_Managements.ViewModel
 
             await Task.CompletedTask;
         }
+        //End Education_TypeStudy Mode
+
+        //Start StudyYear Mode
+        //SY_ID
+        private int _SY_ID;
+        public int SY_ID
+        {
+            get => _SY_ID;
+            set
+            {
+                if (_SY_ID != value)
+                {
+                    _SY_ID = value;
+                    OnPropertyChanged(nameof(SY_ID));
+                }
+            }
+        }
+        //Edu_StudyYear_ID
+        private string _Edu_StudyYear_ID;
+        public string Edu_StudyYear_ID
+        {
+            get => _Edu_StudyYear_ID;
+            set
+            {
+                if (_Edu_StudyYear_ID != value)
+                {
+                    _Edu_StudyYear_ID = value;
+                    OnPropertyChanged(nameof(Edu_StudyYear_ID));
+                    ValidateEdu_StudyYear_ID();
+                }
+            }
+        }
+        //Edu_StudyYear_Name
+        private string _Edu_StudyYear_Name;
+        public string Edu_StudyYear_Name
+        {
+            get => _Edu_StudyYear_Name;
+            set
+            {
+                if(_Edu_StudyYear_Name != value)
+                {
+                    _Edu_StudyYear_Name = value;
+                    OnPropertyChanged(nameof(Edu_StudyYear_Name));
+                    ValidateEdu_StudyYear_Name();
+                }
+            }
+        }
+        //Real-time validation method Edu_StudyYear_ID
+        public SolidColorBrush Edu_StudyYear_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Edu_StudyYear_IDBorderBrush));
+            }
+        }
+        //ValidateEdu_StudyYear_ID
+        private void ValidateEdu_StudyYear_ID()
+        {
+            if (string.IsNullOrEmpty(Edu_StudyYear_ID))
+            {
+                Edu_StudyYear_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Edu_StudyYear_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Edu_StudyYear_Name
+        public SolidColorBrush Edu_StudyYear_NameBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Edu_StudyYear_NameBorderBrush));
+            }
+        }
+        //ValidateEdu_StudyYear_Name
+        private void ValidateEdu_StudyYear_Name()
+        {
+            if (string.IsNullOrEmpty(Edu_StudyYear_Name))
+            {
+                Edu_StudyYear_NameBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Edu_StudyYear_NameBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        public async Task SubmitAsync_Education_StudyYears()
+        {
+            ValidateEdu_StudyYear_ID();
+            ValidateEdu_StudyYear_Name();
+
+            if (string.IsNullOrEmpty(Edu_StudyYear_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Edu_StudyYear_Name))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ឆ្នាំសិក្សា";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            SaveEducation_StudyYears();
+            LoadEducation_StudyYear();
+            Clear_Education_StudyYear_Text();
+
+            Debug.WriteLine(Edu_StudyYear_ID);
+            Debug.WriteLine(Edu_StudyYear_Name);
+            await Task.CompletedTask;
+        }
+        //SaveEducation_StudyYeartoDatabase
+        public void SaveEducation_StudyYears()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+                //Update Mode
+            var UpdateEducation_StudyYear = Education_StudyYear_ListView.FirstOrDefault(s => s.Edu_StudyYear_ID == Edu_StudyYear_ID);
+            //Education_TypeStudy_ListView Get from top (Selected ListView).
+            if (UpdateEducation_StudyYear != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateEducation_StudyYear.Edu_StudyYear_ID = Edu_StudyYear_ID;
+                UpdateEducation_StudyYear.Edu_StudyYear_Name = Edu_StudyYear_Name;
+                
+
+                bool sucess = dbConnection.Update_Education_StudyYear_Information(UpdateEducation_StudyYear);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_StudyYear_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_StudyYear_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Education_StudyYear education_studyyear_info = new Education_StudyYear
+                {
+                    Edu_StudyYear_ID = this.Edu_StudyYear_ID,
+                    Edu_StudyYear_Name = this.Edu_StudyYear_Name,
+                    };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Education_StudyYears(education_studyyear_info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+        }
+        //Data to ListView
+        public ObservableCollection<Education_StudyYear> Education_StudyYear_ListView
+        {
+            get => _education_studyyear;
+            set
+            {
+                _education_studyyear = value;
+                OnPropertyChanged(nameof(Education_StudyYear_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //LoadEducation_StudyYear
+        public void LoadEducation_StudyYear()
+        {
+            // Ensure _dbConnection is properly initialized
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+
+            var education_studyyear_list = _dbConnection.LoadEducation_StudyYear();
+
+            if (education_studyyear_list != null && education_studyyear_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Education_StudyYear_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var education_studyyear in education_studyyear_list)
+                {
+                    Education_StudyYear_ListView.Add(education_studyyear);
+                }
+                Education_StudyYear_ListView = new ObservableCollection<Education_StudyYear>(education_studyyear_list);
+            }
+            else
+            {
+                Debug.WriteLine("No education StudyYear found.");
+            }
+        }
+        //Select Education_StudyYear in the ListView
+        private Education_StudyYear _selectedEducation_StudyYear;
+        public Education_StudyYear SelectedEducation_StudyYear
+        {
+            get => _selectedEducation_StudyYear;
+            set
+            {
+                _selectedEducation_StudyYear = value;
+                OnPropertyChanged();
+
+                if (_selectedEducation_StudyYear != null)
+                {
+                    Edu_StudyYear_ID = _selectedEducation_StudyYear.Edu_StudyYear_ID;
+                    Edu_StudyYear_Name = _selectedEducation_StudyYear.Edu_StudyYear_Name;
+                }
+                OnPropertyChanged(nameof(SelectedEducation_StudyYear));
+            }
+        }
+        //For Command Delete Education_StudyYear
+        public async Task Delete_Education_StudyYear_Info()
+        {
+            Delete_Education_StudyYears();
+            LoadEducation_StudyYear();
+            Clear_Education_StudyYear_Text();
+
+            await Task.CompletedTask;
+        }
+        //Method Delete
+        public void Delete_Education_StudyYears()
+        {
+           DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteEducation_StudyYear = Education_StudyYear_ListView.FirstOrDefault(s => s.Edu_StudyYear_ID == Edu_StudyYear_ID);
+            if (DeleteEducation_StudyYear != null)
+            {
+                DeleteEducation_StudyYear.Edu_StudyYear_ID = Edu_StudyYear_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_Education_StudyYear_Information(DeleteEducation_StudyYear);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_StudyYear_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_StudyYear_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
+        //End Education_StudyYear
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
