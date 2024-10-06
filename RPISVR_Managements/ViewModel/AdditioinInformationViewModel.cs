@@ -21,10 +21,11 @@ using Microsoft.UI.Xaml;
 using System.Diagnostics.Eventing.Reader;
 using Windows.Graphics.Printing;
 using System.Data.Common;
+using System.Data;
 
 namespace RPISVR_Managements.ViewModel
 {
-    public class AdditioinInformationViewModel: INotifyPropertyChanged
+    public class AdditioinInformationViewModel : INotifyPropertyChanged
     {
         //Database
         private readonly DatabaseConnection _dbConnection;
@@ -35,6 +36,7 @@ namespace RPISVR_Managements.ViewModel
         private ObservableCollection<Education_StudyTimeShift> _education_studytimeshift;
         private ObservableCollection<Education_TypeStudy> _education_typestudy;
         private ObservableCollection<Education_StudyYear> _education_studyyear;
+        private ObservableCollection<Provinces_Info> _provinces_info;
 
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
@@ -46,6 +48,8 @@ namespace RPISVR_Managements.ViewModel
         private DatabaseConnection _education_TypeStudyModel;
         //Get_Last_SY_ID
         private DatabaseConnection _education_StudyYearModel;
+        //Get_Last_PV_ID
+        private DatabaseConnection _province_InfoModel;
 
         //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
@@ -67,6 +71,10 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand_Add_StudyYear_Information { get; }
         public ICommand ClearCommand_Education_StudyYear { get; }
         public ICommand DeleteCommand_Education_StudyYear { get; }
+        //Command Add_Province
+        public ICommand SubmitCommand_Add_Province_Information { get; }
+        public ICommand ClearCommand_Province { get; }
+        public ICommand DeleteCommand_Province { get; }
 
 
         public AdditioinInformationViewModel()
@@ -158,6 +166,24 @@ namespace RPISVR_Managements.ViewModel
             var (sy_id, studyyear_id) = _education_StudyYearModel.Get_SY_ID_and_Edu_StudyYear_ID();
             SY_ID = sy_id;
             Edu_StudyYear_ID = studyyear_id;
+
+            //Add_Province Mode
+            //Submit Command
+            SubmitCommand_Add_Province_Information = new RelayCommand(async () => await SubmitAsync_Add_Provinces());
+            //Clear Command
+            ClearCommand_Province = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Province = new RelayCommand(async () => await Delete_Add_Province_Info());
+            //Data to ListView
+            Province_Info_ListView = new ObservableCollection<Provinces_Info>();
+            //Load Data to ListView
+            LoadProvince_Info();
+            //Get PV_ID
+            _province_InfoModel = new DatabaseConnection();
+            var (p_id, pv_id) = _province_InfoModel.Get_P_ID_and_PV_ID();
+            P_ID = p_id;
+            PV_ID = pv_id;
+           
 
         }
         //STS_ID
@@ -268,7 +294,7 @@ namespace RPISVR_Managements.ViewModel
             get => _skill_name_kh;
             set
             {
-                if( _skill_name_kh != value)
+                if (_skill_name_kh != value)
                 {
                     _skill_name_kh = value;
                     OnPropertyChanged(nameof(Skill_Name_KH));
@@ -312,7 +338,7 @@ namespace RPISVR_Managements.ViewModel
             get => _edu_id;
             set
             {
-                if(_edu_id != value)
+                if (_edu_id != value)
                 {
                     _edu_id = value;
                     OnPropertyChanged(nameof(Edu_ID));
@@ -357,7 +383,7 @@ namespace RPISVR_Managements.ViewModel
             get => _edu_level_name_en;
             set
             {
-                if(_edu_level_name_en != value)
+                if (_edu_level_name_en != value)
                 {
                     _edu_level_name_en = value;
                     OnPropertyChanged(nameof(Edu_Level_Name_EN));
@@ -371,7 +397,7 @@ namespace RPISVR_Managements.ViewModel
             get => _edu_level_name_short;
             set
             {
-                if(_edu_level_name_short != value)
+                if (_edu_level_name_short != value)
                 {
                     _edu_level_name_short = value;
                     OnPropertyChanged(nameof(Edu_Level_Name_Short));
@@ -545,7 +571,7 @@ namespace RPISVR_Managements.ViewModel
             }
             else
             {
-                EduIDBorderBrush = new SolidColorBrush(Colors.Green); 
+                EduIDBorderBrush = new SolidColorBrush(Colors.Green);
             }
         }
         //Real-time validation method Edu_Name_KH
@@ -631,7 +657,7 @@ namespace RPISVR_Managements.ViewModel
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
             var DeleteEducation_Level = Education_Level_ListView.FirstOrDefault(s => s.Edu_Level_ID == Edu_Level_ID);
-            if(DeleteEducation_Level != null)
+            if (DeleteEducation_Level != null)
             {
                 DeleteEducation_Level.Edu_Level_ID = Edu_Level_ID;
 
@@ -703,8 +729,8 @@ namespace RPISVR_Managements.ViewModel
                     Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
                 }
             }
-            
-                
+
+
         }
         //SaveEducation_SkilltoDatabase
         public void Save_Education_Skills()
@@ -756,7 +782,7 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
-        
+
         //SubmitAsync_Education_StudyTimeShifts
         public async Task SubmitAsync_Education_StudyTimeShifts()
         {
@@ -808,7 +834,7 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
             Debug.WriteLine("Education_Skill Insert Mode");
-            Debug.WriteLine($"Skill_ID: "+Skill_ID);
+            Debug.WriteLine($"Skill_ID: " + Skill_ID);
             Debug.WriteLine($"Skill_Name_KH: " + Skill_Name_KH);
             Debug.WriteLine($"Skill_Name_EN: " + Skill_Name_EN);
             Debug.WriteLine($"Skill_Name_Short: " + Skill_Name_Short);
@@ -841,7 +867,7 @@ namespace RPISVR_Managements.ViewModel
                 bool sucess = dbConnection.Update_Education_Level_Information(UpdateEducation_Level);
                 if (sucess)
                 {
-                    Edu_Error_Message ="លេខសម្កាល់ "+Edu_Level_ID+" បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    Edu_Error_Message = "លេខសម្កាល់ " + Edu_Level_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
                     MessageColor = new SolidColorBrush(Colors.Green);
                 }
                 else
@@ -871,7 +897,7 @@ namespace RPISVR_Managements.ViewModel
                 {
                     Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
                 }
-            }     
+            }
         }
         public async Task Delete_Education_Level_Info()
         {
@@ -896,8 +922,8 @@ namespace RPISVR_Managements.ViewModel
         }
         public async Task SubmitAsync_Education_Levels()
         {
-           ValidateEdu_Level_ID();
-           ValidateEdu_Level_Name_KH();
+            ValidateEdu_Level_ID();
+            ValidateEdu_Level_Name_KH();
 
             // Clear any previous error message
             Edu_Error_Message = string.Empty;
@@ -919,15 +945,15 @@ namespace RPISVR_Managements.ViewModel
             }
 
             Debug.WriteLine("Insert Mode");
-                Debug.WriteLine(Edu_Level_ID);
-                Debug.WriteLine(Edu_Level_Name_KH);
-                Debug.WriteLine(Edu_Level_Name_EN);
-                Debug.WriteLine(Edu_Level_Name_Short);
+            Debug.WriteLine(Edu_Level_ID);
+            Debug.WriteLine(Edu_Level_Name_KH);
+            Debug.WriteLine(Edu_Level_Name_EN);
+            Debug.WriteLine(Edu_Level_Name_Short);
 
             Save_Education_Levels();
             Clear_Education_Level_Text();
             LoadEducation_Levels();
-            
+
             await Task.CompletedTask;
         }
         //
@@ -938,9 +964,21 @@ namespace RPISVR_Managements.ViewModel
             Clear_Education_StudyTimeShift();
             Clear_Education_TypeStudy_Text();
             Clear_Education_StudyYear_Text();
+            Clear_Province_Info_Text();
             await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Province_Info_Text()
+        {
+            //Get PV_ID
+            _province_InfoModel = new DatabaseConnection();
+            var (p_id, pv_id) = _province_InfoModel.Get_P_ID_and_PV_ID();
+            P_ID = p_id;
+            PV_ID = pv_id;
+
+            Province_Name_KH = string.Empty;
+            Province_Name_EN = string.Empty;
+        }
         public void Clear_Education_StudyYear_Text()
         {
             //Get TS_ID
@@ -948,7 +986,7 @@ namespace RPISVR_Managements.ViewModel
             var (sy_id, studyyear_id) = _education_StudyYearModel.Get_SY_ID_and_Edu_StudyYear_ID();
             SY_ID = sy_id;
             Edu_StudyYear_ID = studyyear_id;
-           
+
             //Edu_StudyYear_ID = string.Empty;
             Edu_StudyYear_Name = string.Empty;
         }
@@ -986,7 +1024,7 @@ namespace RPISVR_Managements.ViewModel
             var (sk_id, edu_skill_id) = _education_SkillModel.Get_Sk_ID_and_Skill_ID();
             Sk_ID = sk_id;
             Skill_ID = edu_skill_id;
-           
+
             //Skill_ID = string.Empty;
             Skill_Name_KH = string.Empty;
             Skill_Name_EN = string.Empty;
@@ -999,7 +1037,7 @@ namespace RPISVR_Managements.ViewModel
             var (edu_id, edu_level_id) = _education_LevelModel.Get_Edu_ID_and_Edu_Level_ID();
             Edu_ID = edu_id;
             Edu_Level_ID = edu_level_id;
- 
+
             //Edu_Level_ID = string.Empty;
             Edu_Level_Name_KH = string.Empty;
             Edu_Level_Name_EN = string.Empty;
@@ -1016,7 +1054,7 @@ namespace RPISVR_Managements.ViewModel
                 _education_studytimeshift = value;
                 OnPropertyChanged(nameof(Education_StudyTimeShift_ListView));  // Notify the UI when the Students collection changes
             }
-        } 
+        }
         public ObservableCollection<Education_Skills> Education_Skill_ListView
         {
             get => _education_skill;
@@ -1066,7 +1104,7 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
             var education_skill_list = _dbConnection.LoadEducation_Skill();
-            if(education_skill_list != null && education_skill_list.Count > 0)
+            if (education_skill_list != null && education_skill_list.Count > 0)
             {
                 // Clear the existing items in the ObservableCollection
                 Education_Skill_ListView.Clear();
@@ -1118,11 +1156,11 @@ namespace RPISVR_Managements.ViewModel
             {
                 _selectedEducation_StudyTimeShift = value;
                 OnPropertyChanged();
-                if(_selectedEducation_StudyTimeShift != null)
+                if (_selectedEducation_StudyTimeShift != null)
                 {
                     StudyTimeShift_ID = _selectedEducation_StudyTimeShift.StudyTimeShift_ID;
                     StudyTimeShift_Name_KH = _selectedEducation_StudyTimeShift.StudyTimeShift_Name_KH;
-                    StudyTimeShift_Name_EN = _selectedEducation_StudyTimeShift .StudyTimeShift_Name_EN;
+                    StudyTimeShift_Name_EN = _selectedEducation_StudyTimeShift.StudyTimeShift_Name_EN;
                     StudyTimeShift_Name_Short = _selectedEducation_StudyTimeShift.StudyTimeShift_Name_Short;
                 }
                 OnPropertyChanged(nameof(SelectedEducation_StudyTimeShift));
@@ -1137,7 +1175,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _selectedEducation_Skill = value;
                 OnPropertyChanged();
-                if(_selectedEducation_Skill != null)
+                if (_selectedEducation_Skill != null)
                 {
                     Skill_ID = _selectedEducation_Skill.Skill_ID;
                     Skill_Name_KH = _selectedEducation_Skill.Skill_Name_KH;
@@ -1157,7 +1195,7 @@ namespace RPISVR_Managements.ViewModel
                 _selectedEducation_Level = value;
                 OnPropertyChanged();
 
-                if(_selectedEducation_Level != null)
+                if (_selectedEducation_Level != null)
                 {
                     Edu_Level_ID = _selectedEducation_Level.Edu_Level_ID;
                     Edu_Level_Name_KH = _selectedEducation_Level.Edu_Level_Name_KH;
@@ -1190,7 +1228,7 @@ namespace RPISVR_Managements.ViewModel
             get => _TypeStudy_ID;
             set
             {
-                if(_TypeStudy_ID != value)
+                if (_TypeStudy_ID != value)
                 {
                     _TypeStudy_ID = value;
                     OnPropertyChanged(nameof(TypeStudy_ID));
@@ -1205,7 +1243,7 @@ namespace RPISVR_Managements.ViewModel
             get => _TypeStudy_Name_KH;
             set
             {
-                if(_TypeStudy_Name_KH != value)
+                if (_TypeStudy_Name_KH != value)
                 {
                     _TypeStudy_Name_KH = value;
                     OnPropertyChanged(nameof(TypeStudy_Name_KH));
@@ -1220,7 +1258,7 @@ namespace RPISVR_Managements.ViewModel
             get => _TypeStudy_Name_EN;
             set
             {
-                if( _TypeStudy_Name_EN != value)
+                if (_TypeStudy_Name_EN != value)
                 {
                     _TypeStudy_Name_EN = value;
                     OnPropertyChanged(nameof(TypeStudy_Name_EN));
@@ -1304,7 +1342,7 @@ namespace RPISVR_Managements.ViewModel
                 Edu_Error_Message = "សូមបញ្ចូល ប្រភេទសិក្សា";
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
-            }    
+            }
 
             SaveEducation_TypeStudys();
             LoadEducation_TypeStudy();
@@ -1496,7 +1534,7 @@ namespace RPISVR_Managements.ViewModel
             get => _Edu_StudyYear_Name;
             set
             {
-                if(_Edu_StudyYear_Name != value)
+                if (_Edu_StudyYear_Name != value)
                 {
                     _Edu_StudyYear_Name = value;
                     OnPropertyChanged(nameof(Edu_StudyYear_Name));
@@ -1577,7 +1615,7 @@ namespace RPISVR_Managements.ViewModel
         public void SaveEducation_StudyYears()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
-                //Update Mode
+            //Update Mode
             var UpdateEducation_StudyYear = Education_StudyYear_ListView.FirstOrDefault(s => s.Edu_StudyYear_ID == Edu_StudyYear_ID);
             //Education_TypeStudy_ListView Get from top (Selected ListView).
             if (UpdateEducation_StudyYear != null)
@@ -1585,7 +1623,7 @@ namespace RPISVR_Managements.ViewModel
                 Debug.WriteLine("Update Mode");
                 UpdateEducation_StudyYear.Edu_StudyYear_ID = Edu_StudyYear_ID;
                 UpdateEducation_StudyYear.Edu_StudyYear_Name = Edu_StudyYear_Name;
-                
+
 
                 bool sucess = dbConnection.Update_Education_StudyYear_Information(UpdateEducation_StudyYear);
                 if (sucess)
@@ -1606,7 +1644,7 @@ namespace RPISVR_Managements.ViewModel
                 {
                     Edu_StudyYear_ID = this.Edu_StudyYear_ID,
                     Edu_StudyYear_Name = this.Edu_StudyYear_Name,
-                    };
+                };
                 Debug.WriteLine("Insert Mode");
                 bool success = dbConnection.Insert_Education_StudyYears(education_studyyear_info);
 
@@ -1689,7 +1727,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Delete
         public void Delete_Education_StudyYears()
         {
-           DatabaseConnection dbConnection = new DatabaseConnection();
+            DatabaseConnection dbConnection = new DatabaseConnection();
             var DeleteEducation_StudyYear = Education_StudyYear_ListView.FirstOrDefault(s => s.Edu_StudyYear_ID == Edu_StudyYear_ID);
             if (DeleteEducation_StudyYear != null)
             {
@@ -1715,6 +1753,276 @@ namespace RPISVR_Managements.ViewModel
             }
         }
         //End Education_StudyYear
+
+        //Start Add_Province
+        //P_ID
+        private int _P_ID;
+        public int P_ID
+        {
+            get => _P_ID;
+            set
+            {
+                if (_P_ID != value)
+                {
+                    _P_ID = value;
+                    OnPropertyChanged(nameof(P_ID));
+                }
+            }
+        }
+        //PV_ID
+        private string _PV_ID;
+        public string PV_ID
+        {
+            get => _PV_ID;
+            set
+            {
+                if (_PV_ID != value)
+                {
+                    _PV_ID = value;
+                    OnPropertyChanged(nameof(PV_ID));
+                    ValidatePV_ID();
+                }
+            }
+        }
+        //Province_Name_KH
+        private string _Province_Name_KH;
+        public string Province_Name_KH
+        {
+            get => _Province_Name_KH;
+            set
+            {
+                if (_Province_Name_KH != value)
+                {
+                    _Province_Name_KH = value;
+                    OnPropertyChanged(nameof(Province_Name_KH));
+                    ValidateProvince_Name_KH();
+                }
+            }
+        }
+        //Province_Name_EN
+        private string _Province_Name_EN;
+        public string Province_Name_EN
+        {
+            get => _Province_Name_EN;
+            set
+            {
+                _Province_Name_EN = value;
+                OnPropertyChanged(nameof(Province_Name_EN));
+            }
+        }
+        //Real-time validation method PV_ID
+        public SolidColorBrush PV_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(PV_IDBorderBrush));
+            }
+        }
+        //ValidatePV_ID
+        private void ValidatePV_ID()
+        {
+            if (string.IsNullOrEmpty(PV_ID))
+            {
+                PV_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                PV_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Province_Name_KH
+        public SolidColorBrush Province_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Province_Name_KHBorderBrush));
+            }
+        }
+        //ValidateProvince_Name_KH
+        private void ValidateProvince_Name_KH()
+        {
+            if (string.IsNullOrEmpty(Province_Name_KH))
+            {
+                Province_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Province_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Command for add province
+        public async Task SubmitAsync_Add_Provinces()
+        {
+            ValidatePV_ID();
+            ValidateProvince_Name_KH();
+
+            if (string.IsNullOrEmpty(PV_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Province_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ខេត្ត";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Save_Provice();
+            LoadProvince_Info();
+            Clear_Province_Info_Text();
+
+
+            await Task.CompletedTask;
+        }
+        //Save Province
+        public void Save_Provice()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var UpdateProvince = Province_Info_ListView.FirstOrDefault(s => s.PV_ID == PV_ID);
+            //Province ListView Get from top (Selected ListView).
+            if (UpdateProvince != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateProvince.PV_ID = PV_ID;
+                UpdateProvince.Province_Name_KH = Province_Name_KH;
+                UpdateProvince.Province_Name_EN = Province_Name_EN;
+
+                bool sucess = dbConnection.Update_Provinces_Information(UpdateProvince);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + PV_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + PV_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Provinces_Info provinces_Info = new Provinces_Info()
+                {
+                    PV_ID = this.PV_ID,
+                    Province_Name_KH = this.Province_Name_KH,
+                    Province_Name_EN = this.Province_Name_EN,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Provinces(provinces_Info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+        }
+        //Data to ListView
+        public ObservableCollection<Provinces_Info> Province_Info_ListView
+        {
+            get => _provinces_info;
+            set
+            {
+                _provinces_info = value;
+                OnPropertyChanged(nameof(Province_Info_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //LoadProvince_Info
+        public void LoadProvince_Info()
+        {
+            // Ensure _dbConnection is properly initialized
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+
+            var province_list = _dbConnection.LoadProvinces_Info();
+
+            if (province_list != null && province_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Province_Info_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var province_info in province_list)
+                {
+                    Province_Info_ListView.Add(province_info);
+                }
+                Province_Info_ListView = new ObservableCollection<Provinces_Info>(province_list);
+
+            }
+            else
+            {
+                Debug.WriteLine("No Province Info found.");
+            }
+        }
+        //Select Province in the ListView
+        private Provinces_Info _selectedProvinces;
+        public Provinces_Info SelectedProvinces
+        {
+            get => _selectedProvinces;
+            set
+            {
+                _selectedProvinces = value;
+                OnPropertyChanged();
+
+                if (_selectedProvinces != null)
+                {
+                    PV_ID = _selectedProvinces.PV_ID;
+                    Province_Name_KH = _selectedProvinces.Province_Name_KH;
+                    Province_Name_EN = _selectedProvinces.Province_Name_EN;
+                }
+                OnPropertyChanged(nameof(SelectedProvinces));
+            }
+        }
+        //For Command Delete
+        public async Task Delete_Add_Province_Info()
+        {
+            Delete_Provinces_Info();
+            Clear_Province_Info_Text();
+            LoadProvince_Info();
+
+            await Task.CompletedTask;
+        }
+        //For delete province
+        public void Delete_Provinces_Info()
+        { 
+            DatabaseConnection dbConnection = new DatabaseConnection();
+                var DeleteProvince = Province_Info_ListView.FirstOrDefault(s => s.PV_ID == PV_ID);
+                if (DeleteProvince != null)
+                {
+                    DeleteProvince.PV_ID = PV_ID;
+
+                    Debug.WriteLine("Delete Mode");
+                    bool sucess = dbConnection.Delete_Province_Information(DeleteProvince);
+                    if (sucess)
+                    {
+                        Edu_Error_Message = "លេខសម្កាល់ " + PV_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                        MessageColor = new SolidColorBrush(Colors.Green);
+                    }
+                    else
+                    {
+                        Edu_Error_Message = "លេខសម្កាល់ " + PV_ID + " ទិន្នន័យលុបបរាជ័យ";
+                        MessageColor = new SolidColorBrush(Colors.Red);
+                    }
+                }
+                else
+                {
+                    Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+        }
+        //End Province
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

@@ -927,6 +927,7 @@
                                         Margin="0,5,5,10"/>
 
                                     <Button x:Name="btn_InsertProvince_Plus"
+                                            Click="InsertProvinces"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>
