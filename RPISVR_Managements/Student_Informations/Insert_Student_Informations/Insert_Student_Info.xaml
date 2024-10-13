@@ -939,6 +939,7 @@
                                     </Button>
 
                                     <Button x:Name="btn_InsertDistric_Plus"
+                                            Click="InsertDistrict"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>
@@ -950,6 +951,7 @@
                                     </Button>
 
                                     <Button x:Name="btn_InsertCommon_Plus"
+                                            Click="InsertCommune"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>
@@ -960,7 +962,8 @@
                                         </StackPanel>
                                     </Button>
 
-                                    <Button x:Name="btn_InsertVillage_Plus"                                            
+                                    <Button x:Name="btn_InsertVillage_Plus"  
+                                            Click="InsertVillage"
                                           Style="{StaticResource Stye_KH_Button}"
                                           HorizontalContentAlignment="Left">
                                         <Button.Resources>

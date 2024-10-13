@@ -37,6 +37,9 @@ namespace RPISVR_Managements.ViewModel
         private ObservableCollection<Education_TypeStudy> _education_typestudy;
         private ObservableCollection<Education_StudyYear> _education_studyyear;
         private ObservableCollection<Provinces_Info> _provinces_info;
+        private ObservableCollection<Districts_Info> _district_info;
+        private ObservableCollection<Communes_Info> _communes_info;
+        private ObservableCollection<Village_Info> _village_info;
 
         //Get_Last_Edu_ID
         private DatabaseConnection _education_LevelModel;
@@ -50,6 +53,12 @@ namespace RPISVR_Managements.ViewModel
         private DatabaseConnection _education_StudyYearModel;
         //Get_Last_PV_ID
         private DatabaseConnection _province_InfoModel;
+        //Get_Last_DS_-ID
+        private DatabaseConnection _district_InfoModel;
+        //Get_Last_CD_ID
+        private DatabaseConnection _commune_InfoModel;
+        //Get_Last_VL_ID
+        private DatabaseConnection _village_InfoModel;
 
         //Command Education_Level
         public ICommand SubmitCommand_Add_Information { get; }
@@ -75,6 +84,18 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand_Add_Province_Information { get; }
         public ICommand ClearCommand_Province { get; }
         public ICommand DeleteCommand_Province { get; }
+        //Command Add_District
+        public ICommand SubmitCommand_Add_District_Information { get; }
+        public ICommand ClearCommand_District { get; }
+        public ICommand DeleteCommand_District { get; }
+        //Command Add_Commune
+        public ICommand SubmitCommand_Add_Commune_Information { get; }
+        public ICommand ClearCommand_Commune { get; }
+        public ICommand DeleteCommand_Commune { get; }
+        //Command Add_Village
+        public ICommand SubmitCommand_Add_Village_Information { get; }
+        public ICommand ClearCommand_Village { get; }
+        public ICommand DeleteCommand_Village { get; }
 
 
         public AdditioinInformationViewModel()
@@ -183,7 +204,72 @@ namespace RPISVR_Managements.ViewModel
             var (p_id, pv_id) = _province_InfoModel.Get_P_ID_and_PV_ID();
             P_ID = p_id;
             PV_ID = pv_id;
+
+            //Add_District Mode
+            //Submit Command
+            SubmitCommand_Add_District_Information = new RelayCommand(async () => await SubmitAsync_Add_Districts());
+            //Clear Command
+            ClearCommand_District = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_District = new RelayCommand(async () => await Delete_District_Info());
+            //Data to Combobox
+            Provinces_Combobox = new ObservableCollection<Districts_Info>();
+            //Data to Combobox
+            LoadData_to_Combobox();
+            District_Info_ListView = new ObservableCollection<Districts_Info>();
+            //Load Data to ListView
+            LoadDistrict_Info();
+            //Get PV_ID_district_InforModel
+            _district_InfoModel = new DatabaseConnection();
+            var (d_id, ds_id) = _district_InfoModel.Get_D_ID_and_DS_ID();
+            D_ID = d_id;
+            DS_ID = ds_id;
+
+            //Add Commune Mode
+            //Submit Command
+            SubmitCommand_Add_Commune_Information = new RelayCommand(async () => await SubmitAsync_Add_Communes());
+            //Clear Command
+            ClearCommand_Commune = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            DeleteCommand_Commune = new RelayCommand(async () => await Delete_Commune_Info());
+            //Data to Combobox
+            Provinces_Combobox = new ObservableCollection<Districts_Info>();
+            //Data to Combobox
+            LoadData_to_Combobox();
+            //Date to Combobox District
+            Districts_Combobox = new ObservableCollection<Communes_Info>();
+            //Load Data to ListView
+            Commune_Info_ListView = new ObservableCollection<Communes_Info>();
+            LoadCommunes_Info();
            
+            //Get CM_ID_commune_InforModel
+            _commune_InfoModel = new DatabaseConnection();
+            var (c_id, cm_id) = _commune_InfoModel.Get_C_ID_and_CM_ID();
+            C_ID = c_id;
+            CM_ID = cm_id;
+
+            //Add Village Mode
+            //Submit Command
+            SubmitCommand_Add_Village_Information = new RelayCommand(async () => await SubmitAsync_Add_Villages());
+            //Clear Command
+            ClearCommand_Village = new RelayCommand(async () => await ClearAsync());
+            //Delete Command
+            //DeleteCommand_Village = new RelayCommand(async () => await Delete_Village_Info());
+            //Data to Combobox
+            Provinces_Combobox = new ObservableCollection<Districts_Info>();
+            //Data to Combobox
+            LoadData_to_Combobox();
+            //Date to Combobox District
+            Districts_Combobox = new ObservableCollection<Communes_Info>();
+            //Load Data to ListView
+            //Commune_Info_ListView = new ObservableCollection<Communes_Info>();
+            //LoadCommunes_Info();
+
+            //Get VL_ID_Village_InforModel
+            //_village_InfoModel = new DatabaseConnection();
+            //var (v_id, vl_id) = _village_InfoModel.Get_V_ID_and_VL_ID();
+            //V_ID = v_id;
+            //VL_ID = vl_id;
 
         }
         //STS_ID
@@ -965,9 +1051,31 @@ namespace RPISVR_Managements.ViewModel
             Clear_Education_TypeStudy_Text();
             Clear_Education_StudyYear_Text();
             Clear_Province_Info_Text();
+            Clear_District_Info_Text();
+            Clear_Commune_Info_Text();
             await Task.CompletedTask;
         }
         //Method for Clear Text
+        public void Clear_Commune_Info_Text()
+        {
+            _commune_InfoModel = new DatabaseConnection();
+            var (c_id, cm_id) = _commune_InfoModel.Get_C_ID_and_CM_ID();
+            C_ID = c_id;
+            CM_ID = cm_id;
+
+            Commune_Name_KH = String.Empty;
+            Commune_Name_EN = String.Empty;
+        }
+        public void Clear_District_Info_Text()
+        {
+            _district_InfoModel = new DatabaseConnection();
+            var (d_id, ds_id) = _district_InfoModel.Get_D_ID_and_DS_ID();
+            D_ID = d_id;
+            DS_ID = ds_id;
+
+            District_Name_KH = string.Empty;
+            District_Name_EN = string.Empty;
+        }
         public void Clear_Province_Info_Text()
         {
             //Get PV_ID
@@ -1873,7 +1981,7 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
 
-            Save_Provice();
+            Save_Province();
             LoadProvince_Info();
             Clear_Province_Info_Text();
 
@@ -1881,7 +1989,7 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask;
         }
         //Save Province
-        public void Save_Provice()
+        public void Save_Province()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
             var UpdateProvince = Province_Info_ListView.FirstOrDefault(s => s.PV_ID == PV_ID);
@@ -2023,6 +2131,909 @@ namespace RPISVR_Managements.ViewModel
                 }
         }
         //End Province
+
+        //Start District
+        //D_ID
+        private int _D_ID;
+        public int D_ID
+        {
+            get => _D_ID;
+            set
+            {
+                if (_D_ID != value)
+                {
+                    _D_ID = value;
+                    OnPropertyChanged(nameof(D_ID));                  
+                }
+            }
+        }
+        //DS_ID
+        private string _DS_ID;
+        public string DS_ID
+        {
+            get => _DS_ID;
+            set
+            {
+                if (_DS_ID != value)
+                {
+                    _DS_ID = value;
+                    OnPropertyChanged(nameof(DS_ID));
+                    ValidateDS_ID();
+                }
+            }
+        }
+        //District_Name_KH
+        private string _District_Name_KH;
+        public string District_Name_KH
+        {
+            get => _District_Name_KH;
+            set
+            {
+                if(_District_Name_KH  != value)
+                {
+                    _District_Name_KH = value;
+                    OnPropertyChanged(nameof(District_Name_KH));
+                    ValidateDistrict_Name_KH();
+                }
+            }
+        }
+        //District_Name_KH
+        private string _District_Name_EN;
+        public string District_Name_EN
+        {
+            get => _District_Name_EN;
+            set
+            {
+                if (_District_Name_EN != value)
+                {
+                    _District_Name_EN = value;
+                    OnPropertyChanged(nameof(District_Name_EN));
+                }
+            }
+        }
+        //Province_ID
+        private int _Province_ID;
+        public int Province_ID
+        {
+            get => _Province_ID;
+            set
+            {
+                if(_Province_ID != value)
+                {
+                    _Province_ID = value;
+                    OnPropertyChanged(nameof(Province_ID));
+                    ValidateSelectProvince();
+                }
+            }
+        }
+
+        //SelectedProvince
+        private Districts_Info _selectedProvince_Info;
+        public Districts_Info SelectedProvince_Info
+        {
+            get { return _selectedProvince_Info; }
+            set
+            {
+                _selectedProvince_Info = value;
+                OnPropertyChanged(nameof(SelectedProvince_Info));  // Notify UI that the property has changed
+                
+            }
+        }
+        //Real-time validation method DS_ID
+        public SolidColorBrush DS_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(DS_IDBorderBrush));
+            }
+        }
+        //ValidateDS_ID
+        private void ValidateDS_ID()
+        {
+            if (string.IsNullOrEmpty(DS_ID))
+            {
+                DS_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                DS_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method District_Name_KH
+        public SolidColorBrush District_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(District_Name_KHBorderBrush));
+            }
+        }
+        //ValidateDistrict_Name_KH
+        private void ValidateDistrict_Name_KH()
+        {
+            if (string.IsNullOrEmpty(District_Name_KH))
+            {
+                District_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                District_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Select Province
+        public SolidColorBrush SelectProBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectProBorderBrush));
+            }
+        }
+        //ValidateSelectProvince
+        private void ValidateSelectProvince()
+        {
+            if (SelectedProvince_Info == null)
+            {
+                SelectProBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectProBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        public void SelectedProvince_In_District()
+        {
+            if (SelectedProvince_Info != null)
+            {
+                string selectedProvinceName = SelectedProvince_Info.District_In_Pro;
+                int selectedProvinceId = SelectedProvince_Info.Province_ID;
+
+                // Do something with the selected district or province
+                Debug.WriteLine($"Selected Province: {selectedProvinceName}, ID: {selectedProvinceId}");
+            }
+            else
+            {
+                Edu_Error_Message = "សូមជ្រើសរើសខេត្ត";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+        //Real-time validation method District_In_Pro
+        public SolidColorBrush District_In_ProBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(District_In_ProBorderBrush));
+            }
+        }
+        //Get_data_to_combobox Province
+        private ObservableCollection<Districts_Info> _provinces;
+        public ObservableCollection<Districts_Info> Provinces_Combobox
+        {
+            get { return _provinces; }
+            set
+            {
+                _provinces = value;
+                OnPropertyChanged(nameof(Provinces_Combobox));
+            }
+        }
+        //Load Data to Combobox
+        private void LoadData_to_Combobox()
+        {
+            var ProvinceList = _dbConnection.GetProvince_toCombobox();
+            foreach (var province in ProvinceList)
+            {
+                Provinces_Combobox.Add(province);
+            }
+        }
+        //Save Data District to database
+        public void SaveData_District_toDatabase()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var UpdateDistrict = District_Info_ListView.FirstOrDefault(s => s.DS_ID == DS_ID);
+            //Province ListView Get from top (Selected ListView).
+            if (UpdateDistrict != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateDistrict.DS_ID = DS_ID;
+                UpdateDistrict.District_Name_KH = District_Name_KH;
+                UpdateDistrict.District_Name_EN = District_Name_EN;
+                // Assuming a ComboBox that selects a province and binds to SelectedProvince_Info
+                if (SelectedProvince_Info != null)
+                {
+                    UpdateDistrict.Province_ID = SelectedProvince_Info.Province_ID;  // Ensure valid Province_ID
+                }
+                else
+                {
+                    Edu_Error_Message = "សូមជ្រើសរើសខេត្តដែលស្រុកស្ថិតនៅ!";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+
+                bool sucess = dbConnection.Update_Districts_Information(UpdateDistrict);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + DS_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + DS_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Districts_Info districts_Info = new Districts_Info()
+                {
+                    DS_ID = this.DS_ID,
+                    District_Name_KH = this.District_Name_KH,
+                    District_Name_EN = this.District_Name_EN,
+                    SelectedProvince = SelectedProvince_Info.Province_ID,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Districts(districts_Info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }        
+        }
+        //Data to ListView
+        public ObservableCollection<Districts_Info> District_Info_ListView
+        {
+            get => _district_info;
+            set
+            {
+                _district_info = value;
+                OnPropertyChanged(nameof(District_Info_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //LoadDistrict_Info
+        public void LoadDistrict_Info()
+        {
+            // Ensure _dbConnection is properly initialized
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+
+            var district_list = _dbConnection.LoadDistricts_Info();
+
+            if (district_list != null && district_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                District_Info_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var district_info in district_list)
+                {
+                    District_Info_ListView.Add(district_info);
+                }
+                District_Info_ListView = new ObservableCollection<Districts_Info>(district_list);
+
+            }
+            else
+            {
+                Debug.WriteLine("No District Info are found.");
+            }
+        }
+        //Select Data from ListView
+
+        //Command Submit
+        public async Task SubmitAsync_Add_Districts()
+        {
+            ValidateDS_ID();
+            ValidateDistrict_Name_KH();
+            ValidateSelectProvince();
+
+            if (string.IsNullOrEmpty(DS_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(District_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ស្រុក";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            SelectedProvince_In_District();
+            SaveData_District_toDatabase();
+            LoadDistrict_Info();
+            Clear_District_Info_Text(); 
+            Debug.WriteLine(DS_ID);
+            Debug.WriteLine(District_Name_KH);
+            
+
+            await Task.CompletedTask;
+        }
+              
+        //Select Data District from ListView to Combobox
+        private Districts_Info _selectedDistricts;
+        public Districts_Info SelectedDistricts
+        {
+            get => _selectedDistricts;
+            set
+            {
+                _selectedDistricts = value;
+                OnPropertyChanged();
+
+                if (_selectedDistricts != null)
+                {
+                    DS_ID = _selectedDistricts.DS_ID;
+                    District_Name_KH = _selectedDistricts.District_Name_KH;
+                    District_Name_EN = _selectedDistricts.District_Name_EN;
+                    // Find the matching province based on the selected district's province_id
+                    SelectedProvince_Info = Provinces_Combobox
+                        .FirstOrDefault(province => province.District_In_Pro == _selectedDistricts.District_In_Pro);
+                    OnPropertyChanged(nameof(SelectedProvince_Info));
+                }
+                OnPropertyChanged(nameof(SelectedDistricts));
+            }
+        }
+        //Delete District Info
+        public void Delete_Districts_Info()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteDistrict = District_Info_ListView.FirstOrDefault(s => s.DS_ID == DS_ID);
+            if (DeleteDistrict != null)
+            {
+                DeleteDistrict.DS_ID = DS_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_District_Information(DeleteDistrict);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + DS_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + DS_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
+        //Command Delete
+        public async Task Delete_District_Info()
+        {
+            Delete_Districts_Info();
+            LoadDistrict_Info();
+            Clear_District_Info_Text();
+
+            await Task.CompletedTask;
+
+        }
+        //End District Info
+
+        //Start Add Commune
+        //C_ID
+        private int _C_ID;
+        public int C_ID
+        {
+            get => _C_ID;
+            set
+            {
+                if (_C_ID != value)
+                {
+                    _C_ID = value;
+                    OnPropertyChanged(nameof(C_ID));
+                }
+            }
+        }
+        //CM_ID
+        private string _CM_ID;
+        public string CM_ID
+        {
+            get => _CM_ID;
+            set
+            {
+                if(_CM_ID != value)
+                {
+                    _CM_ID = value;
+                    OnPropertyChanged(nameof(CM_ID));
+                    ValidateCM_ID();
+                }
+            }
+        }
+        //Commune_Name_KH
+        private string _Commune_Name_KH;
+        public string Commune_Name_KH
+        {
+            get => _Commune_Name_KH;
+            set
+            {
+                if(_Commune_Name_KH != value)
+                {
+                    _Commune_Name_KH = value;
+                    OnPropertyChanged(nameof(Commune_Name_KH));
+                    ValidateCommune_Name_KH();
+                }
+            }
+        }
+        //Commune_Name_EN
+        private string _Commune_Name_EN;
+        public string Commune_Name_EN
+        {
+            get => _Commune_Name_EN;
+            set
+            {
+                if(_Commune_Name_EN != value)
+                {
+                    _Commune_Name_EN = value;
+                    OnPropertyChanged(nameof(Commune_Name_EN));
+                }
+            }
+        }
+        //District_ID
+        private int _District_ID;
+        public int District_ID
+        {
+            get => _District_ID;
+            set
+            {
+                if(_District_ID  != value)
+                {
+                    District_ID = value;
+                    OnPropertyChanged(nameof(District_ID));
+                }
+            }
+        }
+        //Commune_In_Dis
+        private string _Commune_In_Dis;
+        public string Commune_In_Dis
+        {
+            get => _Commune_In_Dis;
+            set
+            {
+                if(_Commune_In_Dis != value)
+                {
+                    _Commune_In_Dis = value;
+                    OnPropertyChanged(nameof(Commune_In_Dis));
+                }
+            }
+        }
+        //Commune_In_Pro
+        private string _Commune_In_Pro;
+        public string Commune_In_Pro
+        {
+            get => _Commune_In_Pro;
+            set
+            {
+                if(_Commune_In_Pro != value)
+                {
+                    _Commune_In_Pro = value;
+                    OnPropertyChanged(nameof(Commune_In_Pro));
+                    ValidateSelectProvince_InComm();
+                }
+            }
+        }
+        //SelectedProvince
+        private Districts_Info _selectedProvince_Incomm;
+        public Districts_Info SelectedProvince_Incomm
+        {
+            get { return _selectedProvince_Incomm; }
+            set
+            {
+                _selectedProvince_Incomm = value;
+                OnPropertyChanged(nameof(SelectedProvince_Incomm));  // Notify UI that the property has changed
+                ValidateSelectProvince_InComm();
+                if (_selectedProvince_Incomm != null)
+                {
+                    Debug.WriteLine($"Selected Province ID: {_selectedProvince_Incomm.Province_ID}");
+                    LoadData_to_Combobox_District(_selectedProvince_Incomm.Province_ID);
+                }
+
+            }
+        }
+        //SelectedCommunce
+        private Communes_Info _selectedDistrict_Incomm;
+        public Communes_Info SelectedDistrict_Incomm
+        {
+            get { return _selectedDistrict_Incomm; }
+            set
+            {
+                _selectedDistrict_Incomm = value;
+                OnPropertyChanged(nameof(SelectedDistrict_Incomm));  // Notify UI that the property has changed
+                ValidateSelectDistrict_InComm();
+
+            }
+        }      
+        //Real-time validation method CM_ID
+        public SolidColorBrush CM_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(CM_IDBorderBrush));
+            }
+        }
+        //ValidateCM_ID
+        private void ValidateCM_ID()
+        {
+            if (string.IsNullOrEmpty(CM_ID))
+            {
+                CM_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                CM_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Real-time validation method Commune_Name_KH
+        public SolidColorBrush Commune_Name_KHBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Commune_Name_KHBorderBrush));
+            }
+        }
+        //ValidateCommune_Name_KH
+        private void ValidateCommune_Name_KH()
+        {
+            if (string.IsNullOrEmpty(Commune_Name_KH))
+            {
+                Commune_Name_KHBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Commune_Name_KHBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+
+        //Real-time validation method SelectedProvince_Incomm
+        public SolidColorBrush SelectPro_IncommBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectPro_IncommBorderBrush));
+            }
+        }
+        
+        //ValidateSelectProvince
+        private void ValidateSelectProvince_InComm()
+        {
+            if (SelectedProvince_Incomm == null)
+            {
+                SelectPro_IncommBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectPro_IncommBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Select Province 
+        public void SelectedProvince_In_Commune()
+        {
+            if (SelectedProvince_Incomm != null)
+            {
+                string selectedProvinceName = SelectedProvince_Incomm.District_In_Pro;
+                int selectedProvinceId = SelectedProvince_Incomm.Province_ID;
+
+                // Do something with the selected district or province
+                Debug.WriteLine($"Selected Province {selectedProvinceName} ,ID: {selectedProvinceId}");
+            }
+            else
+            {
+                Edu_Error_Message = "សូមជ្រើសរើសខេត្ត";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+
+        //Border Combobox District
+        public SolidColorBrush SelectDis_IncommBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectDis_IncommBorderBrush));
+            }
+        }
+        //ValidateSelectDistrict
+        private void ValidateSelectDistrict_InComm()
+        {
+            if (SelectedDistrict_Incomm == null)
+            {
+                SelectDis_IncommBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectDis_IncommBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Select District
+        public void SelectedDistrict_In_Commune()
+        {
+            if (SelectedDistrict_Incomm != null)
+            {
+                string selectedDistrictName = SelectedDistrict_Incomm.Commune_In_Dis;
+                int selectedDistrictID = SelectedDistrict_Incomm.District_ID;
+
+                // Do something with the selected district or province
+                Debug.WriteLine($"Selected District {selectedDistrictName} ,ID: {selectedDistrictID}");
+            }
+            else
+            {
+                Edu_Error_Message = "សូមជ្រើសរើសស្រុក";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+        public async Task SubmitAsync_Add_Communes()
+        {
+            ValidateCM_ID();
+            ValidateCommune_Name_KH();
+            ValidateSelectProvince_InComm();
+            ValidateSelectDistrict_InComm();
+
+            if (string.IsNullOrEmpty(CM_ID))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល លេខសម្គាល់";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Commune_Name_KH))
+            {
+                Edu_Error_Message = "សូមបញ្ចូល ឃុំ/ខណ្ឌ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            SelectedProvince_In_Commune();
+            SelectedDistrict_In_Commune();
+            SaveCommunetoDatabase();
+            LoadCommunes_Info();
+            Clear_Commune_Info_Text();
+
+            await Task.CompletedTask;
+        }
+        //Get_data_to_combobox Commune
+        private ObservableCollection<Communes_Info> _districts;
+        public ObservableCollection<Communes_Info> Districts_Combobox
+        {
+            get { return _districts; }
+            set
+            {
+                _districts = value;
+                OnPropertyChanged(nameof(Districts_Combobox));
+            }
+        }
+        //Load Data to Combobox
+        private void LoadData_to_Combobox_District(int provinceID)
+        {
+            Districts_Combobox.Clear();
+            var DistrictList = _dbConnection.GetDistrict_toCombobox(provinceID);
+            if (DistrictList != null && DistrictList.Count > 0)
+            {
+               
+                // Add the fetched districts to the Districts_Combobox collection
+                foreach (var district in DistrictList)
+                {
+                    Districts_Combobox.Add(district);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No districts found for Province_ID: {provinceID}");
+            }
+        }
+        //Save Data Commune to Database
+        public void SaveCommunetoDatabase()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+
+            var UpdateCommune = Commune_Info_ListView.FirstOrDefault(s => s.CM_ID == CM_ID);
+            //Province ListView Get from top (Selected ListView).
+            if (UpdateCommune != null)
+            {
+                Debug.WriteLine("Update Mode");
+                UpdateCommune.CM_ID = CM_ID;
+                UpdateCommune.Commune_Name_KH = Commune_Name_KH;
+                UpdateCommune.Commune_Name_EN = Commune_Name_EN;
+                // Assuming a ComboBox that selects a province and binds to SelectedProvince_Info
+                if (SelectedDistrict_Incomm != null)
+                {
+                    UpdateCommune.District_ID = SelectedDistrict_Incomm.District_ID;  // Ensure valid Province_ID
+                }
+                else
+                {
+                    Edu_Error_Message = "សូមជ្រើសរើសស្រុកដែលឃុំស្ថិតនៅ!";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+
+                bool sucess = dbConnection.Update_Communes_Information(UpdateCommune);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + CM_ID + " បានធ្ចើបច្ចុប្បន្នភាពជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + CM_ID + " បានធ្ចើបច្ចុប្បន្នភាពបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Communes_Info communes_Info = new Communes_Info()
+                {
+                    CM_ID = this.CM_ID,
+                    Commune_Name_KH = this.Commune_Name_KH,
+                    Commune_Name_EN = this.Commune_Name_EN,
+                    //SelectedProvince_Incomm = SelectedProvince_Incomm.Province_ID,
+                    SelectedDistrict_Incomm = SelectedDistrict_Incomm.District_ID,
+                };
+                Debug.WriteLine("Insert Mode");
+                bool success = dbConnection.Insert_Communes(communes_Info);
+
+                if (success)
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកជោគជ័យ";
+                }
+                else
+                {
+                    Edu_Error_Message = "ទិន្នន័យបានរក្សាទុកបរាជ័យ !";
+                }
+            }
+                
+        }
+        //Data to ListView
+        public ObservableCollection<Communes_Info> Commune_Info_ListView
+        {
+            get => _communes_info;
+            set
+            {
+                _communes_info = value;
+                OnPropertyChanged(nameof(Commune_Info_ListView));  // Notify the UI when the Students collection changes
+            }
+        }
+        //LoadDistrict_Info
+        public void LoadCommunes_Info()
+        {
+            // Ensure _dbConnection is properly initialized
+            if (_dbConnection == null)
+            {
+                Debug.WriteLine("_dbConnection is not initialized.");
+                return;
+            }
+
+            var commune_list = _dbConnection.LoadCommunes_Info();
+
+            if (commune_list != null && commune_list.Count > 0)
+            {
+                // Clear the existing items in the ObservableCollection
+                Commune_Info_ListView.Clear();
+
+                // Add new items from the database
+                foreach (var commune_info in commune_list)
+                {
+                    Commune_Info_ListView.Add(commune_info);
+                }
+                Commune_Info_ListView = new ObservableCollection<Communes_Info>(commune_list);
+
+            }
+            else
+            {
+                Debug.WriteLine("No Commune Info are found.");
+            }
+        }
+
+        //Select Data District from ListView to Combobox
+        private Communes_Info _selectedCommunes;
+        public Communes_Info SelectedCommunces
+        {
+            get => _selectedCommunes;
+            set
+            {
+                _selectedCommunes = value;
+                OnPropertyChanged();
+
+                if (_selectedCommunes != null)
+                {
+                    CM_ID = _selectedCommunes.CM_ID;
+                    Commune_Name_KH = _selectedCommunes.Commune_Name_KH;
+                    Commune_Name_EN = _selectedCommunes.Commune_Name_EN;
+                    // Find the matching province based on the selected district's province_id
+                    SelectedProvince_Incomm = Provinces_Combobox
+                        .FirstOrDefault(province => province.District_In_Pro == _selectedCommunes.Commune_In_Pro);
+                    OnPropertyChanged(nameof(SelectedProvince_Incomm));
+
+                    SelectedDistrict_Incomm = Districts_Combobox
+                        .FirstOrDefault(district => district.Commune_In_Dis == _selectedCommunes.Commune_In_Dis);
+                    OnPropertyChanged(nameof(SelectedDistrict_Incomm));
+                }
+                OnPropertyChanged(nameof(SelectedCommunces));
+            }
+        }
+        //Delete Commune Command
+        public async Task Delete_Commune_Info()
+        {
+            Delete_Communes_Info();
+            LoadCommunes_Info() ;  
+            Clear_Commune_Info_Text() ;
+
+            await Task.CompletedTask;
+        }
+        //Method Delete Command
+        public void Delete_Communes_Info()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var DeleteCommune = Commune_Info_ListView.FirstOrDefault(s => s.CM_ID == CM_ID);
+            if (DeleteCommune != null)
+            {
+                DeleteCommune.CM_ID = CM_ID;
+
+                Debug.WriteLine("Delete Mode");
+                bool sucess = dbConnection.Delete_Commune_Information(DeleteCommune);
+                if (sucess)
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + CM_ID + " ទិន្នន័យលុបបានជោគជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    Edu_Error_Message = "លេខសម្កាល់ " + CM_ID + " ទិន្នន័យលុបបរាជ័យ";
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            else
+            {
+                Edu_Error_Message = "លុបទិន្នន័យបរាជ័យ";
+                MessageColor = new SolidColorBrush(Colors.Red);
+            }
+        }
+        //End Commune Info
+
+        //V_ID
+        private int _V_ID;
+        public int V_ID
+        {
+            get => _V_ID;
+            set
+            {
+                if (_V_ID != value)
+                {
+                    _V_ID = value;
+                    OnPropertyChanged(nameof(V_ID));
+                }
+            }
+        }
+
+
+        public async Task SubmitAsync_Add_Villages()
+        {
+
+            await Task.CompletedTask;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

@@ -11,6 +11,8 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System.IO;
 using Microsoft.UI.Xaml.Controls;
 using System.Data.Common;
+using Windows.ApplicationModel.Email.DataProvider;
+using Windows.Graphics.Printing;
 
 namespace RPISVR_Managements.Model
 {
@@ -1602,6 +1604,7 @@ namespace RPISVR_Managements.Model
 
             return PV_ID;
         }
+        
         //Delete Province
         public bool Delete_Province_Information(Provinces_Info province_info)
         {
@@ -1629,5 +1632,425 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+        //End Province_Info
+
+        //Start District
+        //Get data to Combobox
+        public List<Districts_Info> GetProvince_toCombobox()
+        {
+            List<Districts_Info> provinces = new List<Districts_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT province_id, province_name_kh FROM province_info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        provinces.Add(new Districts_Info
+                        {
+                            Province_ID = reader.GetInt32("province_id"),
+                            District_In_Pro = reader.GetString("province_name_kh")
+                        });
+                    }
+                }
+            }
+
+            return provinces;
+        }
+        //Save District Info
+        public bool Insert_Districts(Districts_Info districts_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO district_info (DS_ID, district_name_kh, district_name_en, province_id) VALUES(@DS_ID, @district_name_kh, @district_name_en, @province_id)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@DS_ID", districts_Info.DS_ID);
+                    cmd.Parameters.AddWithValue("@district_name_kh", districts_Info.District_Name_KH);
+                    cmd.Parameters.AddWithValue("@district_name_en", districts_Info.District_Name_EN);
+                    cmd.Parameters.AddWithValue("@province_id", districts_Info.SelectedProvince);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Insert District Info Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Load Data District to ListView
+        public List<Districts_Info> LoadDistricts_Info()
+        {
+            Debug.WriteLine("Starting LoadDistrict Info method...");
+
+            List<Districts_Info> district_info = new List<Districts_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT d.DS_ID, " +
+                        "d.district_name_kh, " +
+                        "d.district_name_en, " +
+                        "d.province_id, " +
+                        "p.province_name_kh " +
+                        "FROM district_info d  " +
+                        "JOIN province_info p ON d.province_id = p.province_id " +
+                        "ORDER BY DS_ID DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Districts_Info districts = new Districts_Info()
+                                {
+                                    DS_ID = reader.GetString("DS_ID"),
+                                    District_Name_KH = reader.IsDBNull(reader.GetOrdinal("district_name_kh")) ? string.Empty : reader.GetString("district_name_kh"),
+                                    District_Name_EN = reader.IsDBNull(reader.GetOrdinal("district_name_en")) ? string.Empty : reader.GetString("district_name_en"),
+                                    Province_ID = reader.GetInt32("province_id"),
+                                    District_In_Pro = reader.IsDBNull(reader.GetOrdinal("province_name_kh")) ? string.Empty : reader.GetString("province_name_kh"),
+                                };
+                                district_info.Add(districts);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data District loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Load District Error: " + ex.ToString());
+            }
+            return district_info;
+        }
+        //Update District Info
+        public bool Update_Districts_Information(Districts_Info districts_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    
+                    string query = "UPDATE district_info SET district_name_kh = @district_name_kh, district_name_en = @district_name_en, province_id = @province_id WHERE DS_ID = @DS_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@DS_ID", districts_info.DS_ID);
+                    cmd.Parameters.AddWithValue("@district_name_kh", districts_info.District_Name_KH);
+                    cmd.Parameters.AddWithValue("@district_name_en", districts_info.District_Name_EN);
+                    cmd.Parameters.AddWithValue("@province_id", districts_info.Province_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update District Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Method to Select Last D_ID and DS_ID
+        public (int D_ID, string DS_ID) Get_D_ID_and_DS_ID()
+        {
+            int D_ID = 0;
+            string Last_DS_ID = "DIS_000";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(district_id) AS D_ID, MAX(DS_ID) AS Last_DS_ID FROM district_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            D_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("D_ID");
+                            Last_DS_ID = reader.IsDBNull(1) ? "DIS_000" : reader.GetString("Last_DS_ID");
+                        }
+
+                    }
+                }
+            }
+            D_ID++;
+            string DS_ID = IncrementDS_ID(Last_DS_ID);
+
+            return (D_ID, DS_ID);
+
+        }
+        //Method to Increase DS_ID
+        public string IncrementDS_ID(String currentDS_ID)
+        {
+            // Assuming the format is always "DIS_" + 3-digit number
+            string prefix = "DIS_";
+            string numericPart = currentDS_ID.Substring(4); // Extract the numeric part after "DIS_"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string DS_ID = prefix + newNumericPart;
+
+            return DS_ID;
+        }
+        //Delete District Info
+        public bool Delete_District_Information(Districts_Info districts_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM district_info WHERE DS_ID = @DS_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@DS_ID", districts_Info.DS_ID);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete District Error: " + ex.Message);
+                return false;
+            }
+        }
+        //End District Info
+
+        //Start Commune Info
+
+        //Get data to Combobox
+        public List<Communes_Info> GetDistrict_toCombobox(int provinceID)
+        {
+            List<Communes_Info> districts = new List<Communes_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT district_id, district_name_kh FROM district_info WHERE province_id =@ProvinceID";
+
+                // Log the query execution to confirm correct provinceId is used
+                Debug.WriteLine($"Executing Query with Province_ID: {provinceID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@ProvinceID", provinceID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {       
+                    while (reader.Read())
+                    {
+                        districts.Add(new Communes_Info
+                        {
+                            District_ID = reader.GetInt32("district_id"),
+                            Commune_In_Dis = reader.GetString("district_name_kh")
+                        });
+  
+                    }
+                   
+                }
+            }  
+            return districts;       
+        }
+        //Save District
+        public bool Insert_Communes(Communes_Info communes_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO commune_info (CM_ID, commune_name_kh, commune_name_en, district_id) VALUES(@CM_ID, @commune_name_kh, @commune_name_en, @district_id)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@CM_ID", communes_Info.CM_ID);
+                    cmd.Parameters.AddWithValue("@commune_name_kh", communes_Info.Commune_Name_KH);
+                    cmd.Parameters.AddWithValue("@commune_name_en", communes_Info.Commune_Name_EN);
+                    cmd.Parameters.AddWithValue("@district_id", communes_Info.SelectedDistrict_Incomm);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Insert Commune Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Load Data Commune to ListView
+        public List<Communes_Info> LoadCommunes_Info()
+        {
+            Debug.WriteLine("Starting LoadCommune Info method...");
+
+            List<Communes_Info> commune_info = new List<Communes_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT c.CM_ID, c.commune_name_kh, c.commune_name_en, c.district_id, " +
+                      "d.district_name_kh, p.province_name_kh " +
+                      "FROM commune_info c " +
+                      "JOIN district_info d ON c.district_id = d.district_id " +
+                      "JOIN province_info p ON d.province_id = p.province_id " +
+                      "ORDER BY c.CM_ID DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Communes_Info communces = new Communes_Info()
+                                {
+                                    CM_ID = reader.GetString("CM_ID"),
+                                    Commune_Name_KH = reader.IsDBNull(reader.GetOrdinal("commune_name_kh")) ? string.Empty : reader.GetString("commune_name_kh"),
+                                    Commune_Name_EN = reader.IsDBNull(reader.GetOrdinal("commune_name_en")) ? string.Empty : reader.GetString("commune_name_en"),
+                                    District_ID = reader.GetInt32("district_id"),
+                                    Commune_In_Dis = reader.IsDBNull(reader.GetOrdinal("district_name_kh")) ? string.Empty : reader.GetString("district_name_kh"),
+                                    Commune_In_Pro = reader.IsDBNull(reader.GetOrdinal("province_name_kh")) ? string.Empty : reader.GetString("province_name_kh")
+                                };
+                                commune_info.Add(communces);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Command loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Load Command Error: " + ex.ToString());
+            }
+            return commune_info;
+        }
+        //Update Communce Info
+        public bool Update_Communes_Information(Communes_Info communes_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE commune_info SET commune_name_kh = @commune_name_kh, commune_name_en = @commune_name_en, district_id = @district_id WHERE CM_ID = @CM_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@CM_ID", communes_info.CM_ID);
+                    cmd.Parameters.AddWithValue("@commune_name_kh", communes_info.Commune_Name_KH);
+                    cmd.Parameters.AddWithValue("@commune_name_en", communes_info.Commune_Name_EN);
+                    cmd.Parameters.AddWithValue("@district_id", communes_info.District_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Commune Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Get Last C_ID, CM_ID
+        public (int C_ID, string CM_ID) Get_C_ID_and_CM_ID()
+        {
+            int C_ID = 0;
+            string Last_CM_ID = "COM_000";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(commune_id) AS C_ID, MAX(CM_ID) AS Last_CM_ID FROM commune_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            C_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("C_ID");
+                            Last_CM_ID = reader.IsDBNull(1) ? "COM_000" : reader.GetString("Last_CM_ID");
+                        }
+
+                    }
+                }
+            }
+            C_ID++;
+            string CM_ID = IncrementCM_ID(Last_CM_ID);
+
+            return (C_ID, CM_ID);
+
+        }
+        //Method to Increase DS_ID
+        public string IncrementCM_ID(String currentCM_ID)
+        {
+            // Assuming the format is always "COM_" + 3-digit number
+            string prefix = "COM_";
+            string numericPart = currentCM_ID.Substring(4); // Extract the numeric part after "DIS_"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string CM_ID = prefix + newNumericPart;
+
+            return CM_ID;
+        }
+        //Delete Commune Info
+        public bool Delete_Commune_Information(Communes_Info communes_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM commune_info WHERE CM_ID = @CM_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@CM_ID", communes_Info.CM_ID);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete Commune Error: " + ex.Message);
+                return false;
+            }
+        }
+        //End Commune Info
+
     }
 }
