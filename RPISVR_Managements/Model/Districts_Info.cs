@@ -8,10 +8,12 @@ namespace RPISVR_Managements.Model
 {
     public class Districts_Info
     {
-        public int ID;
-        public string D_ID;
-        public string District_Name_KH;
-        public string District_Name_EN;
-        public string District_In_Pro;
+        public int D_ID { get; set; }
+        public string DS_ID { get; set; } 
+        public string District_Name_KH { get; set; }
+        public string District_Name_EN { get; set; }
+        public int Province_ID { get; set; }
+        public string District_In_Pro { get; set; }
+        public int SelectedProvince { get; set; }
     }
 }

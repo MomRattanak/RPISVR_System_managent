@@ -29,7 +29,7 @@
             <StackPanel x:Name="Insert" >
                     <TextBox x:Name="P_ID"
                          Header="លេខសម្គាល់"
-                         IsReadOnly="False"
+                         IsReadOnly="True"
                          Text="{Binding PV_ID,Mode=TwoWay}"
                          BorderBrush="{Binding PV_IDBorderBrush}"
                          Style="{StaticResource Style_KH_TextBox}"/>

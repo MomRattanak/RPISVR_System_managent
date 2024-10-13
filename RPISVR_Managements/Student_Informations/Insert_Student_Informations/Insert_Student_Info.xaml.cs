@@ -420,5 +420,38 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
             };
             await dialog.ShowAsync();
         }
+
+        private async void InsertDistrict(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ContentDialog
+            {
+                Content = new Add_Districts(),
+                CloseButtonText = "Close",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+
+        private async void InsertCommune(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ContentDialog
+            {
+                Content = new Add_Communces(),
+                CloseButtonText = "Close",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+
+        private async void InsertVillage(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ContentDialog
+            {
+                Content = new Add_Villages(),
+                CloseButtonText = "Close",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
     }
 }
