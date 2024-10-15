@@ -2052,5 +2052,216 @@ namespace RPISVR_Managements.Model
         }
         //End Commune Info
 
+        //Start Village Info
+        //Get data to Combobox Commune
+        public List<Village_Info> GetCommune_toCombobox(int districtID)
+        {
+            List<Village_Info> cummunes = new List<Village_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT commune_id, commune_name_kh FROM commune_info WHERE district_id =@district_id";
+
+                // Log the query execution to confirm correct DistrictID is used
+                Debug.WriteLine($"Executing Query with District_ID: {districtID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@district_id", districtID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        cummunes.Add(new Village_Info
+                        {
+                            Commune_ID = reader.GetInt32("commune_id"),
+                            Village_In_Comm = reader.GetString("commune_name_kh")
+                        });
+                    }
+                }
+            }
+            return cummunes;
+        }
+        //Insert Village
+        public bool Insert_Villages(Village_Info village_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO village_info (VL_ID, village_name_kh, village_name_en, commune_id) VALUES(@VL_ID, @village_name_kh, @village_name_en, @commune_id)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@VL_ID", village_Info.VL_ID);
+                    cmd.Parameters.AddWithValue("@village_name_kh", village_Info.Village_Name_KH);
+                    cmd.Parameters.AddWithValue("@village_name_en", village_Info.Village_Name_EN);
+                    cmd.Parameters.AddWithValue("@commune_id", village_Info.SelectedCommune_InVill);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Insert Village Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Load Data Village to ListView
+        public List<Village_Info> LoadVillages_Info()
+        {
+            Debug.WriteLine("Starting LoadVillage Info method...");
+
+            List<Village_Info> village_info = new List<Village_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                   
+                    string query = "SELECT v.VL_ID, v.village_name_kh, v.village_name_en, v.commune_id, " +
+                      "c.commune_name_kh,d.district_name_kh, p.province_name_kh " +
+                      "FROM village_info v " +
+                      "JOIN commune_info c ON v.commune_id = c.commune_id " +
+                      "JOIN district_info d ON c.district_id = d.district_id " +
+                      "JOIN province_info p ON d.province_id = p.province_id " +
+                      "ORDER BY v.VL_ID DESC";
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            Debug.WriteLine("Query executed, reading data...");
+                            while (reader.Read())
+                            {
+                                Village_Info villages = new Village_Info()
+                                {
+                                    VL_ID = reader.GetString("VL_ID"),
+                                    Village_Name_KH = reader.IsDBNull(reader.GetOrdinal("village_name_kh")) ? string.Empty : reader.GetString("village_name_kh"),
+                                    Village_Name_EN = reader.IsDBNull(reader.GetOrdinal("village_name_en")) ? string.Empty : reader.GetString("village_name_en"),
+                                    Commune_ID = reader.GetInt32("commune_id"),
+                                    Village_In_Comm = reader.IsDBNull(reader.GetOrdinal("commune_name_kh")) ? string.Empty : reader.GetString("commune_name_kh"),
+                                    Village_In_Dis = reader.IsDBNull(reader.GetOrdinal("district_name_kh")) ? string.Empty : reader.GetString("district_name_kh"),
+                                    Village_In_Pro = reader.IsDBNull(reader.GetOrdinal("province_name_kh")) ? string.Empty : reader.GetString("province_name_kh")
+                                };
+                                village_info.Add(villages);
+                            }
+                        }
+                    }
+                }
+                Debug.WriteLine("Data Village loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("MySql Load Village Error: " + ex.ToString());
+            }
+            return village_info;
+        }
+        //Update Village
+        public bool Update_Villages_Information(Village_Info village_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE village_info SET village_name_kh = @village_name_kh, village_name_en = @village_name_en, commune_id = @commune_id WHERE VL_ID = @VL_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@VL_ID", village_Info.VL_ID);
+                    cmd.Parameters.AddWithValue("@village_name_kh", village_Info.Village_Name_KH);
+                    cmd.Parameters.AddWithValue("@village_name_en", village_Info.Village_Name_EN);
+                    cmd.Parameters.AddWithValue("@commune_id", village_Info.Commune_ID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Update Village Error: " + ex.ToString());
+                return false;
+            }
+        }
+        //Get Last V_ID, VL_ID
+        public (int V_ID, string VL_ID) Get_V_ID_and_VL_ID()
+        {
+            int V_ID = 0;
+            string Last_VL_ID = "VIL_000";
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT MAX(village_id) AS V_ID, MAX(VL_ID) AS Last_VL_ID FROM village_info";
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            //ID = reader.GetInt32("ID");
+                            //Last_Stu_ID = reader.GetString("Last_Stu_ID");
+                            V_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("V_ID");
+                            Last_VL_ID = reader.IsDBNull(1) ? "VIL_000" : reader.GetString("Last_VL_ID");
+                        }
+
+                    }
+                }
+            }
+            V_ID++;
+            string VL_ID = IncrementVL_ID(Last_VL_ID);
+
+            return (V_ID, VL_ID);
+
+        }
+        //Method to Increase VL_ID
+        public string IncrementVL_ID(String currentVL_ID)
+        {
+            // Assuming the format is always "VIL_" + 3-digit number
+            string prefix = "VIL_";
+            string numericPart = currentVL_ID.Substring(4); // Extract the numeric part after "VIL_"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 3-digit string with leading zeros
+            string newNumericPart = number.ToString("D3");
+
+            // Combine the prefix and the incremented numeric part
+            string VL_ID = prefix + newNumericPart;
+
+            return VL_ID;
+        }
+        //Delete Village Info
+        public bool Delete_Village_Information(Village_Info villages_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM village_info WHERE VL_ID = @VL_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@VL_ID", villages_Info.VL_ID);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete Village Error: " + ex.Message);
+                return false;
+            }
+        }
+
     }
 }

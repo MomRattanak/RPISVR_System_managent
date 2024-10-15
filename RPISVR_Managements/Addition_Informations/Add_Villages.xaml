@@ -29,12 +29,12 @@
             <StackPanel x:Name="Insert" >
                 <TextBox x:Name="VL_ID"
                       Header="លេខសម្គាល់"
-                      IsReadOnly="False"
+                      IsReadOnly="True"
                       Text="{Binding VL_ID,Mode=TwoWay}"
                       BorderBrush="{Binding VL_IDBorderBrush}"
                       Style="{StaticResource Style_KH_TextBox}"/>
                 <TextBox x:Name="Village_Name_KH"
-                     Header="បញ្ចូល ភូមិ"
+                     Header="បញ្ចូលឈ្មោះភូមិ"
                      PlaceholderText="ឧទាហរណ៍៖ ភូមិទន្លៀង"
                      Text="{Binding Village_Name_KH,Mode=TwoWay}"
                      BorderBrush="{Binding Village_Name_KHBorderBrush}"
@@ -71,12 +71,12 @@
                    Style="{StaticResource Stye_KH_Combobox}"/>
                 <ComboBox x:Name="Village_In_Comm"
                    Header="ឃុំ"
-                   ItemsSource="{Binding Ds_Combobox}"
+                   ItemsSource="{Binding Commune_Combobox}"
                    DisplayMemberPath="Village_In_Comm"
                    SelectedValuePath="Commune_ID"
-                   BorderBrush="{Binding SelectDis_IncommBorderBrush}"
+                   BorderBrush="{Binding SelectedCommune_InVillBorderBrush}"
                    Margin="30,3,0,10"
-                   SelectedItem="{Binding SelectedDistrict_Incomm,Mode=TwoWay}"
+                   SelectedItem="{Binding SelectedCommune_InVill,Mode=TwoWay}"
                    Style="{StaticResource Stye_KH_Combobox}"/>
             </StackPanel>
         </ScrollView>
@@ -84,7 +84,7 @@
 
         <ListView x:Name="Village_Info_ListView" 
                ItemsSource="{Binding Village_Info_ListView}" 
-               SelectedItem="{Binding SelectedCommunces,Mode=TwoWay}"
+               SelectedItem="{Binding SelectedVillages,Mode=TwoWay}"
                Grid.Column="1" Grid.Row="1" Margin="5,30,0,0" 
                ScrollViewer.HorizontalScrollMode="Auto" 
                ScrollViewer.HorizontalScrollBarVisibility="Visible" 

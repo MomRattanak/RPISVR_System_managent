@@ -77,7 +77,7 @@
                     <TextBlock Text="ស្រុក/ខណ្ឌ/ក្រុង" Width="160" Style="{StaticResource Font_KH_Body}"/>
                     <TextBlock Text="ពាក្យអង់គ្លេស" Width="160" Style="{StaticResource Font_KH_Body}"/>
                     <TextBlock Text="នៅក្នុងខេត្ត" Width="100" Style="{StaticResource Font_KH_Body}"/>
-                    <TextBlock Text="ID ខេត្ត" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                    <TextBlock Text="ID ខេត្ត" Width="100" Style="{StaticResource Font_KH_Body}" Visibility="Collapsed"/>
                 </StackPanel>
             </ListView.Header>
             <ListView.ItemTemplate>
@@ -87,7 +87,7 @@
                         <TextBlock Text="{Binding District_Name_KH,Mode=TwoWay}" Width="150" Style="{StaticResource Font_KH_Body}"/>
                         <TextBlock Text="{Binding District_Name_EN,Mode=TwoWay}" Width="150"/>
                         <TextBlock Text="{Binding District_In_Pro,Mode=TwoWay}" Width="100" Style="{StaticResource Font_KH_Body}"/>
-                        <TextBlock Text="{Binding Province_ID,Mode=TwoWay}" Width="90"/>
+                        <TextBlock Text="{Binding Province_ID,Mode=TwoWay}" Width="90" Visibility="Collapsed"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
