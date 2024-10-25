@@ -17,26 +17,68 @@ namespace RPISVR_Managements.Model
         public string Stu_LastName_EN { get; set; }
         public string Stu_Gender { get; set; }
         public string Stu_StateFamily { get; set; }
-        //public DateTime? Stu_BirthdayDateOnly { get; set; }  // Nullable DateTime
         public string Stu_BirthdayDateOnly { get; set; } 
+        //Education Level
+        public int Stu_EducationLevels_ID { get; set; }
         public string Stu_EducationLevels { get; set; }
+        public int SelectedEducationLevels_Info { get; set; }
+        //Education Subject
+        public int Stu_EducationSubject_ID { get; set; }
         public string Stu_EducationSubjects { get; set; }
+        public int SelectedEducationSubjects_Info {get; set; }
+        //Stu_StudyTimeShift
+        public int Stu_StudyTimeShift_ID { get; set; }
         public string Stu_StudyTimeShift { get; set; }
+        public int SelectedStu_StudyTimeShift_Info { get; set; }
+
         public string Stu_PhoneNumber { get; set; }
+        //Stu_EducationType
+        public int Stu_EducationType_ID { get; set; }
         public string Stu_EducationType { get; set; }
+        public int SelectedStu_EducationType_Info { get; set; }
+
         public string Stu_NationalID { get; set; }
         public string Stu_StudyingTime { get; set; }
+        //Select Province
+        public int Stu_Birth_Province_ID { get; set; }
         public string Stu_Birth_Province { get; set; }
+        public int SelectedBirthProvince_Info { get; set; }
+        //Select District
+        public int Stu_Birth_District_ID { get; set; }
         public string Stu_Birth_Distric { get; set; }
+        public int SelectedBirthDistrict_Info { get; set; }
+        //Select Commune
+        public int Stu_Birth_Commune_ID { get; set; }
         public string Stu_Birth_Commune { get; set; }
+        public int SelectedBirthCommune_Info { get; set; }
+        //Select Village
+        public int Stu_Birth_Village_ID { get; set; }
         public string Stu_Birth_Village { get; set; }
+        public int SelectedBirthVillage_Info { get; set; }
+        //Live_Pro
+        public int Stu_Live_Pro_ID {  get; set; }
         public string Stu_Live_Pro { get; set; }
+        public int SelectedLiveProvince_Info { get; set; }
+        //Live_Dis
+        public int Stu_Live_Dis_ID { get; set; }
         public string Stu_Live_Dis { get; set; }
+        public int SelectedLiveDistrict_Info { get; set; }
+        //Live_Comm
+        public int Stu_Live_Comm_ID { get; set; }
         public string Stu_Live_Comm { get; set; }
+        public int SelectedLiveCommune_Info { get; set; }
+        //Live_Vill
+        public int Stu_Live_Vill_ID { get; set; }
         public string Stu_Live_Vill { get; set; }
+        public string SelectedLiveVillage_Info { get; set; }
+
         public string Stu_Jobs { get; set; }
         public string Stu_School { get; set; }
+        //StudyYear
+        public int Stu_StudyYear_ID { get; set; }
         public string Stu_StudyYear { get; set; }
+        public int SelectesStu_StudyYear_Info { get; set; }
+
         public string Stu_Semester { get; set; }
         public string Stu_Mother_Name { get; set; }
         public string Stu_Mother_Phone { get; set; }

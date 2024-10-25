@@ -60,7 +60,7 @@
             <ListView.Header>
                 <StackPanel Orientation="Horizontal" Background="Green">
                     <TextBlock Text="លេខសម្គាល់" Width="100" Margin="20,0,0,0" Style="{StaticResource Font_KH_Body}"/>
-                    <TextBlock Text="កម្រិតសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                    <TextBlock Text="កម្រិតសិក្សា" Width="200" Style="{StaticResource Font_KH_Body}"/>
                     <TextBlock Text="ពាក្យអង់គ្លេស" Width="120" Style="{StaticResource Font_KH_Body}"/>
                     <TextBlock Text="ពាក្យកាត់" Width="120" Style="{StaticResource Font_KH_Body}"/>
                 </StackPanel>
@@ -69,7 +69,7 @@
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="{Binding Edu_Level_ID}" Width="90"/>
-                        <TextBlock Text="{Binding Edu_Level_Name_KH}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                        <TextBlock Text="{Binding Edu_Level_Name_KH}" Width="200" Style="{StaticResource Font_KH_Body}"/>
                         <TextBlock Text="{Binding Edu_Level_Name_EN}" Width="120"/>
                         <TextBlock Text="{Binding Edu_Level_Name_Short}" Width="90"/>
                     </StackPanel>

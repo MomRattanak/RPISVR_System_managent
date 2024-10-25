@@ -47,6 +47,9 @@ namespace RPISVR_Managements.ViewModel
         public ICommand SubmitCommand { get; }
         public ICommand ClearCommand { get; }
 
+
+
+
         public StudentViewModel()
         {
           
@@ -94,9 +97,778 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine("New ID: " + ID);
             Debug.WriteLine("New Stu_ID: " + stu_ID);
 
+            
+
+            //Data to Combobox Province
+            Provinces_Combobox = new ObservableCollection<Student_Info>();
+            Live_Provinces_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_Province();
+            LoadData_to_Combobox_LiveProvince();
+
+            //Data to Combobox District
+            Districts_Combobox = new ObservableCollection<Student_Info>();
+            Live_Districts_Combobox = new ObservableCollection<Student_Info>();
+
+            //Data to Combobox Commune
+            Communes_Combobox = new ObservableCollection<Student_Info>();
+            Live_Communes_Combobox =new ObservableCollection<Student_Info>();
+
+            //Data to Combobox Village
+            Villages_Combobox = new ObservableCollection<Student_Info>();
+            Live_Villages_Combobox = new ObservableCollection<Student_Info>();
+
+            //Data to Combobox EducationLevel
+            EducationsLevel_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_EducationLevel();
+
+            //Data to Combobox EducationSkillSubject
+            EducationSubjectSkill_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_EducationSkillSubject();
+
+            //Data to Combobox EducationStudyTimeShift
+            EducationStudyTimeShift_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_EducationStudyTimeShift();
+
+            //Data to Combobox EducationStudyType
+            EducationStudyType_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_EducationStudyType();
+
+            //Data to Combobox EducationStudyYear
+            EducationStudyYear_Combobox = new ObservableCollection<Student_Info>();
+            LoadData_to_Combobox_EducationStudyYear();
+
+            //Student to ListView
             LoadStudents();
 
         }
+        //
+        //Get_data_to_combobox Province
+        private ObservableCollection<Student_Info> _provinces;
+        public ObservableCollection<Student_Info> Provinces_Combobox
+        {
+            get { return _provinces; }
+            set
+            {
+                _provinces = value;
+                OnPropertyChanged(nameof(Provinces_Combobox));
+            }
+        }
+        private ObservableCollection<Student_Info> _live_provinces;
+        public ObservableCollection<Student_Info> Live_Provinces_Combobox
+        {
+            get { return _live_provinces; }
+            set
+            {
+                _live_provinces = value;
+                OnPropertyChanged(nameof(Live_Provinces_Combobox));
+            }
+        }
+        //Get_data_to_combobox District
+        private ObservableCollection<Student_Info> _districts;
+        public ObservableCollection<Student_Info> Districts_Combobox
+        {
+            get { return _districts; }
+            set
+            {
+                _districts = value;
+                OnPropertyChanged(nameof(Districts_Combobox));
+            }
+        }
+        private ObservableCollection<Student_Info> _live_districts;
+        public ObservableCollection<Student_Info> Live_Districts_Combobox
+        {
+            get { return _live_districts; }
+            set
+            {
+                _live_districts = value;
+                OnPropertyChanged(nameof(Live_Districts_Combobox));
+            }
+        }
+        //Get_data_to_combobox Commune
+        private ObservableCollection<Student_Info> _communes;
+        public ObservableCollection<Student_Info> Communes_Combobox
+        {
+            get { return _communes; }
+            set
+            {
+                _communes = value;
+                OnPropertyChanged(nameof(Communes_Combobox));
+            }
+        }
+        private ObservableCollection<Student_Info> _live_communes;
+        public ObservableCollection<Student_Info> Live_Communes_Combobox
+        {
+            get { return _live_communes; }
+            set
+            {
+                _live_communes = value;
+                OnPropertyChanged(nameof(Live_Communes_Combobox));
+            }
+        }
+        //Get_data_to_combobox Village
+        private ObservableCollection<Student_Info> _villages;
+        public ObservableCollection<Student_Info> Villages_Combobox
+        {
+            get { return _villages; }
+            set
+            {
+                _villages = value;
+                OnPropertyChanged(nameof(Villages_Combobox));
+            }
+        }
+        private ObservableCollection<Student_Info> _live_villages;
+        public ObservableCollection<Student_Info> Live_Villages_Combobox
+        {
+            get { return _live_villages; }
+            set
+            {
+                _live_villages = value;
+                OnPropertyChanged(nameof(Live_Villages_Combobox));
+            }
+        }
+        //Get data to Combobox Education Level
+        private ObservableCollection<Student_Info> _education_level;
+        public ObservableCollection<Student_Info> EducationsLevel_Combobox
+        {
+            get { return _education_level; }
+            set
+            {
+                _education_level = value;
+                OnPropertyChanged(nameof(EducationsLevel_Combobox));
+            }
+        }
+        //Get data to Combobox Education Skill Subject
+        private ObservableCollection<Student_Info> _education_subject_skill;
+        public ObservableCollection<Student_Info> EducationSubjectSkill_Combobox
+        {
+            get { return _education_subject_skill; }
+            set
+            {
+                _education_subject_skill = value;
+                OnPropertyChanged(nameof(EducationSubjectSkill_Combobox));
+            }
+        }
+        //Get data to Combobox Education StudyTimeShift
+        private ObservableCollection<Student_Info> _education_studytimeshift;
+        public ObservableCollection<Student_Info> EducationStudyTimeShift_Combobox
+        {
+            get { return _education_studytimeshift; }
+            set
+            {
+                _education_studytimeshift = value;
+                OnPropertyChanged(nameof(EducationStudyTimeShift_Combobox));
+            }
+        }
+        //Get data to Combobox Education StudyType
+        private ObservableCollection<Student_Info> _education_studytype;
+        public ObservableCollection<Student_Info> EducationStudyType_Combobox
+        {
+            get { return _education_studytype; }
+            set
+            {
+                _education_studytype = value;
+                OnPropertyChanged(nameof(EducationStudyType_Combobox));
+            }
+        }
+        //Get data to Combobox Education StudyYear
+        private ObservableCollection<Student_Info> _education_studyyear;
+        public ObservableCollection<Student_Info> EducationStudyYear_Combobox
+        {
+            get { return _education_studyyear; }
+            set
+            {
+                _education_studyyear = value;
+                OnPropertyChanged(nameof(EducationStudyYear_Combobox));
+            }
+        }
+        //Load Data to Combobox EducationStudyYear
+        private void LoadData_to_Combobox_EducationStudyYear()
+        {
+            var EducationStudyYearList = _dbConnection.GetEducationStudyYear_toCombobox_Student_Info();
+            foreach (var education_studyyear in EducationStudyYearList)
+            {
+                EducationStudyYear_Combobox.Add(education_studyyear);
+            }
+        }
+        //Load Data to Combobox EducationStudyType
+        private void LoadData_to_Combobox_EducationStudyType()
+        {
+            var EducationStudyTypeList = _dbConnection.GetEducationStudyType_toCombobox_Student_Info();
+            foreach (var education_studytype_skill in EducationStudyTypeList)
+            {
+                EducationStudyType_Combobox.Add(education_studytype_skill);
+            }
+        }
+        //Load Data to Combobox EducationStudyTimeShift
+        private void LoadData_to_Combobox_EducationStudyTimeShift()
+        {
+            var EducationStudyTimeShiftList = _dbConnection.GetEducationStudyTimeShift_toCombobox_Student_Info();
+            foreach (var education_studytimeshift_skill in EducationStudyTimeShiftList)
+            {
+                EducationStudyTimeShift_Combobox.Add(education_studytimeshift_skill);
+            }
+        }
+        //Load Data to Combobox EducationSkillSubject
+        private void LoadData_to_Combobox_EducationSkillSubject()
+        {
+            var EducationSkillSubjectList = _dbConnection.GetEducationSkillSubject_toCombobox_Student_Info();
+            foreach (var education_subject_skill in EducationSkillSubjectList)
+            {
+                EducationSubjectSkill_Combobox.Add(education_subject_skill);
+            }
+        }
+        //Load Data to Combobox EducationLevel
+        private void LoadData_to_Combobox_EducationLevel()
+        {
+            var EducatinLevelList = _dbConnection.GetEducationLevel_toCombobox_Student_info();
+            foreach (var educationlevel in EducatinLevelList)
+            {
+                EducationsLevel_Combobox.Add(educationlevel);
+            }
+        }
+        //Load Data to Combobox Province
+        private void LoadData_to_Combobox_Province()
+        {
+            var ProvinceList = _dbConnection.GetProvince_toCombobox_Student_info();
+            foreach (var province in ProvinceList)
+            {
+                Provinces_Combobox.Add(province);
+            }
+        }
+        private void LoadData_to_Combobox_LiveProvince()
+        {
+            var Live_ProvinceList = _dbConnection.GetLive_Province_toCombobox_Student_info();
+            foreach (var live_province in Live_ProvinceList)
+            {
+                Live_Provinces_Combobox.Add(live_province);
+            }
+        }
+        //SelectedBirthProvince
+        private Student_Info _selectedBirthProvince_Info;
+        public Student_Info SelectedBirthProvince_Info
+        {
+            get { return _selectedBirthProvince_Info; }
+            set
+            {
+                _selectedBirthProvince_Info = value;
+                OnPropertyChanged(nameof(SelectedBirthProvince_Info)); 
+                ValidateSelectProvince();
+                if (_selectedBirthProvince_Info != null)
+                {
+                    Debug.WriteLine($"Selected Birth Province ID: {_selectedBirthProvince_Info.Stu_Birth_Province_ID}");
+                    LoadData_to_Combobox_BirthDistrict(_selectedBirthProvince_Info.Stu_Birth_Province_ID);
+                }
+
+            }
+        }
+        //SelectedLiveProvince
+        private Student_Info _selectedLiveProvince_Info;
+        public Student_Info SelectedLiveProvince_Info
+        {
+            get { return _selectedLiveProvince_Info; }
+            set
+            {
+                _selectedLiveProvince_Info = value;
+                OnPropertyChanged(nameof(SelectedLiveProvince_Info));
+                ValidateSelectLiveProvince();
+                if (_selectedLiveProvince_Info != null)
+                {
+                    Debug.WriteLine($"Selected Live Province ID: {_selectedLiveProvince_Info.Stu_Live_Pro_ID}");
+                    LoadData_to_Combobox_LiveDistrict(_selectedLiveProvince_Info.Stu_Live_Pro_ID);
+                }
+
+            }
+        }
+        //Real-time validation method Select Province
+        public SolidColorBrush SelectProvinceBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectProvinceBorderBrush));
+            }
+        }
+        public SolidColorBrush SelectLiveProvinceBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectLiveProvinceBorderBrush));
+            }
+        }
+        //ValidateSelectProvince
+        private void ValidateSelectProvince()
+        {
+            if (SelectedBirthProvince_Info == null)
+            {
+                SelectProvinceBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectProvinceBorderBrush = new SolidColorBrush(Colors.Green);               
+            }
+        }
+        private void ValidateSelectLiveProvince()
+        {
+            if (SelectedLiveProvince_Info == null)
+            {
+                SelectLiveProvinceBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectLiveProvinceBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Select Province
+        public void SelectedProvince_Combobox_Student_Info()
+        {
+            string selectedProvinceName = SelectedBirthProvince_Info?.Stu_Birth_Province;
+            int selectedProvinceId = SelectedBirthProvince_Info?.Stu_Birth_Province_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Province: {selectedProvinceName}, ID: {selectedProvinceId}");
+        }
+        public void SelectedLiveProvince_Combobox_Student_Info()
+        {
+            string selectedLiveProvinceName = SelectedLiveProvince_Info?.Stu_Live_Pro;
+            int selectedLiveProvinceId = SelectedLiveProvince_Info?.Stu_Live_Pro_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Province: {selectedLiveProvinceName}, ID: {selectedLiveProvinceId}");
+        }
+        //End_Province
+
+        //Real-time validation method Select District
+        public SolidColorBrush SelectDistrictBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectDistrictBorderBrush));
+            }
+        }
+        public SolidColorBrush SelectLiveDistrictBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectLiveDistrictBorderBrush));
+            }
+        }
+        //ValidateSelectDistrict
+        private void ValidateSelectDistrict()
+        {
+            if (SelectedBirthDistrict_Info == null)
+            {
+                SelectDistrictBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectDistrictBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        private void ValidateSelectLiveDistrict()
+        {
+            if (SelectedLiveDistrict_Info == null)
+            {
+                SelectLiveDistrictBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectLiveDistrictBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Load Data to Combobox Birth District
+        private void LoadData_to_Combobox_BirthDistrict(int Stu_Birth_Province_ID)
+        {
+            Districts_Combobox.Clear();
+            var DistrictList = _dbConnection.GetBirthDistrict_toCombobox(Stu_Birth_Province_ID);
+            if (DistrictList != null && DistrictList.Count > 0)
+            {
+                foreach (var district in DistrictList)
+                {
+                    Districts_Combobox.Add(district);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No District found for Province_ID: {Stu_Birth_Province_ID}");
+            }
+
+        }
+        //Load Data to Combobox Live District
+        private void LoadData_to_Combobox_LiveDistrict(int Stu_Live_Province_ID)
+        {
+            Live_Districts_Combobox.Clear();
+            var Live_DistrictList = _dbConnection.GetLiveDistrict_toCombobox(Stu_Live_Province_ID);
+            if (Live_DistrictList != null && Live_DistrictList.Count > 0)
+            {
+                foreach (var district in Live_DistrictList)
+                {
+                    Live_Districts_Combobox.Add(district);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No District found for Province_ID: {Stu_Birth_Province_ID}");
+            }
+        }
+
+        //SelectedDistrict
+        private Student_Info _selectedBirthDistrict_Info;
+        public Student_Info SelectedBirthDistrict_Info
+        {
+            get { return _selectedBirthDistrict_Info; }
+            set
+            {
+                _selectedBirthDistrict_Info = value;
+                OnPropertyChanged(nameof(SelectedBirthDistrict_Info));
+                ValidateSelectDistrict();
+                if (_selectedBirthDistrict_Info != null)
+                {
+                    Debug.WriteLine($"Selected Birth District ID: {_selectedBirthDistrict_Info.Stu_Birth_District_ID}");
+                    LoadData_to_Combobox_BirthCommune(_selectedBirthDistrict_Info.Stu_Birth_District_ID);
+                }
+            }
+        }
+        private Student_Info _selectedLiveDistrict_Info;
+        public Student_Info SelectedLiveDistrict_Info
+        {
+            get { return _selectedLiveDistrict_Info; }
+            set
+            {
+                _selectedLiveDistrict_Info = value;
+                OnPropertyChanged(nameof(SelectedLiveDistrict_Info));
+                ValidateSelectLiveDistrict();
+                if (_selectedLiveDistrict_Info != null)
+                {
+                    Debug.WriteLine($"Selected Live District ID: {_selectedLiveDistrict_Info.Stu_Live_Dis_ID}");
+                    LoadData_to_Combobox_LiveCommune(_selectedLiveDistrict_Info.Stu_Live_Dis_ID);
+                }
+
+            }
+        }
+
+        //SelectedDistrict_Combobox_Student_Info
+        public void SelectedDistrit_Combobox_Student_Info()
+        {
+            string selectedDistrictName = SelectedBirthDistrict_Info?.Stu_Birth_Distric;
+            int selectedDistrictId = SelectedBirthDistrict_Info?.Stu_Birth_District_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected District: {selectedDistrictName}, ID: {selectedDistrictId}");
+        }
+        public void SelectedLiveDistrit_Combobox_Student_Info()
+        {
+            string selectedLiveDistrictName = SelectedLiveDistrict_Info?.Stu_Live_Dis;
+            int selectedLiveDistrictId = SelectedLiveDistrict_Info?.Stu_Live_Dis_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected District: {selectedLiveDistrictName}, ID: {selectedLiveDistrictId}");
+        }
+        //Real-time validation method Select Commune
+        public SolidColorBrush SelectCommuneBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectCommuneBorderBrush));
+            }
+        }
+        public SolidColorBrush SelectLiveCommuneBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectLiveCommuneBorderBrush));
+            }
+        }
+        //ValidateSelectCommune
+        private void ValidateSelectCommue()
+        {
+            if (_selectedBirthCommune_Info == null)
+            {
+                SelectCommuneBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectCommuneBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        private void ValidateSelectLiveCommue()
+        {
+            if (_selectedLiveCommune_Info == null)
+            {
+                SelectLiveCommuneBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectLiveCommuneBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Select Commune
+        private Student_Info _selectedBirthCommune_Info;
+        public Student_Info SelectedBirthCommune_Info
+        {
+            get { return _selectedBirthCommune_Info; }
+            set
+            {
+                _selectedBirthCommune_Info = value;
+                OnPropertyChanged(nameof(SelectedBirthCommune_Info));
+                ValidateSelectCommue();
+                if (_selectedBirthCommune_Info != null)
+                {
+                    Debug.WriteLine($"Selected Birth Commune ID: {_selectedBirthCommune_Info.Stu_Birth_Commune_ID}");
+                    LoadData_to_Combobox_BirthVillage(_selectedBirthCommune_Info.Stu_Birth_Commune_ID);
+                }
+            }
+        }
+        //Live Commue
+        private Student_Info _selectedLiveCommune_Info;
+        public Student_Info SelectedLiveCommune_Info
+        {
+            get { return _selectedLiveCommune_Info; }
+            set
+            {
+                _selectedLiveCommune_Info = value;
+                OnPropertyChanged(nameof(SelectedLiveCommune_Info));
+                ValidateSelectLiveCommue();
+                if (_selectedLiveCommune_Info != null)
+                {
+                    Debug.WriteLine($"Selected Live Commune ID: {_selectedLiveCommune_Info.Stu_Live_Comm_ID}");
+                    LoadData_to_Combobox_LiveVillage(_selectedLiveCommune_Info.Stu_Live_Comm_ID);
+                }
+            }
+        }
+
+        //Load Data to Combobox Birth Commune
+        private void LoadData_to_Combobox_BirthCommune(int Stu_Birth_Commune_ID)
+        {
+            Communes_Combobox.Clear();
+            var CommuneList = _dbConnection.GetBirthCommune_toCombobox(Stu_Birth_Commune_ID);
+            if (CommuneList != null && CommuneList.Count > 0)
+            {
+                foreach (var commune in CommuneList)
+                {
+                    Communes_Combobox.Add(commune);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No Commune found for District ID: {Stu_Birth_District_ID}");
+            }
+        }
+        //Load Data to Combobox Live Commune
+        private void LoadData_to_Combobox_LiveCommune(int Stu_Live_Commune_ID)
+        {
+            Live_Communes_Combobox.Clear();
+            var Live_CommuneList = _dbConnection.GetLiveCommune_toCombobox(Stu_Live_Commune_ID);
+            if (Live_CommuneList != null && Live_CommuneList.Count > 0)
+            {
+                foreach (var live_commune in Live_CommuneList)
+                {
+                    Live_Communes_Combobox.Add(live_commune);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No Commune found for Commune ID: {Stu_Live_Comm_ID}");
+            }
+        }
+        //SelectedCommune_Combobox_Student_Info
+        public void SelectedCommune_Combobox_Student_Info()
+        {
+            string selectedCommuneName = SelectedBirthCommune_Info?.Stu_Birth_Commune;
+            int selectedCommuneId = SelectedBirthCommune_Info?.Stu_Birth_Commune_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Commune: {selectedCommuneName}, ID: {selectedCommuneId}");
+        }
+        public void SelectedLiveCommune_Combobox_Student_Info()
+        {
+            string selectedLiveCommuneName = SelectedLiveCommune_Info?.Stu_Live_Comm;
+            int selectedLiveCommuneId = SelectedLiveCommune_Info?.Stu_Live_Comm_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Commune: {selectedLiveCommuneName}, ID: {selectedLiveCommuneId}");
+        }
+
+        //Load Data to Combobox Birth Village
+        private void LoadData_to_Combobox_BirthVillage(int Stu_Birth_Commune_ID)
+        {
+            Villages_Combobox.Clear();
+            var VillageList = _dbConnection.GetBirthVillage_toCombobox(Stu_Birth_Commune_ID);
+            if (VillageList != null && VillageList.Count > 0)
+            {
+                foreach (var village in VillageList)
+                {
+                    Villages_Combobox.Add(village);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No Village found for Commune ID: {Stu_Birth_Commune_ID}");
+            }
+        }
+        private void LoadData_to_Combobox_LiveVillage(int Stu_Live_Comm_ID)
+        {
+            Live_Villages_Combobox.Clear();
+            var Live_VillageList = _dbConnection.GetLiveVillage_toCombobox(Stu_Live_Comm_ID);
+            if (Live_VillageList != null && Live_VillageList.Count > 0)
+            {
+                foreach (var live_village in Live_VillageList)
+                {
+                    Live_Villages_Combobox.Add(live_village);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"No Village found for Commune ID: {Stu_Live_Comm_ID}");
+            }
+        }
+        //Real-time validation method Select Village
+        public SolidColorBrush SelectVillageBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectVillageBorderBrush));
+            }
+        }
+        public SolidColorBrush SelectLive_VillageBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(SelectLive_VillageBorderBrush));
+            }
+        }
+        //ValidateSelectVillage
+        private void ValidateSelectVillage()
+        {
+            if (_selectedBirthVillage_Info == null)
+            {
+                SelectVillageBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectVillageBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        private void ValidateSelectLiveVillage()
+        {
+            if (_selectedLiveVillage_Info == null)
+            {
+                SelectLive_VillageBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                SelectLive_VillageBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Select Village
+        private Student_Info _selectedBirthVillage_Info;
+        public Student_Info SelectedBirthVillage_Info
+        {
+            get { return _selectedBirthVillage_Info; }
+            set
+            {
+                _selectedBirthVillage_Info = value;
+                OnPropertyChanged(nameof(SelectedBirthVillage_Info));
+                ValidateSelectVillage(); 
+            }
+        }
+        private Student_Info _selectedLiveVillage_Info;
+        public Student_Info SelectedLiveVillage_Info
+        {
+            get { return _selectedLiveVillage_Info; }
+            set
+            {
+                _selectedLiveVillage_Info = value;
+                OnPropertyChanged(nameof(SelectedLiveVillage_Info));
+                ValidateSelectLiveVillage();
+            }
+        }
+        //Selectedvillage_Combobox_Student_Info
+        public void SelectedVillage_Combobox_Student_Info()
+        {
+            string selectedvillageName = SelectedBirthVillage_Info?.Stu_Birth_Village;
+            int selectedVillageId = SelectedBirthVillage_Info?.Stu_Birth_Village_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Village: {selectedvillageName}, ID: {selectedVillageId}");
+        }
+        public void SelectedLiveVillage_Combobox_Student_Info()
+        {
+            string selectedLivevillageName = SelectedLiveVillage_Info?.Stu_Live_Vill;
+            int selectedLiveVillageId = SelectedLiveVillage_Info?.Stu_Live_Vill_ID ?? -1; // Default value if null
+
+            Debug.WriteLine($"Selected Village: {selectedLivevillageName}, ID: {selectedLiveVillageId}");
+        }
+
+        //EducationLevel Selection
+        private Student_Info _selectedEducationLevel_Info;
+        public Student_Info SelectedEducationLevel_Info
+        {
+            get { return _selectedEducationLevel_Info; }
+            set
+            {
+                _selectedEducationLevel_Info = value;
+                OnPropertyChanged(nameof(SelectedEducationLevel_Info));
+                ValidateStu_EducationLevels();
+            }
+        }
+        //EducationSkillSubject
+        private Student_Info _selectedEducationSkillSubject;
+        public Student_Info SelectedEducationSubjects_Info
+        {
+            get { return _selectedEducationSkillSubject; }
+            set
+            {
+                _selectedEducationSkillSubject = value;
+                OnPropertyChanged(nameof(SelectedEducationSubjects_Info));
+                ValidateStu_EducationSubjects();
+            }
+        }
+        //EducationStudyTimeShift
+        private Student_Info _selectedStudyTimeShift;
+        public Student_Info SelectedStu_StudyTimeShift_Info
+        {
+            get { return _selectedStudyTimeShift; }
+            set
+            {
+                _selectedStudyTimeShift = value;
+                OnPropertyChanged(nameof(SelectedStu_StudyTimeShift_Info));
+                ValidateStu_StudyTimeShift();
+            }
+        }
+        //EducationStudyType
+        private Student_Info _selectedEducationType;
+        public Student_Info SelectedStu_EducationType_Info
+        {
+            get { return _selectedEducationType; }
+            set
+            {
+                _selectedEducationType = value;
+                OnPropertyChanged(nameof(SelectedStu_EducationType_Info));
+               ValidateStu_Stu_TypeStudy();
+            }
+        }
+        //EducationStudyYear
+        private Student_Info _selectedEducationYear;
+        public Student_Info SelectesStu_StudyYear_Info
+        {
+            get { return _selectedEducationYear; }
+            set
+            {
+                _selectedEducationYear = value;
+                OnPropertyChanged(nameof(SelectesStu_StudyYear_Info));
+                ValidateStu_StudyYear();
+            }
+        }
+
+        //Student_Info
         public ObservableCollection<Student_Info> Students
         {
             get => _students;
@@ -314,7 +1086,7 @@ namespace RPISVR_Managements.ViewModel
         }
         private void ValidateStu_EducationLevels()
         {
-            if (string.IsNullOrEmpty(Stu_EducationLevels))
+            if (SelectedEducationLevel_Info == null)
             {
                 Stu_EducationLevels_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
             }
@@ -336,7 +1108,7 @@ namespace RPISVR_Managements.ViewModel
         }
         private void ValidateStu_EducationSubjects()
         {
-            if (string.IsNullOrEmpty(Stu_EducationSubjects))
+            if (SelectedEducationSubjects_Info == null)
             {
                 Stu_EducationSubjects_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
             }
@@ -358,7 +1130,7 @@ namespace RPISVR_Managements.ViewModel
         }
         private void ValidateStu_StudyTimeShift()
         {
-            if (string.IsNullOrEmpty(Stu_StudyTimeShift))
+            if (SelectedStu_StudyTimeShift_Info == null)
             {
                 Stu_StudyTimeShift_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
             }
@@ -380,7 +1152,7 @@ namespace RPISVR_Managements.ViewModel
         }
         private void ValidateStu_Stu_TypeStudy()
         {
-            if (string.IsNullOrEmpty(Stu_EducationType))
+            if (SelectedStu_EducationType_Info == null)
             {
                 Stu_TypeStudy_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
             }
@@ -453,28 +1225,6 @@ namespace RPISVR_Managements.ViewModel
             else
             {
                 Stu_StudyingTime_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
-            }
-        }
-
-        //Validation Stu_Birth_Province
-        public SolidColorBrush Stu_Birth_Province_BorderBrush
-        {
-            get => _ErrorBorderBrush;
-            set
-            {
-                _ErrorBorderBrush = value;
-                OnPropertyChanged(nameof(Stu_Birth_Province_BorderBrush));
-            }
-        }
-        private void ValidateStu_Birth_Province()
-        {
-            if (string.IsNullOrEmpty(Stu_Birth_Province))
-            {
-                Stu_Birth_Province_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
-            }
-            else
-            {
-                Stu_Birth_Province_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
             }
         }
 
@@ -644,7 +1394,7 @@ namespace RPISVR_Managements.ViewModel
         }
         private void ValidateStu_StudyYear()
         {
-            if (string.IsNullOrEmpty(Stu_StudyYear))
+            if (SelectesStu_StudyYear_Info == null)
             {
                 Stu_StudyYear_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
             }
@@ -884,6 +1634,21 @@ namespace RPISVR_Managements.ViewModel
             get => _IsSingle ? "មានគ្រួសារ":"នៅលីវ" ; //Return "នៅលីវ" if IsSingle is true, else "មានគ្រួសារ"
         }
 
+        //Stu_Levels_ID
+        private int _Stu_EducationLevels_ID;
+        public int Stu_EducationLevels_ID
+        {
+            get => _Stu_EducationLevels_ID;
+            set
+            {
+                if(_Stu_EducationLevels_ID  != value)
+                {
+                    _Stu_EducationLevels_ID = value;
+                    OnPropertyChanged(nameof(Stu_EducationLevels_ID));
+                    ValidateStu_EducationLevels();
+                }
+            }
+        }
         //Stu_Levels
         private string _Stu_EducationLevels;
         public string Stu_EducationLevels
@@ -900,6 +1665,21 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Stu_EducationSubject_ID
+        private int _Stu_EducationSubject_ID;
+        public int Stu_EducationSubject_ID
+        {
+            get => _Stu_EducationSubject_ID;
+            set
+            {
+                if(_Stu_EducationSubject_ID != value)
+                {
+                    _Stu_EducationSubject_ID = value;
+                    OnPropertyChanged(nameof(Stu_EducationSubject_ID));
+                    ValidateStu_EducationSubjects();
+                }
+            }
+        }
         //Stu_Subject
         private string _Stu_EducationSubjects;
         public string Stu_EducationSubjects
@@ -916,6 +1696,21 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Stu_StudyTimeShift_ID
+        private int _Stu_StudyTimeShift_ID;
+        public int Stu_StudyTimeShift_ID
+        {
+            get => _Stu_StudyTimeShift_ID;
+            set
+            {
+                if(_Stu_StudyTimeShift_ID != value)
+                {
+                    _Stu_StudyTimeShift_ID = value;
+                    OnPropertyChanged(nameof(Stu_StudyTimeShift));
+                    ValidateStu_StudyTimeShift();
+                }
+            }
+        }
         //Stu_StudyTimeShift
         private string _Stu_StudyTimeShift;
         public string Stu_StudyTimeShift
@@ -932,6 +1727,21 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Stu_TypeStudy_ID
+        private int _Stu_EducationType_ID;
+        public int Stu_EducationType_ID
+        {
+            get => _Stu_EducationType_ID;
+            set
+            {
+                if(_Stu_EducationType_ID != value)
+                {
+                    _Stu_EducationType_ID = value;
+                    OnPropertyChanged(nameof(Stu_EducationType_ID));
+                    ValidateStu_Stu_TypeStudy();
+                }
+            }
+        }
         //Stu_TypeStudy
         private string _Stu_EducationType;
         public string Stu_EducationType
@@ -995,7 +1805,21 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
-
+        //Stu_Birth_Province_ID
+        private int _Stu_Birth_Province_ID;
+        public int Stu_Birth_Province_ID
+        {
+            get => _Stu_Birth_Province_ID;
+            set
+            {
+                if(_Stu_Birth_Province_ID != value)
+                {
+                    _Stu_Birth_Province_ID = value;
+                    OnPropertyChanged(nameof(Stu_Birth_Province_ID));
+                    ValidateSelectProvince(); ;
+                }
+            }
+        }
         //Stu_Birth_Province
         private string _Stu_Birth_Province;
         public string Stu_Birth_Province
@@ -1007,11 +1831,25 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Birth_Province=value;
                     OnPropertyChanged(nameof(Stu_Birth_Province));
-                    ValidateStu_Birth_Province();
+                    ValidateSelectProvince();
                 }
             }
         }
-
+        //Stu_Birth_District_ID
+        private int _Stu_Birth_District_ID;
+        public int Stu_Birth_District_ID
+        {
+            get => _Stu_Birth_District_ID;
+            set
+            {
+                if (Stu_Birth_District_ID != value)
+                {
+                    _Stu_Birth_District_ID = value;
+                    OnPropertyChanged(nameof(Stu_Birth_District_ID));
+                    ValidateSelectDistrict();
+                }
+            }
+        }
         //Stu_Birth_Distric
         private string _Stu_Birth_Distric;
         public string Stu_Birth_Distric
@@ -1023,7 +1861,22 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Birth_Distric=value;
                     OnPropertyChanged(nameof(Stu_Birth_Distric));
-                    ValidateStu_Birth_Distric();
+                    ValidateSelectDistrict();
+                }
+            }
+        }
+        //Stu_Birth_Commune_ID
+        private int _Stu_Birth_Commune_ID;
+        public int Stu_Birth_Commune_ID
+        {
+            get => _Stu_Birth_Commune_ID;
+            set
+            {
+                if (Stu_Birth_Commune_ID != value)
+                {
+                    _Stu_Birth_Commune_ID = value;
+                    OnPropertyChanged(nameof(Stu_Birth_Commune_ID));
+                    ValidateSelectCommue();
                 }
             }
         }
@@ -1039,7 +1892,22 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Birth_Commune=value;
                     OnPropertyChanged(nameof(Stu_Birth_Commune));
-                    ValidateStu_Birth_Commune();
+                    ValidateSelectCommue();
+                }
+            }
+        }
+        //Stu_Birth_Village_ID
+        private int _Stu_Birth_Village_ID;
+        public int Stu_Birth_Village_ID
+        {
+            get => _Stu_Birth_Village_ID;
+            set
+            {
+                if (Stu_Birth_Village_ID != value)
+                {
+                    _Stu_Birth_Village_ID = value;
+                    OnPropertyChanged(nameof(Stu_Birth_Village_ID));
+                    ValidateSelectVillage();
                 }
             }
         }
@@ -1060,6 +1928,21 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Stu_Live_Pro_ID
+        private int _Stu_Live_Pro_ID;
+        public int Stu_Live_Pro_ID
+        {
+            get => _Stu_Live_Pro_ID;
+            set
+            {
+                if(_Stu_Live_Pro_ID != value)
+                {
+                    _Stu_Live_Pro_ID = value;
+                    OnPropertyChanged(nameof(Stu_Live_Pro_ID));
+                    ValidateSelectLiveProvince();
+                }
+            }
+        }
         //Stu_Live_Pro
         private string _Stu_Live_Pro;
         public string Stu_Live_Pro
@@ -1071,11 +1954,26 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Live_Pro=value;
                     OnPropertyChanged(nameof(Stu_Live_Pro));
-                    ValidateStu_Live_Pro();
+                    ValidateSelectLiveProvince();
                 }
             }
         }
 
+        //Stu_Live_Dis_ID
+        private int _Stu_Live_Dis_ID;
+        public int Stu_Live_Dis_ID
+        {
+            get => _Stu_Live_Dis_ID;
+            set
+            {
+                if(_Stu_Live_Dis_ID  != value)
+                {
+                    _Stu_Live_Dis_ID = value;
+                    OnPropertyChanged(nameof(Stu_Live_Dis_ID));
+                    ValidateSelectLiveDistrict();
+                }
+            }
+        }
         //Stu_Live_Dis
         private string _Stu_Live_Dis;
         public string Stu_Live_Dis
@@ -1087,11 +1985,26 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Live_Dis=value;
                     OnPropertyChanged(nameof(Stu_Live_Dis));
-                    ValidateStu_Live_Dis();
+                    ValidateSelectLiveDistrict();
                 }
             }
         }
 
+        //Stu_Live_Comm_ID
+        private int _Stu_Live_Comm_ID;
+        public int Stu_Live_Comm_ID
+        {
+            get => _Stu_Live_Comm_ID;
+            set
+            {
+                if(_Stu_Live_Comm_ID != value)
+                {
+                    _Stu_Live_Comm_ID = value;
+                    OnPropertyChanged(nameof(Stu_Live_Comm_ID));
+                    ValidateSelectLiveCommue();
+                }
+            }
+        }
         //Stu_Live_Comm
         private string _Stu_Live_Comm;
         public string Stu_Live_Comm
@@ -1103,11 +2016,26 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Live_Comm=value;
                     OnPropertyChanged(nameof(Stu_Live_Comm));
-                    ValidateStu_Live_Comm();
+                    ValidateSelectLiveCommue();
                 }
             }
         }
 
+        //Stu_Live_Vill_-ID
+        private int _Stu_Live_Vill_ID;
+        public int Stu_Live_Vill_ID
+        {
+            get => _Stu_Live_Vill_ID;
+            set
+            {
+                if(_Stu_Live_Vill_ID  != value)
+                {
+                    _Stu_Live_Vill_ID = value;
+                    OnPropertyChanged(nameof(Stu_Live_Vill_ID));
+                    ValidateSelectLiveVillage();
+                }
+            }
+        }
         //Stu_Live_Vill
         private string _Stu_Live_Vill;
         public string Stu_Live_Vill
@@ -1119,7 +2047,7 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _Stu_Live_Vill=value;
                     OnPropertyChanged(nameof(Stu_Live_Vill));
-                    ValidateStu_Live_Vill();
+                    ValidateSelectLiveVillage();
                 }
             }
         }
@@ -1154,6 +2082,21 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Stu_StudyYear_ID
+        private int _Stu_StudyYear_ID;
+        public int Stu_StudyYear_ID
+        {
+            get => _Stu_StudyYear_ID;
+            set
+            {
+                if(_Stu_StudyYear_ID!= value)
+                {
+                    _Stu_StudyYear_ID=value;
+                    OnPropertyChanged(nameof(Stu_StudyYear));
+                    ValidateStu_StudyYear();
+                }
+            }
+        }
         //Stu_StudyYear
         private string _Stu_StudyYear;
         public string Stu_StudyYear
@@ -1809,24 +2752,24 @@ namespace RPISVR_Managements.ViewModel
                 UpdateStudent.Stu_Gender = Stu_Gender;
                 UpdateStudent.Stu_StateFamily = Stu_StateFamily;
                 UpdateStudent.Stu_BirthdayDateOnly = Stu_BirthdayDateOnly;
-                UpdateStudent.Stu_EducationLevels = Stu_EducationLevels;
-                UpdateStudent.Stu_EducationSubjects = Stu_EducationSubjects;
-                UpdateStudent.Stu_StudyTimeShift = Stu_StudyTimeShift;
+                UpdateStudent.Stu_EducationLevels = SelectedEducationLevel_Info.Stu_EducationLevels;
+                UpdateStudent.Stu_EducationSubjects = SelectedEducationSubjects_Info.Stu_EducationSubjects;
+                UpdateStudent.Stu_StudyTimeShift = SelectedStu_StudyTimeShift_Info.Stu_StudyTimeShift;
                 UpdateStudent.Stu_PhoneNumber = Stu_PhoneNumber;
-                UpdateStudent.Stu_EducationType = Stu_EducationType;
+                UpdateStudent.Stu_EducationType = SelectedStu_EducationType_Info.Stu_EducationType;
                 UpdateStudent.Stu_NationalID = Stu_NationalID;
                 UpdateStudent.Stu_StudyingTime = Stu_StudyingTime;
-                UpdateStudent.Stu_Birth_Province = Stu_Birth_Province;
-                UpdateStudent.Stu_Birth_Distric = Stu_Birth_Distric;
-                UpdateStudent.Stu_Birth_Commune = Stu_Birth_Commune;
-                UpdateStudent.Stu_Birth_Village = Stu_Birth_Village;
-                UpdateStudent.Stu_Live_Pro = Stu_Live_Pro;
-                UpdateStudent.Stu_Live_Dis = Stu_Live_Dis;
-                UpdateStudent.Stu_Live_Comm = Stu_Live_Comm;
-                UpdateStudent.Stu_Live_Vill = Stu_Live_Vill;
+                UpdateStudent.Stu_Birth_Province = SelectedBirthProvince_Info.Stu_Birth_Province;
+                UpdateStudent.Stu_Birth_Distric = SelectedBirthDistrict_Info.Stu_Birth_Distric;
+                UpdateStudent.Stu_Birth_Commune = SelectedBirthCommune_Info.Stu_Birth_Commune;
+                UpdateStudent.Stu_Birth_Village = SelectedBirthVillage_Info.Stu_Birth_Village;
+                UpdateStudent.Stu_Live_Pro = SelectedLiveProvince_Info.Stu_Live_Pro;
+                UpdateStudent.Stu_Live_Dis = SelectedLiveDistrict_Info.Stu_Live_Dis;
+                UpdateStudent.Stu_Live_Comm = SelectedLiveCommune_Info.Stu_Live_Comm;
+                UpdateStudent.Stu_Live_Vill = SelectedLiveVillage_Info.Stu_Live_Vill;
                 UpdateStudent.Stu_Jobs = Stu_Jobs;
                 UpdateStudent.Stu_School = Stu_School;
-                UpdateStudent.Stu_StudyYear = Stu_StudyYear;
+                UpdateStudent.Stu_StudyYear = SelectesStu_StudyYear_Info.Stu_StudyYear;
                 UpdateStudent.Stu_Semester = Stu_Semester;
                 UpdateStudent.Stu_Mother_Name = Stu_Mother_Name;
                 UpdateStudent.Stu_Mother_Phone = Stu_Mother_Phone;
@@ -1895,24 +2838,24 @@ namespace RPISVR_Managements.ViewModel
                     Stu_Gender = this.Stu_Gender,
                     Stu_StateFamily = this.Stu_StateFamily,
                     Stu_BirthdayDateOnly = this.Stu_BirthdayDateOnly,
-                    Stu_EducationLevels = this.Stu_EducationLevels,
-                    Stu_EducationSubjects = this.Stu_EducationSubjects,
-                    Stu_StudyTimeShift = this.Stu_StudyTimeShift,
+                    Stu_EducationLevels = this.SelectedEducationLevel_Info.Stu_EducationLevels,
+                    Stu_EducationSubjects = this.SelectedEducationSubjects_Info.Stu_EducationSubjects,
+                    Stu_StudyTimeShift = this.SelectedStu_StudyTimeShift_Info.Stu_StudyTimeShift,
                     Stu_PhoneNumber = this.Stu_PhoneNumber,
-                    Stu_EducationType = this.Stu_EducationType,
+                    Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType,
                     Stu_NationalID = this.Stu_NationalID,
                     Stu_StudyingTime = this.Stu_StudyingTime,
-                    Stu_Birth_Province = this.Stu_Birth_Province,
-                    Stu_Birth_Distric = this.Stu_Birth_Distric,
-                    Stu_Birth_Commune = this.Stu_Birth_Commune,
-                    Stu_Birth_Village = this.Stu_Birth_Village,
-                    Stu_Live_Pro = this.Stu_Live_Pro,
-                    Stu_Live_Dis = this.Stu_Live_Dis,
-                    Stu_Live_Comm = this.Stu_Live_Comm,
-                    Stu_Live_Vill = this.Stu_Live_Vill,
+                    Stu_Birth_Province = this.SelectedBirthProvince_Info.Stu_Birth_Province,
+                    Stu_Birth_Distric = this.SelectedBirthDistrict_Info.Stu_Birth_Distric,
+                    Stu_Birth_Commune = this.SelectedBirthCommune_Info.Stu_Birth_Commune,
+                    Stu_Birth_Village = this.SelectedBirthVillage_Info.Stu_Birth_Village,
+                    Stu_Live_Pro = this.SelectedLiveProvince_Info.Stu_Live_Pro,
+                    Stu_Live_Dis = this.SelectedLiveDistrict_Info.Stu_Live_Dis,
+                    Stu_Live_Comm = this.SelectedLiveCommune_Info.Stu_Live_Comm,
+                    Stu_Live_Vill = this.SelectedLiveVillage_Info.Stu_Live_Vill,
                     Stu_Jobs = this.Stu_Jobs,
                     Stu_School = this.Stu_School,
-                    Stu_StudyYear = this.Stu_StudyYear,
+                    Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear,
                     Stu_Semester = this.Stu_Semester,
                     Stu_Mother_Name = this.Stu_Mother_Name,
                     Stu_Mother_Phone = this.Stu_Mother_Phone,
@@ -2047,21 +2990,28 @@ namespace RPISVR_Managements.ViewModel
             ValidateStu_PhoneNumber();
             ValidateStu_Stu_TypeStudy();
             ValidateStu_StudyingTime();
-            ValidateStu_NationalID();
-            ValidateStu_Birth_Province();
-            ValidateStu_Birth_Distric();
-            ValidateStu_Birth_Commune();
-            ValidateStu_Birth_Village();
-            ValidateStu_Live_Pro();
-            ValidateStu_Live_Dis();
-            ValidateStu_Live_Comm();
-            ValidateStu_Live_Vill();
+            ValidateStu_NationalID(); 
+            ValidateSelectProvince();
+            ValidateSelectDistrict();
+            ValidateSelectCommue();
+            ValidateSelectVillage();
+            ValidateSelectLiveProvince();
+            ValidateSelectLiveDistrict();
+            ValidateSelectLiveCommue();
+            ValidateSelectLiveVillage();
+
             ValidateStu_StudyYear();
             ValidateStu_Semester();
             ValidateStu_Image_Total_Big();
             ValidateStu_Image_TotalSmall();
-
-
+            SelectedProvince_Combobox_Student_Info();
+            SelectedDistrit_Combobox_Student_Info();
+            SelectedCommune_Combobox_Student_Info();
+            SelectedVillage_Combobox_Student_Info();
+            
+            SelectedLiveDistrit_Combobox_Student_Info();
+            SelectedLiveCommune_Combobox_Student_Info();
+            SelectedLiveVillage_Combobox_Student_Info();
             // Clear any previous error message
             ErrorMessage = string.Empty;
             MessageColor = null;
@@ -2073,8 +3023,6 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-
-
             // Validate Stu_FirstName_KH
             if (string.IsNullOrEmpty(Stu_FirstName_KH))
             {
@@ -2112,7 +3060,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Levels
-            if (string.IsNullOrEmpty(Stu_EducationLevels))
+            if (SelectedEducationLevel_Info == null)
             {
                 ErrorMessage = "កម្រិតសិក្សា ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2121,7 +3069,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Subject
-            if (string.IsNullOrEmpty(Stu_EducationSubjects))
+            if (SelectedEducationSubjects_Info == null)
             {
                 ErrorMessage = "ជំនាញ ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2129,19 +3077,19 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
 
-            // Validate Stu_StudyTime
-            if (string.IsNullOrEmpty(Stu_EducationType))
+            // Validate Stu_TypeStudy
+            if (SelectedStu_EducationType_Info == null)
             {
-                ErrorMessage = "វេនសិក្សា ត្រូវតែជ្រើសរើស !";
+                ErrorMessage = "ប្រភេទសិក្សា ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
             }
-
-            // Validate Stu_TypeStudy
-            if (string.IsNullOrEmpty(Stu_StudyTimeShift))
+           
+            // Validate Stu_StudyTime
+            if (SelectedStu_StudyTimeShift_Info == null)
             {
-                ErrorMessage = "ប្រភេទសិក្សា ត្រូវតែជ្រើសរើស !";
+                ErrorMessage = "វេនសិក្សា ត្រូវតែជ្រើសរើស  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
@@ -2175,16 +3123,16 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Birth_Province
-            if (string.IsNullOrEmpty(Stu_Birth_Province))
+            if(SelectedBirthProvince_Info == null)
             {
                 ErrorMessage = "ខេត្តកំណើត ត្រូវតែបំពេញ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
             }
-
+                      
             // Validate Stu_Birth_Distric
-            if (string.IsNullOrEmpty(Stu_Birth_Distric))
+            if (SelectedBirthDistrict_Info == null)
             {
                 ErrorMessage = "ស្រុក/ខណ្ឌកំណើត ត្រូវតែបំពេញ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2193,7 +3141,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Birth_Commune
-            if (string.IsNullOrEmpty(Stu_Birth_Commune))
+            if (SelectedBirthCommune_Info == null)
             {
                 ErrorMessage = "ឃុំ/សង្កាត់កំណើត ត្រូវតែបំពេញ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2202,7 +3150,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Birth_Village
-            if (string.IsNullOrEmpty(Stu_Birth_Village))
+            if (SelectedBirthVillage_Info == null)
             {
                 ErrorMessage = "ភូមិកំណើត ត្រូវតែបំពេញ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2211,7 +3159,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Live_Pro
-            if (string.IsNullOrEmpty(Stu_Live_Pro))
+            if (SelectedLiveProvince_Info == null)
             {
                 ErrorMessage = "ខេត្តរស់នៅបច្ចុប្បន្ន ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2220,7 +3168,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Live_Dis
-            if (string.IsNullOrEmpty(Stu_Live_Dis))
+            if (SelectedLiveDistrict_Info == null)
             {
                 ErrorMessage = "ស្រុក/ខណ្ឌរស់នៅបច្ចុប្បន្ន ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2229,7 +3177,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Live_Comm
-            if (string.IsNullOrEmpty(Stu_Live_Comm))
+            if (SelectedBirthCommune_Info == null)
             {
                 ErrorMessage = "ឃុំ/សង្កាត់រស់នៅបច្ចុប្បន្ន ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2238,7 +3186,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_Live_Vill
-            if (string.IsNullOrEmpty(Stu_Live_Vill))
+            if (SelectedLiveVillage_Info == null)
             {
                 ErrorMessage = "ភូមិរស់នៅបច្ចុប្បន្ន ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2247,7 +3195,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             // Validate Stu_StudyYear
-            if (string.IsNullOrEmpty(Stu_StudyYear))
+            if (SelectesStu_StudyYear_Info == null)
             {
                 ErrorMessage = "ឆ្នាំសិក្សា ត្រូវតែជ្រើសរើស !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -2281,7 +3229,8 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_PhoneNumber: {Stu_PhoneNumber}");
             Debug.WriteLine($"Stu_NationID:{Stu_NationalID}");
             Debug.WriteLine($"Stu_Year:{Stu_StudyingTime}");
-            Debug.WriteLine($"Stu_Birth_Pro:{Stu_Birth_Province}");
+            //Debug.WriteLine($"Stu_Birth_Pro:{Stu_Birth_Province}");
+            
             Debug.WriteLine($"Stu_Birth_Distric: {Stu_Birth_Distric}");
             Debug.WriteLine($"Stu_Birth_Commune:{Stu_Birth_Commune}");
             Debug.WriteLine($"Stu_Birth_Village:{Stu_Birth_Village}");
@@ -2291,8 +3240,6 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Live_Vill:{Stu_Live_Vill}");
             Debug.WriteLine($"Stu_Jobs:{Stu_Jobs}");
             Debug.WriteLine($"Stu_School:{Stu_School}");
-            Debug.WriteLine($"Stu_StudyYear:{Stu_StudyYear}");
-            Debug.WriteLine($"Stu_Semester:{Stu_Semester}");
             Debug.WriteLine($"Stu_Mother_Name:{Stu_Mother_Name}");
             Debug.WriteLine($"Stu_Mother_Phone:{Stu_Mother_Phone}");
             Debug.WriteLine($"Stu_Mother_Job:{Stu_Mother_Job}");
@@ -2513,25 +3460,69 @@ namespace RPISVR_Managements.ViewModel
                     Stu_LastName_EN = _selectedStudent.Stu_LastName_EN;
                     IsMale = _selectedStudent.Stu_Gender == "ស្រី";
                     IsSingle = _selectedStudent.Stu_StateFamily == "មានគ្រួសារ";
-                    //Stu_BirthdayDateOnly = _selectedStudent.Stu_BirthdayDateOnly;
-                    Stu_EducationLevels = _selectedStudent.Stu_EducationLevels;
-                    Stu_EducationSubjects = _selectedStudent.Stu_EducationSubjects;
-                    Stu_StudyTimeShift = _selectedStudent.Stu_StudyTimeShift;
+                   //EducationLevel
+                    SelectedEducationLevel_Info = EducationsLevel_Combobox
+                        .FirstOrDefault(education_level =>  education_level.Stu_EducationLevels == _selectedStudent.Stu_EducationLevels);
+                    OnPropertyChanged(nameof(SelectedEducationLevel_Info));
+                    //EducationSkillsubject
+                    SelectedEducationSubjects_Info = EducationSubjectSkill_Combobox
+                        .FirstOrDefault(education_skillsubject => education_skillsubject.Stu_EducationSubjects == _selectedStudent.Stu_EducationSubjects);
+                    OnPropertyChanged(nameof(SelectedEducationSubjects_Info));
+                    //EducationStudyTimeShift
+                    SelectedStu_StudyTimeShift_Info = EducationStudyTimeShift_Combobox
+                        .FirstOrDefault(education_studytimeshift => education_studytimeshift.Stu_StudyTimeShift == _selectedStudent.Stu_StudyTimeShift);
+                    OnPropertyChanged(nameof(SelectedStu_StudyTimeShift_Info));
+                    //Stu_StudyTimeShift = _selectedStudent.Stu_StudyTimeShift;
                     Stu_PhoneNumber = _selectedStudent.Stu_PhoneNumber;
-                    Stu_EducationType = _selectedStudent.Stu_EducationType;
+                    //EducationType
+                    SelectedStu_EducationType_Info = EducationStudyType_Combobox
+                        .FirstOrDefault(education_studytype => education_studytype.Stu_EducationType == _selectedStudent.Stu_EducationType);
+                    OnPropertyChanged(nameof(SelectedStu_EducationType_Info));
+                    //Stu_EducationType = _selectedStudent.Stu_EducationType;
                     Stu_NationalID = _selectedStudent.Stu_NationalID;
                     Stu_StudyingTime = _selectedStudent.Stu_StudyingTime;
-                    Stu_Birth_Province = _selectedStudent.Stu_Birth_Province;
-                    Stu_Birth_Distric = _selectedStudent.Stu_Birth_Distric;
-                    Stu_Birth_Commune = _selectedStudent.Stu_Birth_Commune;
-                    Stu_Birth_Village = _selectedStudent.Stu_Birth_Village;
-                    Stu_Live_Pro = _selectedStudent.Stu_Live_Pro;
-                    Stu_Live_Dis = _selectedStudent.Stu_Live_Dis;
-                    Stu_Live_Comm = _selectedStudent.Stu_Live_Comm;
-                    Stu_Live_Vill = _selectedStudent.Stu_Live_Vill;
+                    //ListView Location to Combobox
+                    //Province
+                    SelectedBirthProvince_Info = Provinces_Combobox
+                        .FirstOrDefault(province => province.Stu_Birth_Province == _selectedStudent.Stu_Birth_Province);
+                    OnPropertyChanged(nameof(SelectedBirthProvince_Info));
+                    //District
+                    SelectedBirthDistrict_Info = Districts_Combobox
+                        .FirstOrDefault(district => district.Stu_Birth_Distric == _selectedStudent.Stu_Birth_Distric);
+                    OnPropertyChanged(nameof(SelectedBirthDistrict_Info));
+                    //Commune
+                    SelectedBirthCommune_Info = Communes_Combobox
+                        .FirstOrDefault(commune => commune.Stu_Birth_Commune == _selectedStudent.Stu_Birth_Commune);
+                    OnPropertyChanged(nameof(SelectedBirthCommune_Info));
+                    //Village
+                    SelectedBirthVillage_Info = Villages_Combobox
+                        .FirstOrDefault(village => village.Stu_Birth_Village == _selectedStudent.Stu_Birth_Village);
+                    OnPropertyChanged(nameof (SelectedBirthVillage_Info));
+                    //Live Provice
+                    SelectedLiveProvince_Info = Live_Provinces_Combobox
+                        .FirstOrDefault(live_province => live_province.Stu_Live_Pro == _selectedStudent.Stu_Live_Pro);
+                    OnPropertyChanged(nameof(SelectedLiveProvince_Info));
+                    //Live District
+                    SelectedLiveDistrict_Info = Live_Districts_Combobox
+                        .FirstOrDefault(live_district => live_district.Stu_Live_Dis == _selectedStudent.Stu_Live_Dis);
+                    OnPropertyChanged(nameof(SelectedLiveDistrict_Info));
+                    //Live Commune
+                    SelectedLiveCommune_Info = Live_Communes_Combobox
+                        .FirstOrDefault(live_commune => live_commune.Stu_Live_Comm == _selectedStudent.Stu_Live_Comm);
+                    OnPropertyChanged(nameof(SelectedLiveCommune_Info));
+                    //Live Village
+                    SelectedLiveVillage_Info = Live_Villages_Combobox
+                        .FirstOrDefault(live_village => live_village.Stu_Live_Vill == _selectedStudent.Stu_Live_Vill);
+                    OnPropertyChanged(nameof(SelectedLiveVillage_Info));
+
                     Stu_Jobs = _selectedStudent.Stu_Jobs;
                     Stu_School = _selectedStudent.Stu_School;
-                    Stu_StudyYear = _selectedStudent.Stu_StudyYear;
+                    //Stu_StudyYear
+                    SelectesStu_StudyYear_Info = EducationStudyYear_Combobox
+                        .FirstOrDefault(study_year => study_year.Stu_StudyYear == _selectedStudent.Stu_StudyYear);
+                    OnPropertyChanged(nameof(SelectesStu_StudyYear_Info));
+
+                    //Stu_StudyYear = _selectedStudent.Stu_StudyYear;
                     Stu_Semester = _selectedStudent.Stu_Semester;
                     Stu_Mother_Name = _selectedStudent.Stu_Mother_Name;
                     Stu_Mother_Phone = _selectedStudent.Stu_Mother_Phone;
@@ -2610,9 +3601,10 @@ namespace RPISVR_Managements.ViewModel
             return SelectedStudent != null;
         }
 
+        
 
-        
-        
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

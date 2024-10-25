@@ -82,14 +82,7 @@
                                     Style="{StaticResource Stye_KH_ToggleSwitch}"
                                     Margin="5,5,5,0"
                                     IsOn="{Binding IsMale, Mode=TwoWay}"/>
-
-                        <!--<DatePicker x:Name="Stu_Birthday" 
-                                Header="ថ្ងៃខែឆ្នាំកំណើត"   
-                                RelativePanel.RightOf="Stu_FirstName_EN" 
-                                Style="{StaticResource Stye_KH_Picker}"
-                                Margin="5,10,5,0"
-                                Date="{Binding Stu_Birthday, Mode=TwoWay}" />-->
-
+                    
                         <StackPanel x:Name="Stu_Birthday" VerticalAlignment="Center" RelativePanel.RightOf="Stu_FirstName_EN" >
 
                             <RelativePanel>
@@ -139,55 +132,53 @@
 
                         <ComboBox x:Name="Stu_EducationLevels"
                                 Header="កម្រិតសិក្សា"
+                                ItemsSource="{Binding EducationsLevel_Combobox}"
+                                DisplayMemberPath="Stu_EducationLevels"
+                                SelectedValuePath="Stu_EducationLevels_ID"     
                                 RelativePanel.Below="Stu_LastName_EN"
                                 RelativePanel.RightOf="Stu_LastName_KH"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5,5,5,0"
-                                SelectedItem="{Binding Stu_EducationLevels,Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedEducationLevel_Info,Mode=TwoWay}"
                                 BorderBrush="{Binding Stu_EducationLevels_BorderBrush}">
-                            <x:String>បរិញ្ញាបត្រ</x:String>
-                            <x:String>បរិញ្ញាបត្ររង</x:String>
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Subject"
-                                Header="ជំនាញ"                                 
+                                Header="ជំនាញ"    
+                                ItemsSource="{Binding EducationSubjectSkill_Combobox}"
+                                DisplayMemberPath="Stu_EducationSubjects"
+                                SelectedValuePath="Stu_EducationSubject_ID"  
                                 RelativePanel.RightOf="Stu_Birthday"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5,5,5,5"
-                                SelectedItem="{Binding Stu_EducationSubjects,Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedEducationSubjects_Info,Mode=TwoWay}"
                                 BorderBrush="{Binding Stu_EducationSubjects_BorderBrush}">
-
-                            <x:String>វិទ្យាសាស្ត្រកុំព្យូទ័រ</x:String>
-                            <x:String>អគ្គិសនី</x:String>
-                            <x:String>អេឡិចត្រូនិក</x:String>
-                            <x:String>រថយន្ត</x:String>
-
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_StudyTime"
                                 Header="វេនសិក្សា"
+                                ItemsSource="{Binding EducationStudyTimeShift_Combobox}"
+                                DisplayMemberPath="Stu_StudyTimeShift"
+                                SelectedValuePath="Stu_StudyTimeShift_ID"   
                                 RelativePanel.Below="Stu_Subject"
                                 RelativePanel.RightOf="Stu_StateFamily"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="150,5,5,0"
-                                SelectedItem="{Binding Stu_StudyTimeShift,Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedStu_StudyTimeShift_Info,Mode=TwoWay}"
                                 BorderBrush="{Binding Stu_StudyTimeShift_BorderBrush}">
-                            <x:String>វេនចន្ទសុក្រ(ព្រឹក)</x:String>
-                            <x:String>វេនចន្ទសុក្រ(រសៀល)</x:String>
-                            <x:String>វេនសៅរ៍អាទិត្យ</x:String>
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_TypeStudy"
                                 Header="ប្រភេទសិក្សា"
+                                ItemsSource="{Binding EducationStudyType_Combobox}"
+                                DisplayMemberPath="Stu_EducationType"
+                                SelectedValuePath="Stu_EducationType_ID"
                                 RelativePanel.Below="Stu_StudyTime"
                                 RelativePanel.RightOf="Stu_Gender"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="150,5,5,0"
-                                SelectedItem="{Binding Stu_EducationType,Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedStu_EducationType_Info,Mode=TwoWay}"
                                 BorderBrush="{Binding Stu_TypeStudy_BorderBrush}">
-                            <x:String>ថ្នាក់អាហារូបករណ៍</x:String>
-                            <x:String>ថ្នាក់បង់ថ្លៃ</x:String>
-                            <x:String>វគ្គខ្លី</x:String>
                         </ComboBox>
 
                         <NumberBox x:Name="Stu_PhoneNumber"
@@ -242,51 +233,55 @@
 
                         <ComboBox x:Name="Stu_Birth_Province"
                                Header="ខេត្ត"
+                               ItemsSource="{Binding Provinces_Combobox}"
+                               DisplayMemberPath="Stu_Birth_Province"
+                               SelectedValuePath="Stu_Birth_Province_ID"
                                RelativePanel.Below="Title_Place"
                                RelativePanel.RightOf="Line_1"
                                Style="{StaticResource Stye_KH_Combobox}"
                                Margin="5"
-                               SelectedItem="{Binding Stu_Birth_Province,Mode=TwoWay}"
-                               BorderBrush="{Binding Stu_Birth_Province_BorderBrush}">
-                            <x:String>ស្វាយរៀង</x:String>
-                            <x:String>ភ្នំពេញ</x:String>
+                               SelectedItem="{Binding SelectedBirthProvince_Info,Mode=TwoWay}"
+                               BorderBrush="{Binding SelectProvinceBorderBrush}">
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Birth_Distric"
                                 Header="ស្រុក/ខណ្ឌ"
+                                ItemsSource="{Binding Districts_Combobox}"
+                                DisplayMemberPath="Stu_Birth_Distric"
+                                SelectedValuePath="Stu_Birth_District_ID"
                                 RelativePanel.RightOf="Stu_Birth_Province"
                                 RelativePanel.Below="Title_Place"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Birth_Distric,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Birth_Distric_BorderBrush}">
-                            <x:String>ស្វាយទាប</x:String>
-                            <x:String>ក្រុងស្វាយរៀង</x:String>
+                                SelectedItem="{Binding SelectedBirthDistrict_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectDistrictBorderBrush}">
                         </ComboBox>
 
 
                         <ComboBox x:Name="Stu_Birth_Commune"
                                 Header="ឃុំ/សង្កាត់"
+                                ItemsSource="{Binding Communes_Combobox}"
+                                DisplayMemberPath="Stu_Birth_Commune"
+                                SelectedValuePath="Stu_Birth_Commune_ID"
                                 RelativePanel.RightOf="Stu_Birth_Distric"
                                 RelativePanel.Below="Title_Place"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Birth_Commune,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Birth_Commune_BorderBrush}">
-                            <x:String>រមាំងថ្កោល</x:String>
-                            <x:String>សំបួរ</x:String>
+                                SelectedItem="{Binding SelectedBirthCommune_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectCommuneBorderBrush}">
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Birth_Village"
                                 Header="ភូមិ"
+                                ItemsSource="{Binding Villages_Combobox}"
+                                DisplayMemberPath="Stu_Birth_Village"
+                                SelectedValuePath="Stu_Birth_Village_ID"
                                 RelativePanel.RightOf="Stu_Birth_Commune"
                                 RelativePanel.Below="Title_Place"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Birth_Village,Mode=TwoWay}"
-                                BorderBrush="{Binding  Stu_Birth_Village_BorderBrush}">
-                            <x:String>ទន្លៀង</x:String>
-                            <x:String>វាលល្ងើត</x:String>
+                                SelectedItem="{Binding SelectedBirthVillage_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding  SelectVillageBorderBrush}">
                         </ComboBox>
 
                         <Line X1="0" Y1="10" X2="660" Y2="10" 
@@ -307,50 +302,55 @@
 
                         <ComboBox x:Name="Stu_Live_Pro"
                                 Header="ខេត្ត"
+                                ItemsSource="{Binding Live_Provinces_Combobox}"
+                                DisplayMemberPath="Stu_Live_Pro"
+                                SelectedValuePath="Stu_Live_Pro_ID"
                                 RelativePanel.Below="Title_Place02"
                                 RelativePanel.RightOf="Line_1"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Live_Pro,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Live_Pro_BorderBrush}">
-                            <x:String>ស្វាយរៀង</x:String>
-                            <x:String>ភ្នំពេញ</x:String>
+                                SelectedItem="{Binding SelectedLiveProvince_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectLiveProvinceBorderBrush}">
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Live_Dis"
                                 Header="ស្រុក/ខណ្ឌ"
+                                ItemsSource="{Binding Live_Districts_Combobox}"
+                                DisplayMemberPath="Stu_Live_Dis"
+                                SelectedValuePath="Stu_Live_Dis_ID"
                                 RelativePanel.RightOf="Stu_Live_Pro"
                                 RelativePanel.Below="Title_Place02"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Live_Dis,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Live_Dis_BorderBrush}">
-                            <x:String>ស្វាយទាប</x:String>
-                            <x:String>ក្រុងស្វាយរៀង</x:String>
+                                SelectedItem="{Binding SelectedLiveDistrict_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectLiveDistrictBorderBrush}">
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Live_Comm"
                                 Header="ឃុំ/សង្កាត់"
+                                ItemsSource="{Binding Live_Communes_Combobox}"
+                                DisplayMemberPath="Stu_Live_Comm"
+                                SelectedValuePath="Stu_Live_Comm_ID"
                                 RelativePanel.RightOf="Stu_Live_Dis"
                                 RelativePanel.Below="Title_Place02"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Live_Comm,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Live_Comm_BorderBrush}">
-                            <x:String>រមាំងថ្កោល</x:String>
-                            <x:String>សំបួរ</x:String>
+                                SelectedItem="{Binding SelectedLiveCommune_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectLiveCommuneBorderBrush}">
                         </ComboBox>
 
                         <ComboBox x:Name="Stu_Live_Vill"
                                 Header="ភូមិ"
+                                ItemsSource="{Binding Live_Villages_Combobox}"
+                                DisplayMemberPath="Stu_Live_Vill"
+                                SelectedValuePath="Stu_Live_Vill_ID"
                                 RelativePanel.RightOf="Stu_Live_Comm"
                                 RelativePanel.Below="Title_Place02"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_Live_Vill,Mode=TwoWay}"
-                                BorderBrush="{Binding Stu_Live_Vill_BorderBrush}">
-                            <x:String>ទន្លៀង</x:String>
-                            <x:String>វាលល្ងើត</x:String>
+                                SelectedItem="{Binding SelectedLiveVillage_Info,Mode=TwoWay}"
+                                BorderBrush="{Binding SelectLive_VillageBorderBrush}">
+                            
                         </ComboBox>
 
                         <Line X1="0" Y1="10" X2="0" Y2="230" 
@@ -376,18 +376,14 @@
                                       Text="{Binding Stu_School,Mode=TwoWay}"/>
                         <ComboBox x:Name="Stu_StudyYear"
                                 Header="ឆ្នាំសិក្សា"
+                                ItemsSource="{Binding EducationStudyYear_Combobox}"
+                                DisplayMemberPath="Stu_StudyYear"
+                                SelectedValuePath="Stu_StudyYear_ID"
                                 RelativePanel.RightOf="Stu_School"
                                 Style="{StaticResource Stye_KH_Combobox}"
                                 Margin="5"
-                                SelectedItem="{Binding Stu_StudyYear,Mode=TwoWay}"
+                                SelectedItem="{Binding SelectesStu_StudyYear_Info,Mode=TwoWay}"
                                 BorderBrush="{Binding Stu_StudyYear_BorderBrush}">
-                               
-                            <x:String>2021-2022</x:String>
-                            <x:String>2022-2023</x:String>
-                            <x:String>2023-2024</x:String>
-                            <x:String>2024-2025</x:String>
-                            <x:String>2025-2026</x:String>
-                            <x:String>2026-2027</x:String>
                         </ComboBox>
                         <ComboBox x:Name="Stu_Semester"
                                   Header="ឆមាស"
@@ -1018,10 +1014,11 @@
                             <TextBlock Text="ថ្ងៃខែឆ្នាំកំណើត" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ជំនាញ" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឆ្នាំទី" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                            <TextBlock Text="កម្រិតសិក្សា" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="កម្រិតសិក្សា" Width="195" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="វេនសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឆមាស" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                            <TextBlock Text="ប្រភេទសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឆ្នាំសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ស្ថានភាពគ្រួសារ" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="លេខទូរស័ព្ទ (0)" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="លេខអត្តសញ្ញាណប័ណ្ណ" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -1073,11 +1070,12 @@
                                         <TextBlock Text="{Binding Stu_BirthdayDateOnly}" Width="90"/>
                                         <TextBlock Text="{Binding Stu_EducationSubjects}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_StudyingTime}" Width="50"/>
-                                        <TextBlock Text="{Binding Stu_EducationLevels }" Width="70" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_EducationLevels }" Width="185" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_StudyTimeShift}" Width="120" Style="{StaticResource Font_KH_Body}"/>
-                                        <TextBlock Text="{Binding Stu_Semester}" Width="80"/>
+                                        <TextBlock Text="{Binding Stu_Semester}" Width="60"/>
                                         <TextBlock Text="{Binding Stu_EducationType}" Width="120" Style="{StaticResource Font_KH_Body}"/>
-                                        <TextBlock Text="{Binding Stu_StateFamily }" Width="60" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StudyYear}" Width="120"/>
+                                        <TextBlock Text="{Binding Stu_StateFamily }" Width="80" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_PhoneNumber}" Width="120"/>
                                         <TextBlock Text="{Binding Stu_NationalID}" Width="130"/>
                                         <TextBlock Text="{Binding Stu_School}" Width="270" Style="{StaticResource Font_KH_Body}"/>
