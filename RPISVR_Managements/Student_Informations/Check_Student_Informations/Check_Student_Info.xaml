@@ -10,6 +10,238 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Text_Header" Height="Auto"/>
+            <RowDefinition x:Name="Student_Count_Information" Height="220"/>
+            <RowDefinition x:Name="All_Button" Height="Auto"/>
+            <RowDefinition x:Name="Information_Show" Height="5*"/>
+        </Grid.RowDefinitions>
+        <!--<Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="Count_Data_Student_In_Skill" Width="Auto"/>
+            <ColumnDefinition x:Name="Card_Student_info" Width="350"/>
+            <ColumnDefinition x:Name="Table_Show_Information" Width="5*"/>
+        </Grid.ColumnDefinitions>-->
 
+        <StackPanel x:Name="T_Header" Grid.Row="0">
+            <TextBlock Text="ពិនិត្យទិន្នន័យសិស្សនិស្សិត"
+                       Style="{StaticResource Font_KH_Body}"
+                       Margin="10"/>
+        </StackPanel>
+
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal">
+
+                    <!-- Card 1 -->
+                <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <Image Source="/Assets/Check_Student_Info_Icon/icons8-student-100.png" Width="50" Height="50" />
+                            <TextBlock Text="សិស្សនិស្សិតសរុប 120 នាក់" 
+                                               Style="{StaticResource Font_KH_Title}"
+                                               FontFamily="Khmer OS Muol Light"
+                                               Foreground="Blue" 
+                                               FontSize="20" 
+                                               FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                           Style="{StaticResource Font_KH_Title}"
+                                            Foreground="Green" 
+                                            FontSize="16" 
+                                            FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                           Style="{StaticResource Font_KH_Title}"
+                                            Foreground="Green" 
+                                            FontSize="16" 
+                                            FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+
+                <!-- Card 2 -->
+                <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <Image Source="/Assets/Check_Student_Info_Icon/icons8-flying-mortarboard-100.png" Width="50" Height="50" />
+                            <TextBlock Text="កម្រិតបរិញ្ញាបត្រ 120 នាក់" 
+                               Style="{StaticResource Font_KH_Title}"
+                               FontFamily="Khmer OS Muol Light"
+                               Foreground="Blue" 
+                               FontSize="20" 
+                               FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                           Style="{StaticResource Font_KH_Title}"
+                            Foreground="Green" 
+                            FontSize="16" 
+                            FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                           Style="{StaticResource Font_KH_Title}"
+                            Foreground="Green" 
+                            FontSize="16" 
+                            FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+
+                <!-- Card 3 -->
+                <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <Image Source="/Assets/Check_Student_Info_Icon/icons8-diploma-100.png" Width="50" Height="50" />
+                            <TextBlock Text="កម្រិតបរិញ្ញាបត្ររង 120 នាក់" 
+                                   Style="{StaticResource Font_KH_Title}"
+                                   FontFamily="Khmer OS Muol Light"
+                                   Foreground="Blue" 
+                                   FontSize="20" 
+                                   FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                   Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                       Style="{StaticResource Font_KH_Title}"
+                                        Foreground="Green" 
+                                        FontSize="16" 
+                                        FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+
+                <!-- Card 4 -->
+                <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                <TextBlock Text="C3"
+                                    Foreground="OrangeRed" 
+                                    FontSize="30" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="កម្រិតសញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ៣ 90 នាក់" 
+                                   Style="{StaticResource Font_KH_Title}"
+                                   FontFamily="Khmer OS Muol Light"
+                                   Foreground="Blue" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                   Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                   Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+
+                <!-- Card 5 -->
+                <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                <TextBlock Text="C2"
+                                            Foreground="OrangeRed" 
+                                            FontSize="30" 
+                                            FontWeight="Bold"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="កម្រិតសញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ២ 100 នាក់" 
+                                   Style="{StaticResource Font_KH_Title}"
+                                   FontFamily="Khmer OS Muol Light"
+                                   Foreground="Blue" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                   Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                   Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+                <!-- Card 6 -->
+                <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                <TextBlock Text="C1"
+                                    Foreground="OrangeRed" 
+                                    FontSize="30" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="កម្រិតសញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ១ 20 នាក់" 
+                                       Style="{StaticResource Font_KH_Title}"
+                                       FontFamily="Khmer OS Muol Light"
+                                       Foreground="Blue" 
+                                       FontSize="18" 
+                                       FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                       Style="{StaticResource Font_KH_Title}"
+                                        Foreground="Green" 
+                                        FontSize="16" 
+                                        FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                       Style="{StaticResource Font_KH_Title}"
+                                        Foreground="Green" 
+                                        FontSize="16" 
+                                        FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+                <!-- Card 7 -->
+                <Border Background="Blue" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                    <Border Background="Aqua" Padding="10" BorderBrush="Red" BorderThickness="3" CornerRadius="10">
+                        <!-- Inner Border: Aqua with your content inside -->
+                        <StackPanel Height="150" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50"/>
+                                <TextBlock Text="1.5M"
+                                           Foreground="Purple" 
+                                            FontSize="30" 
+                                            FontWeight="Bold"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="ជំនាញបច្ចេកទេស និងវិជ្ជាជីវៈ (1.5M) 20 នាក់" 
+                                   Style="{StaticResource Font_KH_Title}"
+                                   FontFamily="Khmer OS Muol Light"
+                                   Foreground="Blue" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"/>
+                            <TextBlock Text=" ស្រី 20 នាក់"
+                                    Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                            <TextBlock Text=" ប្រុស 20 នាក់"
+                                    Style="{StaticResource Font_KH_Title}"
+                                    Foreground="Green" 
+                                    FontSize="16" 
+                                    FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+            </StackPanel>
+            </ScrollViewer>
+     
     </Grid>
+   
 </Page>

@@ -96,6 +96,7 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets\Check_Student_Info_Icon\" />
     <Folder Include="Assets\Student_Info_Icon\" />
   </ItemGroup>
   <ItemGroup>

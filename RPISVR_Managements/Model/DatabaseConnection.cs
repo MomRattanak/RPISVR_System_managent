@@ -23,7 +23,8 @@ namespace RPISVR_Managements.Model
 
         public DatabaseConnection()
         {
-            _connectionString = "Server=127.0.0.1;Port=3306;Database=rpisvr_system;User ID=root;Password=;";
+            //_connectionString = "Server=127.0.0.1;Port=3306;Database=rpisvr_system;User ID=root;Password=;";
+            _connectionString = "Server=88.222.215.127;Port=3306;Database=rpisvr_system;User ID=admin;Password=admin@123;charset=utf8mb4;";
 
         }
 
@@ -114,15 +115,15 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
 
-                    string query = "INSERT INTO student_infomations(ID,stu_id, stu_firstname_kh, stu_lastname_kh, stu_firstname_en, stu_lastname_en, stu_birthday_dateonly, stu_gender, stu_state_family, stu_education_level, stu_education_subject, stu_study_time_shift, stu_education_types, stu_study_year, stu_semester, stu_phone_number, stu_nation_id, stu_studying_time, stu_jobs, stu_school, stu_birth_province, stu_birth_distric, stu_birth_commune, stu_birth_village, stu_live_province, stu_live_distric, stu_live_commune, stu_live_village, stu_mother_name, stu_mother_job, stu_mother_phone_number, stu_father_name, stu_father_job, stu_father_phone_number, stu_image_yes_no, stu_image_source, stu_image_total_big, stu_image_total_small, stu_image_degree_yes_no, stu_image_degree_source, stu_image_birth_cert_yes_no, stu_image_birth_cert_source, stu_image_id_nation_yes_no, stu_image_id_nation_source, stu_image_poor_card_yes_no, stu_image_poor_card_source, stu_insert_by_id, stu_insert_datetime, stu_insert_info, stu_update_by_id, stu_update_datetime, stu_update_info, stu_delete_by_id, stu_delete_datetime, stu_delete_info) " +
-                        "VALUES(@id,@stu_id, @stu_firstname_kh, @stu_lastname_kh, @stu_firstname_en, @stu_lastname_en, @stu_birthday_dateonly, @stu_gender, @stu_state_family, @stu_education_level, @stu_education_subject, " +
+                    string query = "INSERT INTO student_infomations(stu_id, stu_firstname_kh, stu_lastname_kh, stu_firstname_en, stu_lastname_en, stu_birthday_dateonly, stu_gender, stu_state_family, stu_education_level, stu_education_subject, stu_study_time_shift, stu_education_types, stu_study_year, stu_semester, stu_phone_number, stu_nation_id, stu_studying_time, stu_jobs, stu_school, stu_birth_province, stu_birth_distric, stu_birth_commune, stu_birth_village, stu_live_province, stu_live_distric, stu_live_commune, stu_live_village, stu_mother_name, stu_mother_job, stu_mother_phone_number, stu_father_name, stu_father_job, stu_father_phone_number, stu_image_yes_no, stu_image_source, stu_image_total_big, stu_image_total_small, stu_image_degree_yes_no, stu_image_degree_source, stu_image_birth_cert_yes_no, stu_image_birth_cert_source, stu_image_id_nation_yes_no, stu_image_id_nation_source, stu_image_poor_card_yes_no, stu_image_poor_card_source, stu_insert_by_id, stu_insert_datetime, stu_insert_info, stu_update_by_id, stu_update_datetime, stu_update_info, stu_delete_by_id, stu_delete_datetime, stu_delete_info) " +
+                        "VALUES(@stu_id, @stu_firstname_kh, @stu_lastname_kh, @stu_firstname_en, @stu_lastname_en, @stu_birthday_dateonly, @stu_gender, @stu_state_family, @stu_education_level, @stu_education_subject, " +
                         "@stu_study_time_shift, @stu_education_types, @stu_study_year, @stu_semester, @stu_phone_number, @stu_nation_id, @stu_studying_time, @stu_jobs, @stu_school, @stu_birth_province, @stu_birth_distric, @stu_birth_commune, @stu_birth_village, " +
                         "@stu_live_province, @stu_live_distric, @stu_live_commune, @stu_live_village, @stu_mother_name, @stu_mother_job, @stu_mother_phone_number, @stu_father_name, @stu_father_job, @stu_father_phone_number, @stu_image_yes_no, @stu_image_source, @stu_image_total_big, @stu_image_total_small, " +
                         "@stu_image_degree_yes_no, @stu_image_degree_source, @stu_image_birth_cert_yes_no, @stu_image_birth_cert_source, @stu_image_id_nation_yes_no, @stu_image_id_nation_source, @stu_image_poor_card_yes_no, @stu_image_poor_card_source, @stu_insert_by_id, @stu_insert_datetime, @stu_insert_info, " +
                         "@stu_update_by_id, @stu_update_datetime, @stu_update_info, @stu_delete_by_id, @stu_delete_datetime, @stu_delete_info)";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
-                    cmd.Parameters.AddWithValue("@id", "ID");
+                    //cmd.Parameters.AddWithValue("@id", "ID");
                     cmd.Parameters.AddWithValue("@stu_id", student_info.Stu_ID);
                     cmd.Parameters.AddWithValue("@stu_firstname_kh", student_info.Stu_FirstName_KH);
                     cmd.Parameters.AddWithValue("@stu_lastname_kh", student_info.Stu_LastName_KH);
@@ -213,7 +214,7 @@ namespace RPISVR_Managements.Model
                     {
                         cmd.Parameters.AddWithValue("@pageSize", pageSize);
                         cmd.Parameters.AddWithValue("@offset", offset);
-
+                        cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
                         using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -1470,7 +1471,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO province_info (PV_ID, province_name_kh, province_name_en) VALUES(@PV_ID, @province_name_kh, @province_name_en)";
+                    string query = "INSERT INTO Province_Info (PV_ID, province_name_kh, province_name_en) VALUES(@PV_ID, @province_name_kh, @province_name_en)";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1501,7 +1502,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
                     
-                    string query = "SELECT PV_ID, province_name_kh, province_name_en FROM province_info ORDER BY PV_ID DESC";
+                    string query = "SELECT PV_ID, province_name_kh, province_name_en FROM Province_Info ORDER BY PV_ID DESC";
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
                         using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1536,7 +1537,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "UPDATE province_info SET province_name_kh = @province_name_kh, province_name_en = @province_name_en WHERE PV_ID = @PV_ID";
+                    string query = "UPDATE Province_Info SET province_name_kh = @province_name_kh, province_name_en = @province_name_en WHERE PV_ID = @PV_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1564,7 +1565,7 @@ namespace RPISVR_Managements.Model
             {
                 connection.Open();
 
-                string query = "SELECT MAX(province_id) AS P_ID, MAX(PV_ID) AS Last_PV_ID FROM province_info";
+                string query = "SELECT MAX(province_id) AS P_ID, MAX(PV_ID) AS Last_PV_ID FROM Province_Info";
                 using (MySqlCommand cmd = new MySqlCommand(query, connection))
                 {
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1613,7 +1614,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "DELETE FROM province_info WHERE PV_ID = @pv_id";
+                    string query = "DELETE FROM Province_Info WHERE PV_ID = @pv_id";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1643,7 +1644,7 @@ namespace RPISVR_Managements.Model
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT province_id, province_name_kh FROM province_info";
+                string query = "SELECT province_id, province_name_kh FROM Province_Info";
                 MySqlCommand command = new MySqlCommand(query, connection);
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
@@ -1668,7 +1669,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO district_info (DS_ID, district_name_kh, district_name_en, province_id) VALUES(@DS_ID, @district_name_kh, @district_name_en, @province_id)";
+                    string query = "INSERT INTO District_Info (DS_ID, district_name_kh, district_name_en, province_id) VALUES(@DS_ID, @district_name_kh, @district_name_en, @province_id)";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1704,8 +1705,8 @@ namespace RPISVR_Managements.Model
                         "d.district_name_en, " +
                         "d.province_id, " +
                         "p.province_name_kh " +
-                        "FROM district_info d  " +
-                        "JOIN province_info p ON d.province_id = p.province_id " +
+                        "FROM District_Info d  " +
+                        "JOIN Province_Info p ON d.province_id = p.province_id " +
                         "ORDER BY DS_ID DESC";
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
@@ -1744,7 +1745,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
                     
-                    string query = "UPDATE district_info SET district_name_kh = @district_name_kh, district_name_en = @district_name_en, province_id = @province_id WHERE DS_ID = @DS_ID";
+                    string query = "UPDATE District_Info SET district_name_kh = @district_name_kh, district_name_en = @district_name_en, province_id = @province_id WHERE DS_ID = @DS_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1773,7 +1774,7 @@ namespace RPISVR_Managements.Model
             {
                 connection.Open();
 
-                string query = "SELECT MAX(district_id) AS D_ID, MAX(DS_ID) AS Last_DS_ID FROM district_info";
+                string query = "SELECT MAX(district_id) AS D_ID, MAX(DS_ID) AS Last_DS_ID FROM District_Info";
                 using (MySqlCommand cmd = new MySqlCommand(query, connection))
                 {
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1821,7 +1822,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "DELETE FROM district_info WHERE DS_ID = @DS_ID";
+                    string query = "DELETE FROM District_Info WHERE DS_ID = @DS_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@DS_ID", districts_Info.DS_ID);
@@ -1849,7 +1850,7 @@ namespace RPISVR_Managements.Model
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT district_id, district_name_kh FROM district_info WHERE province_id =@ProvinceID";
+                string query = "SELECT district_id, district_name_kh FROM District_Info WHERE province_id =@ProvinceID";
 
                 // Log the query execution to confirm correct provinceId is used
                 Debug.WriteLine($"Executing Query with Province_ID: {provinceID}");
@@ -1882,7 +1883,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO commune_info (CM_ID, commune_name_kh, commune_name_en, district_id) VALUES(@CM_ID, @commune_name_kh, @commune_name_en, @district_id)";
+                    string query = "INSERT INTO Commune_Info (CM_ID, commune_name_kh, commune_name_en, district_id) VALUES(@CM_ID, @commune_name_kh, @commune_name_en, @district_id)";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1915,9 +1916,9 @@ namespace RPISVR_Managements.Model
 
                     string query = "SELECT c.CM_ID, c.commune_name_kh, c.commune_name_en, c.district_id, " +
                       "d.district_name_kh, p.province_name_kh " +
-                      "FROM commune_info c " +
-                      "JOIN district_info d ON c.district_id = d.district_id " +
-                      "JOIN province_info p ON d.province_id = p.province_id " +
+                      "FROM Commune_Info c " +
+                      "JOIN District_Info d ON c.district_id = d.district_id " +
+                      "JOIN Province_Info p ON d.province_id = p.province_id " +
                       "ORDER BY c.CM_ID DESC";
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
@@ -1957,7 +1958,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
 
-                    string query = "UPDATE commune_info SET commune_name_kh = @commune_name_kh, commune_name_en = @commune_name_en, district_id = @district_id WHERE CM_ID = @CM_ID";
+                    string query = "UPDATE Commune_Info SET commune_name_kh = @commune_name_kh, commune_name_en = @commune_name_en, district_id = @district_id WHERE CM_ID = @CM_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -1986,7 +1987,7 @@ namespace RPISVR_Managements.Model
             {
                 connection.Open();
 
-                string query = "SELECT MAX(commune_id) AS C_ID, MAX(CM_ID) AS Last_CM_ID FROM commune_info";
+                string query = "SELECT MAX(commune_id) AS C_ID, MAX(CM_ID) AS Last_CM_ID FROM Commune_Info";
                 using (MySqlCommand cmd = new MySqlCommand(query, connection))
                 {
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -2034,7 +2035,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "DELETE FROM commune_info WHERE CM_ID = @CM_ID";
+                    string query = "DELETE FROM Commune_Info WHERE CM_ID = @CM_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@CM_ID", communes_Info.CM_ID);
@@ -2061,7 +2062,7 @@ namespace RPISVR_Managements.Model
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT commune_id, commune_name_kh FROM commune_info WHERE district_id =@district_id";
+                string query = "SELECT commune_id, commune_name_kh FROM Commune_Info WHERE district_id =@district_id";
 
                 // Log the query execution to confirm correct DistrictID is used
                 Debug.WriteLine($"Executing Query with District_ID: {districtID}");
@@ -2092,7 +2093,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO village_info (VL_ID, village_name_kh, village_name_en, commune_id) VALUES(@VL_ID, @village_name_kh, @village_name_en, @commune_id)";
+                    string query = "INSERT INTO Village_Info (VL_ID, village_name_kh, village_name_en, commune_id) VALUES(@VL_ID, @village_name_kh, @village_name_en, @commune_id)";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -2125,10 +2126,10 @@ namespace RPISVR_Managements.Model
                    
                     string query = "SELECT v.VL_ID, v.village_name_kh, v.village_name_en, v.commune_id, " +
                       "c.commune_name_kh,d.district_name_kh, p.province_name_kh " +
-                      "FROM village_info v " +
-                      "JOIN commune_info c ON v.commune_id = c.commune_id " +
-                      "JOIN district_info d ON c.district_id = d.district_id " +
-                      "JOIN province_info p ON d.province_id = p.province_id " +
+                      "FROM Village_Info v " +
+                      "JOIN Commune_Info c ON v.commune_id = c.commune_id " +
+                      "JOIN District_Info d ON c.district_id = d.district_id " +
+                      "JOIN Province_Info p ON d.province_id = p.province_id " +
                       "ORDER BY v.VL_ID DESC";
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
@@ -2169,7 +2170,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
 
-                    string query = "UPDATE village_info SET village_name_kh = @village_name_kh, village_name_en = @village_name_en, commune_id = @commune_id WHERE VL_ID = @VL_ID";
+                    string query = "UPDATE Village_Info SET village_name_kh = @village_name_kh, village_name_en = @village_name_en, commune_id = @commune_id WHERE VL_ID = @VL_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -2198,7 +2199,7 @@ namespace RPISVR_Managements.Model
             {
                 connection.Open();
 
-                string query = "SELECT MAX(village_id) AS V_ID, MAX(VL_ID) AS Last_VL_ID FROM village_info";
+                string query = "SELECT MAX(village_id) AS V_ID, MAX(VL_ID) AS Last_VL_ID FROM Village_Info";
                 using (MySqlCommand cmd = new MySqlCommand(query, connection))
                 {
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -2246,7 +2247,7 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "DELETE FROM village_info WHERE VL_ID = @VL_ID";
+                    string query = "DELETE FROM Village_Info WHERE VL_ID = @VL_ID";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@VL_ID", villages_Info.VL_ID);
@@ -2262,6 +2263,369 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+        //Get Data to Combobox Student_Info
+        //Province
+        public List<Student_Info> GetProvince_toCombobox_Student_info()
+        {
+            List<Student_Info> provinces = new List<Student_Info>();
 
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT province_id, province_name_kh FROM Province_Info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        provinces.Add(new Student_Info
+                        {
+                            Stu_Birth_Province_ID = reader.GetInt32("province_id"),
+                            Stu_Birth_Province = reader.GetString("province_name_kh")
+                        });
+                    }
+                }
+            }
+
+            return provinces;
+        }
+        //Live Provice
+        public List<Student_Info> GetLive_Province_toCombobox_Student_info()
+        {
+            List<Student_Info> live_provinces = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT province_id, province_name_kh FROM Province_Info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        live_provinces.Add(new Student_Info
+                        {
+                            Stu_Live_Pro_ID = reader.GetInt32("province_id"),
+                            Stu_Live_Pro = reader.GetString("province_name_kh")
+                        });
+                    }
+                }
+            }
+            return live_provinces;
+        }
+
+        //District
+        public List<Student_Info> GetBirthDistrict_toCombobox(int ProvinceID)
+        {
+            List<Student_Info> districts = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT district_id, district_name_kh FROM District_Info WHERE province_id =@ProvinceID";
+
+                // Log the query execution to confirm correct provinceId is used
+                Debug.WriteLine($"Executing Query with Province_ID: {ProvinceID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@ProvinceID", ProvinceID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        districts.Add(new Student_Info
+                        {
+                            Stu_Birth_District_ID = reader.GetInt32("district_id"),
+                            Stu_Birth_Distric = reader.GetString("district_name_kh")
+                        });
+
+                    }
+
+                }
+            }
+            return districts;
+        }
+        //Live District
+        public List<Student_Info> GetLiveDistrict_toCombobox(int ProvinceID)
+        {
+            List<Student_Info> districts = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT district_id, district_name_kh FROM District_Info WHERE province_id =@ProvinceID";
+
+                // Log the query execution to confirm correct provinceId is used
+                Debug.WriteLine($"Executing Query with Province_ID: {ProvinceID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@ProvinceID", ProvinceID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        districts.Add(new Student_Info
+                        {
+                            Stu_Live_Dis_ID = reader.GetInt32("district_id"),
+                            Stu_Live_Dis = reader.GetString("district_name_kh")
+                        });
+
+                    }
+
+                }
+            }
+            return districts;
+        }
+        //Commune
+        public List <Student_Info> GetBirthCommune_toCombobox(int DistrictID)
+        {
+            List<Student_Info> cummunes = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT commune_id, commune_name_kh FROM Commune_Info WHERE district_id =@district_id";
+
+                // Log the query execution to confirm correct DistrictID is used
+                Debug.WriteLine($"Executing Query with District_ID: {DistrictID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@district_id", DistrictID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        cummunes.Add(new Student_Info
+                        {
+                            Stu_Birth_Commune_ID = reader.GetInt32("commune_id"),
+                            Stu_Birth_Commune = reader.GetString("commune_name_kh")
+                        });
+                    }
+                }
+            }
+            return cummunes;
+        }
+        //Live Commune
+        public List<Student_Info> GetLiveCommune_toCombobox(int DistrictID)
+        {
+            List<Student_Info> cummunes = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT commune_id, commune_name_kh FROM Commune_Info WHERE district_id =@district_id";
+
+                // Log the query execution to confirm correct DistrictID is used
+                Debug.WriteLine($"Executing Query with District_ID: {DistrictID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                //Get ID By Select Province
+                command.Parameters.AddWithValue("@district_id", DistrictID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        cummunes.Add(new Student_Info
+                        {
+                            Stu_Live_Comm_ID = reader.GetInt32("commune_id"),
+                            Stu_Live_Comm = reader.GetString("commune_name_kh")
+                        });
+                    }
+                }
+            }
+            return cummunes;
+        }
+        //Village
+        public List<Student_Info> GetBirthVillage_toCombobox(int CommuneID)
+        {
+            List<Student_Info> villages = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT village_id, village_name_kh FROM Village_Info WHERE commune_id =@commune_id";
+
+                Debug.WriteLine($"Executing Query with Commue_ID: {CommuneID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+               
+                command.Parameters.AddWithValue("@commune_id", CommuneID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        villages.Add(new Student_Info
+                        {
+                            Stu_Birth_Village_ID = reader.GetInt32("village_id"),
+                            Stu_Birth_Village = reader.GetString("village_name_kh")
+                        });
+                    }
+                }
+            }
+            return villages;
+        }
+        //Live_Village
+        public List<Student_Info> GetLiveVillage_toCombobox(int CommuneID)
+        {
+            List<Student_Info> live_villages = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT village_id, village_name_kh FROM Village_Info WHERE commune_id =@commune_id";
+
+                Debug.WriteLine($"Executing Query with Commue_ID: {CommuneID}");
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@commune_id", CommuneID);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        live_villages.Add(new Student_Info
+                        {
+                            Stu_Live_Vill_ID = reader.GetInt32("village_id"),
+                            Stu_Live_Vill = reader.GetString("village_name_kh")
+                        });
+                    }
+                }
+            }
+            return live_villages;
+        }
+        //EducationLevel
+        public List<Student_Info> GetEducationLevel_toCombobox_Student_info()
+        {
+            List<Student_Info> educaationilevels = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID, edu_level_name_kh FROM education_level_info"; 
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        educaationilevels.Add(new Student_Info
+                        {
+                            Stu_EducationLevels_ID = reader.GetInt32("ID"),
+                            Stu_EducationLevels = reader.GetString("edu_level_name_kh")
+                        });
+                    }
+                }
+            }
+            return educaationilevels;
+        }
+        //EducationSkillSubject
+        public List<Student_Info> GetEducationSkillSubject_toCombobox_Student_Info()
+        {
+            List<Student_Info> educationtskillsubjects = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID, edu_skill_name_kh FROM education_skill_info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        educationtskillsubjects.Add(new Student_Info
+                        {
+                            Stu_EducationSubject_ID = reader.GetInt32("ID"),
+                            Stu_EducationSubjects = reader.GetString("edu_skill_name_kh")
+                        });
+                    }
+                }
+            }
+            return educationtskillsubjects;
+        }
+        //EducationStudyTimeShift
+        public List<Student_Info> GetEducationStudyTimeShift_toCombobox_Student_Info()
+        {
+            List<Student_Info> educationtstudytimeshift = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID, edu_studytimeshift_name_kh FROM education_studytimeshift_info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        educationtstudytimeshift.Add(new Student_Info
+                        {
+                            Stu_StudyTimeShift_ID = reader.GetInt32("ID"),
+                            Stu_StudyTimeShift = reader.GetString("edu_studytimeshift_name_kh")
+                        });
+                    }
+                }
+            }
+            return educationtstudytimeshift;
+        }
+        //EducationStudyTimeType
+        public List<Student_Info> GetEducationStudyType_toCombobox_Student_Info()
+        {
+            List<Student_Info> educationtstudytype = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID, edu_typestudy_name_kh FROM education_typestudy_info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        educationtstudytype.Add(new Student_Info
+                        {
+                            Stu_EducationType_ID = reader.GetInt32("ID"),
+                            Stu_EducationType = reader.GetString("edu_typestudy_name_kh")
+                        });
+                    }
+                }
+            }
+            return educationtstudytype;
+        }
+        //EducationStudyYear
+        public List<Student_Info> GetEducationStudyYear_toCombobox_Student_Info()
+        {
+            List<Student_Info> educationtstudyyear = new List<Student_Info>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID, edu_studyyear_name FROM education_studyyear_info";
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        educationtstudyyear.Add(new Student_Info
+                        {
+                            Stu_StudyYear_ID = reader.GetInt32("ID"),
+                            Stu_StudyYear = reader.GetString("edu_studyyear_name")
+                        });
+                    }
+                }
+            }
+            return educationtstudyyear;
+        }
     }
 }
