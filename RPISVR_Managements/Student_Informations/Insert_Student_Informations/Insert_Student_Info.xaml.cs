@@ -59,9 +59,7 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
             {
                 Stu_FirstName_KH.Focus(FocusState.Programmatic);
             });
-        }
-
-
+        }       
 
         private async void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="RPISVR_Managements.Loading_View.LoadingDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RPISVR_Managements.Loading_View"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    IsPrimaryButtonEnabled="False"
+    IsSecondaryButtonEnabled="False"
+    Background="DarkSlateBlue"
+    BorderBrush="Red"
+    BorderThickness="5"
+    CornerRadius="5">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="3">
+            <ProgressRing IsActive="True" Width="80" Height="80"/>
+            <TextBlock Text="កំពុងដំណើរការ សូមមេត្តារង់ចាំ..." 
+                       Style="{StaticResource Font_KH_Body}"
+                       FontSize="18" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</ContentDialog>
