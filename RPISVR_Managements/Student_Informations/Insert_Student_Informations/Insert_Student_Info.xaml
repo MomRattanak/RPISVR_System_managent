@@ -8,8 +8,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     DataContext="{Binding StudentViewModel,Mode=TwoWay}"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    xmlns:converters="using:RPISVR_Managements.Loading_View">
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="Text_Header" Height="Auto"/>
@@ -19,6 +23,7 @@
 
         </Grid.RowDefinitions>
 
+        
 
         <StackPanel x:Name="P_Header" Grid.Row="0" Margin="5">
             <TextBlock x:Name="P_T_Header" 
@@ -708,7 +713,6 @@
                     <TextBlock Text="សម្អាតទិន្នន័យ" Margin="10,0,0,0"/>
                 </StackPanel>
             </Button>
-
         </StackPanel>
 
         <Grid x:Name="Informations_Show" Grid.Row="3" Margin="5" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3">
@@ -806,19 +810,20 @@
                                 <StackPanel>
                                     <Button x:Name="btn_Delete" 
                                           Style="{StaticResource Stye_KH_Button}">
-                                          
+
                                         <Button.Resources>
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
                                             <SolidColorBrush x:Key="ButtonBackground" Color="Red"/>
                                         </Button.Resources>
                                         <Button.Content>
-                                            
+
                                             <StackPanel Orientation="Horizontal" Margin="0">
                                                 <Image Source="/Assets/Student_Info_Icon/icons8-delete-48.png" Width="20" Height="20" Margin="0,0,20,0" />
                                                 <TextBlock Text="លុបទិន្នន័យ"/>
                                             </StackPanel>
                                         </Button.Content>
                                     </Button>
+                                    
                                 </StackPanel>
                             </Expander.Content>
                         </Expander>
@@ -996,8 +1001,18 @@
                             </Button.Content>
                         </Button>
 
+                        <!-- Loading indicator -->
+                        <ProgressRing x:Name="LoadingIndicator"
+                                      Margin="20,0,0,0"
+                                      IsActive="{Binding IsLoading}"
+                                      Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        
+
                     </StackPanel>
                 </StackPanel>
+               
+                
                 <ScrollView x:Name="Table_Infos" RelativePanel.RightOf="Search_Infos" RelativePanel.Below="Table_Stu_Info_Header" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible" >
                     <StackPanel>
                         <!--Header-->
@@ -1055,7 +1070,9 @@
                             <TextBlock Text="អ្នកធ្វើបច្ចុប្បន្នភាពចុងក្រោយ" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="កាលបរិច្ឆេទធ្វើបច្ចុប្បន្នភាពចុងក្រោយ" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                         </StackPanel>
-                        <ListView ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                        
+                        <ListView x:Name="Student_Info_List" ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3" 
+                                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="10" Margin="5">

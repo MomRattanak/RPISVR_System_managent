@@ -545,7 +545,9 @@
             <!--TabView-->
 
             
+            
             <TabView x:Name="TabView" FontFamily="Khmer OS Battambang" IsAddTabButtonVisible="False" CanDragTabs="True" Background="{ThemeResource CardBackgroundFillColorDefault}" TabItemsChanged="TabView_TabItemsChanged" TabCloseRequested="TabView_TabCloseRequested" Loaded="TabView_Load" Style="{StaticResource TabView_ToolTip_KH}">
+                
                 <TabView.TabStripFooter>
                     <Button  Click="CloseAllTabs_Click">
                         <StackPanel Orientation="Horizontal">
@@ -555,9 +557,11 @@
                             <TextBlock Text="បិទផ្ទាំងទាំងអស់" Style="{StaticResource KH_Tooltip}"/>
                         </ToolTipService.ToolTip>
                     </Button>
+                    
                 </TabView.TabStripFooter>
             </TabView>
         </NavigationView>
+        
         <!--Content Frame-->
         <Frame x:Name="contentFrame"/>
     </Grid>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -48,6 +48,7 @@
     <None Remove="List_and_Reports\Teacher_Time_Teach\Teacher_Time_Teach_Info.xaml" />
     <None Remove="List_and_Reports\Time_Table_Information\Time_Table_Info.xaml" />
     <None Remove="List_and_Reports\Yearly_Report\Annual_Report_Info.xaml" />
+    <None Remove="Loading_View\LoadingDialog.xaml" />
     <None Remove="Request_Attendance\Report_Request_Attendance\Report_Request_Attendance_Info.xaml" />
     <None Remove="Request_Attendance\Request_Attendance_Student\Check_Request_Attendance_Student_Info.xaml" />
     <None Remove="Request_Attendance\Request_Attendance_Student\Request_Attendance_Student_Info.xaml" />
@@ -98,6 +99,11 @@
   <ItemGroup>
     <Folder Include="Assets\Check_Student_Info_Icon\" />
     <Folder Include="Assets\Student_Info_Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Loading_View\LoadingDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Addition_Informations\Add_Villages.xaml">

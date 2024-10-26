@@ -57,6 +57,8 @@ using RPISVR_Managements.List_and_Reports.Yearly_Report;
 using RPISVR_Managements.System_Helps;
 using MySql.Data.MySqlClient;
 using RPISVR_Managements.ViewModel;
+using System.Threading.Tasks;
+using RPISVR_Managements.Loading_View;
 
 
 
@@ -312,26 +314,32 @@ namespace RPISVR_Managements
         }
 
         //Select Item in Navigate
-        private void Main_NV_Items_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        private async void Main_NV_Items_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             var selectedItem = args.SelectedItem as NavigationViewItem;
+            
+            // Show the loading dialog
+            var loadingDialog = new LoadingDialog();
+            loadingDialog.XamlRoot = Main_Navigation.XamlRoot;
+            var showDialogTask = loadingDialog.ShowAsync();
 
             if (selectedItem != null)
             {
                 string navItemTag = selectedItem.Tag?.ToString();
                 //IconElement icon = selectedItem.Icon as IconElement;
                 IconSource iconSource = ConvertIconElementToIconSource(selectedItem.Icon as IconElement);
-
+                await Task.Delay(10);
                 // Check if the selected item is from FooterMenuItems
                 if (sender.FooterMenuItems.Contains(selectedItem))
                 {
                     // Handle footer menu item selection
-                    NavigateToPage(navItemTag, iconSource);
+                    NavigateToPage(navItemTag, iconSource);     
                 }
                 else if (navItemTag != null)
                 {
                     // Handle normal and sub-menu item selection
                     NavigateToPage(navItemTag, iconSource);
+                    
                 }
                 else
                 {
@@ -339,6 +347,8 @@ namespace RPISVR_Managements
                     Debug.WriteLine("Main Menu Item Selected");
                 }
             }
+            loadingDialog.Hide();
+            await Task.CompletedTask;
         }
         
 

@@ -46,13 +46,13 @@ namespace RPISVR_Managements.ViewModel
         // Command to handle the form submission
         public ICommand SubmitCommand { get; }
         public ICommand ClearCommand { get; }
+        
 
 
-
-
-        public StudentViewModel()
+        public  StudentViewModel()
         {
-          
+            
+
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
             _dbConnection = new DatabaseConnection();
@@ -138,7 +138,9 @@ namespace RPISVR_Managements.ViewModel
             LoadData_to_Combobox_EducationStudyYear();
 
             //Student to ListView
-            LoadStudents();
+            IsLoading = true;
+            _ = LoadStudents();
+
 
         }
         //
@@ -880,23 +882,38 @@ namespace RPISVR_Managements.ViewModel
         }
 
         // Method to load students from the database, including images
-        private void LoadStudents()
+        public async Task LoadStudents()
         {
-            var studentsList = _dbConnection.GetStudents_Info(CurrentPage, _pageSize);
-            // Clear the existing list to prepare for the new page data
-            Students.Clear();
-            Debug.WriteLine("Loading students for page: " + CurrentPage);
-            
-            // Iterate over the studentsList returned by the database and add them to the ObservableCollection
-            foreach (var student in studentsList)
-            {              
-                Students.Add(student); 
+           IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var studentsList = _dbConnection.GetStudents_Info(CurrentPage, _pageSize);
+                // Clear the existing list to prepare for the new page data
+                Students.Clear();
+                Debug.WriteLine("Loading students for page: " + CurrentPage);
+
+                // Iterate over the studentsList returned by the database and add them to the ObservableCollection
+                foreach (var student in studentsList)
+                {
+                    Students.Add(student);
+                }
+
+                Students = new ObservableCollection<Student_Info>(studentsList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
-            Students = new ObservableCollection<Student_Info>(studentsList);
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+            await Task.CompletedTask;
             
-            // Raise CanExecuteChanged to update button states
-            (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         public int CurrentPage
@@ -921,25 +938,25 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
-        private void NextPage()
+        private async void NextPage()
         {
             Debug.WriteLine("Next Page Command Executed");
             if (CurrentPage < TotalPages)
             {
                 CurrentPage++;
-                LoadStudents();
+                await LoadStudents();
                 OnPageChanged();
                 Debug.WriteLine($"Current Page: {CurrentPage}");
             }
         }
 
   
-        private void PreviousPage()
+        private async void PreviousPage()
         {
             if (CurrentPage > 1)
             {
                 CurrentPage--;
-                LoadStudents();
+                await LoadStudents();
                 Debug.WriteLine($"Current Page: {CurrentPage}");
             }
             OnPropertyChanged(nameof(CanGoPreviousPage));  // Notify the UI to enable or disable the button
@@ -2242,8 +2259,7 @@ namespace RPISVR_Managements.ViewModel
                         // Notify that IsStuImage_Yes changed and that Stu_Image_YesNo needs to update
                         OnPropertyChanged(nameof(IsStuImage_Yes));
                         OnPropertyChanged(nameof(Stu_Image_YesNo));  // Notify text update
-                    }
-                   
+                    }       
             }
         }
 
@@ -3262,7 +3278,7 @@ namespace RPISVR_Managements.ViewModel
             // If everything is valid
             SaveStudentInformationToDatabase();
             ClearStudentInfo();
-            LoadStudents();
+            await LoadStudents();
             await Task.CompletedTask;
             
         }
@@ -3601,9 +3617,20 @@ namespace RPISVR_Managements.ViewModel
             return SelectedStudent != null;
         }
 
-        
-
-
+        //Loading
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

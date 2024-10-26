@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Controls;
 using System.Data.Common;
 using Windows.ApplicationModel.Email.DataProvider;
 using Windows.Graphics.Printing;
+using Windows.UI.Core;
 
 namespace RPISVR_Managements.Model
 {
@@ -573,6 +574,7 @@ namespace RPISVR_Managements.Model
                 return bitmapImage;
             }
         }
+
 
         //Method for Addition_Information
 
