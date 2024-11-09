@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using RPISVR_Managements.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +29,8 @@ namespace RPISVR_Managements
         }
         public static Window MainAppWindow { get; private set; }
 
+        public static StudentViewModel SharedViewModel { get; } = new StudentViewModel();
+        public string StudentID { get; set; }
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             // Use only one windows

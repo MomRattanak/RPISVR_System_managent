@@ -144,7 +144,19 @@ namespace RPISVR_Managements.ViewModel
             }
 
         }
-        
+
+        private string _selectedStuIDEdit;
+        public string SelectedStu_ID_Edit
+        {
+            get => _selectedStuIDEdit;
+            set
+            {
+                _selectedStuIDEdit= value;
+                OnPropertyChanged(nameof(SelectedStu_ID_Edit));
+
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)

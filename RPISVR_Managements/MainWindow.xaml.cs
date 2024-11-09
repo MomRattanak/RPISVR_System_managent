@@ -68,7 +68,6 @@ namespace RPISVR_Managements
     public sealed partial class MainWindow : Window
     {
         private AppWindow m_AppWindow;
-
         public MainWindow()
         {
             this.InitializeComponent();
@@ -369,6 +368,7 @@ namespace RPISVR_Managements
 
                 case "Insert_Student_Info":
                     AddTabIfNotExists("បញ្ចូលទិន្ន័យសិស្សនិស្សិត", typeof(Insert_Student_Info), iconSource);
+                    (Application.Current as App).StudentID = null;
                     Debug.WriteLine("Open Insert_Student_Info");
                     break;
 
@@ -632,6 +632,15 @@ namespace RPISVR_Managements
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            // Check if we can go back
+            if (contentFrame.CanGoBack)
+            {
+                contentFrame.GoBack();
+            }
         }
     }
 

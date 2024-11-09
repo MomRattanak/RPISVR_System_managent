@@ -24,6 +24,8 @@ using MySqlX.XDevAPI.Relational;
 using System.ComponentModel.DataAnnotations;
 using Windows.Storage.Streams;
 using static System.Net.Mime.MediaTypeNames;
+using System.Threading;
+using Microsoft.UI.Dispatching;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -34,7 +36,7 @@ namespace RPISVR_Managements.ViewModel
         private readonly DatabaseConnection _dbConnection;
         private DatabaseConnection _studentModel;
 
-
+       
         private int _currentPage = 1;
         private int _totalPages;
         private int _pageSize = 10;
@@ -43,9 +45,14 @@ namespace RPISVR_Managements.ViewModel
 
         public ICommand PreviousPageCommand { get; }
         public ICommand NextPageCommand { get; }
+        public ICommand PreviousPageCommand_Check { get; }
+        public ICommand NextPageCommand_Check { get; }
         // Command to handle the form submission
         public ICommand SubmitCommand { get; }
         public ICommand ClearCommand { get; }
+
+        //Command to Search_Stu_Info
+        public ICommand Search_Stu_Info { get; }
         
 
 
@@ -55,15 +62,21 @@ namespace RPISVR_Managements.ViewModel
 
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
+            Search_Stu_Info = new RelayCommand(async () => await Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy));
+            
             _dbConnection = new DatabaseConnection();
 
 
             Students = new ObservableCollection<Student_Info>();
-            
+            Students_Check_Info = new ObservableCollection<Student_Info>();
 
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
             NextPageCommand = new RelayCommand(NextPage, CanGoNextPage);
+
+            //Command for Previouse,Back Button
+            PreviousPageCommand_Check = new RelayCommand(PreviousPage_Check, CanGoPreviousPage);
+            NextPageCommand_Check = new RelayCommand(NextPage_Check, CanGoNextPage);
 
             //
             IsUpdateEnabled = false;
@@ -139,11 +152,12 @@ namespace RPISVR_Managements.ViewModel
 
             //Student to ListView
             IsLoading = true;
-            _ = LoadStudents();
-
+            _ = LoadStudents(SearchText_ID_Name_Insert);
 
         }
-        //
+
+        
+
         //Get_data_to_combobox Province
         private ObservableCollection<Student_Info> _provinces;
         public ObservableCollection<Student_Info> Provinces_Combobox
@@ -880,9 +894,41 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Students));  // Notify the UI when the Students collection changes
             }
         }
+        //Students_Check_Info
+        public ObservableCollection<Student_Info> Students_Check_Info
+        {
+            get => _students;
+            set
+            {
+                _students = value;
+                OnPropertyChanged(nameof(Students_Check_Info)); 
+            }
+        }
+        //Search ID_Name in Insert_Student
+        private string _searchText_ID_Name_Insert;
+        public string SearchText_ID_Name_Insert
+        {
+            get => _searchText_ID_Name_Insert;
+            set
+            {
+                if (_searchText_ID_Name_Insert != value)
+                {
+                    _searchText_ID_Name_Insert = value;
+                    OnPropertyChanged(nameof(SearchText_ID_Name_Insert));
+                    Debug.WriteLine("Property changed: SearchText_ID_Name_Insert = " + value);
+                    OnSearchTextChanged_Insert(_searchText_ID_Name_Insert);
+                }
+            }
+        }
+        //Search By ID, Name
+        private async void OnSearchTextChanged_Insert(string newText_ID_Name)
+        {
+            Debug.WriteLine($"Search ID or Name Insert Mode: {newText_ID_Name}");
+            await LoadStudents(newText_ID_Name);
+        }
 
         // Method to load students from the database, including images
-        public async Task LoadStudents()
+        public async Task LoadStudents(string newText_ID_Name)
         {
            IsLoading = true;
             try
@@ -890,7 +936,7 @@ namespace RPISVR_Managements.ViewModel
                 await Task.Delay(10);
 
                 //
-                var studentsList = _dbConnection.GetStudents_Info(CurrentPage, _pageSize);
+                var studentsList = _dbConnection.GetStudents_Info(CurrentPage, _pageSize, newText_ID_Name);
                 // Clear the existing list to prepare for the new page data
                 Students.Clear();
                 Debug.WriteLine("Loading students for page: " + CurrentPage);
@@ -944,23 +990,50 @@ namespace RPISVR_Managements.ViewModel
             if (CurrentPage < TotalPages)
             {
                 CurrentPage++;
-                await LoadStudents();
+                await LoadStudents(SearchText_ID_Name_Insert);
+                OnPageChanged();
+                Debug.WriteLine($"Current Page: {CurrentPage}");
+            }
+        }
+        private async void NextPage_Check()
+        {
+            Debug.WriteLine("Next Page Command Executed");
+            if (CurrentPage < TotalPages)
+            {
+                CurrentPage++;
+                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy);
+                var fetchTask = FetchStudentInfo(SearchText_ID_Name);
+
+                await Task.WhenAll(searchTask, fetchTask);
                 OnPageChanged();
                 Debug.WriteLine($"Current Page: {CurrentPage}");
             }
         }
 
-  
+
         private async void PreviousPage()
         {
             if (CurrentPage > 1)
             {
                 CurrentPage--;
-                await LoadStudents();
+                await LoadStudents(SearchText_ID_Name_Insert);
                 Debug.WriteLine($"Current Page: {CurrentPage}");
             }
             OnPropertyChanged(nameof(CanGoPreviousPage));  // Notify the UI to enable or disable the button
         }
+        private async void PreviousPage_Check()
+        {
+            if (CurrentPage > 1)
+            {
+                CurrentPage--;
+                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy);
+                var fetchTask = FetchStudentInfo(SearchText_ID_Name);
+                await Task.WhenAll(searchTask,fetchTask);
+                Debug.WriteLine($"Current Page: {CurrentPage}");
+            }
+            OnPropertyChanged(nameof(CanGoPreviousPage));  // Notify the UI to enable or disable the button
+        }
+
         private bool CanGoPreviousPage()
         {
             return CurrentPage > 1;  // Enable only if not on the first page
@@ -975,6 +1048,9 @@ namespace RPISVR_Managements.ViewModel
         {
             (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            //New
+            (PreviousPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+            (NextPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
 
@@ -1515,10 +1591,19 @@ namespace RPISVR_Managements.ViewModel
                     }
                 }
             }
-            
-
         }
 
+        //Stu_IDShow
+        private string _Stu_IDShow;
+        public string Stu_IDShow
+        {
+            get => _Stu_IDShow;
+            set
+            {
+                _Stu_IDShow = value;
+                OnPropertyChanged(nameof(Stu_IDShow));
+            }
+        }
         //Stu_FirstName_KH
         private string _Stu_FirstName_KH;
         public string Stu_FirstName_KH
@@ -1610,7 +1695,20 @@ namespace RPISVR_Managements.ViewModel
         {
             get => SelectedDate?.ToString("dd/MM/yyyy") ?? "No Date Selected"; 
         }
-
+        //Stu_BirthdayDateShow
+        private string _Stu_BirthdayDateShow;
+        public string Stu_BirthdayDateShow
+        {
+            get => _Stu_BirthdayDateShow;
+            set
+            {
+                if(Stu_BirthdayDateShow != value)
+                {
+                    _Stu_BirthdayDateShow = value;
+                    OnPropertyChanged(nameof(Stu_BirthdayDateShow));
+                }
+            }
+        }
         //Stu_Gender
         private bool _IsMale;
         public bool IsMale
@@ -1622,6 +1720,7 @@ namespace RPISVR_Managements.ViewModel
                 {
                     _IsMale = value;
                     OnPropertyChanged(nameof(IsMale));
+                    OnPropertyChanged(nameof(Stu_Gender));
                 }
             }
         }
@@ -1631,6 +1730,20 @@ namespace RPISVR_Managements.ViewModel
             get => _IsMale ? "ស្រី":"ប្រុស" ; // Return "ប្រុស" if IsMale is true, else "ស្រី"
         }
 
+        //Stu_GenderShow
+        private string _Stu_GenderShow;
+        public string Stu_GenderShow
+        {
+            get => _Stu_GenderShow;
+            set
+            {
+                if(_Stu_GenderShow != value)
+                {
+                    _Stu_GenderShow = value;
+                    OnPropertyChanged(nameof(Stu_GenderShow));
+                }
+            }
+        }
         //Stu_StateFamily
         private bool _IsSingle;
         public bool IsSingle
@@ -2963,8 +3076,9 @@ namespace RPISVR_Managements.ViewModel
             Stu_Father_Name = string.Empty;
             Stu_Father_Phone = string.Empty;
             Stu_Father_Job = string.Empty;
+            //IsStuImage_Yes = _selectedStudent.Stu_Image_YesNo == "គ្មានរូបថត";
             //Stu_Image_YesNo = null;
-            Stu_Image_Source=null;
+            Stu_Image_Source =null;
             ProfileImageBytes = null;
             Stu_Image_Total_Big = string.Empty;
             Stu_Image_TotalSmall = string.Empty;
@@ -3278,7 +3392,7 @@ namespace RPISVR_Managements.ViewModel
             // If everything is valid
             SaveStudentInformationToDatabase();
             ClearStudentInfo();
-            await LoadStudents();
+            await LoadStudents(SearchText_ID_Name_Insert);
             await Task.CompletedTask;
             
         }
@@ -3632,11 +3746,403 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        // The selected student in the ListView Check Student
+        public Student_Info SelectedStudent_CheckStudent
+        {
+            get => _selectedStudent;
+            set
+            {
+                _selectedStudent = value;
+                OnPropertyChanged();               
+                if (_selectedStudent != null)
+                {
+                    Stu_IDShow = _selectedStudent.Stu_ID;
+                    Stu_FirstName_KH = _selectedStudent.Stu_FirstName_KH;
+                    Stu_LastName_KH = _selectedStudent.Stu_LastName_KH;
+                    Stu_FirstName_EN = _selectedStudent.Stu_FirstName_EN;
+                    Stu_LastName_EN = _selectedStudent.Stu_LastName_EN;
+                    Stu_GenderShow = _selectedStudent.Stu_Gender;
+                    IsSingle = _selectedStudent.Stu_StateFamily == "មានគ្រួសារ";
+                    Stu_Live_Vill = _selectedStudent.Stu_Live_Vill;
+                    Stu_Live_Comm = _selectedStudent.Stu_Live_Comm;
+                    Stu_Live_Dis = _selectedStudent.Stu_Live_Dis;
+                    Stu_Live_Pro = _selectedStudent.Stu_Live_Pro;
+                    Stu_BirthdayDateShow = _selectedStudent.Stu_BirthdayDateOnly;
+                    //EducationLevel
+                    Stu_EducationLevels = _selectedStudent.Stu_EducationLevels;              
+                    //EducationSkillsubject
+                    Stu_EducationSubjects = _selectedStudent.Stu_EducationSubjects;
+                    //EducationStudyTimeShift
+                    Stu_StudyTimeShift = _selectedStudent.Stu_StudyTimeShift; 
+                    //Stu_StudyTimeShift = _selectedStudent.Stu_StudyTimeShift;
+                    Stu_PhoneNumber = _selectedStudent.Stu_PhoneNumber;
+                    //EducationType
+                    Stu_EducationType = _selectedStudent.Stu_EducationType;
+                    //Stu_EducationType = _selectedStudent.Stu_EducationType;
+                    Stu_NationalID = _selectedStudent.Stu_NationalID;
+                    Stu_StudyingTime = _selectedStudent.Stu_StudyingTime;                   
+                    Stu_Jobs = _selectedStudent.Stu_Jobs;
+                    Stu_School = _selectedStudent.Stu_School;
+                    Stu_StudyYear = _selectedStudent.Stu_StudyYear;                  
+                    Stu_Semester = _selectedStudent.Stu_Semester;
+                    Stu_Mother_Name = _selectedStudent.Stu_Mother_Name;
+                    Stu_Mother_Phone = _selectedStudent.Stu_Mother_Phone;
+                    Stu_Mother_Job = _selectedStudent.Stu_Mother_Job;
+                    Stu_Father_Name = _selectedStudent.Stu_Father_Name;
+                    Stu_Father_Phone = _selectedStudent.Stu_Father_Phone;
+                    Stu_Father_Job = _selectedStudent.Stu_Father_Job;
+                    IsStuImage_Yes = _selectedStudent.Stu_Image_YesNo == "មានរូបថត";
+                    Stu_Image_Source = _selectedStudent.Stu_Image_Source;
+                    ProfileImageBytes = _selectedStudent.ProfileImageBytes;
+                    Stu_Image_Total_Big = _selectedStudent.Stu_Image_Total_Big;
+                    Stu_Image_TotalSmall = _selectedStudent.Stu_Image_TotalSmall;
+                    Is_ImageDegree_YesNo = _selectedStudent.Stu_Images_Degree_Yes_No == "មាន";
+                    Stu_Image_Degree_Source = _selectedStudent.Stu_Image_Degree_Source;
+                    Stu_Image_Degree_Bytes = _selectedStudent.Stu_Image_Degree_Bytes;
+                    Is_ImageBirth_Cert_YesNo = _selectedStudent.Stu_ImageBirth_Cert_YesNo == "មាន";
+                    Stu_ImageBirth_Cert_Source = _selectedStudent.Stu_ImageBirth_Cert_Source;
+                    Stu_ImageBirth_Cert_Bytes = _selectedStudent.Stu_ImageBirth_Cert_Bytes;
+                    Is_Stu_ImageIDNation_YesNo = _selectedStudent.Stu_ImageIDNation_YesNo == "មាន";
+                    Stu_ImageIDNation_Source = _selectedStudent.Stu_ImageIDNation_Source;
+                    Stu_ImageIDNation_Bytes = _selectedStudent.Stu_ImageIDNation_Bytes;
+                    Is_ImagePoor_Card_YesNo = _selectedStudent.Stu_ImagePoor_Card_YesNo == "មាន";
+                    Stu_ImagePoor_Card_Source = _selectedStudent.Stu_ImagePoor_Card_Source;
+                    Stu_Image_Poor_Card_Bytes = _selectedStudent.Stu_Image_Poor_Card_Bytes;
+                    Stu_Update_By_ID = _selectedStudent.Stu_Update_By_ID;
+                    Stu_Update_DateTime = _selectedStudent.Stu_Update_DateTime;
+                    Stu_Update_Info = _selectedStudent.Stu_Update_Info;
+
+                }
+                OnPropertyChanged(nameof(SelectedStudent_CheckStudent));
+                
+            }
+        }
+
+        private string _searchText;
+        public string SearchText_ID_Name
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged(nameof(SearchText_ID_Name));                    
+                    OnSearchTextChanged(_searchText);
+                }
+            }
+        }
+        //Search By ID, Name
+        private async void OnSearchTextChanged(string newText)
+        {
+           Debug.WriteLine($"Search ID or Name Check Mode: {newText}");
+            await FetchStudentInfo(newText);
+        }
+        
+        public async Task FetchStudentInfo(string Search_ID_Name)
+        {
+            if (string.IsNullOrEmpty(Search_ID_Name))
+            {
+                var studentsList = _dbConnection.GetStudents_Check_Stu_Info(CurrentPage, _pageSize, Search_ID_Name);
+                Students.Clear();
+                foreach (var student in studentsList)
+                {
+                    Students.Add(student);
+                }
+                return;
+            }
+                
+
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var studentsList = _dbConnection.GetStudents_Check_Stu_Info(CurrentPage, _pageSize, Search_ID_Name);
+                // Clear the existing list to prepare for the new page data
+                Students.Clear();
+                Debug.WriteLine("Loading students for page: " + CurrentPage);
+
+                // Iterate over the studentsList returned by the database and add them to the ObservableCollection
+                foreach (var student in studentsList)
+                {
+                    Students.Add(student);
+                }
+
+                Students = new ObservableCollection<Student_Info>(studentsList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Choose Selection items for Search
+        //Search_Edu_Level
+        private string _search_Edu_Level;
+        public string Search_Edu_Level
+        {
+            get => _search_Edu_Level;
+            set
+            {
+                _search_Edu_Level = value;
+                OnPropertyChanged(Search_Edu_Level);
+            }
+        }
+        //Search_Edu_Skill_Subject
+        private string _search_Edu_Skill_Subject;
+        public string Search_Edu_Skill_Subject
+        {
+            get => _search_Edu_Skill_Subject;
+            set
+            {
+                _search_Edu_Skill_Subject = value;
+                OnPropertyChanged(nameof(Search_Edu_Skill_Subject));
+            }
+        }
+        //Search_Edu_StudyTimeShift
+        private string _search_Edu_StudyTimeShift;
+        public string Search_Edu_StudyTimeShift
+        {
+            get => _search_Edu_StudyTimeShift;
+            set
+            {
+                _search_Edu_StudyTimeShift = value;
+                OnPropertyChanged(nameof(Search_Edu_StudyTimeShift));
+            }
+        }
+        //Search_Edu_Type_Study
+        private string _search_Edu_TypeStudy;
+        public string Search_Edu_TypeStudy
+        {
+            get => _search_Edu_TypeStudy;
+            set
+            {
+                _search_Edu_TypeStudy = value;
+                OnPropertyChanged(nameof(Search_Edu_TypeStudy));
+            }
+        }
+        //Search_StudyYear
+        private string _search_Edu_StudyYear;
+        public string Search_Edu_StudyYear
+        {
+            get => _search_Edu_StudyYear;
+            set
+            {
+                _search_Edu_StudyYear = value;
+                OnPropertyChanged(nameof(Search_Edu_StudyYear));
+            }
+        }
+        //EducationLevel Selection
+        private Student_Info _selectedEducationLevel_Stu_Info;
+        public Student_Info SelectedEducationLevel_Stu_Info
+        {
+            get { return _selectedEducationLevel_Stu_Info; }
+            set
+            {
+                _selectedEducationLevel_Stu_Info = value;
+                OnPropertyChanged(nameof(SelectedEducationLevel_Stu_Info)); 
+
+                if(_selectedEducationLevel_Stu_Info == null)
+                {
+                    Search_Edu_Level = null;
+                }
+                else
+                {
+                    Search_Edu_Level = _selectedEducationLevel_Stu_Info.Stu_EducationLevels;
+                }
+            }
+        }
+        //EducationSkillSubject
+        private Student_Info _selectedEducationSkillSubject_Stu_Info;
+        public Student_Info SelectedEducationSubjects_Stu_Info
+        {
+            get { return _selectedEducationSkillSubject_Stu_Info; }
+            set
+            {
+                _selectedEducationSkillSubject_Stu_Info = value;
+                OnPropertyChanged(nameof(SelectedEducationSubjects_Stu_Info));
+
+                if (_selectedEducationSkillSubject_Stu_Info == null)
+                {
+                    Search_Edu_Skill_Subject = null;
+                }
+                else
+                {
+                    Search_Edu_Skill_Subject = _selectedEducationSkillSubject_Stu_Info.Stu_EducationSubjects;
+                }
+                
+            }
+        }
+        //EducationStudyTimeShift
+        private Student_Info _selectedStudyTimeShift_Stu_Info;
+        public Student_Info SelectedStu_StudyTimeShift_Stu_Info
+        {
+            get { return _selectedStudyTimeShift_Stu_Info; }
+            set
+            {
+                _selectedStudyTimeShift_Stu_Info = value;
+                OnPropertyChanged(nameof(SelectedStu_StudyTimeShift_Stu_Info));
+                if(_selectedStudyTimeShift_Stu_Info == null)
+                {
+                    Search_Edu_StudyTimeShift = null;
+                }
+                else
+                {
+                    Search_Edu_StudyTimeShift = this.SelectedStu_StudyTimeShift_Stu_Info.Stu_StudyTimeShift;
+                }
+            }
+        }
+        //EducationStudyType
+        private Student_Info _selectedEducationType_Stu_Info;
+        public Student_Info SelectedStu_EducationType_Stu_Info
+        {
+            get { return _selectedEducationType_Stu_Info; }
+            set
+            {
+                _selectedEducationType_Stu_Info = value;
+                OnPropertyChanged(nameof(SelectedStu_EducationType_Stu_Info));
+                if(_selectedEducationType_Stu_Info == null)
+                {
+                    Search_Edu_TypeStudy = null;
+                }
+                else
+                {
+                    Search_Edu_TypeStudy = this.SelectedStu_EducationType_Stu_Info.Stu_EducationType;
+                }
+                
+            }
+        }
+        //EducationStudyYear
+        private Student_Info _selectedStu_StudyYear_Stu_Info;
+        public Student_Info SelectedStu_StudyYear_Stu_Info
+        {
+            get => _selectedStu_StudyYear_Stu_Info;
+            set
+            {
+                _selectedStu_StudyYear_Stu_Info = value;
+                OnPropertyChanged(nameof(SelectedStu_StudyYear_Stu_Info));
+                if(_selectedStu_StudyYear_Stu_Info == null)
+                {
+                    Search_Edu_StudyYear = null;
+                }
+                else
+                {
+                    Search_Edu_StudyYear = _selectedStu_StudyYear_Stu_Info.Stu_StudyYear;
+                }
+            }
+        }
+
+
+
+        public async Task Search_Student_Info(string Search_Edu_Level,string Search_Edu_Skill_Subject,string Search_Edu_StudyTimeShift,string Search_Edu_TypeStudy,string Search_Edu_StudyYear)
+        {       
+
+            Debug.WriteLine("SelectedEducationLevel_Stu_Info = " + Search_Edu_Level);
+            Debug.WriteLine("SelectedEducationSubjects_Stu_Info = " + Search_Edu_Skill_Subject);
+            Debug.WriteLine("SelectedStu_StudyTimeShift_Stu_Info = " + Search_Edu_StudyTimeShift);
+            Debug.WriteLine("SelectedStu_EducationType_Stu_Info = " + Search_Edu_TypeStudy);
+            Debug.WriteLine("SelectedStu_StudyYear_Stu_Info = " + Search_Edu_StudyYear);
+
+            if (string.IsNullOrEmpty(Search_Edu_Level) && string.IsNullOrEmpty(Search_Edu_Skill_Subject) && string.IsNullOrEmpty(Search_Edu_StudyTimeShift) && string.IsNullOrEmpty(Search_Edu_TypeStudy) && string.IsNullOrEmpty(Search_Edu_StudyYear))
+            {
+                var studentsList = _dbConnection.GetStudents_Check_Stu_Info_by_Combobox(CurrentPage, _pageSize, Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_TypeStudy, Search_Edu_StudyYear);
+                Students.Clear();
+                foreach (var student in studentsList)
+                {
+                    Students.Add(student);
+                }
+                return;
+            }
+
+
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var studentsList = _dbConnection.GetStudents_Check_Stu_Info_by_Combobox(CurrentPage, _pageSize, Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_TypeStudy, Search_Edu_StudyYear);
+                // Clear the existing list to prepare for the new page data
+                Students.Clear();
+                Debug.WriteLine("Loading students for page: " + CurrentPage);
+
+                // Iterate over the studentsList returned by the database and add them to the ObservableCollection
+                foreach (var student in studentsList)
+                {
+                    Students.Add(student);
+                }
+
+                Students = new ObservableCollection<Student_Info>(studentsList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Search_Stu_ID_for_Edit
+        private string _selectedStu_ID_Edit;
+        public string SelectedStu_ID_Edit
+        {
+            get => _selectedStu_ID_Edit;
+            set
+            {
+                _selectedStu_ID_Edit = value;
+                OnPropertyChanged(nameof(SelectedStu_ID_Edit));
+                if(SelectedStu_ID_Edit != value)
+                {
+                    SearchText_ID_Name = SelectedStu_ID_Edit;
+                    OnPropertyChanged(nameof(SearchText_ID_Name));
+                    Debug.WriteLine("Property changed: SearchText_ID_Name_Insert = " + value);
+                }
+            }
+        }
+        private bool _isEditModeforEdit;
+        public bool IsEditModeforEdit
+        {
+            get => _isEditModeforEdit;
+            set
+            {
+                _isEditModeforEdit = value;
+                OnPropertyChanged(nameof(IsEditModeforEdit));
+                Debug.WriteLine("IsEditModeforEdit set to: " + value);
+            }
+        }
+        public void SetEditMode(bool isEditMode)
+        {
+            IsEditModeforEdit = isEditMode;
+        }
+        
+
+
+
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+
+
     }
 
     
