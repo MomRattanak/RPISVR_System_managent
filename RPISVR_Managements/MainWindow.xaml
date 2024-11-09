@@ -56,7 +56,8 @@
         <!--NavigationView-->
         <NavigationView x:Name="Main_Navigation"  Grid.Row="1"          
                 FontFamily="Khmer OS Battambang"
-                IsBackButtonVisible="Auto"
+                IsBackButtonVisible="Visible"
+                BackRequested="NavView_BackRequested"
                 IsSettingsVisible="False" Loaded="MainNV_Load" SelectionChanged="Main_NV_Items_SelectionChanged" OpenPaneLength="303">
             
             <NavigationView.MenuItems>
@@ -544,10 +545,9 @@
             
             <!--TabView-->
 
-            
-            
+
+
             <TabView x:Name="TabView" FontFamily="Khmer OS Battambang" IsAddTabButtonVisible="False" CanDragTabs="True" Background="{ThemeResource CardBackgroundFillColorDefault}" TabItemsChanged="TabView_TabItemsChanged" TabCloseRequested="TabView_TabCloseRequested" Loaded="TabView_Load" Style="{StaticResource TabView_ToolTip_KH}">
-                
                 <TabView.TabStripFooter>
                     <Button  Click="CloseAllTabs_Click">
                         <StackPanel Orientation="Horizontal">

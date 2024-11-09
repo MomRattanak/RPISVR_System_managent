@@ -24,6 +24,8 @@ using Microsoft.UI.Text;
 using Microsoft.UI;
 using Windows.Storage.Streams;
 using RPISVR_Managements.Addition_Informations;
+using RPISVR_Managements.Student_Informations.Check_Student_Informations;
+using Windows.Devices.Enumeration;
 
 
 
@@ -33,14 +35,13 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
     {
         //ViewModel for Check validation result
         public StudentViewModel ViewModel { get; set; }
+        public string StudentID { get; set; }
 
-        
         public Insert_Student_Info()
         {
             this.InitializeComponent();
+            this.DataContext = App.SharedViewModel;
 
-            //Load Focus
-            //Loaded += StudentPage_Loaded;
             // Create or get an instance of StudentViewModel
             ViewModel = new StudentViewModel();
             this.DataContext = new StudentViewModel();  // Bind ViewModel to View  
@@ -49,8 +50,24 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
             var viewModel = (StudentViewModel)this.DataContext;
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
+            Search_ByID_Page2.Text = "";
+            
+            App.SharedViewModel.SetEditMode(true);
+            // Retrieve the StudentID from App.xaml.cs
+            StudentID = (Application.Current as App).StudentID;
+            if(StudentID == null)
+            {
+                ISI_BackButton_to_Check_Mode.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                Debug.WriteLine("Received StudentID: " + StudentID);
+                ISI_BackButton_to_Check_Mode.Visibility = Visibility.Visible;
+                Search_ByID_Page2.Text = StudentID;
+            }
             
         }
+        
         //Load Focus Stu_ID
         private void StudentPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -450,6 +467,17 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
                 XamlRoot = this.XamlRoot
             };
             await dialog.ShowAsync();
+        }
+
+        private void btn_click_to_check_mode(object sender, RoutedEventArgs e)
+        {
+            // Navigate to Page(Check_Student_Info)
+           
+            Search_ByID_Page2.Text = "";
+            (Application.Current as App).StudentID = null;
+            Frame.Navigate(typeof(Check_Student_Info));
+
+            Debug.WriteLine("Click Back: StuID = " + StudentID);
         }
     }
 }

@@ -57,7 +57,7 @@
                                PlaceholderText="បញ្ចូល (ឈ្មោះ)" 
                                RelativePanel.Below="Stu_FirstName_KH" 
                                Style="{StaticResource Style_KH_TextBox}"
-                                Text="{Binding Stu_LastName_KH, Mode=TwoWay}"
+                               Text="{Binding Stu_LastName_KH, Mode=TwoWay }"
                                BorderBrush="{Binding Stu_LastName_KH_BorderBrush}"/>
                        
 
@@ -713,6 +713,16 @@
                     <TextBlock Text="សម្អាតទិន្នន័យ" Margin="10,0,0,0"/>
                 </StackPanel>
             </Button>
+            <!--Back Button-->
+            <Button x:Name="ISI_BackButton_to_Check_Mode" Click="btn_click_to_check_mode" Style="{StaticResource Stye_KH_Button}">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-back-96.png" Width="25" Height="25" Margin="0,0,10,0"/>
+                    <TextBlock Text="ត្រឡប់ទៅវិញ" Margin="10,0,0,0"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <Grid x:Name="Informations_Show" Grid.Row="3" Margin="5" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3">
@@ -731,37 +741,16 @@
                             </Expander.Header>
                             <Expander.Content>
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <AutoSuggestBox x:Name="Search_ByID"
-                                           Header="ស្វែងរកតា​មរយៈ ID"
-                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
-                                           Margin="0,0,5,0"
-                                           Width="180"
-                                           CornerRadius="3"/>
-                                    <AutoSuggestBox x:Name="Search_ByName_KH"
-                                           Header="ស្វែងរកតាមឈ្មោះ ភាសាខ្មែរ"
-                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
-                                           Margin="0,5,5,0"
-                                           CornerRadius="3"
-                                           Width="180"/>
-                                    <AutoSuggestBox x:Name="Search_ByName_EN"
-                                           Header="ស្វែងរកតាមឈ្មោះ ENGLISH"
-                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
-                                           Margin="0,5,5,0"
-                                           CornerRadius="3"
-                                           Width="180"/>
-                                    <AutoSuggestBox x:Name="Search_ByPhoneNumber"
-                                           Header="ស្វែងរកតាមលេខទូរស័ព្ទ"
-                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
-                                           Margin="0,5,5,0"
-                                           CornerRadius="3"
-                                           Width="180"/>
-                                    <!--<AutoSuggestBox x:Name="Search_ByNationID"
-                                           Header="ស្វែងរកតាមលេខអត្តសញ្ញាណប័ណ្ណ"
-                                           Style="{StaticResource Stye_KH_AutoSuggestBox}"
-                                           Margin="0,5,5,0"
-                                           CornerRadius="3"
-                                           Width="180"/>-->
-                                    <Line X1="0" Y1="10" X2="240" Y2="10" 
+                                    <TextBox x:Name="Search_ByID"
+                                             Text="{Binding SearchText_ID_Name_Insert, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Header="ស្វែងរកតា​មរយៈលេខសម្គាល់ និង ឈ្មោះ"
+                                             Style="{StaticResource Style_KH_TextBox}"
+                                             Margin="0,0,5,0"
+                                             Width="180"
+                                             CornerRadius="3"/>
+                                    
+                                    
+                                    <!--<Line X1="0" Y1="10" X2="240" Y2="10" 
                                         x:Name="Line_4"
                                         Stroke="Aqua" 
                                         StrokeThickness="3"
@@ -789,7 +778,7 @@
                                                 <TextBlock Text="ស្វែងរក" Padding="19,5,0,0"/>
                                             </StackPanel>
                                         </ToggleButton.Content>
-                                    </ToggleButton>
+                                    </ToggleButton>-->
 
 
                                 </StackPanel>
@@ -1007,7 +996,15 @@
                                       IsActive="{Binding IsLoading}"
                                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        
+
+                        <TextBox x:Name="Search_ByID_Page2" Visibility="Collapsed"
+                                     Text="{Binding SearchText_ID_Name_Insert, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Header="Student ID"
+                                     Width="180"
+                                     Margin="0,0,5,0"/>
+
+                       
+
 
                     </StackPanel>
                 </StackPanel>

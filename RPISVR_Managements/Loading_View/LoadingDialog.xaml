@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     IsPrimaryButtonEnabled="False"
     IsSecondaryButtonEnabled="False"
-    Background="DarkSlateBlue"
+    Background="DarkBlue"
     BorderBrush="Red"
     BorderThickness="5"
     CornerRadius="5">

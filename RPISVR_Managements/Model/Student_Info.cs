@@ -11,13 +11,16 @@ namespace RPISVR_Managements.Model
     {
         public int ID { get; set; }
         public string Stu_ID { get; set; }
+        public string Stu_IDShow { get; set; }
         public string Stu_FirstName_KH { get; set; }
         public string Stu_LastName_KH { get; set; }
         public string Stu_FirstName_EN { get; set; }
         public string Stu_LastName_EN { get; set; }
         public string Stu_Gender { get; set; }
+        public string Stu_GenderShow { get; set; }
         public string Stu_StateFamily { get; set; }
         public string Stu_BirthdayDateOnly { get; set; } 
+        public string Stu_BirthdayDateShow { get; set; }
         //Education Level
         public int Stu_EducationLevels_ID { get; set; }
         public string Stu_EducationLevels { get; set; }
