@@ -53,7 +53,8 @@ namespace RPISVR_Managements.ViewModel
 
         //Command to Search_Stu_Info
         public ICommand Search_Stu_Info { get; }
-        
+        //GeneratePDFCommand Student Info
+        public ICommand GeneratePdfCommand { get; }
 
 
         public  StudentViewModel()
@@ -63,7 +64,7 @@ namespace RPISVR_Managements.ViewModel
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
             Search_Stu_Info = new RelayCommand(async () => await Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy));
-            
+            GeneratePdfCommand = new RelayCommand(async () => await GeneratePDF_Student_Information());
             _dbConnection = new DatabaseConnection();
 
 
@@ -1518,6 +1519,27 @@ namespace RPISVR_Managements.ViewModel
                 Stu_Semester_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
             }
         }
+        //Validate Stu_StatePoor
+        public SolidColorBrush Stu_StatePoor_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Stu_StatePoor_BorderBrush));
+            }
+        }
+        private void ValidateStu_StatePoor()
+        {
+            if (string.IsNullOrEmpty(Stu_StatePoor))
+            {
+                Stu_StatePoor_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Stu_StatePoor_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
+            }
+        }
 
         //Validation Stu_Image_Total_Big
         public SolidColorBrush Stu_Image_Total_Big_BorderBrush
@@ -2258,6 +2280,20 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
+        //Stu_StatePoor
+        private string _Stu_StatePoor;
+        public string Stu_StatePoor
+        {
+            get => _Stu_StatePoor;
+            set
+            {
+                if( _Stu_StatePoor != value)
+                {
+                    _Stu_StatePoor = value;
+                    OnPropertyChanged(nameof(Stu_StatePoor));
+                }
+            }
+        }
 
         //Stu_Mother_Name
         private string _Stu_Mother_Name;
@@ -2900,6 +2936,7 @@ namespace RPISVR_Managements.ViewModel
                 UpdateStudent.Stu_School = Stu_School;
                 UpdateStudent.Stu_StudyYear = SelectesStu_StudyYear_Info.Stu_StudyYear;
                 UpdateStudent.Stu_Semester = Stu_Semester;
+                UpdateStudent.Stu_StatePoor = Stu_StatePoor;
                 UpdateStudent.Stu_Mother_Name = Stu_Mother_Name;
                 UpdateStudent.Stu_Mother_Phone = Stu_Mother_Phone;
                 UpdateStudent.Stu_Mother_Job = Stu_Mother_Job;
@@ -2986,6 +3023,7 @@ namespace RPISVR_Managements.ViewModel
                     Stu_School = this.Stu_School,
                     Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear,
                     Stu_Semester = this.Stu_Semester,
+                    Stu_StatePoor = this.Stu_StatePoor,
                     Stu_Mother_Name = this.Stu_Mother_Name,
                     Stu_Mother_Phone = this.Stu_Mother_Phone,
                     Stu_Mother_Job = this.Stu_Mother_Job,
@@ -3132,6 +3170,7 @@ namespace RPISVR_Managements.ViewModel
 
             ValidateStu_StudyYear();
             ValidateStu_Semester();
+            ValidateStu_StatePoor();
             ValidateStu_Image_Total_Big();
             ValidateStu_Image_TotalSmall();
             SelectedProvince_Combobox_Student_Info();
@@ -3342,7 +3381,14 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
             }
-
+            //Validate Stu_StatePoor()
+            if (string.IsNullOrEmpty(Stu_StatePoor))
+            {
+                ErrorMessage = "ប្រភេទសិស្សនិស្សិត ត្រូវតែជ្រើសរើស !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
 
             Debug.WriteLine($"Stu_ID:{Stu_ID}");
             Debug.WriteLine($"Stu_FirstName_KH:{Stu_FirstName_KH}");
@@ -3378,6 +3424,7 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Father_Job:{Stu_Father_Job}");
             Debug.WriteLine($"Stu_StudyYear: {Stu_StudyYear}");
             Debug.WriteLine($"Stu_Semester: {Stu_Semester}");
+            Debug.WriteLine($"Stu_StatePoor: {Stu_StatePoor}");
             Debug.WriteLine($"Stu_Image_YesNo:{Stu_Image_YesNo}");
             Debug.WriteLine($"Stu_ImageDegree_YesNo:{Stu_ImageDegree_YesNo}");
             Debug.WriteLine($"Stu_ImageBirth_Cert_YesNo:{Stu_ImageBirth_Cert_YesNo}");
@@ -3652,7 +3699,7 @@ namespace RPISVR_Managements.ViewModel
                         .FirstOrDefault(study_year => study_year.Stu_StudyYear == _selectedStudent.Stu_StudyYear);
                     OnPropertyChanged(nameof(SelectesStu_StudyYear_Info));
 
-                    //Stu_StudyYear = _selectedStudent.Stu_StudyYear;
+                    Stu_StatePoor = _selectedStudent.Stu_StatePoor;
                     Stu_Semester = _selectedStudent.Stu_Semester;
                     Stu_Mother_Name = _selectedStudent.Stu_Mother_Name;
                     Stu_Mother_Phone = _selectedStudent.Stu_Mother_Phone;
@@ -3785,6 +3832,7 @@ namespace RPISVR_Managements.ViewModel
                     Stu_School = _selectedStudent.Stu_School;
                     Stu_StudyYear = _selectedStudent.Stu_StudyYear;                  
                     Stu_Semester = _selectedStudent.Stu_Semester;
+                    Stu_StatePoor = _selectedStudent.Stu_StatePoor;
                     Stu_Mother_Name = _selectedStudent.Stu_Mother_Name;
                     Stu_Mother_Phone = _selectedStudent.Stu_Mother_Phone;
                     Stu_Mother_Job = _selectedStudent.Stu_Mother_Job;
@@ -4128,10 +4176,64 @@ namespace RPISVR_Managements.ViewModel
         {
             IsEditModeforEdit = isEditMode;
         }
+
+        //GeneratePDF Student Information
         
+        public async Task GeneratePDF_Student_Information()
+        {
+            if(_selectedStudent != null) 
+            {       
+                // Convert date to Khmer format and assign it to a property in _selectedStudent
+                _selectedStudent.Stu_BirthdayDateShow = ConvertToKhmerDate(_selectedStudent.Stu_BirthdayDateOnly);
+                
+                PdfReportService_Student_Info.CreateReport(_selectedStudent);
+            }
+            else
+            {
+                Debug.WriteLine("No student selected for PDF generation.");
+            }
+            await Task.CompletedTask;
+        }
 
+        // Dictionary to map month numbers to Khmer month names
+        private static readonly Dictionary<int, string> KhmerMonths_Report = new Dictionary<int, string>
+{
+    { 1, "មករា" },
+    { 2, "កុម្ភៈ" },
+    { 3, "មីនា" },
+    { 4, "មេសា" },
+    { 5, "ឧសភា" },
+    { 6, "មិថុនា" },
+    { 7, "កក្កដា" },
+    { 8, "សីហា" },
+    { 9, "កញ្ញា" },
+    { 10, "តុលា" },
+    { 11, "វិច្ឆិកា" },
+    { 12, "ធ្នូ" }
+};
+        public string ConvertToKhmerDate(string date)
+        {
+            try
+            {
+                // Parse the date string with exact format "dd/MM/yyyy"
+                DateTime parsedDate = DateTime.ParseExact(date, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
+                int day = parsedDate.Day;
+                int month = parsedDate.Month;
+                int year = parsedDate.Year;
 
+                // Get Khmer month name
+                string khmerMonth = KhmerMonths_Report.ContainsKey(month) ? KhmerMonths_Report[month] : month.ToString();
+
+                // Format the date as "day KhmerMonth year"
+                return $"{day} {khmerMonth} {year}";
+            }
+            catch (FormatException)
+            {
+                // If parsing fails, return the original date string or handle the error as needed
+                return date;
+            }
+        }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

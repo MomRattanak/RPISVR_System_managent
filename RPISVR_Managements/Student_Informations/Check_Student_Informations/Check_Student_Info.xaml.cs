@@ -73,6 +73,7 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
             _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Interval = TimeSpan.FromSeconds(10); // Set to desired interval
             _dispatcherTimer.Tick += (sender, e) => LoadTotalStu_DataFromDatabase();
+            _dispatcherTimer.Tick += (sender, e) => LoadTotalStu_byStudyTime();
             _dispatcherTimer.Tick += (sender, e) => LoadTotalStudent();
             _dispatcherTimer.Tick += (sender, e) => LoadTotalStudent_Bac_Count();
             _dispatcherTimer.Tick += (sender, e) => LoadTotalStudent_Associate_Count();
@@ -95,6 +96,7 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
                 LoadTotalStudent_C2_Count();
                 LoadTotalStudent_C1_Count();
                 LoadTotalStudent_1_5M_Count();
+                LoadTotalStu_byStudyTime();
             });
         }
         //Graph 1.5M Student
@@ -330,13 +332,56 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
                     Console.WriteLine("Error: " + ex.Message);
                 }
             }
-
         }
+        //Graph show Total Student by StudyTime
+        private void LoadTotalStu_byStudyTime()
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT stu_study_time_shift, COUNT(stu_id) AS student_count, COUNT(CASE WHEN stu_gender = 'ស្រី' THEN 1 END) AS female_student_count,COUNT(CASE WHEN stu_gender = 'ប្រុស' THEN 1 END) AS male_student_count FROM student_infomations GROUP BY stu_study_time_shift;";
+
+            var data = new List<(string studytime_shift, int total_count, int female_count, int male_count)>();
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Connection Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string studytime_shift = reader.GetString("stu_study_time_shift");
+                        int total_count = reader.GetInt32("student_count");
+                        int female_count = reader.GetInt32("female_student_count");
+                        int male_count = reader.GetInt32("male_student_count");
+                        data.Add((studytime_shift, total_count, female_count, male_count));
+                    }
+
+                    // After fetching data, pass it to the method to generate the graph.
+                    UpdateChart_Count_by_StudyTime(data);
+                    //CreateBarChart(data);
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions (e.g., show a message to the user)
+                    Debug.WriteLine("Error: " + ex.Message);
+                }
+            }
+        }
+        private void UpdateChart_Count_by_StudyTime(List<(string studytime_shift, int total_count, int female_count, int male_count)> data)
+        {
+            ChartCanvas_Show_By_StudyTime.Children.Clear(); // Clear previous chart data
+            CreateBarChart_Count_By_StudyTime(data); // Create chart with updated data
+        }
+
+        //Graph Show Count Total Stu by Skill Subject
         private void LoadTotalStu_DataFromDatabase()
         {
 
             string connectionString = _ConnectionString._connectionString.ToString();
-            //string query = "SELECT stu_education_subject, COUNT(stu_id) as student_count FROM student_infomations GROUP BY stu_education_subject";
+            
             string query = "SELECT " +
                 "stu_education_subject, " +
                 "COUNT(stu_id) AS student_count, " +
@@ -371,7 +416,7 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
                 catch (Exception ex)
                 {
                     // Handle exceptions (e.g., show a message to the user)
-                    Console.WriteLine("Error: " + ex.Message);
+                    Debug.WriteLine("Error: " + ex.Message);
                 }
             }
         }
@@ -518,6 +563,144 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
             Canvas.SetLeft(femaleLegendLabel, 75);
             Canvas.SetTop(femaleLegendLabel, 330);
             ChartCanvas.Children.Add(femaleLegendLabel);
+        }
+
+        //
+        private void CreateBarChart_Count_By_StudyTime(List<(string studytime_shift, int total_count, int female_count, int male_count)> data)
+        {
+            double canvasLeft = 60;  // Starting position for the first bar
+            double maxBarHeight = 200;  // Maximum height for the largest bar
+            double barWidth = 40;  // Width of each bar
+            double spacing = 0;   // Space between bars
+            double groupSpacing = 40;   // Space between bar groups
+
+            int maxCount = 0;
+            foreach (var entry in data)
+            {
+                if (entry.total_count > maxCount)
+                {
+                    maxCount = entry.total_count;
+                }
+            }
+
+            foreach (var entry in data)
+            {
+                // Calculate height of each bar relative to the max count.
+                double totalHeight = (entry.total_count / (double)maxCount) * maxBarHeight;
+                double femaleHeight = (entry.female_count / (double)maxCount) * maxBarHeight;
+                
+
+                // Total students bar
+                var totalBar = new Microsoft.UI.Xaml.Shapes.Rectangle
+                {
+                    Width = barWidth,
+                    Height = totalHeight,
+                    Fill = new SolidColorBrush(Colors.Aqua)  // Light color for total students
+                };
+                Canvas.SetLeft(totalBar, canvasLeft);
+                Canvas.SetTop(totalBar, maxBarHeight - totalHeight + 50);
+                ChartCanvas_Show_By_StudyTime.Children.Add(totalBar);
+
+                // Female students bar
+                var femaleBar = new Microsoft.UI.Xaml.Shapes.Rectangle
+                {
+                    Width = barWidth,
+                    Height = femaleHeight,
+                    Fill = new SolidColorBrush(Colors.DarkRed)  // Red color for female students
+                };
+                Canvas.SetLeft(femaleBar, canvasLeft + barWidth + spacing);
+                Canvas.SetTop(femaleBar, maxBarHeight - femaleHeight + 50);
+                ChartCanvas_Show_By_StudyTime.Children.Add(femaleBar);
+
+                // Labels for total count
+                var totalCountLabel = new TextBlock
+                {
+                    Text = entry.total_count.ToString(),
+                    Width = barWidth,
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 12,
+                };
+                Canvas.SetLeft(totalCountLabel, canvasLeft);
+                Canvas.SetTop(totalCountLabel, maxBarHeight - totalHeight + 35);
+                ChartCanvas_Show_By_StudyTime.Children.Add(totalCountLabel);
+
+                // Labels for female count
+                var femaleCountLabel = new TextBlock
+                {
+                    Text = entry.female_count.ToString(),
+                    Width = barWidth,
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 12,
+                };
+                Canvas.SetLeft(femaleCountLabel, canvasLeft + barWidth + spacing);
+                Canvas.SetTop(femaleCountLabel, maxBarHeight - femaleHeight + 35);
+                ChartCanvas_Show_By_StudyTime.Children.Add(femaleCountLabel);
+
+                // Skill label (placed under the group of bars)
+                TextBlock skillLabel = new TextBlock
+                {
+                    Text = entry.studytime_shift,
+                    Width = barWidth * 2 + spacing,  // Adjust width to cover both bars
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 10,
+                    FontFamily = new FontFamily("Khmer OS Battambang"),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                Canvas.SetLeft(skillLabel, canvasLeft - 5);  // Center the text under the group
+                Canvas.SetTop(skillLabel, maxBarHeight + 60);
+                ChartCanvas_Show_By_StudyTime.Children.Add(skillLabel);
+
+                // Move to the next position for the next group of bars
+                canvasLeft += barWidth * 2 + spacing + groupSpacing;
+            }
+            // Add a legend
+            AddLegend_For_Graph_StudyTime();
+        }
+        private void AddLegend_For_Graph_StudyTime()
+        {
+            // Legend for Total Students
+            var totalLegendColor = new Microsoft.UI.Xaml.Shapes.Rectangle
+            {
+                Width = 20,
+                Height = 20,
+                Fill = new SolidColorBrush(Colors.Aqua)
+            };
+            Canvas.SetLeft(totalLegendColor, 50);
+            Canvas.SetTop(totalLegendColor, 300);
+            ChartCanvas_Show_By_StudyTime.Children.Add(totalLegendColor);
+
+            var totalLegendLabel = new TextBlock
+            {
+                Text = "សិស្សនិស្សិតសរុប",
+                FontSize = 10,
+                FontFamily = new FontFamily("Khmer OS Battambang"),
+
+            };
+            Canvas.SetLeft(totalLegendLabel, 75);
+            Canvas.SetTop(totalLegendLabel, 300);
+            ChartCanvas_Show_By_StudyTime.Children.Add(totalLegendLabel);
+
+            // Legend for Female Students
+            var femaleLegendColor = new Microsoft.UI.Xaml.Shapes.Rectangle
+            {
+                Width = 20,
+                Height = 20,
+                Fill = new SolidColorBrush(Colors.Red)
+            };
+            Canvas.SetLeft(femaleLegendColor, 50);
+            Canvas.SetTop(femaleLegendColor, 330);
+            ChartCanvas_Show_By_StudyTime.Children.Add(femaleLegendColor);
+
+            var femaleLegendLabel = new TextBlock
+            {
+                Text = "ស្រី",
+                FontSize = 10,
+                FontFamily = new FontFamily("Khmer OS Battambang")
+
+            };
+            Canvas.SetLeft(femaleLegendLabel, 75);
+            Canvas.SetTop(femaleLegendLabel, 330);
+            ChartCanvas_Show_By_StudyTime.Children.Add(femaleLegendLabel);
         }
 
         private void Clear(object sender, RoutedEventArgs e)
