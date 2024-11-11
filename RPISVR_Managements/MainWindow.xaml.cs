@@ -368,7 +368,6 @@ namespace RPISVR_Managements
 
                 case "Insert_Student_Info":
                     AddTabIfNotExists("បញ្ចូលទិន្ន័យសិស្សនិស្សិត", typeof(Insert_Student_Info), iconSource);
-                    (Application.Current as App).StudentID = null;
                     Debug.WriteLine("Open Insert_Student_Info");
                     break;
 

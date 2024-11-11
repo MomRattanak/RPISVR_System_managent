@@ -400,6 +400,19 @@
                             <x:String>1</x:String>
                             <x:String>2</x:String>
                         </ComboBox>
+                        <ComboBox x:Name="Stu_StatePoor"
+                                  Header="ប្រភេទសិស្សនិស្សិត"
+                                  RelativePanel.RightOf="Stu_Mother_Job"
+                                  RelativePanel.Below="Stu_Semester"
+                                  Style="{StaticResource Stye_KH_Combobox}"
+                                  Margin="5"
+                                  SelectedItem="{Binding Stu_StatePoor,Mode=TwoWay}"
+                                  BorderBrush="{Binding Stu_StatePoor_BorderBrush}">
+                            <x:String>ទូទៅ</x:String>
+                            <x:String>ក្រីក្រ១</x:String>
+                            <x:String>ក្រីក្រ២</x:String>
+                            <x:String>ងាយរងហានិភ័យ</x:String>
+                        </ComboBox>
 
                         <TextBox x:Name="Stu_Mother_Name"
                                Header="ឈ្មោះម្ដាយ"
@@ -1036,6 +1049,7 @@
                             <TextBlock Text="លេខអត្តសញ្ញាណប័ណ្ណ" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="មកពីសាលា/វិទ្យាល័យ" Width="240" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="មុខរបរសិស្សនិស្សិត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ប្រភេទសិស្សនិស្សិត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ភូមិកំណើត" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឃុំ/សង្កាត់កំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ស្រុក/ខណ្ឌកំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -1093,7 +1107,8 @@
                                         <TextBlock Text="{Binding Stu_PhoneNumber}" Width="120"/>
                                         <TextBlock Text="{Binding Stu_NationalID}" Width="130"/>
                                         <TextBlock Text="{Binding Stu_School}" Width="270" Style="{StaticResource Font_KH_Body}"/>
-                                        <TextBlock Text="{Binding Stu_Jobs}" Width="90"/>
+                                        <TextBlock Text="{Binding Stu_Jobs}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StatePoor}" Width="110" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_Birth_Village}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_Birth_Commune}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_Birth_Distric}" Width="120" Style="{StaticResource Font_KH_Body}"/>

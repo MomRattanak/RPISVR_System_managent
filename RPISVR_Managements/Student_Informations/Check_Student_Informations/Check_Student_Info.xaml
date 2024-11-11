@@ -287,9 +287,9 @@
                             <StackPanel Width="2000" Height="400">
                                 
                                 <Canvas Name="ChartCanvas" Background="Gray"/>
-                                </StackPanel>
+                            </StackPanel>
 
-                            </ScrollViewer>
+                        </ScrollViewer>
                         
                         
 
@@ -413,7 +413,7 @@
                                            RelativePanel.Below="Line_2"
                                            Margin="10,0,0,0">
                                     <Run Text="ថ្ងៃខែឆ្នាំកំណើត          :"/>
-                                    <Run Text="{Binding Stu_BirthdayDateShow, Mode=OneWay}" Foreground="Aqua"/>
+                                    <Run Text="{Binding Stu_BirthdayDateShow, Mode=TwoWay}" Foreground="Aqua"/>
                                 </TextBlock>
                                 <TextBlock x:Name="Stu_Live_Place"
                                            Style="{StaticResource Font_KH_Body}"
@@ -596,6 +596,7 @@
                                             <TextBlock Text="លេខអត្តសញ្ញាណប័ណ្ណ" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="មកពីសាលា/វិទ្យាល័យ" Width="240" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="មុខរបរសិស្សនិស្សិត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ប្រភេទសិស្សនិស្សិត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ភូមិកំណើត" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ឃុំ/សង្កាត់កំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ស្រុក/ខណ្ឌកំណើត" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -653,7 +654,8 @@
                                                         <TextBlock Text="{Binding Stu_PhoneNumber}" Width="120"/>
                                                         <TextBlock Text="{Binding Stu_NationalID}" Width="130"/>
                                                         <TextBlock Text="{Binding Stu_School}" Width="270" Style="{StaticResource Font_KH_Body}"/>
-                                                        <TextBlock Text="{Binding Stu_Jobs}" Width="90"/>
+                                                        <TextBlock Text="{Binding Stu_Jobs}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                        <TextBlock Text="{Binding Stu_StatePoor}" Width="110" Style="{StaticResource Font_KH_Body}"/>
                                                         <TextBlock Text="{Binding Stu_Birth_Village}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                                         <TextBlock Text="{Binding Stu_Birth_Commune}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                                         <TextBlock Text="{Binding Stu_Birth_Distric}" Width="120" Style="{StaticResource Font_KH_Body}"/>
@@ -718,7 +720,7 @@
                                         </StackPanel>
                                     </Button.Content>
                                 </Button>
-                                <Button x:Name="btn_report_stu_info" Width="120" Margin="10,0,0,0" RelativePanel.RightOf="btn_delete_stu_check">
+                                <Button x:Name="btn_report_stu_info" Command="{Binding GeneratePdfCommand}" Width="120" Margin="10,0,0,0" RelativePanel.RightOf="btn_delete_stu_check">
                                     <Button.Content>
                                         <StackPanel>
                                             <TextBlock Text="របាយការណ៍"
@@ -728,23 +730,34 @@
                                         </StackPanel>
                                     </Button.Content>
                                 </Button>
-                                
+
+                                <Border x:Name="Text_RPI" Width="60" Height="400" CornerRadius="5" Margin="0,5,0,0"
+                                        RelativePanel.Below="Text_Total_Stu_by_StudyTime" >
+                                    <Image Source="/Assets/Check_Student_Info_Icon/TVET.png" />
+
+                                </Border>
+
+                                <TextBlock x:Name="Text_Total_Stu_by_StudyTime" 
+                                           Text="ទិន្នន័យសិស្សនិស្សិតសរុប តាមវេនសិក្សានីមួយៗ (នាក់)"
+                                           Style="{StaticResource Font_KH_Title}"
+                                           Margin="70,30,0,0"
+                                           FontFamily="Khmer OS Muol Light"
+                                           RelativePanel.Below="btn_report_stu_info"
+                                           />
+
+                                <ScrollViewer x:Name="Student_BarGraph_By_StudyTime" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RelativePanel.Below="Text_Total_Stu_by_StudyTime" RelativePanel.RightOf="Text_RPI">
+
+                                    <StackPanel Width="2000" Height="400" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3" Margin="10,5,0,0">
+                                        <Canvas Name="ChartCanvas_Show_By_StudyTime" Background="Gray"/>
+                                    </StackPanel>
+
+                                </ScrollViewer>
                             </RelativePanel>
-                            <TextBlock Text="Item 1" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 2" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 3" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 4" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 5" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 6" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 7" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 1" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 2" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 3" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 4" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 5" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 6" FontSize="24" Margin="0,5"/>
-                            <TextBlock Text="Item 7" FontSize="24" Margin="0,5"/>
-                            <!-- Repeat as needed -->
+                            <Border Height="150">
+                                
+                            </Border>
+                            
                         </StackPanel>
                         
                     </RelativePanel>

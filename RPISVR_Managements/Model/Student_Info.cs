@@ -83,6 +83,7 @@ namespace RPISVR_Managements.Model
         public int SelectesStu_StudyYear_Info { get; set; }
 
         public string Stu_Semester { get; set; }
+        public string Stu_StatePoor { get; set; }
         public string Stu_Mother_Name { get; set; }
         public string Stu_Mother_Phone { get; set; }
         public string Stu_Mother_Job { get; set; }
