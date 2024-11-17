@@ -58,6 +58,8 @@ namespace RPISVR_Managements.ViewModel
         //GeneratePDFCommand Solarship Report
         public ICommand Search_Stu_Info_Report { get; }
         public ICommand GeneratePDFCommand_Solarship_Report { get; }
+        //GenerateEXCELCommand Total Student Report
+        public ICommand GenerateExcelCommand_Student_Report { get; }
 
 
         public  StudentViewModel()
@@ -71,6 +73,7 @@ namespace RPISVR_Managements.ViewModel
             //Report Student
             Search_Stu_Info_Report = new RelayCommand(async () => await Search_Education_Report_Solarship(SearchText_Education_Level, SearchText_Education_StudyYear, SearchText_Education_StudyType));
             GeneratePDFCommand_Solarship_Report = new RelayCommand(async () => await GeneratePDF_Solarship_Report());
+            GenerateExcelCommand_Student_Report = new RelayCommand(async () => await GenerateExcel_Student_Report());
             _dbConnection = new DatabaseConnection();
 
 
@@ -4462,7 +4465,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
-        //Solarship Report
+        //Solarship Report PDF
         public async Task GeneratePDF_Solarship_Report()
         {
             if(SelectedStudents_Report == null || !SelectedStudents_Report.Any() && Education_Level_Text == null && SearchText_Education_StudyType == null && SearchText_Education_StudyYear == null)
@@ -4493,6 +4496,24 @@ namespace RPISVR_Managements.ViewModel
         }
         
 
+        //Student Report Excel
+        public async Task GenerateExcel_Student_Report()
+        {
+            if (SelectedStudents_Report == null || !SelectedStudents_Report.Any() && Education_Level_Text == null && SearchText_Education_StudyType == null && SearchText_Education_StudyYear == null)
+            {
+                Student_Report_Solarship.Clear();
+                ErrorMessage = "សូមជ្រើសរើស ជម្រើសទាំងបី និងសិស្សនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/Report_Student_Info_Icon/icons8-choose-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                Debug.WriteLine("No student selection.");
+                return;
+            }
+            else
+            {
+                ExportExcel_Student_Report.ExportToExcel(SelectedStudents_Report.ToList(),Education_Level_Text);
+            }
+                await Task.CompletedTask;
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
