@@ -10,12 +10,14 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     xmlns:converters="using:RPISVR_Managements.Loading_View">
 
-    
-    
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="Text_Header" Height="Auto"/>
-            <RowDefinition x:Name="Button" Height="500"/>
+            <RowDefinition x:Name="Button" Height="Auto"/>
             <RowDefinition x:Name="Footer" Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -23,20 +25,21 @@
             <ColumnDefinition x:Name="Report_Preview" Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel x:Name="Button_Report" Margin="10,10,0,0">
+        <TextBlock x:Name="Text_Report" Grid.Row="0" Grid.Column="0"
+               Text="របាយការណ៍សិស្សនិស្សិត"
+               Style="{StaticResource Font_KH_Title}"
+               FontFamily="Khmer OS Muol Light"
+               TextAlignment="Center"/>
+        <StackPanel x:Name="Button_Report" Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
 
-            <TextBlock x:Name="Text_Report"
-                           Text="របាយការណ៍សិស្សនិស្សិត"
-                           Style="{StaticResource Font_KH_Title}"
-                           FontFamily="Khmer OS Muol Light"
-                           TextAlignment="Center"/>
+            
             <RelativePanel>
-                <Button x:Name="btn_stu_solarship_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}">
+                <Button x:Name="btn_stu_solarship_report" Click="btn_click_stu_solarship_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Source="/Assets/icons8-report1-48.png" Width="25" Height="25"/>
 
-                            <TextBlock Text="របាយការណ៍សិស្សនិស្សិតស្នើសុំអាហារូបករណ៍"
+                            <TextBlock Text="បញ្ជីឈ្មោះសិស្សនិស្សិតសរុប"
                                        Style="{StaticResource Font_KH_Body}"/>
                         </StackPanel>
                     </Button.Content>
@@ -45,17 +48,8 @@
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Source="/Assets/Report_Student_Info_Icon/icons8-case-stu-total-report.png" Width="25" Height="25" />
-                            <TextBlock Text="របាយការណ៍សិស្សនិស្សិតសរុប"
+                            <TextBlock Text="កាត សិស្សនិស្សិត"
                                        Style="{StaticResource Font_KH_Body}"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button x:Name="btn_stu_total_report_by_skill" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}" RelativePanel.Below="btn_stu_solarship_report">
-                    <Button.Content>
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="/Assets/Report_Student_Info_Icon/icons8-case-stu-total-report.png" Width="25" Height="25" />
-                            <TextBlock Text="របាយការណ៍សិស្សនិស្សិតសរុប"
-                       Style="{StaticResource Font_KH_Body}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -63,8 +57,13 @@
             
         </StackPanel>
         <!--Preview Panel-->
-        <StackPanel x:Name="Preview_Panel">
-           
-        </StackPanel>
+        <ScrollViewer x:Name="Preview_Panel" Height="750" Grid.Row="1" Grid.Column="1" VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderBrush="Aqua" BorderThickness="3" Margin="10" CornerRadius="10">
+            <StackPanel Orientation="Vertical">
+                <Frame x:Name="ContentFrame" Margin="10,50,10,10"/>
+            </StackPanel>
+            
+        </ScrollViewer>
+
+        
     </Grid>
 </Page>

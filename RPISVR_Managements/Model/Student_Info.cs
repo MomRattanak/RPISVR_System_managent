@@ -14,8 +14,10 @@ namespace RPISVR_Managements.Model
         public string Stu_IDShow { get; set; }
         public string Stu_FirstName_KH { get; set; }
         public string Stu_LastName_KH { get; set; }
+        public string Full_Name_KH { get; set; }
         public string Stu_FirstName_EN { get; set; }
         public string Stu_LastName_EN { get; set; }
+        public string Full_Name_EN {  get; set; }
         public string Stu_Gender { get; set; }
         public string Stu_GenderShow { get; set; }
         public string Stu_StateFamily { get; set; }

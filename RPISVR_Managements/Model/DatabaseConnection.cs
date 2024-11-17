@@ -14,6 +14,9 @@ using System.Data.Common;
 using Windows.ApplicationModel.Email.DataProvider;
 using Windows.Graphics.Printing;
 using Windows.UI.Core;
+using QuestPDF.Helpers;
+using System.Reflection.PortableExecutable;
+using static Mysqlx.Expect.Open.Types;
 
 namespace RPISVR_Managements.Model
 {
@@ -2630,7 +2633,7 @@ namespace RPISVR_Managements.Model
             }
             return educationtstudyyear;
         }
-
+        
         //Search by TextBox Name+ID
         public List<Student_Info> GetStudents_Check_Stu_Info(int page, int pageSize, string Search_ID_Name)
         {
@@ -2949,11 +2952,7 @@ namespace RPISVR_Managements.Model
             List<Student_Info> students_info = new List<Student_Info>();
             try
             {
-                int offset = (page - 1) * pageSize;
-                //        string query = string.IsNullOrEmpty(Search_Edu_Level) && string.IsNullOrEmpty(Search_Edu_Skill_Subject) && string.IsNullOrEmpty(Search_Edu_StudyTimeShift) && string.IsNullOrEmpty(Search_Edu_TypeStudy) && string.IsNullOrEmpty(Search_Edu_StudyYear)
-                //? "SELECT * FROM student_infomations ORDER BY stu_id DESC LIMIT @Offset, @PageSize"
-                //: "SELECT * FROM student_infomations WHERE stu_education_level = @Search_Edu_Level || stu_education_subject = @Search_Edu_Skill_Subject || stu_study_time_shift = @Search_Edu_StudyTimeShift || stu_education_types = @Search_Edu_TypeStudy || stu_study_year = @Search_Edu_StudyYear ORDER BY stu_id DESC LIMIT @Offset, @PageSize ";
-
+                int offset = (page - 1) * pageSize;              
                 string query = "SELECT * FROM student_infomations";
 
                 List<string> conditions = new List<string>();
@@ -3246,5 +3245,141 @@ namespace RPISVR_Managements.Model
             }
             return students_info;
         }
+
+        //Report search by education level
+        public List<Student_Info> GetStudents_Report_Stu_Info_by_Solarship(string student_education_level, string student_education_study_year, string student_education_study_type)
+        {
+            List<Student_Info> student_info_report = new List<Student_Info>();
+            try
+            {
+                string query;
+                if (student_education_level == null && student_education_study_year == null && student_education_study_type == null)
+                {
+                     query = "SELECT * FROM student_infomations FROM student_infomations ORDER BY FIELD(stu_education_level, 'បរិញ្ញាបត្របច្ចេកវិទ្យា', 'សញ្ញាបត្រវិស្វករ', 'បរិញ្ញាបត្រ','សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស','បរិញ្ញាបត្ររង','សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ៣','សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ២','សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ១','ជំនាញបច្ចេកទេស និងវិជ្ជាជីវៈ (1.5M)','កម្រិតវិញ្ញាបនបត្រវិជ្ជាជីវៈ'), stu_education_level";
+                }
+                else if(student_education_level == "បរិញ្ញាបត្របច្ចេកវិទ្យា"|| student_education_level == "សញ្ញាបត្រវិស្វករ" || student_education_level == "បរិញ្ញាបត្រ")
+                {
+                    query = "SELECT * FROM student_infomations WHERE stu_education_level IN ('បរិញ្ញាបត្របច្ចេកវិទ្យា', 'សញ្ញាបត្រវិស្វករ', 'បរិញ្ញាបត្រ')";
+
+                    List<string> conditions = new List<string>();
+                    if (!string.IsNullOrEmpty(student_education_study_year))
+                    {
+                        conditions.Add("stu_study_year = @student_education_study_year");
+                    }
+                    if (!string.IsNullOrEmpty(student_education_study_type))
+                    {
+                        conditions.Add("stu_education_types = @student_education_study_type");
+                    }
+
+                    // Add conditions to WHERE clause if there are any
+                    if (conditions.Count > 0)
+                    {
+                        query += " AND " + string.Join(" AND ", conditions);
+                    }
+
+                    // Add ORDER BY clause
+                    query += " ORDER BY FIELD(stu_education_level, 'បរិញ្ញាបត្របច្ចេកវិទ្យា', 'សញ្ញាបត្រវិស្វករ', 'បរិញ្ញាបត្រ'), stu_education_level";
+
+                }
+                else if(student_education_level == "សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស" || student_education_level == "បរិញ្ញាបត្ររង")
+                {
+
+                    query = "SELECT * FROM student_infomations WHERE stu_education_level IN ('សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស', 'បរិញ្ញាបត្ររង')";
+
+                    List<string> conditions = new List<string>();
+                    if (!string.IsNullOrEmpty(student_education_study_year))
+                    {
+                        conditions.Add("stu_study_year = @student_education_study_year");
+                    }
+                    if (!string.IsNullOrEmpty(student_education_study_type))
+                    {
+                        conditions.Add("stu_education_types = @student_education_study_type");
+                    }
+
+                    // Add conditions to WHERE clause if there are any
+                    if (conditions.Count > 0)
+                    {
+                        query += " AND " + string.Join(" AND ", conditions);
+                    }
+
+                    // Add ORDER BY clause
+                    query += " ORDER BY FIELD(stu_education_level, 'សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស', 'បរិញ្ញាបត្ររង'), stu_education_level";
+
+                }
+                else
+                {
+                    query = "SELECT * FROM student_infomations";
+
+                    List<string> conditions = new List<string>();
+                    if (!string.IsNullOrEmpty(student_education_level))
+                    {
+                        conditions.Add("stu_education_level = @student_education_level");
+                    }
+                    if (!string.IsNullOrEmpty(student_education_study_year))
+                    {
+                        conditions.Add("stu_study_year = @student_education_study_year");
+                    }
+                    if (!string.IsNullOrEmpty(student_education_study_type))
+                    {
+                        conditions.Add("stu_education_types = @student_education_study_type");
+                    }
+
+                    // Add WHERE clause if conditions exist
+                    if (conditions.Count > 0)
+                    {
+                        query += " WHERE " + string.Join(" AND ", conditions);
+                    }
+
+                    // Add ORDER BY clause
+                    query += " ORDER BY FIELD(stu_education_level, 'បរិញ្ញាបត្របច្ចេកវិទ្យា', 'សញ្ញាបត្រវិស្វករ', 'បរិញ្ញាបត្រ', 'សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស', 'បរិញ្ញាបត្ររង', 'សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ៣', 'សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ២', 'សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ១', 'ជំនាញបច្ចេកទេស និងវិជ្ជាជីវៈ (1.5M)', 'កម្រិតវិញ្ញាបនបត្រវិជ្ជាជីវៈ'), stu_education_level";
+
+                }
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    int ID_Number = 1;
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@student_education_study_year", student_education_study_year);
+                        cmd.Parameters.AddWithValue("@student_education_level", student_education_level);
+                        cmd.Parameters.AddWithValue("@student_education_study_type", student_education_study_type);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Student_Info student_report = new Student_Info
+                                {
+                                    ID = ID_Number,
+                                    Stu_FirstName_KH = reader.GetString("stu_firstname_kh"),
+                                    Stu_LastName_KH = reader.GetString("stu_lastname_kh"),
+                                    Full_Name_KH = reader.GetString("stu_firstname_kh") + " " + reader.GetString("stu_lastname_kh"),
+                                    Stu_LastName_EN = reader.GetString("stu_lastname_en"),
+                                    Stu_FirstName_EN = reader.GetString("stu_firstname_en"),
+                                    Full_Name_EN = reader.GetString("stu_firstname_en") + " " + reader.GetString("stu_lastname_en"),
+                                    Stu_Gender = reader.GetString("stu_gender"),
+                                    Stu_BirthdayDateOnly = reader.GetString("stu_birthday_dateonly"),
+                                    Stu_PhoneNumber = reader.GetString("stu_phone_number"),
+                                    Stu_StatePoor = reader.IsDBNull(reader.GetOrdinal("stu_state_poor")) ? string.Empty : reader.GetString("stu_state_poor"),
+                                    Stu_EducationSubjects = reader.GetString("stu_education_subject"),
+                                    Stu_EducationLevels = reader.GetString("stu_education_level"),
+                                    Stu_StudyYear = reader.GetString("stu_study_year"),
+                                    Stu_EducationType = reader.GetString("stu_education_types")
+                                };
+                                ID_Number++;
+                                student_info_report.Add(student_report);
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"MySql Get Student_Info Report to ListView Error:{ex.Message}");
+            }
+            return student_info_report;
+        }
     }
 }
+
