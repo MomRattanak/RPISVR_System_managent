@@ -55,6 +55,9 @@ namespace RPISVR_Managements.ViewModel
         public ICommand Search_Stu_Info { get; }
         //GeneratePDFCommand Student Info
         public ICommand GeneratePdfCommand { get; }
+        //GeneratePDFCommand Solarship Report
+        public ICommand Search_Stu_Info_Report { get; }
+        public ICommand GeneratePDFCommand_Solarship_Report { get; }
 
 
         public  StudentViewModel()
@@ -63,14 +66,17 @@ namespace RPISVR_Managements.ViewModel
 
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
-            Search_Stu_Info = new RelayCommand(async () => await Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy));
+            Search_Stu_Info = new RelayCommand(async () => await Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_TypeStudy, Search_Edu_StudyYear));
             GeneratePdfCommand = new RelayCommand(async () => await GeneratePDF_Student_Information());
+            //Report Student
+            Search_Stu_Info_Report = new RelayCommand(async () => await Search_Education_Report_Solarship(SearchText_Education_Level, SearchText_Education_StudyYear, SearchText_Education_StudyType));
+            GeneratePDFCommand_Solarship_Report = new RelayCommand(async () => await GeneratePDF_Solarship_Report());
             _dbConnection = new DatabaseConnection();
 
 
             Students = new ObservableCollection<Student_Info>();
             Students_Check_Info = new ObservableCollection<Student_Info>();
-
+            Student_Report_Solarship = new ObservableCollection<Student_Info>();
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
             NextPageCommand = new RelayCommand(NextPage, CanGoNextPage);
@@ -154,7 +160,6 @@ namespace RPISVR_Managements.ViewModel
             //Student to ListView
             IsLoading = true;
             _ = LoadStudents(SearchText_ID_Name_Insert);
-
         }
 
         
@@ -905,6 +910,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Students_Check_Info)); 
             }
         }
+        
         //Search ID_Name in Insert_Student
         private string _searchText_ID_Name_Insert;
         public string SearchText_ID_Name_Insert
@@ -1002,7 +1008,7 @@ namespace RPISVR_Managements.ViewModel
             if (CurrentPage < TotalPages)
             {
                 CurrentPage++;
-                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy);
+                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_TypeStudy,Search_Edu_StudyYear);
                 var fetchTask = FetchStudentInfo(SearchText_ID_Name);
 
                 await Task.WhenAll(searchTask, fetchTask);
@@ -1027,7 +1033,7 @@ namespace RPISVR_Managements.ViewModel
             if (CurrentPage > 1)
             {
                 CurrentPage--;
-                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_StudyYear, Search_Edu_TypeStudy);
+                var searchTask = Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift,Search_Edu_TypeStudy, Search_Edu_StudyYear);
                 var fetchTask = FetchStudentInfo(SearchText_ID_Name);
                 await Task.WhenAll(searchTask,fetchTask);
                 Debug.WriteLine($"Current Page: {CurrentPage}");
@@ -4045,7 +4051,7 @@ namespace RPISVR_Managements.ViewModel
                 }
                 else
                 {
-                    Search_Edu_StudyTimeShift = this.SelectedStu_StudyTimeShift_Stu_Info.Stu_StudyTimeShift;
+                    Search_Edu_StudyTimeShift = this._selectedStudyTimeShift_Stu_Info.Stu_StudyTimeShift;
                 }
             }
         }
@@ -4064,7 +4070,7 @@ namespace RPISVR_Managements.ViewModel
                 }
                 else
                 {
-                    Search_Edu_TypeStudy = this.SelectedStu_EducationType_Stu_Info.Stu_EducationType;
+                    Search_Edu_TypeStudy = this._selectedEducationType_Stu_Info.Stu_EducationType;
                 }
                 
             }
@@ -4084,7 +4090,7 @@ namespace RPISVR_Managements.ViewModel
                 }
                 else
                 {
-                    Search_Edu_StudyYear = _selectedStu_StudyYear_Stu_Info.Stu_StudyYear;
+                    Search_Edu_StudyYear = this._selectedStu_StudyYear_Stu_Info.Stu_StudyYear;
                 }
             }
         }
@@ -4177,8 +4183,7 @@ namespace RPISVR_Managements.ViewModel
             IsEditModeforEdit = isEditMode;
         }
 
-        //GeneratePDF Student Information
-        
+        //GeneratePDF Student Information 
         public async Task GeneratePDF_Student_Information()
         {
             if(_selectedStudent != null) 
@@ -4234,7 +4239,259 @@ namespace RPISVR_Managements.ViewModel
                 return date;
             }
         }
+        //Full Name KH
+        private string _Full_Name_KH;
+        public string Full_Name_KH
+        {
+            get => _Full_Name_KH;
+            set
+            {
+                _Full_Name_KH = value;
+                OnPropertyChanged(nameof(Full_Name_KH));
+            }
+        }
+        //Full Name EN
+        private string _Full_Name_EN;
+        public string Full_Name_EN
+        {
+            get => _Full_Name_EN;
+            set
+            {
+                _Full_Name_EN = value;
+                OnPropertyChanged(nameof(Full_Name_EN));
+            }
+        }
 
+        //Student_Report_Solarship
+        private ObservableCollection<Student_Info> _students_solarship;
+        public ObservableCollection<Student_Info> Student_Report_Solarship
+        {
+            get => _students_solarship;
+            set
+            {
+                _students_solarship = value;
+                OnPropertyChanged(nameof(Student_Report_Solarship));
+            }
+        }
+        //Search Education Level by Comboobox report
+        private string _searchText_Education_Level;
+        public string SearchText_Education_Level
+        {
+            get => _searchText_Education_Level;
+            set
+            {
+                if (_searchText_Education_Level != value)
+                {
+                    _searchText_Education_Level = value;
+                    OnPropertyChanged(nameof(SearchText_Education_Level));
+                }
+
+            }
+        }
+        //Search Education StudyYear
+        private string _SearchText_Education_StudyYear;
+        public string SearchText_Education_StudyYear
+        {
+            get => _SearchText_Education_StudyYear;
+            set
+            {
+                _SearchText_Education_StudyYear = value;
+                OnPropertyChanged(nameof(SearchText_Education_StudyYear));
+            }
+        }
+        //Search Education StudyType
+        private string _SearchText_Education_StudyType;
+        public string SearchText_Education_StudyType
+        {
+            get => _SearchText_Education_StudyType;
+            set
+            {
+                _SearchText_Education_StudyType = value;
+                OnPropertyChanged(nameof(SearchText_Education_StudyType));
+            }
+        }
+
+        //SearchText_Education_StudyType_Text
+        private Student_Info _SearchText_Education_StudyType_Text;
+        public Student_Info SearchText_Education_StudyType_Text
+        {
+            get => _SearchText_Education_StudyType_Text;
+            set
+            {
+                _SearchText_Education_StudyType_Text = value;
+                OnPropertyChanged(nameof(SearchText_Education_StudyType_Text));
+                if(_SearchText_Education_StudyType_Text == null)
+                {
+                    SearchText_Education_StudyType = null;
+                }
+                else
+                {
+                    SearchText_Education_StudyType = this._SearchText_Education_StudyType_Text.Stu_EducationType;
+                }
+                
+            }
+        }
+        //SearchText_Education_StudyYear_Text
+        private Student_Info _SearchText_Education_StudyYear_Text;
+        public Student_Info SearchText_Education_StudyYear_Text
+        {
+            get => _SearchText_Education_StudyYear_Text;
+            set
+            {
+                _SearchText_Education_StudyYear_Text = value;
+                OnPropertyChanged(nameof(SearchText_Education_StudyYear_Text));
+                if(_SearchText_Education_StudyYear_Text == null)
+                {
+                    SearchText_Education_StudyYear = null;                   
+                }
+                else
+                {
+                    SearchText_Education_StudyYear = this._SearchText_Education_StudyYear_Text.Stu_StudyYear;
+                }
+                
+            }
+        }
+        //SearchText_Education_Level_Text
+        private Student_Info _search_Education_Level_Text;
+        public Student_Info SearchText_Education_Level_Text
+        {
+            get => _search_Education_Level_Text;
+            set
+            {
+                _search_Education_Level_Text = value;
+                OnPropertyChanged(nameof(SearchText_Education_Level_Text));
+                if (_search_Education_Level_Text == null)
+                {
+                    SearchText_Education_Level = null;
+                    Education_Level_Text = "បរិញ្ញាបត្របច្ចេកវិទ្យា សញ្ញាបត្រវិស្វករ បរិញ្ញាបត្រ បរិញ្ញាបត្ររង សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ១ សញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ២ និងសញ្ញាបត្របច្ចេកទេស និងវិជ្ជាជីវៈ៣ ";     
+                }
+                else
+                {
+                    SearchText_Education_Level = _search_Education_Level_Text.Stu_EducationLevels;
+                    if(SearchText_Education_Level == "បរិញ្ញាបត្របច្ចេកវិទ្យា"|| SearchText_Education_Level == "សញ្ញាបត្រវិស្វករ" || SearchText_Education_Level == "បរិញ្ញាបត្រ")
+                    {
+                        Education_Level_Text = "បរិញ្ញាបត្របច្ចេកវិទ្យា សញ្ញាបត្រវិស្វករ បរិញ្ញាបត្រ";
+                    }
+                    else if(SearchText_Education_Level == "បរិញ្ញាបត្ររង" || SearchText_Education_Level == "សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស")
+                    {
+                        Education_Level_Text = "បរិញ្ញាបត្ររង សញ្ញាបត្រជាន់ខ្ពស់បច្ចេកទេស";
+                    }
+                    else
+                    {
+                        Education_Level_Text = SearchText_Education_Level;
+                    }
+                    Debug.WriteLine($"SearchText_Education_Level: {SearchText_Education_Level}");
+                }
+            }
+        }
+
+        public async Task Search_Education_Report_Solarship(string SearchText_Education_Level,string SearchText_Education_StudyYear, string SearchText_Education_StudyType)
+        {
+
+            if (string.IsNullOrEmpty(SearchText_Education_Level) && string.IsNullOrEmpty(SearchText_Education_StudyYear) && string.IsNullOrEmpty(SearchText_Education_StudyType))
+            {
+                Student_Report_Solarship.Clear();
+                ErrorMessage = "សូមជ្រើសរើស ជម្រើសទាំងបីជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/Report_Student_Info_Icon/icons8-choose-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Debug.WriteLine($"Select {SearchText_Education_Level}");
+            Debug.WriteLine($"Select {SearchText_Education_StudyYear}");
+            Debug.WriteLine($"Select {SearchText_Education_StudyType}");
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var studentsList = _dbConnection.GetStudents_Report_Stu_Info_by_Solarship(SearchText_Education_Level, SearchText_Education_StudyYear, SearchText_Education_StudyType);
+                // Clear the existing list to prepare for the new page data
+                Student_Report_Solarship.Clear();
+
+                // Iterate over the studentsList returned by the database and add them to the ObservableCollection
+                foreach (var student in studentsList)
+                {
+                    Student_Report_Solarship.Add(student);
+                }
+
+                Student_Report_Solarship = new ObservableCollection<Student_Info>(studentsList);
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+            await Task.CompletedTask;
+        }
+        //Multi Selection 
+        private List<Student_Info> _selectedStudents_Report = new List<Student_Info>();
+        public List<Student_Info> SelectedStudents_Report
+        {
+            get => _selectedStudents_Report;
+            set
+            {
+                _selectedStudents_Report = value;
+                OnPropertyChanged(nameof(SelectedStudents_Report));
+
+                
+            }
+        }
+
+        //Education_Level_Text
+        private string _Education_Level_Text;
+        public string Education_Level_Text
+        {
+            get => _Education_Level_Text;
+            set
+            {
+                _Education_Level_Text = value;
+                OnPropertyChanged(nameof(Education_Level_Text));
+            }
+        }
+        //Education_Start_Date
+        private string _Education_Start_Date;
+        public string Education_Start_Date
+        {
+            get => _Education_Start_Date;
+            set
+            {
+                _Education_Start_Date = value;
+                OnPropertyChanged(nameof(Education_Start_Date));
+            }
+        }
+
+        //Solarship Report
+        public async Task GeneratePDF_Solarship_Report()
+        {
+            if(SelectedStudents_Report == null || !SelectedStudents_Report.Any() && Education_Level_Text == null && SearchText_Education_StudyType == null && SearchText_Education_StudyYear == null)
+            {
+                Student_Report_Solarship.Clear();
+                ErrorMessage = "សូមជ្រើសរើស ជម្រើសទាំងបី និងសិស្សនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/Report_Student_Info_Icon/icons8-choose-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                Debug.WriteLine("No student selection.");
+                return;   
+            }
+            else
+            {
+                
+                PDFService_Report_Student_Solarship.CreateReport(SelectedStudents_Report, SearchText_Education_StudyType, Education_Level_Text, Education_Start_Date, SearchText_Education_StudyYear);
+                Debug.WriteLine("PDF reports generated for all selected students.");
+            }
+            //foreach (var student in SelectedStudents_Report)
+            //{
+            //    // Convert the birthday date for each student
+            //    student.Stu_BirthdayDateShow = ConvertToKhmerDate(student.Stu_BirthdayDateOnly);
+
+            //    PDFService_Report_Student_Solarship.CreateReport(student);
+            //    await Task.Delay(1000); // 1-second delay
+            //}
+            
+            await Task.CompletedTask;
+        }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

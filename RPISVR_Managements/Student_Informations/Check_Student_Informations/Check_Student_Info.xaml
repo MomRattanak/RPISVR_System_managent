@@ -486,8 +486,7 @@
                                                 RelativePanel.RightOf="Stu_Subject_Search"
                                                 Style="{StaticResource Stye_KH_Combobox}"
                                                 Margin="5,0,0,5"
-                                                SelectedItem="{Binding SelectedStu_StudyTimeShift_Stu_Info,Mode=TwoWay}"
-                                                >
+                                                SelectedItem="{Binding SelectedStu_StudyTimeShift_Stu_Info,Mode=TwoWay}">
                                         </ComboBox>
                                         <Button x:Name="btn_clear_edu_studytime"
                                                         Content="x"
@@ -503,8 +502,7 @@
                                                     RelativePanel.RightOf="Stu_StudyTime_Search"
                                                     Style="{StaticResource Stye_KH_Combobox}"
                                                     Margin="5,0,0,5"
-                                                    SelectedItem="{Binding SelectedStu_EducationType_Stu_Info,Mode=TwoWay}"
-                                                    >
+                                                    SelectedItem="{Binding SelectedStu_EducationType_Stu_Info,Mode=TwoWay}">
                                         </ComboBox>
                                         <Button x:Name="btn_clear_edu_typestudy"
                                                     Content="x"
@@ -519,8 +517,7 @@
                                                     RelativePanel.RightOf="Stu_TypeStudy_Search"
                                                     Style="{StaticResource Stye_KH_Combobox}"
                                                     Margin="5,0,0,5"
-                                                    SelectedItem="{Binding SelectedStu_StudyYear_Stu_Info,Mode=TwoWay}"
-                                                    >
+                                                    SelectedItem="{Binding SelectedStu_StudyYear_Stu_Info,Mode=TwoWay}">
                                         </ComboBox>
                                         <Button x:Name="btn_clear_edu_studyyear"
                                                     Content="x"
