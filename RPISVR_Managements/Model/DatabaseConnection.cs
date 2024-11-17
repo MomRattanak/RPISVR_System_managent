@@ -3364,7 +3364,8 @@ namespace RPISVR_Managements.Model
                                     Stu_EducationSubjects = reader.GetString("stu_education_subject"),
                                     Stu_EducationLevels = reader.GetString("stu_education_level"),
                                     Stu_StudyYear = reader.GetString("stu_study_year"),
-                                    Stu_EducationType = reader.GetString("stu_education_types")
+                                    Stu_EducationType = reader.GetString("stu_education_types"),
+                                    Stu_StudyTimeShift = reader.GetString("stu_study_time_shift")
                                 };
                                 ID_Number++;
                                 student_info_report.Add(student_report);
