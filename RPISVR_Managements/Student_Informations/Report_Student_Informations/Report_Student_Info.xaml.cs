@@ -28,5 +28,10 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
         {
             ContentFrame.Navigate(typeof(stu_solarship_report));
         }
+
+        private void btn_click_stu_card_report(object sender, RoutedEventArgs e)
+        {
+            ContentFrame.Navigate(typeof(Student_Card_Report));
+        }
     }
 }

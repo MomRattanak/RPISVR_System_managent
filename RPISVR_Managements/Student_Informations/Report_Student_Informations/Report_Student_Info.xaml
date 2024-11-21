@@ -31,20 +31,17 @@
                FontFamily="Khmer OS Muol Light"
                TextAlignment="Center"/>
         <StackPanel x:Name="Button_Report" Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
-
-            
             <RelativePanel>
                 <Button x:Name="btn_stu_solarship_report" Click="btn_click_stu_solarship_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Source="/Assets/icons8-report1-48.png" Width="25" Height="25"/>
-
                             <TextBlock Text="បញ្ជីឈ្មោះសិស្សនិស្សិតសរុប"
                                        Style="{StaticResource Font_KH_Body}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button x:Name="btn_stu_total_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}" RelativePanel.Below="btn_stu_solarship_report">
+                <Button x:Name="btn_stu_total_report" Click="btn_click_stu_card_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}" RelativePanel.Below="btn_stu_solarship_report">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Source="/Assets/Report_Student_Info_Icon/icons8-case-stu-total-report.png" Width="25" Height="25" />
