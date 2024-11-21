@@ -543,7 +543,7 @@
                                 <StackPanel x:Name="Table_Stu_Info_Header" RelativePanel.Below="Search_Information" Orientation="Horizontal" >
                                     <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យសិស្សនិស្សិត" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
                                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="40,0,0,0">
-                                        <Button Command="{Binding PreviousPageCommand_Check}" IsEnabled="{Binding CanGoPreviousPage}">
+                                        <Button Command="{Binding PreviousPageCommand_Check}">
                                             <Button.Content>
                                                 <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-left-96.png" Width="20" Height="20"/>
                                             </Button.Content>
@@ -551,7 +551,7 @@
                                         <TextBlock Text="{Binding CurrentPage}" Margin="5,5,0,0"/>
                                         <TextBlock Text="/" Margin="5,5,0,0"/>
                                         <TextBlock Text="{Binding TotalPages}" Margin="5,5,5,0"/>
-                                        <Button Command="{Binding NextPageCommand_Check}">
+                                        <Button Command="{Binding NextPageCommand_Check}" >
                                             <Button.Content>
                                                 <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-right-96.png" Width="20" Height="20"/>
                                             </Button.Content>

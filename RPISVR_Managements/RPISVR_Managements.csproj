@@ -60,6 +60,7 @@
     <None Remove="Student_Informations\Check_Student_Informations\Check_Student_Info.xaml" />
     <None Remove="Student_Informations\Insert_Student_Informations\Insert_Student_Info.xaml" />
     <None Remove="Student_Informations\Report_Student_Informations\Report_Student_Info.xaml" />
+    <None Remove="Student_Informations\Report_Student_Informations\Student_Card_Report.xaml" />
     <None Remove="Student_Informations\Report_Student_Informations\stu_solarship_report.xaml" />
     <None Remove="Student_Score\Check_Student_Score\Check_Student_Score_Info.xaml" />
     <None Remove="Student_Score\Insert_Student_Score\Insert_Student_Score_Info.xaml" />
@@ -103,6 +104,11 @@
   <ItemGroup>
     <Folder Include="Assets\Check_Student_Info_Icon\" />
     <Folder Include="Assets\Student_Info_Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Student_Informations\Report_Student_Informations\Student_Card_Report.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Student_Informations\Report_Student_Informations\stu_solarship_report.xaml">

@@ -60,11 +60,13 @@ namespace RPISVR_Managements.ViewModel
         public ICommand GeneratePDFCommand_Solarship_Report { get; }
         //GenerateEXCELCommand Total Student Report
         public ICommand GenerateExcelCommand_Student_Report { get; }
+        //GeneratePDF Command Student Card
+        public ICommand GeneratePDFCommand_Student_Card { get; }
+        public ICommand ShowStudentCardsCommand { get; }
 
 
         public  StudentViewModel()
         {
-            
 
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
@@ -74,21 +76,25 @@ namespace RPISVR_Managements.ViewModel
             Search_Stu_Info_Report = new RelayCommand(async () => await Search_Education_Report_Solarship(SearchText_Education_Level, SearchText_Education_StudyYear, SearchText_Education_StudyType));
             GeneratePDFCommand_Solarship_Report = new RelayCommand(async () => await GeneratePDF_Solarship_Report());
             GenerateExcelCommand_Student_Report = new RelayCommand(async () => await GenerateExcel_Student_Report());
+            ShowStudentCardsCommand = new RelayCommand(GenerateStudentCards);
             _dbConnection = new DatabaseConnection();
 
 
             Students = new ObservableCollection<Student_Info>();
             Students_Check_Info = new ObservableCollection<Student_Info>();
             Student_Report_Solarship = new ObservableCollection<Student_Info>();
+            Student_Report_Card = new ObservableCollection<Student_Info>();
+            DisplayedStudentCards = new ObservableCollection<Student_Info>();
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
             NextPageCommand = new RelayCommand(NextPage, CanGoNextPage);
 
             //Command for Previouse,Back Button
-            PreviousPageCommand_Check = new RelayCommand(PreviousPage_Check, CanGoPreviousPage);
-            NextPageCommand_Check = new RelayCommand(NextPage_Check, CanGoNextPage);
-
-            //
+            PreviousPageCommand_Check = new RelayCommand(PreviousPage_Check, CanGoPreviousPage2);
+            NextPageCommand_Check = new RelayCommand(NextPage_Check, CanGoNextPage2);
+            //Card Report
+            GeneratePDFCommand_Student_Card = new RelayCommand(async () => await GeneratePDF_Student_Card());
+            //Edit
             IsUpdateEnabled = false;
 
             // Populate Days and Years
@@ -903,6 +909,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Students));  // Notify the UI when the Students collection changes
             }
         }
+        
         //Students_Check_Info
         public ObservableCollection<Student_Info> Students_Check_Info
         {
@@ -911,6 +918,17 @@ namespace RPISVR_Managements.ViewModel
             {
                 _students = value;
                 OnPropertyChanged(nameof(Students_Check_Info)); 
+            }
+        }
+        
+        //Student_Card_Report
+        public ObservableCollection<Student_Info> Student_Report_Card
+        {
+            get => _students;
+            set
+            {
+                _students = value;
+                OnPropertyChanged(nameof(Student_Report_Card));
             }
         }
         
@@ -1016,8 +1034,9 @@ namespace RPISVR_Managements.ViewModel
 
                 await Task.WhenAll(searchTask, fetchTask);
                 OnPageChanged();
-                Debug.WriteLine($"Current Page: {CurrentPage}");
+                Debug.WriteLine($"Current Page Next Check: {CurrentPage}");
             }
+            //OnPropertyChanged(nameof(CanGoNextPage2));
         }
 
 
@@ -1041,7 +1060,8 @@ namespace RPISVR_Managements.ViewModel
                 await Task.WhenAll(searchTask,fetchTask);
                 Debug.WriteLine($"Current Page: {CurrentPage}");
             }
-            OnPropertyChanged(nameof(CanGoPreviousPage));  // Notify the UI to enable or disable the button
+            OnPageChanged();
+            
         }
 
         private bool CanGoPreviousPage()
@@ -1051,6 +1071,19 @@ namespace RPISVR_Managements.ViewModel
 
         private bool CanGoNextPage()
         {
+            return CurrentPage < TotalPages;  // Enable only if not on the last page
+        }
+
+        //Check Student
+        private bool CanGoPreviousPage2()
+        {
+            Debug.WriteLine($"CanGoPreviousPage2 Evaluated: {CurrentPage > 1}");
+            return CurrentPage > 1;  // Enable only if not on the first page
+        }
+
+        private bool CanGoNextPage2()
+        {
+            Debug.WriteLine($"CanGoNextPage2 Evaluated: {CurrentPage < TotalPages}");
             return CurrentPage < TotalPages;  // Enable only if not on the last page
         }
 
@@ -4428,7 +4461,7 @@ namespace RPISVR_Managements.ViewModel
             }
             await Task.CompletedTask;
         }
-        //Multi Selection 
+        //Multi Selection Student Total
         private List<Student_Info> _selectedStudents_Report = new List<Student_Info>();
         public List<Student_Info> SelectedStudents_Report
         {
@@ -4436,9 +4469,7 @@ namespace RPISVR_Managements.ViewModel
             set
             {
                 _selectedStudents_Report = value;
-                OnPropertyChanged(nameof(SelectedStudents_Report));
-
-                
+                OnPropertyChanged(nameof(SelectedStudents_Report));               
             }
         }
 
@@ -4514,6 +4545,80 @@ namespace RPISVR_Managements.ViewModel
             }
                 await Task.CompletedTask;
         }
+
+        //Multi Selection Student Card
+        private List<Student_Info> _selectedStudent_Card = new List<Student_Info>();
+        public List<Student_Info> Selection_Student_Card
+        {
+            get => _selectedStudent_Card;
+            set
+            {
+                _selectedStudent_Card = value;
+                if (_selectedStudent_Card != null && _selectedStudent_Card.Count > 0)
+                {
+                    // Convert the birthdates of selected students
+                    Stu_BirthdayDateShow = string.Join(", ",
+                        _selectedStudent_Card.Select(student => ConvertToKhmerDate(student.Stu_BirthdayDateOnly)));
+                }
+                OnPropertyChanged(nameof(Selection_Student_Card));
+            }
+        }
+
+        //Preview Student Card
+        private ObservableCollection<Student_Info> _displayedStudentCards;
+        public ObservableCollection<Student_Info> DisplayedStudentCards
+        {
+            get => _displayedStudentCards;
+            set
+            {
+                _displayedStudentCards = value;
+                OnPropertyChanged(nameof(DisplayedStudentCards));
+            }
+        }
+
+
+
+        private void GenerateStudentCards()
+        {
+            
+            DisplayedStudentCards.Clear();
+            foreach (var student in Selection_Student_Card)
+            {
+                DisplayedStudentCards.Add(student);
+            }
+
+            Debug.WriteLine($"Date: {Stu_BirthdayDateShow}");
+            // Debug: Check if data is added
+            Debug.WriteLine($"DisplayedStudentCards Count: {DisplayedStudentCards.Count}");
+        }
+        //Student Card Command
+        public async Task GeneratePDF_Student_Card()
+        {
+            if(Selection_Student_Card == null && Selection_Student_Card.Any())
+            {         
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/Report_Student_Info_Icon/icons8-choose-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                Debug.WriteLine("No student selection.");
+                return;
+            }
+            else
+            {
+                // Convert the birthdates of selected students
+                foreach (var student in _selectedStudent_Card)
+                {
+                    student.Stu_BirthdayDateShow = ConvertToKhmerDate(student.Stu_BirthdayDateOnly);
+                }
+   
+                PDFService_Generate_Student_Card.CreateCard_Report(Selection_Student_Card);
+                Debug.WriteLine("Report Card OK");
+
+            }
+            
+            await Task.CompletedTask;
+        }
+
+        //
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
