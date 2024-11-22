@@ -214,24 +214,43 @@ namespace RPISVR_Managements.ViewModel
                                 });
                             });
                             //Image 
-                            column.Item().PaddingLeft(10).AlignLeft().Element(imageContainer =>
+                            column.Item().Column(stu_level =>
                             {
-                                if (student.ProfileImageBytes != null && student.ProfileImageBytes.Length > 0)
+                                stu_level.Item().Row(row =>
                                 {
-                                    using (var imageStream = new MemoryStream(student.ProfileImageBytes))
+                                    // Right-aligned text
+                                    row.RelativeItem().PaddingLeft(10).AlignLeft().Element(imageContainer =>
                                     {
-                                        imageContainer.Width(30).Height(45).Image(imageStream);
-                                    }
-                                }
-                                else
-                                {
-                                    imageContainer.Width(30).Height(45).Image("Assets/Student_Logo.png");
-                                    column.Item().Text("(សិស្សនិស្សិតមិនមានរូបភាព)")
-                                       .FontFamily("Khmer OS Siemreap")
-                                       .FontSize(5)
-                                       .AlignLeft();
-                                }
+                                        if (student.ProfileImageBytes != null && student.ProfileImageBytes.Length > 0)
+                                        {
+                                            using (var imageStream = new MemoryStream(student.ProfileImageBytes))
+                                            {
+                                                imageContainer.Width(30).Height(45).Image(imageStream);
+
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            imageContainer.Width(30).Height(45).Image("Assets/Student_Logo.png");
+                                            column.Item().Text("(សិស្សនិស្សិតមិនមានរូបភាព)")
+                                               .FontFamily("Khmer OS Siemreap")
+                                               .FontSize(5)
+                                               .AlignLeft();
+                                        }
+                                    });
+
+                                    row.RelativeItem().PaddingLeft(-50).AlignLeft().Element(imageContainer2 =>
+                                    {
+                                        imageContainer2
+                                            .Width(40)
+                                            .Height(45)
+                                            .Image(student.QRCodeBytes);
+                                    });
+                                        
+                                });
                             });
+                            
                             //ID 
                             column.Item().PaddingLeft(10).PaddingTop(-3).Text($"លេខសម្គាល់៖ {student.Stu_ID}")
                                 .FontFamily("Khmer OS Siemreap")

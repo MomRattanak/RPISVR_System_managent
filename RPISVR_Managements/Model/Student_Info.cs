@@ -23,6 +23,9 @@ namespace RPISVR_Managements.Model
         public string Stu_StateFamily { get; set; }
         public string Stu_BirthdayDateOnly { get; set; } 
         public string Stu_BirthdayDateShow { get; set; }
+        public string Stu_Generation { get; set; }
+        //QRCode Information
+        public byte[] QRCodeBytes { get; set; }
         //Education Level
         public int Stu_EducationLevels_ID { get; set; }
         public string Stu_EducationLevels { get; set; }
