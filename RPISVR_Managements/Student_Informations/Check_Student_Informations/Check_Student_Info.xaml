@@ -585,6 +585,7 @@
                                             <TextBlock Text="ឆ្នាំទី" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="កម្រិតសិក្សា" Width="205" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="វេនសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ជំនាន់ទី" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ឆមាស" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             <TextBlock Text="ឆ្នាំសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -644,6 +645,7 @@
                                                         <TextBlock Text="{Binding Stu_StudyingTime}" Width="50"/>
                                                         <TextBlock Text="{Binding Stu_EducationLevels }" Width="200" Style="{StaticResource Font_KH_Body}"/>
                                                         <TextBlock Text="{Binding Stu_StudyTimeShift}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                                        <TextBlock Text="{Binding Stu_Generation}" Width="60"/>
                                                         <TextBlock Text="{Binding Stu_Semester}" Width="60"/>
                                                         <TextBlock Text="{Binding Stu_EducationType}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                                         <TextBlock Text="{Binding Stu_StudyYear}" Width="120"/>

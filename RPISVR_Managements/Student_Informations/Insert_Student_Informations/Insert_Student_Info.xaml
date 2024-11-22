@@ -461,6 +461,14 @@
                                       Style="{StaticResource Stye_KH_AutoSuggestBox}"
                                       Margin="5"
                                       Text="{Binding Stu_Father_Job,Mode=TwoWay}"/>
+                        <NumberBox x:Name="Stu_Generation"
+                                     Header="ជំនាន់ទី"
+                                     RelativePanel.RightOf="Stu_Father_Job"
+                                     RelativePanel.Below="Stu_StatePoor"
+                                     Style="{StaticResource Stye_KH_NumberBox}"
+                                     Margin="5"
+                                     BorderBrush="{Binding Stu_GenerationBorderBrush}"
+                                     Text="{Binding Stu_Generation,Mode=TwoWay}"/>
                         <Line X1="0" Y1="10" X2="0" Y2="230" 
                             x:Name="Line_5"
                             Stroke="Aqua" 
@@ -1040,7 +1048,8 @@
                             <TextBlock Text="ជំនាញ" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឆ្នាំទី" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="កម្រិតសិក្សា" Width="195" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                            <TextBlock Text="វេនសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="វេនសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ជំនាន់ទី" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឆមាស" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                             <TextBlock Text="ឆ្នាំសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -1099,7 +1108,8 @@
                                         <TextBlock Text="{Binding Stu_EducationSubjects}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_StudyingTime}" Width="50"/>
                                         <TextBlock Text="{Binding Stu_EducationLevels }" Width="185" Style="{StaticResource Font_KH_Body}"/>
-                                        <TextBlock Text="{Binding Stu_StudyTimeShift}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_StudyTimeShift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                        <TextBlock Text="{Binding Stu_Generation}" Width="60"/>
                                         <TextBlock Text="{Binding Stu_Semester}" Width="60"/>
                                         <TextBlock Text="{Binding Stu_EducationType}" Width="120" Style="{StaticResource Font_KH_Body}"/>
                                         <TextBlock Text="{Binding Stu_StudyYear}" Width="120"/>

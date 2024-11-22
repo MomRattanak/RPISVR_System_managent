@@ -1100,6 +1100,38 @@ namespace RPISVR_Managements.ViewModel
         //Color Border Error in Input Box.
         private SolidColorBrush _ErrorBorderBrush = new SolidColorBrush(Colors.Transparent); // Default transparent border
 
+        //Color Stu_Generation
+        public SolidColorBrush Stu_GenerationBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Stu_GenerationBorderBrush));
+            }
+        }
+        private void ValidateStu_Generation()
+        {
+            if (string.IsNullOrEmpty(Stu_Generation))
+            {
+                Stu_GenerationBorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Stu_GenerationBorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
+            }
+        }
+        private string _Stu_Generation;
+        public string Stu_Generation
+        {
+            get => _Stu_Generation;
+            set
+            {
+                _Stu_Generation = value;
+                OnPropertyChanged(nameof(Stu_Generation));
+                ValidateStu_Generation();
+            }
+        }
         //Real-time validation method Stu_ID
         public SolidColorBrush StuIDBorderBrush
         {
@@ -3006,6 +3038,7 @@ namespace RPISVR_Managements.ViewModel
                 UpdateStudent.Stu_Delete_By_ID = Stu_Delete_By_ID;
                 UpdateStudent.Stu_Delete_DateTime = Stu_Delete_DateTime;
                 UpdateStudent.Stu_Delete_Info = Stu_Delete_Info;
+                UpdateStudent.Stu_Generation = Stu_Generation;
 
                 Debug.WriteLine("Update Mode");
 
@@ -3093,6 +3126,7 @@ namespace RPISVR_Managements.ViewModel
                     Stu_Delete_By_ID = this.Stu_Delete_By_ID,
                     Stu_Delete_DateTime = this.Stu_Delete_DateTime,
                     Stu_Delete_Info = this.Stu_Delete_Info,
+                    Stu_Generation = this.Stu_Generation,
 
 
                 };
@@ -3128,6 +3162,7 @@ namespace RPISVR_Managements.ViewModel
             Stu_LastName_KH = string.Empty;
             Stu_FirstName_EN = string.Empty;
             Stu_LastName_EN = string.Empty ;
+            Stu_Generation = string.Empty;
             //Stu_Gender = string.Empty;
             //Stu_StateFamily = string.Empty;
             //Stu_BirthdayDateOnly = null;
@@ -3209,7 +3244,7 @@ namespace RPISVR_Managements.ViewModel
             ValidateSelectLiveDistrict();
             ValidateSelectLiveCommue();
             ValidateSelectLiveVillage();
-
+            ValidateStu_Generation();
             ValidateStu_StudyYear();
             ValidateStu_Semester();
             ValidateStu_StatePoor();
@@ -3292,6 +3327,15 @@ namespace RPISVR_Managements.ViewModel
             if (SelectedStu_EducationType_Info == null)
             {
                 ErrorMessage = "ប្រភេទសិក្សា ត្រូវតែជ្រើសរើស !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+
+            //Validate Stu_Generation
+            if(string.IsNullOrEmpty(Stu_Generation))
+            {
+                ErrorMessage = "ជំនាន់ ត្រូវតែបំពេញ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
@@ -3476,7 +3520,7 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Image_Poor_Card_Bytes:{Stu_Image_Poor_Card_Bytes}");
             Debug.WriteLine($"Stu_Image_Total_Big:{Stu_Image_Total_Big}");
             Debug.WriteLine($"Stu_Image_TotalSmall:{Stu_Image_TotalSmall}");
-
+            Debug.WriteLine($"Stu_Generation: {Stu_Generation}");
 
             // If everything is valid
             SaveStudentInformationToDatabase();
@@ -3741,6 +3785,7 @@ namespace RPISVR_Managements.ViewModel
                         .FirstOrDefault(study_year => study_year.Stu_StudyYear == _selectedStudent.Stu_StudyYear);
                     OnPropertyChanged(nameof(SelectesStu_StudyYear_Info));
 
+                    Stu_Generation = _selectedStudent.Stu_Generation;
                     Stu_StatePoor = _selectedStudent.Stu_StatePoor;
                     Stu_Semester = _selectedStudent.Stu_Semester;
                     Stu_Mother_Name = _selectedStudent.Stu_Mother_Name;
@@ -4591,6 +4636,8 @@ namespace RPISVR_Managements.ViewModel
             // Debug: Check if data is added
             Debug.WriteLine($"DisplayedStudentCards Count: {DisplayedStudentCards.Count}");
         }
+
+        
         //Student Card Command
         public async Task GeneratePDF_Student_Card()
         {
@@ -4607,9 +4654,15 @@ namespace RPISVR_Managements.ViewModel
                 // Convert the birthdates of selected students
                 foreach (var student in _selectedStudent_Card)
                 {
+                    string baseUrl = "http://localhost/Student_Card/index.php";
                     student.Stu_BirthdayDateShow = ConvertToKhmerDate(student.Stu_BirthdayDateOnly);
+                    string studentID = student.Stu_ID;
+                    string studentInfoUrl = $"{baseUrl}?stu_id={studentID}";
+                    student.QRCodeBytes = QRCodeService.GenerateQRCode(studentInfoUrl);
+
+                    Debug.WriteLine($"QR Code generated successfully for {student.Stu_ID}");
                 }
-   
+
                 PDFService_Generate_Student_Card.CreateCard_Report(Selection_Student_Card);
                 Debug.WriteLine("Report Card OK");
 
