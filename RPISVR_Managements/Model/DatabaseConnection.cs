@@ -17,6 +17,8 @@ using Windows.UI.Core;
 using QuestPDF.Helpers;
 using System.Reflection.PortableExecutable;
 using static Mysqlx.Expect.Open.Types;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace RPISVR_Managements.Model
 {
@@ -80,7 +82,6 @@ namespace RPISVR_Managements.Model
                             ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("ID");
                             Last_Stu_ID = reader.IsDBNull(1) ? "RPI0000000" : reader.GetString("Last_Stu_ID");
                         }
-
                     }
                 }
             }
@@ -3381,6 +3382,46 @@ namespace RPISVR_Managements.Model
                 Debug.WriteLine($"MySql Get Student_Info Report to ListView Error:{ex.Message}");
             }
             return student_info_report;
+        }
+
+        //Student_Check-info Before Insert
+        public async Task<(string Stu_FirstName_KH1,string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1,string Stu_StudyYear1)> GetStudents_Check_Stu_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
+        {
+            const string query = "SELECT stu_firstname_kh, stu_lastname_kh, stu_gender, stu_birthday_dateonly, stu_education_types, stu_study_year " +
+                             "FROM student_infomations WHERE stu_firstname_kh = @Stu_FirstName_KH && stu_lastname_kh = @Stu_LastName_KH && stu_gender = @Stu_Gender && stu_education_types = @Stu_EducationType && stu_study_year = @Stu_StudyYear";
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Stu_FirstName_KH", Stu_FirstName_KH);
+                    cmd.Parameters.AddWithValue("@Stu_LastName_KH", Stu_LastName_KH);
+                    cmd.Parameters.AddWithValue("@Stu_Gender", Stu_Gender);
+                    cmd.Parameters.AddWithValue("@Stu_BirthdayDateOnly", Stu_BirthdayDateOnly);
+                    cmd.Parameters.AddWithValue("@Stu_EducationType", Stu_EducationType);
+                    cmd.Parameters.AddWithValue("@Stu_StudyYear", Stu_StudyYear);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                Stu_FirstName_KH1: reader["stu_firstname_kh"].ToString(),
+                                Stu_LastName_KH1: reader["stu_lastname_kh"].ToString(),
+                                Stu_Gender1: reader["stu_gender"].ToString(),
+                                Stu_BirthdayDateOnly1: reader["stu_birthday_dateonly"].ToString(),
+                                Stu_EducationType1: reader["stu_education_types"].ToString(),
+                                Stu_StudyYear1: reader["stu_study_year"].ToString()
+                            );
+                        }
+                    }
+
+                }
+            }
+            return (Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType, Stu_StudyYear);
+
         }
     }
 }

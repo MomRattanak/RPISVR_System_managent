@@ -26,6 +26,7 @@ using Windows.Storage.Streams;
 using static System.Net.Mime.MediaTypeNames;
 using System.Threading;
 using Microsoft.UI.Dispatching;
+using System.Data.Common;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -2976,7 +2977,7 @@ namespace RPISVR_Managements.ViewModel
         }
 
         //SaveStudentInformationtoDatabase
-        public void SaveStudentInformationToDatabase()
+        public async void SaveStudentInformationToDatabase()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
             var UpdateStudent = Students.FirstOrDefault(s => s.Stu_ID == Stu_ID);
@@ -3130,22 +3131,29 @@ namespace RPISVR_Managements.ViewModel
 
 
                 };
-                bool success = dbConnection.Insert_Student_Information(student_Info);
 
-                if (success)
-                {
+                
 
-                    ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " បានរក្សាទុកជោគជ័យ !";
-                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
-                    MessageColor = new SolidColorBrush(Colors.Green);
 
-                }
-                else
-                {
-                    ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " រក្សាទុកបរាជ៏យ !";
-                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
-                    MessageColor = new SolidColorBrush(Colors.Red);
-                }
+                
+                  bool success = dbConnection.Insert_Student_Information(student_Info);
+
+                    if (success)
+                    {
+
+                        ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " បានរក្សាទុកជោគជ័យ !";
+                        ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                        MessageColor = new SolidColorBrush(Colors.Green);
+
+                    }
+                    else
+                    {
+                        ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " រក្សាទុកបរាជ៏យ !";
+                        ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                        MessageColor = new SolidColorBrush(Colors.Red);
+                    }
+                
+                
             }
         }
 
@@ -3522,10 +3530,31 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Image_TotalSmall:{Stu_Image_TotalSmall}");
             Debug.WriteLine($"Stu_Generation: {Stu_Generation}");
 
-            // If everything is valid
-            SaveStudentInformationToDatabase();
-            ClearStudentInfo();
-            await LoadStudents(SearchText_ID_Name_Insert);
+            //Check Student Infomation Before Insert
+            var student_check_info = await _dbConnection.GetStudents_Check_Stu_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
+
+
+            if ((Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1.Trim() &&
+                    Stu_LastName_KH == student_check_info.Stu_LastName_KH1.Trim() &&
+                    Stu_Gender.Trim() == student_check_info.Stu_Gender1.Trim() &&
+                    Stu_BirthdayDateOnly.Trim() == student_check_info.Stu_BirthdayDateOnly1.Trim() &&
+                    Stu_EducationType.Trim() == student_check_info.Stu_EducationType1.Trim() &&
+                    Stu_StudyYear.Trim() == student_check_info.Stu_StudyYear1.Trim()))
+                {
+                    ErrorMessage = "និស្សិតឈ្មោះ " + Stu_FirstName_KH +Stu_LastName_KH+" "+ Stu_EducationType+" "+Stu_StudyYear+ " មានទិន្នន័យរួចរាល់ហើយ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+            else
+            {
+                // If everything is valid
+                SaveStudentInformationToDatabase();
+                ClearStudentInfo();
+                await LoadStudents(SearchText_ID_Name_Insert);
+            }
+
+            
             await Task.CompletedTask;
             
         }
