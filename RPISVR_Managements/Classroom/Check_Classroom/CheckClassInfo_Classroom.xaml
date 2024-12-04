@@ -7,9 +7,28 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:converters="using:RPISVR_Managements.Loading_View"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Text_Header" Height="Auto"/>
+            <RowDefinition x:Name="Information_Class" Height="120"/>
+            <RowDefinition x:Name="All_Button" Height="Auto"/>
+            <RowDefinition x:Name="Information_Show" Height="5*"/>
+        </Grid.RowDefinitions>
 
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="Button_Option" Width="Auto"/>
+            <ColumnDefinition x:Name="Information_Setup" Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        
+          
+       
     </Grid>
 </Page>

@@ -15,22 +15,18 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition x:Name="Text_Header" Height="Auto"/>
-            <RowDefinition x:Name="Button" Height="Auto"/>
-            <RowDefinition x:Name="Footer" Height="*"/>
-        </Grid.RowDefinitions>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="Report_Button" Width="Auto"/>
-            <ColumnDefinition x:Name="Report_Preview" Width="*"/>
+            <ColumnDefinition x:Name="Report_Preview" Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="Text_Report" Grid.Row="0" Grid.Column="0"
+        <TextBlock x:Name="Text_Report" Grid.Column="0"
                Text="របាយការណ៍សិស្សនិស្សិត"
                Style="{StaticResource Font_KH_Title}"
                FontFamily="Khmer OS Muol Light"
                TextAlignment="Center"/>
-        <StackPanel x:Name="Button_Report" Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
+        <StackPanel x:Name="Button_Report" Grid.Column="0" Margin="10,10,0,0">
             <RelativePanel>
                 <Button x:Name="btn_stu_solarship_report" Click="btn_click_stu_solarship_report" Width="300" Margin="5,10,0,0" Background="#15B68E" CornerRadius="5" Style="{StaticResource Button_Report_By_Solarship}">
                     <Button.Content>
@@ -52,14 +48,17 @@
                 </Button>
             </RelativePanel>
             
-        </StackPanel>
+        </StackPanel> 
         <!--Preview Panel-->
-        <ScrollViewer x:Name="Preview_Panel" Height="750" Grid.Row="1" Grid.Column="1" VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderBrush="Aqua" BorderThickness="3" Margin="10" CornerRadius="10">
-            <StackPanel Orientation="Vertical">
-                <Frame x:Name="ContentFrame" Margin="10,50,10,10"/>
-            </StackPanel>
-            
-        </ScrollViewer>
+        <Grid x:Name="Preview_Panel" Grid.Column="1">
+            <ScrollViewer  VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderBrush="Aqua" BorderThickness="3" Margin="10" CornerRadius="10">
+                <StackPanel Orientation="Vertical">
+                    <Frame x:Name="ContentFrame" Margin="10,90,10,10"/>
+                </StackPanel>
+
+            </ScrollViewer>
+        </Grid>
+        
 
         
     </Grid>

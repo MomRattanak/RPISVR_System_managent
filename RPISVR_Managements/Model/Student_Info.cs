@@ -121,6 +121,52 @@ namespace RPISVR_Managements.Model
         public string Stu_Delete_By_ID { get; set; }
         public DateTime Stu_Delete_DateTime { get; set; }
         public string Stu_Delete_Info { get; set; }
-    
+
+        //Classes
+        public string No_Class { get; set; }
+        public string Class_ID { get; set; }
+        public string Class_Name { get; set; }
+
+        public int Class_In_Skill_ID { get; set; }
+        public string Class_In_Skill { get; set; }
+        public int Class_In_Skill_Select { get; set; }
+
+        public int Class_In_Level_ID { get; set; }
+        public string Class_In_Level { get; set; }
+        public int Class_In_Level_Select { get; set; }
+
+        public int Class_In_Study_Year_ID { get; set; }
+        public string Class_In_Study_Year { get; set; }
+        public int Class_In_Study_Year_Select { get; set; }
+
+        public int Class_In_Student_Year_ID { get; set; }
+        public string Class_In_Student_Year { get; set; }
+        public int Class_In_Student_Year_Select { get; set; }
+
+        public string Class_In_Semester { get; set; }
+        public int Class_In_Semester_Select { get; set; }
+
+        public string Class_In_Generation { get; set; }
+        public int Class_In_Generation_Select { get; set; }
+
+        public string Class_In_Study_Timeshift { get; set; }
+        public int Class_In_Study_Timeshift_Select { get; set; }
+
+        public string Class_In_Study_Type { get; set; }
+        public int Class_In_Study_Type_Select { get; set; }
+
+        //Search Class
+        public string Search_Class_In_Skill { get; set; }
+        public int Search_Class_In_Skill_Select { get; set; }
+        public string Search_Class_In_Level { get; set; }
+        public int Search_Class_In_Level_Select { get; set; }
+        public string Search_Class_In_Study_Year { get; set; }
+        public int Search_Class_In_Study_Year_Select { get; set; }
+        public string Search_Class_In_Student_Year { get; set; }
+        public string Search_Class_Semester { get; set; }
+        public string Search_Class_In_Study_Timeshift { get; set; }
+        public int Search_Class_In_Study_Timeshift_Select { get; set; }
+        public string Search_Class_In_Study_Type { get; set; }
+        public int Search_Class_In_Study_Type_Select { get; set; }
     }
 }

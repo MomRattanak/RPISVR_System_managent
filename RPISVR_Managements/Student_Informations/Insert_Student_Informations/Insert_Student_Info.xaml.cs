@@ -26,6 +26,7 @@ using Windows.Storage.Streams;
 using RPISVR_Managements.Addition_Informations;
 using RPISVR_Managements.Student_Informations.Check_Student_Informations;
 using Windows.Devices.Enumeration;
+using RPISVR_Managements.Student_Informations.Report_Student_Informations;
 
 
 
@@ -56,6 +57,14 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
             // Retrieve the StudentID from App.xaml.cs
             StudentID = (Application.Current as App).StudentID;
             if(StudentID == null)
+            {
+                ISI_BackButton_to_Check_Mode.Visibility = Visibility.Collapsed;
+            }
+            else if (StudentID == "1")
+            {
+                ISI_BackButton_to_Check_Mode.Visibility = Visibility.Collapsed;
+            }
+            else if(StudentID == "2")
             {
                 ISI_BackButton_to_Check_Mode.Visibility = Visibility.Collapsed;
             }
@@ -478,6 +487,20 @@ namespace RPISVR_Managements.Student_Informations.Insert_Student_Informations
             Frame.Navigate(typeof(Check_Student_Info));
 
             Debug.WriteLine("Click Back: StuID = " + StudentID);
+        }
+
+        private void open_report_page(object sender, RoutedEventArgs e)
+        {
+            int Stu_ID_Edit = 2;
+            (Application.Current as App).StudentID = Stu_ID_Edit.ToString();
+            Frame.Navigate(typeof(stu_solarship_report));
+        }
+
+        private void btn_open_page_card(object sender, RoutedEventArgs e)
+        {
+            int Stu_ID_Edit = 1;
+            (Application.Current as App).StudentID = Stu_ID_Edit.ToString();
+            Frame.Navigate(typeof(Student_Card_Report));
         }
     }
 }

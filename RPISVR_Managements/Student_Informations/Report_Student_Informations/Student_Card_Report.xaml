@@ -23,35 +23,36 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="7*"/>
         </Grid.RowDefinitions>
 
 
-        <StackPanel x:Name="Student_Card"  Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Margin="10,90,0,0" CornerRadius="5" RelativePanel.Below="Student_BarGraph">
 
-            <!-- Card Preview Section -->
-            <ItemsControl  ItemsSource="{Binding DisplayedStudentCards}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="Green" BorderThickness="1" CornerRadius="5" Margin="5">
-                            <StackPanel Margin="10">
-                                <RelativePanel>
-                                    <Image x:Name="Logo_RPI" Source="/Assets/RPISSVR_logo.png" Width="40" Height="40"/>
-                                    <TextBlock x:Name="Logo_Text_RIP" Text="វិទ្យាស្ថានពហុបច្ចេកទេសភូមិភាគតេជោសែនស្វាយរៀង"
+        <ScrollView x:Name="Student_Card" Grid.Column="0" Grid.Row="1" Visibility="Collapsed" ContentOrientation="Vertical" Height="760" VerticalAlignment="Stretch" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+            <StackPanel x:Name="Card_Previews"  HorizontalAlignment="Left" Margin="10,90,0,0" CornerRadius="5">
+                    <StackPanel>
+                        <!-- Card Preview Section -->
+                        <ItemsControl  ItemsSource="{Binding DisplayedStudentCards}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Green" BorderThickness="1" CornerRadius="5" Margin="5">
+                                        <StackPanel Margin="10">
+                                            <RelativePanel>
+                                                <Image x:Name="Logo_RPI" Source="/Assets/RPISSVR_logo.png" Width="40" Height="40"/>
+                                                <TextBlock x:Name="Logo_Text_RIP" Text="វិទ្យាស្ថានពហុបច្ចេកទេសភូមិភាគតេជោសែនស្វាយរៀង"
                                                Style="{StaticResource Font_KH_Body}"
                                                Margin="5,10,0,0"
                                                FontFamily="Khmer OS Muol Light"
                                                FontSize="11"
                                                RelativePanel.RightOf="Logo_RPI"
                                                />
-                                    <Image x:Name="Stu_ShowImage"
+                                                <Image x:Name="Stu_ShowImage"
      Width="120"
      Height="120"
      Source="{Binding Stu_Image_Source,Mode=TwoWay}"
      RelativePanel.Below="Logo_Text_RIP" 
      Margin="80,10,0,0"/>
-                                    <TextBlock x:Name="Stu_ID"                                              
+                                                <TextBlock x:Name="Stu_ID"                                              
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Logo_Text_RIP" 
        RelativePanel.RightOf="Stu_ShowImage"
@@ -59,133 +60,138 @@
        IsTextSelectionEnabled="True">
 <Run Text="លេខសម្គាល់ "/>
 <Run Text="{Binding Stu_ID}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Name"                                              
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Name"                                              
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_ID" 
        RelativePanel.RightOf="Stu_ShowImage">
 <Run Text="ឈ្មោះ "/>
 <Run Text="{Binding Stu_FirstName_KH}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock Text="{Binding Stu_LastName_KH}"
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Stu_LastName_KH}"
        Style="{StaticResource Font_KH_Body}"
        Foreground="Aqua"
        RelativePanel.RightOf="Stu_Name"
        RelativePanel.Below="Stu_ID"
        Margin="5,0,0,0"/>
-                                    <TextBlock x:Name="Stu_Gender"
+                                                <TextBlock x:Name="Stu_Gender"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.RightOf="Stu_ShowImage"
        RelativePanel.Below="Stu_Name">
 <Run Text="ភេទ"/>
 <Run Text="{Binding Stu_Gender}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Phone_Number"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Phone_Number"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.RightOf="Stu_ShowImage"
        RelativePanel.Below="Stu_Gender"
        IsTextSelectionEnabled="True">
 <Run Text="លេខទូរស័ព្ទ (0)"/>
 <Run Text="{Binding Stu_PhoneNumber}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <Line X1="10" Y1="10" X2="350" Y2="10" 
+                                                </TextBlock>
+                                                <Line X1="10" Y1="10" X2="350" Y2="10" 
         x:Name="Line_1"
         Stroke="Aqua" 
         StrokeThickness="2"
         RelativePanel.Below="Stu_ShowImage"
         Margin="0,0,10,0"/>
-                                    <TextBlock x:Name="Stu_SubjectSkill"
+                                                <TextBlock x:Name="Stu_SubjectSkill"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Line_1"
        Margin="10,5,0,0">
 <Run Text="ជំនាញ          :"/>
 <Run Text="{Binding Stu_EducationSubjects}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Edu_Level"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Edu_Level"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_SubjectSkill"
        Margin="10,0,0,0" >
 <Run Text="កម្រិតសិក្សា   :"/>
 <Run Text="{Binding Stu_EducationLevels}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Edu_Year"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Edu_Year"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Edu_Level"
        Margin="10,0,0,0">
 <Run Text="ឆ្នាំទី              :"/>
 <Run Text="{Binding Stu_StudyingTime}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Edu_Semester"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Edu_Semester"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Edu_Year"
        Margin="10,0,0,0">
 <Run Text="ឆមាស          :"/>
 <Run Text="{Binding Stu_Semester}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Study_Time"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Study_Time"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Edu_Semester"
        Margin="10,0,0,0">
 <Run Text="វេនសិក្សា       :"/>
 <Run Text="{Binding Stu_StudyTimeShift}" Foreground="Aqua"/>
 
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_StudyType"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_StudyType"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Study_Time"
        Margin="10,0,0,0">
 <Run Text="ប្រភេទសិក្សា  :"/>
 <Run Text="{Binding Stu_EducationType}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_StudyYear"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_StudyYear"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_StudyType"
        Margin="10,0,0,0">
 <Run Text="ឆ្នាំសិក្សា        :"/>
 <Run Text="{Binding Stu_StudyYear}" Foreground="Aqua"/>
 
-                                    </TextBlock>
-                                    <Line X1="10" Y1="10" X2="350" Y2="10" 
+                                                </TextBlock>
+                                                <Line X1="10" Y1="10" X2="350" Y2="10" 
     x:Name="Line_2"
     Stroke="Aqua" 
     StrokeThickness="2"
     RelativePanel.Below="Stu_StudyYear"
     Margin="0,0,10,0"/>
-                                    <TextBlock x:Name="Stu_Birth_Date"
+                                                <TextBlock x:Name="Stu_Birth_Date"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Line_2"
        Margin="10,0,0,0">
 <Run Text="ថ្ងៃខែឆ្នាំកំណើត          :"/>
 <Run Text="{Binding Stu_BirthdayDateOnly}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Live_Place"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Live_Place"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Birth_Date"
        Margin="10,0,0,0">
 <Run Text="អាស័យដ្ឋានបច្ចុប្បន្ន    :"/>
 <Run Text="{Binding Stu_Live_Vill}" Foreground="Aqua"/>
 <Run Text="{Binding Stu_Live_Comm}" Foreground="Aqua"/>
-                                    </TextBlock>
-                                    <TextBlock x:Name="Stu_Live_Place2"
+                                                </TextBlock>
+                                                <TextBlock x:Name="Stu_Live_Place2"
        Style="{StaticResource Font_KH_Body}"
        RelativePanel.Below="Stu_Live_Place"
        Margin="130,0,0,0">
 <Run Text="{Binding Stu_Live_Dis}" Foreground="Aqua"/>
 <Run Text="{Binding Stu_Live_Pro}" Foreground="Aqua"/>
-                                    </TextBlock>
+                                                </TextBlock>
 
 
-                                </RelativePanel>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            
-            
-        </StackPanel>
+                                            </RelativePanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
 
-        <StackPanel x:Name="Student_Button_Search" Grid.Column="1" Grid.Row="0" RelativePanel.RightOf="Student_Card" RelativePanel.Below="Student_BarGraph">
+
+
+
+
+                </StackPanel>
+            </ScrollView>
+
+        <StackPanel x:Name="Student_Button_Search" Grid.Column="0" Grid.Row="1" RelativePanel.RightOf="Student_Card" RelativePanel.Below="Student_BarGraph">
             <RelativePanel>
                 <ScrollView x:Name="Search_Information" HorizontalScrollBarVisibility="Auto" 
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -377,7 +383,7 @@
                             <TextBlock Text="កាលបរិច្ឆេទធ្វើបច្ចុប្បន្នភាពចុងក្រោយ" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                         </StackPanel>
 
-                        <ListView x:Name="Student_Info_List" ItemsSource="{Binding Students}" SelectionChanged="Selected_Student_for_Card_and_CV" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3" Height="300"
+                        <ListView x:Name="Student_Info_List" ItemsSource="{Binding Students}" SelectionChanged="Selected_Student_for_Card_and_CV" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3" Height="400"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -442,21 +448,33 @@
                         </ListView>
                     </StackPanel>
                 </ScrollView>
+                
             </RelativePanel>
+            <!--Back Button-->
+            <Button x:Name="ISI_BackButton_to_Insert_Mode" Visibility="Collapsed" Click="btn_click_to_insert_mode" Style="{StaticResource Stye_KH_Button}">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-back-96.png" Width="25" Height="25" Margin="0,0,10,0"/>
+                    <TextBlock Text="ត្រឡប់ទៅវិញ" Margin="10,0,0,0"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <StackPanel x:Name="Button_in_Check_Stu_Mode" Grid.Column="0" Grid.Row="0" RelativePanel.Below="Student_Button_Search" Margin="10">
             <RelativePanel>
-                <Button x:Name="btn_preview_card"  Command="{Binding ShowStudentCardsCommand}"  Width="120" Margin="10,0,0,0" >
+                <Button x:Name="btn_preview_card" Click="show_student_card"  Command="{Binding ShowStudentCardsCommand}"  Width="120" Margin="10,0,0,0" >
                     <Button.Content>
                         <StackPanel>
-                            <TextBlock Text="បង្ហាញកាត"
+                            <TextBlock Text="បង្ហាញទិន្នន័យ"
                                    Style="{StaticResource Font_KH_Body}"
-                                   ToolTipService.ToolTip="សម្រាប់បង្ហាញកាតសិស្សនិស្សិត"/>
+                                   ToolTipService.ToolTip="សម្រាប់បង្ហាញទិន្នន័យសិស្សនិស្សិត"/>
                             <Image Source="/Assets/Report_Student_Info_Icon/icons8-preview-pane-96.png" Width="20" Height="20"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
+                <Button x:Name="btn_close_preview" Content="X" Foreground="Red" Click="Close_preview" Margin="95,25,0,0"/>
                 <Button x:Name="btn_click_generate_card" Command="{Binding GeneratePDFCommand_Student_Card}" RelativePanel.RightOf="btn_preview_card" Width="120" Margin="10,0,0,0" >
                     <Button.Content>
                         <StackPanel>

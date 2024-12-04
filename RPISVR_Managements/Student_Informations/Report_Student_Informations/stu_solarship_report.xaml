@@ -17,12 +17,12 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="Text_Header" Height="Auto"/>
-            <RowDefinition x:Name="ListView_Infomation" Height="*"/>
+            <RowDefinition x:Name="ListView_Infomation" Height="6*"/>
             <RowDefinition x:Name="Footer" Height="*"/>
         </Grid.RowDefinitions>
         
            
-            <StackPanel x:Name="Text_Header_RPI" Grid.Row="0" Grid.Column="0">
+        <StackPanel x:Name="Text_Header_RPI" Grid.Row="0" Grid.Column="0">
             <TextBlock x:Name="Text_Cambodia" TextAlignment="Center"
                        Text="ព្រះរាជាណាចក្រកម្ពុជា"
                        Style="{StaticResource Font_KH_Title}"
@@ -55,8 +55,7 @@
                        FontSize="15"/>
             <RelativePanel HorizontalAlignment="Center" Margin="5">
 
-                <ScrollView x:Name="Search_Information" HorizontalScrollBarVisibility="Auto" 
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ScrollView x:Name="Search_Information" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock x:Name="Text_Education_SubjectSkill" TextAlignment="Center"
                                    Text="សិក្សាកម្រិត៖"
@@ -194,7 +193,7 @@
                 </ListView>
             </StackPanel>
         </ScrollView>
-        <StackPanel Orientation="Horizontal" Grid.Row="2">
+        <StackPanel Orientation="Horizontal" Grid.Row="3">
             <Button x:Name="Generate_PDF_Report" Command="{Binding GeneratePDFCommand_Solarship_Report}" Width="70" Margin="0,10,5,0" Style="{StaticResource Button_Report_By_Solarship}" CornerRadius="5" Background="Aquamarine">
                 <Button.Content>
                     <StackPanel Orientation="Vertical">
@@ -208,6 +207,14 @@
                     <StackPanel Orientation="Vertical">
                         <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="25" Height="25"/>
                         <TextBlock Text="Excel"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button x:Name="btn_back_Insert_Mode" Click="btn_back_insert_mode"  Width="70" Margin="5,10,5,0" Style="{StaticResource Button_Report_By_Solarship}" CornerRadius="5" Background="Aquamarine">
+                <Button.Content>
+                    <StackPanel Orientation="Vertical">
+                        <Image Source="/Assets/Student_Info_Icon/icons8-back-96.png" Width="25" Height="25"/>
+                        <TextBlock Text="Back"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

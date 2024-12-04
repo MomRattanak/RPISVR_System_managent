@@ -26,11 +26,16 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
 
         private void btn_click_stu_solarship_report(object sender, RoutedEventArgs e)
         {
+            int Stu_ID_Edit = 3;
+            (Application.Current as App).StudentID = Stu_ID_Edit.ToString();
             ContentFrame.Navigate(typeof(stu_solarship_report));
         }
 
         private void btn_click_stu_card_report(object sender, RoutedEventArgs e)
         {
+            int Stu_ID_Edit = 3;
+            (Application.Current as App).StudentID = Stu_ID_Edit.ToString();
+
             ContentFrame.Navigate(typeof(Student_Card_Report));
         }
     }
