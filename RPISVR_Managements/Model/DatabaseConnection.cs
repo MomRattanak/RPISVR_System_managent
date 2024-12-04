@@ -19,6 +19,9 @@ using System.Reflection.PortableExecutable;
 using static Mysqlx.Expect.Open.Types;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office.Word;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace RPISVR_Managements.Model
 {
@@ -30,7 +33,10 @@ namespace RPISVR_Managements.Model
 
         public DatabaseConnection()
         {
+            //Local
             _connectionString = "Server=127.0.0.1;Port=3306;Database=rpisvr_system;User ID=root;Password=;";
+            
+            //Server
             //_connectionString = "Server=88.222.215.127;Port=3306;Database=rpisvr_system;User ID=admin;Password=admin@123;charset=utf8mb4;";
 
         }
@@ -60,6 +66,62 @@ namespace RPISVR_Managements.Model
                 connection.Close();
                 Debug.WriteLine("Connection Closed.");
             }
+        }
+        //Method to Load Class to ListView
+        //GetClass_Info
+        //Method to Insert Class Information
+        public bool Insert_Class_Information(Student_Info classes_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO classes(class_name,class_in_skill,class_in_level,class_in_study_year,class_in_student_year,class_in_semester,class_in_generation,class_in_study_timeshift,class_in_study_type) " +
+                        "VALUES(@class_name,@class_in_skill,@class_in_level,@class_in_study_year,@class_in_student_year,@class_in_semester,@class_in_generation,@class_in_study_timeshift,@class_in_study_type)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@class_name", classes_info.Class_Name);
+                    cmd.Parameters.AddWithValue("@class_in_skill", classes_info.Class_In_Skill);
+                    cmd.Parameters.AddWithValue("@class_in_level", classes_info.Class_In_Level);
+                    cmd.Parameters.AddWithValue("@class_in_study_year", classes_info.Class_In_Study_Year);
+                    cmd.Parameters.AddWithValue("@class_in_student_year", classes_info.Class_In_Student_Year);
+                    cmd.Parameters.AddWithValue("@class_in_semester", classes_info.Class_In_Semester);
+                    cmd.Parameters.AddWithValue("@class_in_generation", classes_info.Class_In_Generation);
+                    cmd.Parameters.AddWithValue("@class_in_study_timeshift", classes_info.Class_In_Study_Timeshift);
+                    cmd.Parameters.AddWithValue("@class_in_study_type", classes_info.Class_In_Study_Type);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                return false;
+            }
+
+        }
+
+        //Method to Count Class
+        public int GetTotalClassCount()
+        {
+            int count1 = 0;
+
+            string query = "SELECT COUNT(*) FROM classes";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    count1 = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+            return count1;
         }
         //Method to Select Last ID and Stu_ID
         public (int ID, string Stu_ID) Get_ID_and_Stu_ID()
@@ -91,7 +153,6 @@ namespace RPISVR_Managements.Model
 
         }
 
-        //
         //Method to Increase Stu_ID
         public string IncrementStuID(String currentStuID)
         {
@@ -483,6 +544,40 @@ namespace RPISVR_Managements.Model
                 }
             }
             return count;
+        }
+        //Method to Update Class_Information
+        public bool Update_Classes_Information(Student_Info classes_info)
+        {
+            try
+            {
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE classes SET class_name = @class_name,class_in_skill = @class_in_skill,class_in_level = @class_in_level,class_in_study_year = @class_in_study_year, class_in_student_year = @class_in_student_year, class_in_semester = @class_in_semester, class_in_study_timeshift = @class_in_study_timeshift, class_in_study_type = @class_in_study_type WHERE class_id = @class_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@class_id", classes_info.Class_ID);
+                    cmd.Parameters.AddWithValue("@class_name", classes_info.Class_Name);
+                    cmd.Parameters.AddWithValue("@class_in_skill", classes_info.Class_In_Skill);
+                    cmd.Parameters.AddWithValue("@class_in_level", classes_info.Class_In_Level);
+                    cmd.Parameters.AddWithValue("@class_in_study_year", classes_info.Class_In_Study_Year);
+                    cmd.Parameters.AddWithValue("@class_in_student_year", classes_info.Class_In_Student_Year);
+                    cmd.Parameters.AddWithValue("@class_in_semester", classes_info.Class_In_Semester);
+                    cmd.Parameters.AddWithValue("@class_in_generation", classes_info.Class_In_Generation);
+                    cmd.Parameters.AddWithValue("@class_in_study_timeshift", classes_info.Class_In_Study_Timeshift);
+                    cmd.Parameters.AddWithValue("@class_in_study_type", classes_info.Class_In_Study_Type);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Update class error: {ex.ToString()}");
+                return false;
+            }
         }
 
         //Method to Update Student_Information to Database
@@ -2947,7 +3042,7 @@ namespace RPISVR_Managements.Model
 
             return data;
         }
-
+        
         //Search by Combobox
         public List<Student_Info> GetStudents_Check_Stu_Info_by_Combobox(int page, int pageSize, String Search_Edu_Level, String Search_Edu_Skill_Subject, String Search_Edu_StudyTimeShift, String Search_Edu_TypeStudy, String Search_Edu_StudyYear)
         {
@@ -3423,6 +3518,212 @@ namespace RPISVR_Managements.Model
             return (Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType, Stu_StudyYear);
 
         }
+
+        int No_Classes = 0;
+        //Search by Name, Generation Class
+        public List<Student_Info> GetClass_Info(int page, int pageSize, string Search_Name_Generation)
+        {
+            
+
+            List<Student_Info> class_info = new List<Student_Info>();
+            try
+            {
+                string query1 = "SELECT COUNT(*) AS TotalCount FROM classes";
+                int offset = (page - 1) * pageSize;
+                string query = string.IsNullOrEmpty(Search_Name_Generation)
+                            ? "SELECT * FROM classes ORDER BY class_id DESC LIMIT @Offset, @PageSize"
+                            : "SELECT * FROM classes WHERE class_name LIKE @Search_Name_Generation || class_in_generation LIKE @Search_Name_Generation ORDER BY class_id DESC LIMIT @Offset, @PageSize";
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var cmd = new MySqlCommand(query1, connection))
+                    {
+                        No_Classes = Convert.ToInt32(cmd.ExecuteScalar()); // Assign the total count to No_Classes
+                    }
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        if (!string.IsNullOrWhiteSpace(Search_Name_Generation))
+                        {
+                            cmd.Parameters.AddWithValue("@Search_Name_Generation", $"%{Search_Name_Generation}%");
+                        }
+
+                        cmd.Parameters.AddWithValue("@pageSize", pageSize);
+                        cmd.Parameters.AddWithValue("@offset", offset);
+                        cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+
+                            //int No_Classes = 1;
+                            while (reader.Read())
+                            {
+                                
+                                Student_Info classes = new Student_Info
+                                {
+                                    No_Class = No_Classes.ToString(),
+                                    Class_ID = reader.GetInt32("class_id").ToString(),
+                                    Class_Name = reader.IsDBNull(reader.GetOrdinal("class_name")) ? string.Empty : reader.GetString("class_name"),
+                                    Class_In_Skill = reader.IsDBNull(reader.GetOrdinal("class_in_skill")) ? string.Empty : reader.GetString("class_in_skill"),
+                                    Class_In_Study_Year = reader.IsDBNull(reader.GetOrdinal("class_in_study_year")) ? string.Empty : reader.GetString("class_in_study_year"),
+                                    Class_In_Level = reader.IsDBNull(reader.GetOrdinal("class_in_level")) ? string.Empty : reader.GetString("class_in_level"),
+                                    Class_In_Student_Year = reader.IsDBNull(reader.GetOrdinal("class_in_student_year")) ? string.Empty : reader.GetString("class_in_student_year"),
+                                    Class_In_Semester = reader.IsDBNull(reader.GetOrdinal("class_in_semester")) ? string.Empty : reader.GetString("class_in_semester"),
+                                    Class_In_Generation = reader.IsDBNull(reader.GetOrdinal("class_in_generation")) ? string.Empty : reader.GetString("class_in_generation"),
+                                    Class_In_Study_Timeshift = reader.IsDBNull(reader.GetOrdinal("class_in_study_timeshift")) ? string.Empty : reader.GetString("class_in_study_timeshift"),
+                                    Class_In_Study_Type = reader.IsDBNull(reader.GetOrdinal("class_in_study_type")) ? string.Empty : reader.GetString("class_in_study_type"),
+                                    
+
+                                };
+                                No_Classes--;
+                                class_info.Add(classes);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql Get Class to ListView Error:{ex.Message}");
+            }
+            return class_info;
+        }
+
+        //Search Class Combobox
+        public List<Student_Info> GetClasses_Check_Info_by_Combobox(int page, int classSize, string Search_Study_Year, string Search_Skill, string Search_Level, string Search_Student_Year, string Search_Semester, string Search_Study_Timeshift, string Search_Study_Type)
+        {
+            List<Student_Info> class_info = new List<Student_Info>();
+            try
+            {
+                int offset = (page - 1) * classSize;
+                string query = "SELECT * FROM classes";
+
+                List<string> conditions = new List<string>();
+                if (!string.IsNullOrEmpty(Search_Study_Year))
+                {
+                    conditions.Add("class_in_study_year = @Search_Study_Year");
+                }
+                if (!string.IsNullOrEmpty(Search_Skill))
+                {
+                    conditions.Add("class_in_skill = @Search_Skill");
+                }
+                if (!string.IsNullOrEmpty(Search_Level))
+                {
+                    conditions.Add("class_in_level = @Search_Level");
+                }
+                if (!string.IsNullOrEmpty(Search_Student_Year))
+                {
+                    conditions.Add("class_in_student_year = @Search_Student_Year");
+                }
+                if (!string.IsNullOrEmpty(Search_Semester))
+                {
+                    conditions.Add("class_in_semester = @Search_Semester");
+                }
+                if (!string.IsNullOrEmpty(Search_Study_Timeshift))
+                {
+                    conditions.Add("class_in_study_timeshift = @Search_Study_Timeshift");
+                }
+                if (!string.IsNullOrEmpty(Search_Study_Type))
+                {
+                    conditions.Add("class_in_study_type = @Search_Study_Type");
+                }
+                // Check if there are any conditions to add to the WHERE clause
+                if (conditions.Count > 0)
+                {
+                    // Add the WHERE clause by joining conditions with " AND "
+                    query += " WHERE " + string.Join(" AND ", conditions);
+                }
+
+                // Add ORDER BY and LIMIT clauses
+                query += " ORDER BY class_id DESC LIMIT @Offset, @ClassSize";
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Search_Study_Year", Search_Study_Year);
+                        cmd.Parameters.AddWithValue("@Search_Skill", Search_Skill);
+                        cmd.Parameters.AddWithValue("@Search_Level", Search_Level);
+                        cmd.Parameters.AddWithValue("@Search_Student_Year", Search_Student_Year);
+                        cmd.Parameters.AddWithValue("@Search_Semester", Search_Semester);
+                        cmd.Parameters.AddWithValue("@Search_Study_Timeshift", Search_Study_Timeshift);
+                        cmd.Parameters.AddWithValue("@Search_Study_Type", Search_Study_Type);
+                        cmd.Parameters.AddWithValue("@ClassSize", classSize);
+                        cmd.Parameters.AddWithValue("@offset", offset);
+                        cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            int No_Classes = 1;
+                            while (reader.Read())
+                            {
+                                Student_Info classes = new Student_Info
+                                {
+                                    No_Class = No_Classes.ToString(),
+                                    Class_ID = reader.GetInt32("class_id").ToString(),
+                                    Class_Name = reader.IsDBNull(reader.GetOrdinal("class_name")) ? string.Empty : reader.GetString("class_name"),
+                                    Class_In_Skill = reader.IsDBNull(reader.GetOrdinal("class_in_skill")) ? string.Empty : reader.GetString("class_in_skill"),
+                                    Class_In_Study_Year = reader.IsDBNull(reader.GetOrdinal("class_in_study_year")) ? string.Empty : reader.GetString("class_in_study_year"),
+                                    Class_In_Level = reader.IsDBNull(reader.GetOrdinal("class_in_level")) ? string.Empty : reader.GetString("class_in_level"),
+                                    Class_In_Student_Year = reader.IsDBNull(reader.GetOrdinal("class_in_student_year")) ? string.Empty : reader.GetString("class_in_student_year"),
+                                    Class_In_Semester = reader.IsDBNull(reader.GetOrdinal("class_in_semester")) ? string.Empty : reader.GetString("class_in_semester"),
+                                    Class_In_Generation = reader.IsDBNull(reader.GetOrdinal("class_in_generation")) ? string.Empty : reader.GetString("class_in_generation"),
+                                    Class_In_Study_Timeshift = reader.IsDBNull(reader.GetOrdinal("class_in_study_timeshift")) ? string.Empty : reader.GetString("class_in_study_timeshift"),
+                                    Class_In_Study_Type = reader.IsDBNull(reader.GetOrdinal("class_in_study_type")) ? string.Empty : reader.GetString("class_in_study_type"),
+                                };
+                                No_Classes++;
+                                class_info.Add(classes);
+                            }
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Search class error: {ex.Message}");
+            }
+            return class_info;
+        }
+
+        //Delete Multi Class
+        public void Delete_Class_Info(List<String> class_id_info)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    
+                    foreach (var class_id in class_id_info)
+                    {
+                        string query = "DELETE FROM classes WHERE class_id = @class_id";
+                        using (var command = new MySqlCommand(query, conn))
+                        {
+                            command.Parameters.AddWithValue("@class_id", class_id);
+                            command.ExecuteNonQuery();
+                            Debug.WriteLine($"Deleted Class ID: {class_id}");
+                        }
+                    }
+                }
+                   
+
+            }catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete mutli class error: {ex.Message}");
+            }
+        }
+        //Method Check class before insert
+        //public async  Task<(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)> GetClasses_Check_Info(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)
+        //{
+        //    //const string query = "SELECT * FROM classes "
+
+        //    await Task.CompletedTask;
+        //}
     }
 }
 

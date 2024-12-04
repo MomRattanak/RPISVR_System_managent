@@ -991,6 +991,52 @@
                             </Expander.Content>
                         </Expander>
 
+                        <Expander x:Name="Report_Page" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icon/icons8-add-properties-48.png" Width="28" Height="28" />
+                                    <TextBlock Text="របាយការណ៍"
+                                                 Padding="10,5,0,0"
+                                                 Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel>
+                                    <Button x:Name="btn_report_solarship" 
+                                            Style="{StaticResource Stye_KH_Button}"
+                                            Click="open_report_page">
+
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            <SolidColorBrush x:Key="ButtonBackground" Color="Blue"/>
+                                        </Button.Resources>
+                                        <Button.Content>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <Image Source="/Assets/icons8-bar-chart-48.png" Width="20" Height="20" Margin="0,0,20,0" />
+                                                <TextBlock Text="បញ្ជីឈ្មោះនិស្សិត"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+
+                                    <Button x:Name="btn_report_card"
+                                            Style="{StaticResource Stye_KH_Button}"
+                                            Click="btn_open_page_card">
+                                        <Button.Resources>
+                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                                    <SolidColorBrush x:Key="ButtonBackground" Color="Blue"/>
+                                                </Button.Resources>
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <Image Source="/Assets/icons8-report-card-48.png" Width="20" Height="20" Margin="0,0,20,0" />
+                                                <TextBlock Text="កាតសិស្សនិស្សិត"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
+
                     </StackPanel>
                 </ScrollView>
 

@@ -233,10 +233,7 @@ namespace RPISVR_Managements.ViewModel
                                         else
                                         {
                                             imageContainer.Width(30).Height(45).Image("Assets/Student_Logo.png");
-                                            column.Item().Text("(សិស្សនិស្សិតមិនមានរូបភាព)")
-                                               .FontFamily("Khmer OS Siemreap")
-                                               .FontSize(5)
-                                               .AlignLeft();
+                                            
                                         }
                                     });
 

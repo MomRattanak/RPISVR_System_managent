@@ -27,6 +27,9 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Threading;
 using Microsoft.UI.Dispatching;
 using System.Data.Common;
+using RPISVR_Managements.ViewModel;
+using System.Data;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -34,20 +37,33 @@ namespace RPISVR_Managements.ViewModel
     public class StudentViewModel:INotifyPropertyChanged 
     {
         private ObservableCollection<Student_Info> _students;
+        private ObservableCollection<Student_Info> _classes;
         private readonly DatabaseConnection _dbConnection;
         private DatabaseConnection _studentModel;
+        private DatabaseConnection _classModel;
 
        
+        //Student
         private int _currentPage = 1;
         private int _totalPages;
         private int _pageSize = 10;
         private int _totalStudents;
         public int TotalPages => (_totalStudents + _pageSize - 1) / _pageSize;
 
+        //Class
+        private int _currentPage_Class = 1;
+        private int _totalPages_Class;
+        private int _classSize = 10;
+        private int _totalClasses;
+        public int TotalPage_Class => (_totalClasses + _classSize - 1) / _classSize;
+
+        
         public ICommand PreviousPageCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand_Check { get; }
         public ICommand NextPageCommand_Check { get; }
+        public ICommand PreviousPageCommand_Class { get; }
+        public ICommand NextPageCommand_Class { get; }
         // Command to handle the form submission
         public ICommand SubmitCommand { get; }
         public ICommand ClearCommand { get; }
@@ -65,10 +81,18 @@ namespace RPISVR_Managements.ViewModel
         public ICommand GeneratePDFCommand_Student_Card { get; }
         public ICommand ShowStudentCardsCommand { get; }
 
-
+       
         public  StudentViewModel()
         {
+            //Classes
+            SubmitCommand_Class = new RelayCommand(async () => await SubmitAsync_Class());
+            ClearCommand_Class = new RelayCommand(async () => await ClearAsync_Class());
+            Search_Class_Info = new RelayCommand(async () => await Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type));
+            Command_Edit_Class = new RelayCommand(async () => await Edit_Class());
+            Command_Delete_Class = new RelayCommand(async () => await Delete_Class());
 
+
+            //Student
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
             ClearCommand = new RelayCommand(async () => await ClearAsync());
             Search_Stu_Info = new RelayCommand(async () => await Search_Student_Info(Search_Edu_Level, Search_Edu_Skill_Subject, Search_Edu_StudyTimeShift, Search_Edu_TypeStudy, Search_Edu_StudyYear));
@@ -80,12 +104,14 @@ namespace RPISVR_Managements.ViewModel
             ShowStudentCardsCommand = new RelayCommand(GenerateStudentCards);
             _dbConnection = new DatabaseConnection();
 
-
+            //Student
             Students = new ObservableCollection<Student_Info>();
             Students_Check_Info = new ObservableCollection<Student_Info>();
             Student_Report_Solarship = new ObservableCollection<Student_Info>();
             Student_Report_Card = new ObservableCollection<Student_Info>();
             DisplayedStudentCards = new ObservableCollection<Student_Info>();
+            //Classs
+            Classes_Info = new ObservableCollection<Student_Info>();
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
             NextPageCommand = new RelayCommand(NextPage, CanGoNextPage);
@@ -93,6 +119,10 @@ namespace RPISVR_Managements.ViewModel
             //Command for Previouse,Back Button
             PreviousPageCommand_Check = new RelayCommand(PreviousPage_Check, CanGoPreviousPage2);
             NextPageCommand_Check = new RelayCommand(NextPage_Check, CanGoNextPage2);
+
+            //Class Back,Next
+            NextPageCommand_Class = new RelayCommand(PreviousPage_Class, CanGoPreviousPage_Class);
+            PreviousPageCommand_Class = new RelayCommand(NextPage_Class, CanGoNextPage_Class);
             //Card Report
             GeneratePDFCommand_Student_Card = new RelayCommand(async () => await GeneratePDF_Student_Card());
             //Edit
@@ -127,7 +157,9 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine("New ID: " + ID);
             Debug.WriteLine("New Stu_ID: " + stu_ID);
 
-            
+            //Get ID Class
+            _classModel = new DatabaseConnection();
+            _totalClasses = _classModel.GetTotalClassCount();
 
             //Data to Combobox Province
             Provinces_Combobox = new ObservableCollection<Student_Info>();
@@ -170,6 +202,10 @@ namespace RPISVR_Managements.ViewModel
             //Student to ListView
             IsLoading = true;
             _ = LoadStudents(SearchText_ID_Name_Insert);
+
+
+            //Classes to ListView
+            _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
         }
 
         
@@ -933,6 +969,16 @@ namespace RPISVR_Managements.ViewModel
             }
         }
         
+        //Class_Info
+        public ObservableCollection<Student_Info> Classes_Info
+        {
+            get => _classes;
+            set
+            {
+                _classes = value;
+                OnPropertyChanged(nameof(Classes_Info));
+            }
+        }
         //Search ID_Name in Insert_Student
         private string _searchText_ID_Name_Insert;
         public string SearchText_ID_Name_Insert
@@ -991,6 +1037,7 @@ namespace RPISVR_Managements.ViewModel
             
         }
 
+        //Student
         public int CurrentPage
         {
             get => _currentPage;
@@ -1001,17 +1048,20 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(PageInfo));
             }
         }
+       
 
-        public int TotalPageS
+        //Class
+        public int CurrentPage_Class
         {
-            get => _totalPages;
+            get => _currentPage_Class;
             set
             {
-                _totalPages = value;
-                OnPropertyChanged(nameof(TotalPages));
+                _currentPage_Class = value;
+                OnPropertyChanged(nameof(CurrentPage_Class));
                 OnPropertyChanged(nameof(PageInfo));
             }
         }
+       
 
         private async void NextPage()
         {
@@ -1090,11 +1140,15 @@ namespace RPISVR_Managements.ViewModel
 
         private void OnPageChanged()
         {
+            //Insert Page
             (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            //New
+            //Check Page
             (PreviousPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
             (NextPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+            //Class Page
+            (PreviousPageCommand_Class as RelayCommand)?.RaiseCanExecuteChanged();
+            (NextPageCommand_Class as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
 
@@ -2977,7 +3031,7 @@ namespace RPISVR_Managements.ViewModel
         }
 
         //SaveStudentInformationtoDatabase
-        public async void SaveStudentInformationToDatabase()
+        public void SaveStudentInformationToDatabase()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
             var UpdateStudent = Students.FirstOrDefault(s => s.Stu_ID == Stu_ID);
@@ -3131,22 +3185,18 @@ namespace RPISVR_Managements.ViewModel
 
 
                 };
+              
+                bool success = dbConnection.Insert_Student_Information(student_Info);
 
-                
-
-
-                
-                  bool success = dbConnection.Insert_Student_Information(student_Info);
-
-                    if (success)
-                    {
+                if (success)
+                {
 
                         ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " បានរក្សាទុកជោគជ័យ !";
                         ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
                         MessageColor = new SolidColorBrush(Colors.Green);
 
-                    }
-                    else
+                }
+                else
                     {
                         ErrorMessage = "លេខសម្ភាល់ " + Stu_ID + " រក្សាទុកបរាជ៏យ !";
                         ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
@@ -3532,7 +3582,7 @@ namespace RPISVR_Managements.ViewModel
 
             //Check Student Infomation Before Insert
             var student_check_info = await _dbConnection.GetStudents_Check_Stu_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
-
+            
 
             if ((Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1.Trim() &&
                     Stu_LastName_KH == student_check_info.Stu_LastName_KH1.Trim() &&
@@ -3578,10 +3628,10 @@ namespace RPISVR_Managements.ViewModel
         //KH_Date
         // Khmer month names
         public List<string> KhmerMonths { get; } = new List<string>
-    {
+        {
         "មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា",
         "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"
-    };
+        };
 
         // Days (1-31)
         public List<int> Days { get; } = new List<int>();
@@ -4016,7 +4066,6 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
                 
-
             IsLoading = true;
             try
             {
@@ -4205,7 +4254,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
-
+        
 
         public async Task Search_Student_Info(string Search_Edu_Level,string Search_Edu_Skill_Subject,string Search_Edu_StudyTimeShift,string Search_Edu_TypeStudy,string Search_Edu_StudyYear)
         {       
@@ -4634,6 +4683,10 @@ namespace RPISVR_Managements.ViewModel
                     Stu_BirthdayDateShow = string.Join(", ",
                         _selectedStudent_Card.Select(student => ConvertToKhmerDate(student.Stu_BirthdayDateOnly)));
                 }
+                else
+                {
+                    return;
+                }
                 OnPropertyChanged(nameof(Selection_Student_Card));
             }
         }
@@ -4656,14 +4709,20 @@ namespace RPISVR_Managements.ViewModel
         {
             
             DisplayedStudentCards.Clear();
-            foreach (var student in Selection_Student_Card)
+            if(Selection_Student_Card == null)
             {
-                DisplayedStudentCards.Add(student);
+                Debug.WriteLine("No Selection");
+                return;
             }
-
-            Debug.WriteLine($"Date: {Stu_BirthdayDateShow}");
-            // Debug: Check if data is added
-            Debug.WriteLine($"DisplayedStudentCards Count: {DisplayedStudentCards.Count}");
+            else
+            {
+                foreach (var student in Selection_Student_Card)
+                {
+                    DisplayedStudentCards.Add(student);
+                }
+                Debug.WriteLine($"DisplayedStudentCards Count: {DisplayedStudentCards.Count}");
+            }
+            
         }
 
         
@@ -4675,6 +4734,7 @@ namespace RPISVR_Managements.ViewModel
                 ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/Report_Student_Info_Icon/icons8-choose-96.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
+                OnPropertyChanged(nameof(Selection_Student_Card));
                 Debug.WriteLine("No student selection.");
                 return;
             }
@@ -4693,6 +4753,7 @@ namespace RPISVR_Managements.ViewModel
                 }
 
                 PDFService_Generate_Student_Card.CreateCard_Report(Selection_Student_Card);
+                OnPropertyChanged(nameof(Selection_Student_Card));
                 Debug.WriteLine("Report Card OK");
 
             }
@@ -4700,17 +4761,1268 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask;
         }
 
-        //
+        //Classes
+        public ICommand SubmitCommand_Class { get; }
+        public ICommand ClearCommand_Class { get; }
+        public ICommand Search_Class_Info { get; }
+
+
+        //No_Class
+        private string _No_Class;
+        public string No_Class
+        {
+            get => _No_Class;
+            set
+            {
+                _No_Class = value;
+                OnPropertyChanged(nameof(No_Class));
+            }
+        }
+        //Class_ID
+        private string _Class_ID;
+        public string Class_ID
+        {
+            get => _Class_ID;
+            set
+            {
+                if (_Class_ID != value)
+                {
+                    _Class_ID = value;
+                    OnPropertyChanged(nameof(Class_ID));
+                    ValidateClass_ID();
+                }
+
+            }
+        }
+        //ClassIDBorderBrush
+        public SolidColorBrush ClassIDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(ClassIDBorderBrush));
+            }
+        }
+        private void ValidateClass_ID()
+        {
+            if (string.IsNullOrEmpty(Class_ID))
+            {
+                ClassIDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                ClassIDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Class_Name
+        private string _Class_Name;
+        public string Class_Name
+        {
+            get => _Class_Name;
+            set
+            {
+                if (_Class_Name != value)
+                {
+                    _Class_Name = value;
+                    OnPropertyChanged(nameof(Class_Name));
+                    ValidateClass_Name();
+                }
+
+            }
+        }
+        //Class_NameBorderBrush
+        public SolidColorBrush Class_NameBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_NameBorderBrush));
+            }
+        }
+        private void ValidateClass_Name()
+        {
+            if (string.IsNullOrEmpty(Class_Name))
+            {
+                Class_NameBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_NameBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Class_In_Skill
+        private int _Class_In_Skill_ID;
+        public int Class_In_Skill_ID
+        {
+            get => _Class_In_Skill_ID;
+            set
+            {
+                
+                _Class_In_Skill_ID = value;
+                OnPropertyChanged(nameof(Class_In_Skill_ID));
+
+            }
+        }
+        //Class_In_Study_Year
+        private string _Class_In_Study_Year;
+        public string Class_In_Study_Year
+        {
+            get => _Class_In_Study_Year;
+            set
+            {
+                _Class_In_Study_Year = value;
+                OnPropertyChanged(nameof(Class_In_Study_Year));
+            }
+        }
+        //Class_In_Skill
+        private string _Class_In_Skill;
+        public string Class_In_Skill
+        {
+            get => _Class_In_Skill;
+            set
+            {
+                if (_Class_In_Skill != value)
+                {
+                    _Class_In_Skill = value;
+                    OnPropertyChanged(nameof(Class_In_Skill));
+                    ValidateClass_In_Skill_Select();
+                }            
+            }
+        }
+        //Class_In_Level
+        private string _Class_In_Level;
+        public string Class_In_Level
+        {
+            get => _Class_In_Level;
+            set
+            {
+                _Class_In_Level = value;
+                OnPropertyChanged(nameof(Class_In_Level));
+                ValidateClass_In_Level_Select();
+            }
+        }
+        //Class_In_Student_Year
+        private string _Class_In_Student_Year;
+        public string Class_In_Student_Year
+        {
+            get => _Class_In_Student_Year;
+            set
+            {
+                _Class_In_Student_Year = value;
+                OnPropertyChanged(nameof(Class_In_Student_Year));
+                ValidateClass_In_Student_Year();
+            }
+        }
+        //Class_In_Semester
+        private string _Class_In_Semester;
+        public string Class_In_Semester
+        {
+            get => _Class_In_Semester;
+            set
+            {
+                _Class_In_Semester = value;
+                OnPropertyChanged(nameof(Class_In_Semester));
+                ValidateClass_In_Semester_Select();
+            }
+        }
+        //Class_In_Generation
+        private string _Class_In_Generation;
+        public string Class_In_Generation
+        {
+            get => _Class_In_Generation;
+            set
+            {
+                _Class_In_Generation = value;
+                OnPropertyChanged(nameof(Class_In_Generation));
+                ValidateClass_In_Generation();
+            }
+        }
+        //Class_In_Study_Timeshift
+        private string _Class_In_Study_Timeshift;
+        public string Class_In_Study_Timeshift
+        {
+            get => _Class_In_Study_Timeshift;
+            set
+            {
+                _Class_In_Study_Timeshift = value;
+                OnPropertyChanged(nameof(Class_In_Study_Timeshift));
+            }
+        }
+        //Class_In_Study_Type
+        private string _Class_In_Study_Type;
+        public string Class_In_Study_Type
+        {
+            get => _Class_In_Study_Type;
+            set
+            {
+                _Class_In_Study_Type = value;
+                OnPropertyChanged(nameof(Class_In_Study_Type));
+            }
+        }
+
+        //Class_In_Skill_Select
+        private Student_Info _Class_In_Skill_Select;
+        public Student_Info Class_In_Skill_Select
+        {
+            get => _Class_In_Skill_Select;
+            set
+            {
+                if (_Class_In_Skill_Select != value)
+                {
+                    _Class_In_Skill_Select = value;
+                    OnPropertyChanged(nameof(Class_In_Skill_Select));
+                    if(Class_In_Skill_Select == null)
+                    {
+                        Class_In_Skill = null;
+                    }
+                    else
+                    {
+                        Class_In_Skill = Class_In_Skill_Select.Stu_EducationSubjects;
+                    }
+                    ValidateClass_In_Skill_Select();
+                }
+
+            }
+        }
+        //Class_In_Level_Select
+        private Student_Info _Class_In_Level_Select;
+        public Student_Info Class_In_Level_Select
+        {
+            get { return _Class_In_Level_Select; }
+            set
+            {
+                if (_Class_In_Level_Select != value)
+                {
+                    _Class_In_Level_Select = value;
+                    OnPropertyChanged(nameof(Class_In_Level_Select));
+                    if (_Class_In_Level_Select == null)
+                    {
+                        Class_In_Level = null;
+                    }
+                    else
+                    {
+                        Class_In_Level = _Class_In_Level_Select.Stu_EducationLevels;
+                    }
+                    ValidateClass_In_Level_Select();
+                }
+
+            }
+        }
+        //Class_In_Study_Year_Select
+        private Student_Info _Class_In_Study_Year_Select;
+        public Student_Info Class_In_Study_Year_Select
+        {
+            get { return _Class_In_Study_Year_Select; }
+            set
+            {
+                _Class_In_Study_Year_Select = value;
+                OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+                if(_Class_In_Study_Year_Select == null)
+                {
+                    Class_In_Study_Year = null;
+                }
+                else
+                {
+                    Class_In_Study_Year = _Class_In_Study_Year_Select.Stu_StudyYear;
+                }
+                ValidateClass_In_Study_Year_Select();
+            }
+        }
+        //Class_In_Student_Year_Select
+        private Student_Info _Class_In_Student_Year_Select;
+        public Student_Info Class_In_Student_Year_Select
+        {
+            get { return _Class_In_Student_Year_Select; }
+            set
+            {
+                _Class_In_Student_Year_Select = value;
+                OnPropertyChanged(nameof(Class_In_Student_Year_Select));
+                if(_Class_In_Student_Year_Select==null)
+                {
+                    Class_In_Student_Year= null;
+                }
+                else
+                {
+                    Class_In_Student_Year = Class_In_Student_Year_Select.ToString();
+                }
+                ValidateClass_In_Student_Year();
+            }
+        }
+
+        //Class_In_Study_Timeshift_Select
+        private Student_Info _Class_In_Study_Timeshift_Select;
+        public Student_Info Class_In_Study_Timeshift_Select
+        {
+            get { return _Class_In_Study_Timeshift_Select; }
+            set
+            {
+                _Class_In_Study_Timeshift_Select = value;
+                OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+                if(_Class_In_Study_Timeshift_Select==null)
+                {
+                    Class_In_Study_Timeshift = null;
+                }
+                else
+                {
+                    Class_In_Study_Timeshift = Class_In_Study_Timeshift_Select.Stu_StudyTimeShift;
+                }
+                ValidateClass_In_Study_Timeshift_Select();
+            }
+        }
+        //Class_In_Study_Type_Select
+        private Student_Info _Class_In_Study_Type_Select;
+        public Student_Info Class_In_Study_Type_Select
+        {
+            get => _Class_In_Study_Type_Select;
+            set
+            {
+                    _Class_In_Study_Type_Select = value;
+                    OnPropertyChanged(nameof(Class_In_Study_Type_Select));
+
+                    if(_Class_In_Study_Type_Select == null)
+                    {
+                        Class_In_Study_Type = null;
+                    }
+                    else
+                    {
+                        Class_In_Study_Type = Class_In_Study_Type_Select.Stu_EducationType;
+                    }
+                    ValidateClass_In_Study_Type_Select();
+                
+            }
+        }
+
+        //ValidateClass_In_Study_Type_Select
+        public SolidColorBrush Class_In_Study_TypeBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Study_TypeBorderBrush));
+            }
+        }
+        private void ValidateClass_In_Study_Type_Select()
+        {
+            if (Class_In_Study_Type_Select == null)
+            {
+                Class_In_Study_TypeBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_In_Study_TypeBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //ValidateClass_In_Study_Timeshift_Select
+        public SolidColorBrush Class_In_Study_TimeshiftBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Study_TimeshiftBorderBrush));
+            }
+        }
+        private void ValidateClass_In_Study_Timeshift_Select()
+        {
+            if (Class_In_Study_Timeshift_Select == null)
+            {
+                Class_In_Study_TimeshiftBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_In_Study_TimeshiftBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+
+        //Class_In_Generation
+        public SolidColorBrush Class_In_GenerationBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_GenerationBorderBrush));
+            }
+        }
+        private void ValidateClass_In_Generation()
+        {
+            if (string.IsNullOrEmpty(Class_In_Generation))
+            {
+                Class_In_GenerationBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_In_GenerationBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Class_In_Study_Year_BorderBrush
+        public SolidColorBrush Class_In_Study_Year_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Study_Year_BorderBrush));
+            }
+        }
+        private void ValidateClass_In_Study_Year_Select()
+        {
+            if (Class_In_Study_Year_Select == null)
+            {
+                Class_In_Study_Year_BorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_In_Study_Year_BorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Class_In_Level_Select
+        public SolidColorBrush Class_In_Level_Select_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Level_Select_BorderBrush));
+            }
+        }
+        private void ValidateClass_In_Level_Select()
+        {
+            if (Class_In_Level_Select == null)
+            {
+                Class_In_Level_Select_BorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Class_In_Level_Select_BorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
+        //Class_In_Skill_Select
+        public SolidColorBrush Class_In_Skill_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Skill_BorderBrush));
+            }
+        }
+        private void ValidateClass_In_Skill_Select()
+        {
+            if (Class_In_Skill_Select == null)
+            {
+                Class_In_Skill_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Class_In_Skill_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
+            }
+        }
+        //ValidateClass_In_Student_Year_Select
+        public SolidColorBrush Class_In_Student_Year_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_In_Student_Year_BorderBrush));
+            }
+        }
+        private void ValidateClass_In_Student_Year()
+        {
+            if (string.IsNullOrEmpty(Class_In_Student_Year))
+            {
+                Class_In_Student_Year_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Class_In_Student_Year_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
+            }
+        }
+
+        //VClass_Semester_BorderBrush
+        public SolidColorBrush Class_Semester_BorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Class_Semester_BorderBrush));
+            }
+        }
+        private void ValidateClass_In_Semester_Select()
+        {
+            if (string.IsNullOrEmpty(Class_In_Semester))
+            {
+                Class_Semester_BorderBrush = new SolidColorBrush(Colors.Red);  // Set red border on empty
+            }
+            else
+            {
+                Class_Semester_BorderBrush = new SolidColorBrush(Colors.Green); // Set green border on valid
+            }
+        }
+
+        //Insert
+        public void SaveClassInformationToDatabase()
+        {
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            var UpdateClasses = Classes_Info.FirstOrDefault(s => s.Class_ID == Class_ID);
+            if (UpdateClasses != null)
+            {
+                UpdateClasses.Class_ID = Class_ID;
+                UpdateClasses.Class_Name = Class_Name;
+                UpdateClasses.Class_In_Skill = Class_In_Skill;
+                UpdateClasses.Class_In_Study_Year = Class_In_Study_Year;
+                UpdateClasses.Class_In_Level = Class_In_Level;
+                UpdateClasses.Class_In_Student_Year = Class_In_Student_Year;
+                UpdateClasses.Class_In_Semester = Class_In_Semester;
+                UpdateClasses.Class_In_Generation = Class_In_Generation;
+                UpdateClasses.Class_In_Study_Timeshift = Class_In_Study_Timeshift;
+                UpdateClasses.Class_In_Study_Type = Class_In_Study_Type;
+                Debug.WriteLine("Update Mode.");
+
+                bool success = dbConnection.Update_Classes_Information(UpdateClasses);
+
+                if (success)
+                {
+
+                    ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " បានធ្វើបច្ចុប្បន្នភាពជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+
+                }
+                else
+                {
+                    ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " ធ្វើបច្ចុប្បន្នភាពបរាជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+
+            }
+            else   
+            {
+                Student_Info classes_info = new Student_Info()
+                {
+                    No_Class = this.No_Class, //No Auto
+                    Class_ID = this.Class_ID, //(Auto)
+                    Class_Name = this.Class_Name,
+                    Class_In_Skill = this.Class_In_Skill_Select.Stu_EducationSubjects,
+                    Class_In_Study_Year = this.Class_In_Study_Year_Select.Stu_StudyYear,
+                    Class_In_Level = this.Class_In_Level_Select.Stu_EducationLevels,
+                    Class_In_Student_Year = this.Class_In_Student_Year,
+                    Class_In_Semester = this.Class_In_Semester,
+                    Class_In_Generation = this.Class_In_Generation,
+                    Class_In_Study_Timeshift = this.Class_In_Study_Timeshift_Select.Stu_StudyTimeShift,
+                    Class_In_Study_Type = this.Class_In_Study_Type_Select.Stu_EducationType
+                };
+                bool success = dbConnection.Insert_Class_Information(classes_info);
+
+                if (success)
+                {
+
+                    ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " បានរក្សាទុកជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+
+                }
+                else
+                {
+                    ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " រក្សាទុកបរាជ៏យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                }
+            }
+            
+        }
+
+        public async Task SubmitAsync_Class()
+        { 
+           
+            //ValidateClass_ID();
+            ValidateClass_Name();
+            ValidateClass_In_Skill_Select();
+            ValidateClass_In_Study_Year_Select();
+            ValidateClass_In_Student_Year();
+            ValidateClass_In_Level_Select();
+            ValidateClass_In_Semester_Select();
+            ValidateClass_In_Generation();
+            ValidateClass_In_Study_Timeshift_Select();
+            ValidateClass_In_Study_Type_Select();
+
+            //if (string.IsNullOrEmpty(Class_ID))
+            //{
+            //    ErrorMessage = "ID ថ្នាក់រៀន ត្រូវតែបំពេញ  !";
+            //    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+            //    MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+            //    return;
+            //}
+            if (Class_In_Study_Year_Select == null)
+            {
+                ErrorMessage = "ឆ្នាំសិក្សា ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (Class_In_Skill_Select == null)
+            {
+                ErrorMessage = "ជំនាញសិក្សា ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            
+            if(Class_In_Level_Select == null)
+            {
+                ErrorMessage = "កម្រិតសិក្សា ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_In_Student_Year))
+            {
+                ErrorMessage = "ឆ្នាំទី ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_In_Semester))
+            {
+                ErrorMessage = "ឆមាស ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_In_Generation))
+            {
+                ErrorMessage = "ជំនាន់ទី ត្រូវតែបំពេញ  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (Class_In_Study_Timeshift_Select == null)
+            {
+                ErrorMessage = "វេនសិក្សា ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (Class_In_Study_Type_Select == null)
+            {
+                ErrorMessage = "ប្រភេទសិក្សា ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_Name))
+            {
+                ErrorMessage = "ឈ្មោះថ្នាក់រៀន ត្រូវតែបំពេញ  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            // Clear any previous error message
+            ErrorMessage = string.Empty;
+            MessageColor = null;
+
+            Debug.WriteLine($"No: {No_Class}");
+            Debug.WriteLine($"ID: {Class_ID}");
+            Debug.WriteLine($"Name: {Class_Name}");
+            Debug.WriteLine($"Skill: {Class_In_Skill}");
+            Debug.WriteLine($"Year: {Class_In_Study_Year}");
+            Debug.WriteLine($"Level:{Class_In_Level}");
+            Debug.WriteLine($"StudentYear: {Class_In_Student_Year}");
+            Debug.WriteLine($"Semester: {Class_In_Semester}");
+            Debug.WriteLine($"Generation: {Class_In_Generation}");
+            Debug.WriteLine($"ShiftTime: {Class_In_Study_Timeshift}");
+            Debug.WriteLine($"Study Type: {Class_In_Study_Type}");
+
+            //Check Class Infomation Before Insert
+            //var class_check_info = await _dbConnection.GetClasses_Check_Info(Class_Name, Class_In_Skill, Class_In_Study_Year, Class_In_Level, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Timeshift, Class_In_Study_Type);
+            SaveClassInformationToDatabase();
+            _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+
+
+            await Task.CompletedTask;
+        }
+
+        
+        //Clear
+        public async Task ClearAsync_Class()
+        {
+            //Clear Class Study Year
+            Class_In_Study_Year_Select = EducationStudyYear_Combobox
+                .FirstOrDefault(education_studyyear => education_studyyear.Stu_StudyYear == null);
+            OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+
+            //Clear Class Subject
+            Class_In_Skill_Select = EducationSubjectSkill_Combobox
+                .FirstOrDefault(education_subject => education_subject.Stu_EducationSubjects == null);
+            OnPropertyChanged(nameof(Class_In_Skill_Select));
+
+            //Class Level
+            Class_In_Level_Select = EducationsLevel_Combobox
+                .FirstOrDefault(education_level => education_level.Stu_EducationLevels == null);
+            OnPropertyChanged(nameof(Class_In_Level_Select));
+
+            //Class Student Year
+            Class_In_Student_Year = null;
+
+            //Class Semester
+            Class_In_Semester = null;
+
+            //Class Generation
+            Class_In_Generation = null;
+
+            //Class TimeShift
+            Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+                .FirstOrDefault(education_timeshift => education_timeshift.Stu_StudyTimeShift == null);
+            OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+            //Class StudyType
+            Class_In_Study_Type_Select = EducationStudyType_Combobox
+                .FirstOrDefault(education_type => education_type.Stu_EducationType == null);
+            OnPropertyChanged(nameof(Class_In_Study_Type_Select));
+
+            //Class Name
+            Class_Name = null;
+
+            //Class ID
+            Class_ID = null;
+            OnPropertyChanged(nameof(Class_ID));
+
+            if(string.IsNullOrEmpty(Class_ID))
+            {
+                IsInsertEnabled = true;
+                IsUpdateEnabled = false;
+            }
+            else
+            {
+                IsInsertEnabled = false;
+                IsUpdateEnabled = true;
+            }
+
+            
+            await Task.CompletedTask;
+        }
+
+        //Load Class to ListView
+        //Search_Class_Search_Name_Generation
+        private string _Search_Class_Search_Name_Generation;
+        public string Search_Class_Search_Name_Generation
+        {
+            get => _Search_Class_Search_Name_Generation;
+            set
+            {
+                if (_Search_Class_Search_Name_Generation != value)
+                {
+                    _Search_Class_Search_Name_Generation = value;
+                    OnPropertyChanged(nameof(Search_Class_Search_Name_Generation));
+                    Debug.WriteLine("Property changed: Search_Class_Search_Name_Generation = " + value);
+                    OnSearchTextChanged_ClassName_Generation(_Search_Class_Search_Name_Generation);
+                }
+            }
+        }
+        //Search By ID, Name
+        private async void OnSearchTextChanged_ClassName_Generation(string newText_Name_Generation)
+        {
+            Debug.WriteLine($"Search Name_Generation Insert Mode: {newText_Name_Generation}");
+            await LoadClasstoListViews(newText_Name_Generation);
+        }
+
+        //Load Class
+        public async Task LoadClasstoListViews(string newText_Name_Generation)
+        {
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var classList = _dbConnection.GetClass_Info(CurrentPage, _classSize, newText_Name_Generation);
+                // Clear the existing list to prepare for the new page data
+                Classes_Info.Clear();
+                Debug.WriteLine("Loading class for page: " + CurrentPage_Class);
+
+                
+                foreach (var class_info in classList)
+                {
+                    Classes_Info.Add(class_info);
+                }
+
+                Classes_Info = new ObservableCollection<Student_Info>(classList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+            await Task.CompletedTask;
+
+        }
+
+        //Fetch Class Info
+        public async Task FetchClassInfo(string newText_Name_Generation)
+        {
+            if (string.IsNullOrEmpty(newText_Name_Generation))
+            {
+                var classList = _dbConnection.GetClass_Info(CurrentPage_Class, _classSize, newText_Name_Generation);
+                Classes_Info.Clear();
+                foreach (var class_info in classList)
+                {
+                    Classes_Info.Add(class_info);
+                }
+                return;
+            }
+
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                //
+                var classList = _dbConnection.GetClass_Info(CurrentPage_Class, _classSize, newText_Name_Generation);
+                // Clear the existing list to prepare for the new page data
+                Classes_Info.Clear();
+                Debug.WriteLine("Loading classes for page: " + CurrentPage_Class);
+
+                // Iterate over the studentsList returned by the database and add them to the ObservableCollection
+                foreach (var class_info in classList)
+                {
+                    Classes_Info.Add(class_info);
+                }
+
+                Classes_Info = new ObservableCollection<Student_Info>(classList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand_Class as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand_Class as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Next Page Class
+        private async void NextPage_Class()
+        {
+            Debug.WriteLine("Next Page Class Command Executed");
+            if (CurrentPage_Class < TotalPage_Class)
+            {
+                CurrentPage_Class++;
+                var searchTask = Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type);
+                var fetchTask = FetchClassInfo(Search_Class_Search_Name_Generation);
+                
+                await Task.WhenAll(fetchTask, searchTask);
+                OnPageChanged();
+                Debug.WriteLine($"Current Page Class Check: {CurrentPage_Class}");
+            }
+           
+        }
+        //Back Page Class
+        private async void PreviousPage_Class()
+        {
+            if (CurrentPage_Class > 1)
+            {
+                CurrentPage_Class--;
+                var fetchTask = FetchClassInfo(Search_Class_Search_Name_Generation);
+                var searchTask = Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type);
+
+                await Task.WhenAll(fetchTask, searchTask);
+                Debug.WriteLine($"Current Class Page: {CurrentPage_Class}");
+            }
+            OnPageChanged();
+
+        }
+
+        //Class NextPage and BackPage
+        private bool CanGoPreviousPage_Class()
+        {
+            Debug.WriteLine($"CanGoPreviousPage_Class Evaluated: {CurrentPage_Class > 1}");
+            return CurrentPage_Class > 1;
+        }
+
+        private bool CanGoNextPage_Class()
+        {
+            Debug.WriteLine($"CanGoNextPage_Class Evaluated: {CurrentPage_Class < TotalPage_Class}");
+            return CurrentPage_Class < TotalPage_Class;
+        }
+
+        //Search by button click
+        private string _search_class_in_skill;
+        public string Search_Class_In_Skill
+        {
+            get => _search_class_in_skill;
+            set
+            {
+                _search_class_in_skill = value;
+                OnPropertyChanged(nameof(Search_Class_In_Skill));
+            }
+        }
+        private Student_Info _Search_Class_In_Skill_Select;
+        public Student_Info Search_Class_In_Skill_Select
+        {
+            get { return _Search_Class_In_Skill_Select; }
+            set
+            {
+                if(_Search_Class_In_Skill_Select  != value)
+                {
+                    _Search_Class_In_Skill_Select = value;
+                    OnPropertyChanged(nameof(Search_Class_In_Skill_Select));
+                    if(Search_Class_In_Skill_Select == null)
+                    {
+                        Search_Class_In_Skill = null;
+                    }
+                    else
+                    {
+                        Search_Class_In_Skill = Search_Class_In_Skill_Select.Stu_EducationSubjects;
+                    }
+                }
+                Debug.WriteLine($"Search_Class_In_Skill: {Search_Class_In_Skill}");
+            }
+        }
+        private string _search_class_in_level;
+        public string Search_Class_In_Level
+        {
+            get => _search_class_in_level;
+            set
+            {
+                _search_class_in_level = value;
+                OnPropertyChanged(nameof(Search_Class_In_Level));
+            }
+        }
+        private Student_Info _Search_Class_In_Level_Select;
+        public Student_Info Search_Class_In_Level_Select
+        {
+            get { return _Search_Class_In_Level_Select; }
+            set
+            {
+                if(_Search_Class_In_Level_Select != value)
+                {
+                    _Search_Class_In_Level_Select = value;
+                    OnPropertyChanged(nameof(Search_Class_In_Level_Select));
+                    if(Search_Class_In_Level_Select==null)
+                    {
+                        Search_Class_In_Level = null;
+                    }
+                    else
+                    {
+                        Search_Class_In_Level = Search_Class_In_Level_Select.Stu_EducationLevels;
+                    }
+                }
+                Debug.WriteLine($"Search_Class_In_Level: {Search_Class_In_Level}");
+            }
+        }
+        private string _search_class_in_study_year;
+        public string Search_Class_In_Study_Year
+        {
+            get => _search_class_in_study_year;
+            set
+            {
+                _search_class_in_study_year = value;
+                OnPropertyChanged(nameof(Search_Class_In_Study_Year));
+            }
+        }
+        private Student_Info _Search_Class_In_Study_Year_Select;
+        public Student_Info Search_Class_In_Study_Year_Select
+        {
+            get { return _Search_Class_In_Study_Year_Select; }
+            set
+            {
+                if (_Search_Class_In_Study_Year_Select != value)
+                {
+                    _Search_Class_In_Study_Year_Select = value;
+                    OnPropertyChanged(nameof(Search_Class_In_Study_Year_Select));
+
+                    if (Search_Class_In_Study_Year_Select == null)
+                    {
+                        Search_Class_In_Study_Year = null;
+                    }
+                    else
+                    {
+                        Search_Class_In_Study_Year = Search_Class_In_Study_Year_Select.Stu_StudyYear;
+                    }
+                }
+                Debug.WriteLine($"Search_Class_In_Study_Year: {Search_Class_In_Study_Year}");
+            }
+        }
+        private string _search_class_in_student_year;
+        public string Search_Class_In_Student_Year
+        {
+            get => _search_class_in_student_year;
+            set
+            {
+                _search_class_in_student_year = value;
+                OnPropertyChanged(nameof(Search_Class_In_Student_Year));
+            }
+        }
+        private string _search_class_semester;
+        public string Search_Class_Semester
+        {
+            get => _search_class_semester;
+            set
+            {
+                _search_class_semester = value;
+                OnPropertyChanged(nameof(Search_Class_Semester));
+            }
+        }
+        private string _search_class_in_study_timeshift;
+        public string Search_Class_In_Study_Timeshift
+        {
+            get => _search_class_in_study_timeshift;
+            set
+            {
+                _search_class_in_study_timeshift = value;
+                OnPropertyChanged(nameof(Search_Class_In_Study_Timeshift));
+            }
+        }
+        private Student_Info _Search_Class_In_Study_Timeshift_Select;
+        public Student_Info Search_Class_In_Study_Timeshift_Select
+        {
+            get { return _Search_Class_In_Study_Timeshift_Select; }
+            set
+            {
+                if (_Search_Class_In_Study_Timeshift_Select != value)
+                {
+                    _Search_Class_In_Study_Timeshift_Select = value;
+                    OnPropertyChanged(nameof(Search_Class_In_Study_Timeshift_Select));
+                    if(Search_Class_In_Study_Timeshift_Select==null)
+                    {
+                        Search_Class_In_Study_Timeshift = null;
+                    }
+                    else
+                    {
+                        Search_Class_In_Study_Timeshift = Search_Class_In_Study_Timeshift_Select.Stu_StudyTimeShift;
+                    }
+                }
+                Debug.WriteLine($"Search_Class_In_Study_Timeshift: {Search_Class_In_Study_Timeshift}");
+            }
+        }
+        private string _search_class_in_study_type;
+        public string Search_Class_In_Study_Type
+        {
+            get => _search_class_in_study_type;
+            set
+            {
+                _search_class_in_study_type = value;
+                OnPropertyChanged(nameof(Search_Class_In_Study_Type));
+            }
+        }
+        private Student_Info _Search_Class_In_Study_Type_Select;
+        public Student_Info Search_Class_In_Student_Type_Select
+        {
+            get { return _Search_Class_In_Study_Type_Select; }
+            set
+            {
+                if(_Search_Class_In_Study_Type_Select != value)
+                {
+                    _Search_Class_In_Study_Type_Select = value;
+                    OnPropertyChanged(nameof(Search_Class_In_Student_Type_Select));
+
+                    if(Search_Class_In_Student_Type_Select == null)
+                    {
+                        Search_Class_In_Study_Type = null;
+                    }
+                    else
+                    {
+                        Search_Class_In_Study_Type = Search_Class_In_Student_Type_Select.Stu_EducationType;
+                    }
+                    
+                }
+                Debug.WriteLine($"Search_Class_In_Study_Type: {Search_Class_In_Study_Type}");
+            }
+        }
+
+        //Search 
+        public async Task Search_Class_Information(string Search_Class_In_Study_Year, string Search_Class_In_Skill, string Search_Class_In_Level, string Search_Class_In_Student_Year, string Search_Class_Semester, string Search_Class_In_Study_Timeshift, string Search_Class_In_Study_Type)
+        {
+            Debug.WriteLine($"Search_Class_In_Study_Year: {Search_Class_In_Study_Year}");
+            Debug.WriteLine($"Search_Class_In_Skill: {Search_Class_In_Skill}");
+            Debug.WriteLine($"Search_Class_In_Level: {Search_Class_In_Level}");
+            Debug.WriteLine($"Search_Class_In_Student_Year: {Search_Class_In_Student_Year}");
+            Debug.WriteLine($"Search_Class_Semester: {Search_Class_Semester}");
+            Debug.WriteLine($"Search_Class_In_Study_Timeshift: {Search_Class_In_Study_Timeshift}");
+            Debug.WriteLine($"Search_Class_In_Study_Type: {Search_Class_In_Study_Type}");
+
+            if (string.IsNullOrEmpty(Search_Class_In_Study_Year) && string.IsNullOrEmpty(Search_Class_In_Skill) && string.IsNullOrEmpty(Search_Class_In_Level) && string.IsNullOrEmpty(Search_Class_In_Student_Year) && string.IsNullOrEmpty(Search_Class_Semester) && string.IsNullOrEmpty(Search_Class_In_Study_Timeshift) && string.IsNullOrEmpty(Search_Class_In_Study_Type))
+            {
+                var classesList = _dbConnection.GetClasses_Check_Info_by_Combobox(CurrentPage_Class, _classSize, Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type);
+                Classes_Info.Clear();
+                foreach (var class_info in classesList)
+                {
+                    Classes_Info.Add(class_info);
+                }
+                return;
+            }
+
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                var classesList = _dbConnection.GetClasses_Check_Info_by_Combobox(CurrentPage_Class, _classSize, Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type);
+                Debug.WriteLine("Loading class for page: " + CurrentPage_Class);
+                Classes_Info.Clear();
+                foreach (var class_info in classesList)
+                {
+                    Classes_Info.Add(class_info);
+                }
+
+                Classes_Info = new ObservableCollection<Student_Info>(classesList);
+
+                // Raise CanExecuteChanged to update button states
+                (NextPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+                (PreviousPageCommand_Check as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Multi Selection Class Total
+        private List<Student_Info> _selectedClasses_Edit_Delete = new List<Student_Info>();
+        public List<Student_Info> SelectedClasses_Edit_Delete
+        {
+            get => _selectedClasses_Edit_Delete;
+            set
+            {
+                _selectedClasses_Edit_Delete = value;
+                OnPropertyChanged(nameof(SelectedClasses_Edit_Delete));
+            }
+        }
+        //First Selection
+        private Student_Info _firstSelectedClass;
+        public Student_Info FirstSelectedClass
+        {
+            get => _firstSelectedClass;
+            set
+            {
+                _firstSelectedClass = value;
+                OnPropertyChanged(nameof(FirstSelectedClass));
+            }
+        }
+
+        //Command Edit
+        public ICommand Command_Edit_Class { get; set; }
+        public ICommand Command_Delete_Class { get; set; }
+
+        //Method Edit Class
+        public async Task Edit_Class()
+        {
+            if(_firstSelectedClass == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Debug.WriteLine($"First Selection: {FirstSelectedClass.Class_Name}");
+
+            //Class Study Year
+            Class_In_Study_Year_Select = EducationStudyYear_Combobox
+                .FirstOrDefault(education_studyyear => education_studyyear.Stu_StudyYear == FirstSelectedClass.Class_In_Study_Year);
+            OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+
+            //Class Subject
+            Class_In_Skill_Select = EducationSubjectSkill_Combobox
+                .FirstOrDefault(education_subject => education_subject.Stu_EducationSubjects == FirstSelectedClass.Class_In_Skill);
+            OnPropertyChanged(nameof(Class_In_Skill_Select));
+
+            //Class Level
+            Class_In_Level_Select = EducationsLevel_Combobox
+                .FirstOrDefault(education_level => education_level.Stu_EducationLevels == FirstSelectedClass.Class_In_Level);
+            OnPropertyChanged(nameof(Class_In_Level_Select));
+
+            //Class Student Year
+            Class_In_Student_Year = FirstSelectedClass.Class_In_Student_Year;
+
+            //Class Semester
+            Class_In_Semester = FirstSelectedClass.Class_In_Semester;
+
+            //Class Generation
+            Class_In_Generation = FirstSelectedClass.Class_In_Generation;
+
+            //Class TimeShift
+            Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+                .FirstOrDefault(education_timeshift => education_timeshift.Stu_StudyTimeShift == FirstSelectedClass.Class_In_Study_Timeshift);
+            OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+            //Class StudyType
+            Class_In_Study_Type_Select = EducationStudyType_Combobox
+                .FirstOrDefault(education_type => education_type.Stu_EducationType == FirstSelectedClass.Class_In_Study_Type);
+            OnPropertyChanged(nameof(Class_In_Study_Type_Select));
+
+            //Class Name
+            Class_Name = FirstSelectedClass.Class_Name;
+
+            //Class ID
+            Class_ID = FirstSelectedClass.Class_ID;
+
+            ErrorMessage = "";
+            ErrorImageSource = null;
+            MessageColor = new SolidColorBrush(Colors.Transparent);
+
+            OnPropertyChanged(nameof(FirstSelectedClass));
+            if (_firstSelectedClass != null)
+            {
+                // Disable Insert and Enable Update
+                IsInsertEnabled = false;
+                IsUpdateEnabled = true;
+            }
+            else
+            {
+                // Enable Insert and Disable Update
+                IsInsertEnabled = true;
+                IsUpdateEnabled = false;
+            }
+            await Task.CompletedTask;
+        }
+
+        //Method Delete Class
+        public async Task Delete_Class()
+        {
+            if(SelectedClasses_Edit_Delete==null || !SelectedClasses_Edit_Delete.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            foreach (var classes in SelectedClasses_Edit_Delete)
+            {
+                var classIds = SelectedClasses_Edit_Delete.Select(c => c.Class_ID).ToList();
+               _dbConnection.Delete_Class_Info(classIds);
+
+                Debug.WriteLine($"Deleted Class Name: {classes.Class_Name}");
+            }
+            _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+            ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " បានលុបចេញជោគជ័យ !";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+
+            await Task.CompletedTask;
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-
-
-    }
-
-    
+    }   
 }

@@ -17,6 +17,7 @@ using RPISVR_Managements.ViewModel;
 using Microsoft.UI.Text;
 using System.ComponentModel;
 using System.Diagnostics;
+using RPISVR_Managements.Student_Informations.Insert_Student_Informations;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,7 +29,7 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
     {
         public StudentViewModel ViewModel { get; set; }
         private DatabaseConnection _ConnectionString;
-
+        public string InsertMode { get; set; }
         public Student_Card_Report()
         {
             this.InitializeComponent();
@@ -39,7 +40,24 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
             // Subscribe to ErrorMessage changes from the ViewModel
             var viewModel = (StudentViewModel)this.DataContext;
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
-            
+
+            App.SharedViewModel.SetEditMode(true);
+            // Retrieve the StudentID from App.xaml.cs
+            InsertMode = (Application.Current as App).StudentID;
+            if (InsertMode == null)
+            {
+                ISI_BackButton_to_Insert_Mode.Visibility = Visibility.Collapsed;
+            }
+            if(InsertMode == "3")
+            {
+                ISI_BackButton_to_Insert_Mode.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                Debug.WriteLine("Can reviece: " + InsertMode);
+                ISI_BackButton_to_Insert_Mode.Visibility = Visibility.Visible;
+                //Search_ByID_Page2.Text = StudentID;
+            }
 
             //Connect Database
             _ConnectionString = new DatabaseConnection();
@@ -160,6 +178,7 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
             var listView_stu_card = sender as ListView;
             var selectedStudents_Card_CV = listView_stu_card.SelectedItems.Cast<Student_Info>().ToList();
 
+
             // Debug: Check selected items
             Debug.WriteLine($"Selected Items Count: {selectedStudents_Card_CV.Count}");
             // Update the ViewModel with the selected items
@@ -167,6 +186,50 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
             {
                 viewModel.Selection_Student_Card = selectedStudents_Card_CV;
             }
+
+
+        }
+        
+
+
+        private void show_student_card(object sender, RoutedEventArgs e)
+        {    
+            if(DataContext is StudentViewModel viewModel)
+            {
+                //Check is null 
+                if(viewModel.Selection_Student_Card != null || viewModel.Selection_Student_Card.Any())
+                {
+                    Debug.WriteLine("Student selection found. Showing Student_Card.");
+                    Student_Card.Visibility = Visibility.Visible;
+                    Grid.SetColumn(Student_Button_Search, 1);
+                    Grid.SetRow(Student_Button_Search, 1);
+                }
+                else
+                {
+                    Grid.SetColumn(Student_Button_Search, 0);
+                    Grid.SetRow(Student_Button_Search, 1);
+                    Student_Card.Visibility = Visibility.Collapsed;
+                    Debug.WriteLine("Please select at least one student to view the card.", "No Selection");
+                }
+            }
+            else
+            {
+                Debug.WriteLine("DataContext is not a StudentViewModel.");
+            }
+        }
+
+        private void Close_preview(object sender, RoutedEventArgs e)
+        {
+            Grid.SetColumn(Student_Button_Search, 0);
+            Grid.SetRow(Student_Button_Search, 1);
+            Student_Card.Visibility = Visibility.Collapsed;
+            Debug.WriteLine("Please select at least one student to view the card.", "No Selection");
+        }
+
+        private void btn_click_to_insert_mode(object sender, RoutedEventArgs e)
+        {
+            
+            Frame.Navigate(typeof(Insert_Student_Info));
         }
     }
 }

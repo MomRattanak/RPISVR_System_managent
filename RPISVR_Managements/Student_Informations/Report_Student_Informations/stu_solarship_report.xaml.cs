@@ -17,6 +17,7 @@ using RPISVR_Managements.ViewModel;
 using Microsoft.UI.Text;
 using System.ComponentModel;
 using System.Diagnostics;
+using RPISVR_Managements.Student_Informations.Insert_Student_Informations;
 
 
 namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
@@ -26,6 +27,8 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
     {
         public StudentViewModel ViewModel { get; set; }
         private DatabaseConnection _ConnectionString;
+        public string InsertMode { get; set; }
+
         public stu_solarship_report()
         {
             this.InitializeComponent();
@@ -39,6 +42,28 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
             //Connect Database
             _ConnectionString = new DatabaseConnection();
             string connectionString = _ConnectionString._connectionString;
+
+            App.SharedViewModel.SetEditMode(true);
+            // Retrieve the StudentID from App.xaml.cs
+            InsertMode = (Application.Current as App).StudentID;
+            if (InsertMode == null)
+            {
+                btn_back_Insert_Mode.Visibility = Visibility.Collapsed;
+            }
+            else if(InsertMode == "3")
+            {
+                btn_back_Insert_Mode.Visibility = Visibility.Collapsed;
+            }
+            else if(InsertMode == "2")
+            {
+                Debug.WriteLine("Can reviece: " + InsertMode);
+                btn_back_Insert_Mode.Visibility = Visibility.Visible;
+                //Search_ByID_Page2.Text = StudentID;
+            }
+            else
+            {
+                btn_back_Insert_Mode.Visibility = Visibility.Collapsed;
+            }
         }
 
         private async void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -149,6 +174,11 @@ namespace RPISVR_Managements.Student_Informations.Report_Student_Informations
             Stu_TypeStudy_Search.SelectedItem = null;
             Stu_StudyYear_Search.SelectedItem = null;
             Stu_EducationLevels_Search.SelectedItem = null;
+        }
+
+        private void btn_back_insert_mode(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Insert_Student_Info));
         }
     }
 }

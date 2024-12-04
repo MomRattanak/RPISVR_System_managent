@@ -461,6 +461,7 @@
                                                 Content="x"
                                                 Margin="0,20,0,0"  
                                                 Foreground="Red"
+                                                RelativePanel.RightOf="Stu_EducationLevels_Search"
                                                 Click="clear_edu_level"/>
                                         <ComboBox x:Name="Stu_Subject_Search"
                                                     Header="ជំនាញ"    
@@ -563,8 +564,6 @@
                                                        IsActive="{Binding IsLoading}"
                                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-
                                     </StackPanel>
                                 </StackPanel>
 
@@ -722,7 +721,7 @@
                                 <Button x:Name="btn_report_stu_info" Command="{Binding GeneratePdfCommand}" Width="120" Margin="10,0,0,0" RelativePanel.RightOf="btn_delete_stu_check">
                                     <Button.Content>
                                         <StackPanel>
-                                            <TextBlock Text="របាយការណ៍"
+                                            <TextBlock Text="ប្រវត្ថិរូប"
                                                        Style="{StaticResource Font_KH_Body}"
                                                        ToolTipService.ToolTip="សម្រាប់បង្ហាញពីប្រវត្ថិរូបសង្ខេបរបស់សិស្សនិស្សិត បន្ទាប់ពីបានជ្រើសរើសរួច"/>
                                             <Image Source="/Assets/icons8-report-50.png" Width="20" Height="20"/>
