@@ -90,7 +90,8 @@ namespace RPISVR_Managements.ViewModel
             Search_Class_Info = new RelayCommand(async () => await Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type));
             Command_Edit_Class = new RelayCommand(async () => await Edit_Class());
             Command_Delete_Class = new RelayCommand(async () => await Delete_Class());
-
+            Command_Edit_Class_Prepare = new RelayCommand(async () => await Edit_Class_Prepare());
+            Clear_Class_Update = new RelayCommand(async () => await Clear_Class_UpdateAsync());
 
             //Student
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
@@ -112,6 +113,9 @@ namespace RPISVR_Managements.ViewModel
             DisplayedStudentCards = new ObservableCollection<Student_Info>();
             //Classs
             Classes_Info = new ObservableCollection<Student_Info>();
+            //Prepare Edit Class 
+            Class_Info_Edit_Selected = new ObservableCollection<Student_Info>();    
+
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
             NextPageCommand = new RelayCommand(NextPage, CanGoNextPage);
@@ -977,6 +981,17 @@ namespace RPISVR_Managements.ViewModel
             {
                 _classes = value;
                 OnPropertyChanged(nameof(Classes_Info));
+            }
+        }
+        //Edit Prepare Class
+        private ObservableCollection<Student_Info> _seleceted_class_edit;
+        public ObservableCollection<Student_Info> Class_Info_Edit_Selected
+        {
+            get => _seleceted_class_edit;
+            set
+            {
+                _seleceted_class_edit = value;
+                OnPropertyChanged(nameof(Class_Info_Edit_Selected));
             }
         }
         //Search ID_Name in Insert_Student
@@ -5299,6 +5314,7 @@ namespace RPISVR_Managements.ViewModel
                     ErrorMessage = "ថ្នាក់ឈ្មោះ " + Class_Name + " ធ្វើបច្ចុប្បន្នភាពបរាជ័យ !";
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
                     MessageColor = new SolidColorBrush(Colors.Red);
+                    
                 }
 
             }
@@ -5442,8 +5458,19 @@ namespace RPISVR_Managements.ViewModel
             //Check Class Infomation Before Insert
             //var class_check_info = await _dbConnection.GetClasses_Check_Info(Class_Name, Class_In_Skill, Class_In_Study_Year, Class_In_Level, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Timeshift, Class_In_Study_Type);
             SaveClassInformationToDatabase();
+            
             _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+            Clear_Class_Edit();
 
+            // Remove the selected item from the collection
+            if (Class_Info_Edit_Selected.Contains(SelectedClass_Edition))
+            {
+                Class_Info_Edit_Selected.Remove(SelectedClass_Edition);
+            }
+            OnPropertyChanged(nameof(Class_Info_Edit_Selected));
+            // Clear the selection
+            SelectedClass_Edition = null;
+            Debug.WriteLine("Clear Class in ListView Success.");
 
             await Task.CompletedTask;
         }
@@ -5504,7 +5531,14 @@ namespace RPISVR_Managements.ViewModel
                 IsUpdateEnabled = true;
             }
 
-            
+            if (SelectedClass_Edition == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
             await Task.CompletedTask;
         }
 
@@ -5904,7 +5938,18 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SelectedClasses_Edit_Delete));
             }
         }
-        //First Selection
+        //Multi Select Class Prepare
+        private List<Student_Info> _selectedClasses_Prepare_All = new List<Student_Info>();
+        public List<Student_Info> SelectedClasses_Prepare_All
+        {
+            get => _selectedClasses_Prepare_All;
+            set
+            {
+                _selectedClasses_Prepare_All = value;
+                OnPropertyChanged(nameof(SelectedClasses_Prepare_All));
+            }
+        }
+        //First Selection Insert Class
         private Student_Info _firstSelectedClass;
         public Student_Info FirstSelectedClass
         {
@@ -5913,6 +5958,17 @@ namespace RPISVR_Managements.ViewModel
             {
                 _firstSelectedClass = value;
                 OnPropertyChanged(nameof(FirstSelectedClass));
+            }
+        }
+        //First Selection Prepare Class
+        private Student_Info _firstSelectedClasss_Prepare;
+        public Student_Info FirstSelectedClasss_Preparing
+        {
+            get => _firstSelectedClasss_Prepare;
+            set
+            {
+                _firstSelectedClasss_Prepare = value;
+                OnPropertyChanged(nameof(FirstSelectedClasss_Preparing));
             }
         }
 
@@ -6017,6 +6073,204 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask;
         }
 
+        //Command Prepare Class
+        public ICommand Command_Edit_Class_Prepare { get; set; }
+        public ICommand Clear_Class_Update { get; set; }
+
+        
+        public async Task Edit_Class_Prepare()
+        {
+            if(SelectedClasses_Prepare_All==null || !SelectedClasses_Prepare_All.Any())
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine("Selected");
+                Class_Info_Edit_Selected.Clear();
+                foreach (var classes_edit in SelectedClasses_Prepare_All)
+                {
+                   
+                    Class_Info_Edit_Selected.Add(new Student_Info
+                    {
+                        No_Class = classes_edit.No_Class,
+                        Class_ID = classes_edit.Class_ID,
+                        Class_Name = classes_edit.Class_Name,
+                        Class_In_Study_Year = classes_edit.Class_In_Study_Year,
+                        Class_In_Skill = classes_edit.Class_In_Skill,
+                        Class_In_Level = classes_edit.Class_In_Level,
+                        Class_In_Student_Year = classes_edit.Class_In_Student_Year,
+                        Class_In_Semester = classes_edit.Class_In_Semester,
+                        Class_In_Generation = classes_edit.Class_In_Generation,
+                        Class_In_Study_Timeshift = classes_edit.Class_In_Study_Timeshift,
+                        Class_In_Study_Type = classes_edit.Class_In_Study_Type
+                    });
+                }
+            }
+            
+            await Task.CompletedTask;
+        }
+
+
+        private Student_Info _selectedClass_Edit;
+        public Student_Info SelectedClass_Edition
+        {
+            get => _selectedClass_Edit;
+            set
+            {
+               _selectedClass_Edit = value;
+                OnPropertyChanged();
+
+                if (_selectedClass_Edit != null)
+                {
+                    //Update_Study_Year_Edit
+                    Class_In_Study_Year_Select = EducationStudyYear_Combobox
+                        .FirstOrDefault(educatioin_studyyear_edit => educatioin_studyyear_edit.Stu_StudyYear == _selectedClass_Edit.Class_In_Study_Year);
+                    OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+
+                    //Update_Subject_Edit
+                    Class_In_Skill_Select = EducationSubjectSkill_Combobox
+                        .FirstOrDefault(education_subject_edit => education_subject_edit.Stu_EducationSubjects == _selectedClass_Edit.Class_In_Skill);
+                    OnPropertyChanged(nameof(Class_In_Skill_Select));
+
+                    //Update_Level_Edit
+                    Class_In_Level_Select = EducationsLevel_Combobox
+                        .FirstOrDefault(education_level_edit => education_level_edit.Stu_EducationLevels == _selectedClass_Edit.Class_In_Level);
+                    OnPropertyChanged(nameof(Class_In_Level_Select));
+
+                    //Update_Student_Year_Edit
+                    Class_In_Student_Year = _selectedClass_Edit.Class_In_Student_Year;
+                    OnPropertyChanged(Class_In_Student_Year);
+
+                    //Updare_Semester_Edit
+                    Class_In_Semester = _selectedClass_Edit.Class_In_Semester;
+                    OnPropertyChanged(Class_In_Semester);
+
+                    //Update_Generation_Edit
+                    Class_In_Generation = _selectedClass_Edit.Class_In_Generation;
+                    OnPropertyChanged(Class_In_Generation);
+
+                    //Update_StudyTime_Edit
+                    Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+                        .FirstOrDefault(education_studyshift_edit => education_studyshift_edit.Stu_StudyTimeShift == _selectedClass_Edit.Class_In_Study_Timeshift);
+                    OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+                    //Update_TypeStudy_Edit
+                    Class_In_Study_Type_Select = EducationStudyType_Combobox
+                        .FirstOrDefault(education_study_type_edit => education_study_type_edit.Stu_EducationType == _selectedClass_Edit.Class_In_Study_Type);
+                    OnPropertyChanged(nameof(Class_In_Study_Type_Select));
+
+                    //Update_Class_Name_Edit
+                    Class_Name = _selectedClass_Edit.Class_Name;
+
+                    //Update_Class_ID_Edit
+                    Class_ID = _selectedClass_Edit.Class_ID;
+                }
+                OnPropertyChanged(nameof(SelectedClass_Edition));
+                if (_selectedClass_Edit != null)
+                {
+                    // Disable Insert and Enable Update
+                    IsInsertEnabled = false;
+                    IsUpdateEnabled = true;
+                }
+                else
+                {
+                    // Enable Insert and Disable Update
+                    IsInsertEnabled = true;
+                    IsUpdateEnabled = false;
+                    
+                }
+            }
+        }
+
+        private void Clear_Class_Edit()
+        {
+            
+            //Clear Class Study Year
+            Class_In_Study_Year_Select = EducationStudyYear_Combobox
+                .FirstOrDefault(education_studyyear => education_studyyear.Stu_StudyYear == null);
+            OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+
+            //Clear Class Subject
+            Class_In_Skill_Select = EducationSubjectSkill_Combobox
+                .FirstOrDefault(education_subject => education_subject.Stu_EducationSubjects == null);
+            OnPropertyChanged(nameof(Class_In_Skill_Select));
+
+            //Class Level
+            Class_In_Level_Select = EducationsLevel_Combobox
+                .FirstOrDefault(education_level => education_level.Stu_EducationLevels == null);
+            OnPropertyChanged(nameof(Class_In_Level_Select));
+
+            //Class Student Year
+            Class_In_Student_Year = null;
+
+            //Class Semester
+            Class_In_Semester = null;
+
+            //Class Generation
+            Class_In_Generation = null;
+
+            //Class TimeShift
+            Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+                .FirstOrDefault(education_timeshift => education_timeshift.Stu_StudyTimeShift == null);
+            OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+            //Class StudyType
+            Class_In_Study_Type_Select = EducationStudyType_Combobox
+                .FirstOrDefault(education_type => education_type.Stu_EducationType == null);
+            OnPropertyChanged(nameof(Class_In_Study_Type_Select));
+
+            //Class Name
+            Class_Name = null;
+
+            //Class ID
+            Class_ID = null;
+
+            OnPropertyChanged(nameof(Class_ID));
+
+            if (string.IsNullOrEmpty(Class_ID))
+            {
+                IsInsertEnabled = true;
+                IsUpdateEnabled = false;
+            }
+            else
+            {
+                IsInsertEnabled = false;
+                IsUpdateEnabled = true;
+            }
+        }
+
+        //Clear
+        public async Task Clear_Class_UpdateAsync()
+        {
+            if(SelectedClass_Edition==null)
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            // Remove the selected item from the collection
+            if (Class_Info_Edit_Selected.Contains(SelectedClass_Edition))
+            {
+               Class_Info_Edit_Selected.Remove(SelectedClass_Edition);
+            }
+            OnPropertyChanged(nameof(Class_Info_Edit_Selected));
+            // Clear the selection
+            SelectedClass_Edition = null;  
+            Debug.WriteLine("Clear Class in ListView Success.");
+
+            // Provide feedback to the user
+            ErrorMessage = "ថ្នាក់ជ្រើសរើសត្រូវបានដកចេញជោគជ័យ!";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+            await Task.CompletedTask;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

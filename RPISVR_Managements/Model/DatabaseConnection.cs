@@ -554,7 +554,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
 
-                    string query = "UPDATE classes SET class_name = @class_name,class_in_skill = @class_in_skill,class_in_level = @class_in_level,class_in_study_year = @class_in_study_year, class_in_student_year = @class_in_student_year, class_in_semester = @class_in_semester, class_in_study_timeshift = @class_in_study_timeshift, class_in_study_type = @class_in_study_type WHERE class_id = @class_id";
+                    string query = "UPDATE classes SET class_name = @class_name,class_in_skill = @class_in_skill,class_in_level = @class_in_level,class_in_study_year = @class_in_study_year, class_in_student_year = @class_in_student_year, class_in_semester = @class_in_semester, class_in_generation = @class_in_generation, class_in_study_timeshift = @class_in_study_timeshift, class_in_study_type = @class_in_study_type WHERE class_id = @class_id";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -3598,6 +3598,7 @@ namespace RPISVR_Managements.Model
             List<Student_Info> class_info = new List<Student_Info>();
             try
             {
+                string query1 = "SELECT COUNT(*) AS TotalCount FROM classes";
                 int offset = (page - 1) * classSize;
                 string query = "SELECT * FROM classes";
 
@@ -3643,6 +3644,11 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
+                    using (var cmd = new MySqlCommand(query1, connection))
+                    {
+                        No_Classes = Convert.ToInt32(cmd.ExecuteScalar()); // Assign the total count to No_Classes
+                    }
+
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@Search_Study_Year", Search_Study_Year);
@@ -3657,7 +3663,7 @@ namespace RPISVR_Managements.Model
                         cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
                         using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
-                            int No_Classes = 1;
+                            //int No_Classes = 1;
                             while (reader.Read())
                             {
                                 Student_Info classes = new Student_Info
@@ -3674,7 +3680,7 @@ namespace RPISVR_Managements.Model
                                     Class_In_Study_Timeshift = reader.IsDBNull(reader.GetOrdinal("class_in_study_timeshift")) ? string.Empty : reader.GetString("class_in_study_timeshift"),
                                     Class_In_Study_Type = reader.IsDBNull(reader.GetOrdinal("class_in_study_type")) ? string.Empty : reader.GetString("class_in_study_type"),
                                 };
-                                No_Classes++;
+                                No_Classes--;
                                 class_info.Add(classes);
                             }
 

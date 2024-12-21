@@ -169,5 +169,45 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             sender.TabItems.Remove(args.Tab);
 
         }
+
+        private void btn_add_student_to_classes(object sender, RoutedEventArgs e)
+        {
+            TabView_Add_Student_to_Class.Visibility = Visibility.Visible;
+
+            //Add to TabView
+            if(!TabView_Class_Info.TabItems.Contains(TabView_Add_Student_to_Class))
+            {
+                TabView_Class_Info.TabItems.Add(TabView_Add_Student_to_Class);
+            }
+            TabView_Class_Info.SelectedItem = TabView_Add_Student_to_Class;
+        }
+
+        private void PrepareClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var listView = sender as ListView;
+            var selectedItemsClass = listView.SelectedItems.Cast<Student_Info>().ToList();
+            var FirstClassSelectedItem = listView.SelectedItems.Cast<Student_Info>().FirstOrDefault();
+
+            if(DataContext is StudentViewModel viewModel)
+            {
+                viewModel.FirstSelectedClasss_Preparing = FirstClassSelectedItem;
+                viewModel.SelectedClasses_Prepare_All = selectedItemsClass;
+            }
+        }
+
+        private void btn_edit_class_prepare(object sender, RoutedEventArgs e)
+        {
+            TabView_Update_Class.Visibility = Visibility.Visible;
+
+            //Add to TabView
+            if (!TabView_Class_Info.TabItems.Contains(TabView_Update_Class))
+            {
+                TabView_Class_Info.TabItems.Add(TabView_Update_Class);
+            }
+            TabView_Class_Info.SelectedItem = TabView_Update_Class;
+            
+        }
+
+        
     }
 }

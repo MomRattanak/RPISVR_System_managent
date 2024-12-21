@@ -483,7 +483,6 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
-                                        
                                         <TextBlock Text="{Binding No_Class}" Margin="20,0,0,0" Width="40"/>
                                         <TextBlock Text="{Binding Class_Name}" Width="140"/>
                                         <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
