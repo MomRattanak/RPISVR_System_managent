@@ -6,7 +6,10 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using MySql.Data.MySqlClient;
+using RPISVR_Managements.Classroom.Prepare_Classroom;
 using RPISVR_Managements.Model;
 using RPISVR_Managements.ViewModel;
 using System;
@@ -26,6 +29,7 @@ namespace RPISVR_Managements.Classroom.Add_Classroom
     public sealed partial class Add_Classrooms : Page
     {
         public StudentViewModel ViewModel { get; set; }
+        private DatabaseConnection _ConnectionString;
 
         public Add_Classrooms()
         {
@@ -38,6 +42,11 @@ namespace RPISVR_Managements.Classroom.Add_Classroom
             //ErrorMessage
             var viewModel = (StudentViewModel)this.DataContext;
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+            //Connect Database
+            _ConnectionString = new DatabaseConnection();
+            string connectionString = _ConnectionString._connectionString;
+
         }
 
 
@@ -163,6 +172,203 @@ namespace RPISVR_Managements.Classroom.Add_Classroom
             {
                 viewModel.SelectedClasses_Edit_Delete = selectedClasses;
                 viewModel.FirstSelectedClass = firstClassSelectedItem;
+            }
+        }
+
+        private void btn_open_prepare_class(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Prepare_Classroom_S));
+        }
+
+        private async void btn_delete_class_selection(object sender, RoutedEventArgs e)
+        {
+            if(DataContext is StudentViewModel viewModel)
+            {
+                if(viewModel.SelectedClasses_Edit_Delete == null || !viewModel.SelectedClasses_Edit_Delete.Any())
+                {
+                    Debug.WriteLine("No items selected to delete.");
+
+                    //Dailog Message
+                    var dialog = new ContentDialog
+                    {
+                        Title = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Children =
+                                    {
+                                        new Image
+                                        {
+                                            Source = new BitmapImage(new Uri("ms-appx:///Assets//Student_Info_Icon//icons8-information-96.png")), // Path to your image file
+                                            Width = 24,
+                                            Height = 24,
+                                            Margin = new Thickness(0, 0, 8, 0) // Add some space between the icon and the text
+                                        },
+                                        new TextBlock
+                                        {
+                                            Text = " សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន!",
+                                            TextAlignment = TextAlignment.Center,
+                                            FontSize = 16,
+                                            FontFamily = new FontFamily("Khmer OS Battambang"),
+                                            //FontWeight = FontWeights.Bold
+                                        }
+                                     }
+                        },
+                        CloseButtonText = "យល់ព្រម",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.XamlRoot,
+                        RequestedTheme = ElementTheme.Default
+                    };
+                    await dialog.ShowAsync();
+
+                }
+                else
+                {
+                    foreach(var items in viewModel.SelectedClasses_Edit_Delete)
+                    {
+                        Debug.WriteLine($"Selected ID: {items.Class_ID}");
+                    }
+
+                    //Dailog Message YesNo for delete.
+                    var deleteDialog = new ContentDialog
+                    {
+                        Title = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Children =
+                                    {
+                                        new Image
+                                        {
+                                            Source = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png")), // Path to your image file
+                                            Width = 24,
+                                            Height = 24,
+                                            Margin = new Thickness(0, 0, 8, 0) // Add some space between the icon and the text
+                                        },
+                                        new TextBlock
+                                        {
+                                            Text = $"តើអ្នកចង់លុបទិន្នន័យថ្នាក់រៀនទាំងនេះមែនទេ?",
+                                            TextAlignment = TextAlignment.Center,
+                                            FontSize = 16,
+                                            FontFamily = new FontFamily("Khmer OS Battambang"),
+                                            //FontWeight = FontWeights.Bold
+                                        }
+                                     }
+                        },
+                        PrimaryButtonText = "លុប",
+                        CloseButtonText = "ទេ",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.XamlRoot,
+                        RequestedTheme = ElementTheme.Default
+                    };
+
+
+                    //Show the dialog and capture the result
+                    var result = await deleteDialog.ShowAsync();
+
+                    //Check if the user clicked "Yes"(PrimaryButton)
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // Perform the delete action here
+                        DeleteClassItem();
+
+                        // Show confirmation or feedback if needed
+                        var confirmationDialog = new ContentDialog
+                        {
+                            Title = new StackPanel
+                            {
+                                Orientation = Orientation.Horizontal,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Children =
+                                    {
+                                        new Image
+                                        {
+                                            Source = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png")),
+                                            Width = 24,
+                                            Height = 24,
+                                            Margin = new Thickness(0, 0, 8, 0)
+                                        },
+                                        new TextBlock
+                                        {
+                                            Text = $"ថ្នាក់រៀនត្រូវបានលុបដោយជោគជ័យ",
+                                            TextAlignment = TextAlignment.Center,
+                                            FontSize = 16,
+                                            FontFamily = new FontFamily("Khmer OS Battambang"),
+                                            //FontWeight = FontWeights.Bold
+                                        }
+                                     }
+                            },
+                            CloseButtonText = "បិទ",
+                            DefaultButton = ContentDialogButton.Close,
+                            XamlRoot = this.XamlRoot,
+                            RequestedTheme = ElementTheme.Default
+                        };
+                        await confirmationDialog.ShowAsync();
+                        //Frame.Navigate(typeof(Prepare_Classroom_S));
+                    }
+                    
+                }
+            }
+            else
+            {
+                Debug.WriteLine("DataContext is not of type StudentViewModel.");
+            }
+        }
+
+        //Method Delete
+        private async void DeleteClassItem()
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+
+            if(DataContext is StudentViewModel viewModel)
+            {
+                if(viewModel.SelectedClasses_Edit_Delete == null || !viewModel.SelectedClasses_Edit_Delete.Any())
+                {
+                    Debug.WriteLine("No items selected to delete.");
+                    return;
+                }
+
+                try
+                {
+                    using(var connection = new MySqlConnection(connectionString))
+                    {
+                        //Open connection
+                        await connection.OpenAsync();
+
+                        //Delete
+                        foreach(var selectedItems in viewModel.SelectedClasses_Edit_Delete)
+                        {
+                            string deleteQuery = "DELETE FROM classes WHERE class_id = @class_id";
+
+                            using (var command = new MySqlCommand(deleteQuery, connection))
+                            {
+                                command.Parameters.AddWithValue("@class_id", selectedItems.Class_ID);
+
+                                int rowAffected = await command.ExecuteNonQueryAsync();
+                                if (rowAffected > 0)
+                                {
+                                    Debug.WriteLine($"Deleted ID: {selectedItems.Class_ID}");
+                                }
+                                else
+                                {
+                                    Debug.WriteLine($"Fail to deleted class ID: {selectedItems.Class_ID}");
+                                }
+                            }
+                        }
+                        //Refresh Class List
+                        foreach (var selectedItem in viewModel.SelectedClasses_Edit_Delete)
+                        {
+                            viewModel.Classes_Info.Remove(selectedItem);
+                        }
+                        //Clear
+                        viewModel.SelectedClasses_Edit_Delete.Clear();
+                    }
+                    
+                }catch(Exception ex)
+                {
+                    Debug.WriteLine($"Error while deleting classes: {ex.Message}");
+                    return;
+                }
             }
         }
     }
