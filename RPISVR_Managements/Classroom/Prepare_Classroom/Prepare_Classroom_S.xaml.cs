@@ -223,7 +223,15 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
 
         private void btn_add_new_class(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(Add_Classrooms));
+            Tabview_Add_Class.Visibility = Visibility.Visible;
+
+            //Add to TabView
+            if (!TabView_Class_Info.TabItems.Contains(Tabview_Add_Class))
+            {
+                TabView_Class_Info.TabItems.Add(Tabview_Add_Class);
+            }
+            TabView_Class_Info.SelectedItem = Tabview_Add_Class;
+            //Frame.Navigate(typeof(Add_Classrooms));
         }
 
         private async void btn_delete_class_selection(object sender, RoutedEventArgs e)
@@ -352,8 +360,7 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                             XamlRoot = this.XamlRoot,
                             RequestedTheme = ElementTheme.Default
                         };
-                        await confirmationDialog.ShowAsync();
-                        //Frame.Navigate(typeof(Prepare_Classroom_S));
+                        await confirmationDialog.ShowAsync();                
                     }
 
                 }
@@ -419,6 +426,11 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                     return;
                 }
             }
+        }
+
+        private void btn_open_full_screen_add_class(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Add_Classrooms));
         }
     }
 }

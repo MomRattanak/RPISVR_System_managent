@@ -198,7 +198,7 @@
                 <!--Header-->
                 <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
                     <TextBlock Text="លេខរៀង" Margin="50,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                    <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ឆ្នាំសិក្សា" Width="80"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="កម្រិតសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -218,7 +218,7 @@
                             <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
 
                                 <TextBlock Text="{Binding No_Class}" Margin="20,0,0,0" Width="40"/>
-                                <TextBlock Text="{Binding Class_Name}" Width="140"/>
+                                <TextBlock Text="{Binding Class_Name}" Width="160"/>
                                 <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Level}" Width="120" Style="{StaticResource Font_KH_Body}"/>
@@ -774,7 +774,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
 
                                         <TextBlock Text="លេខរៀង" Margin="40,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                        <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ឆ្នាំសិក្សា" Width="90"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="កម្រិតសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -795,7 +795,7 @@
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
                                                             <TextBlock Text="{Binding No_Class}" Margin="20,0,0,0" Width="40"/>
-                                                            <TextBlock Text="{Binding Class_Name}" Width="140"/>
+                                                            <TextBlock Text="{Binding Class_Name}" Width="160"/>
                                                             <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                                             <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
                                                             <TextBlock Text="{Binding Class_In_Level}" Width="120" Style="{StaticResource Font_KH_Body}"/>
@@ -817,6 +817,155 @@
                             </ScrollView>
                         </TabViewItem>
                         
+                        <!--Add Class-->
+                        <TabViewItem x:Name="Tabview_Add_Class" Header="បន្ថែមថ្នាករៀន" Visibility="Collapsed">
+                            <ScrollView>
+                                <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
+                                    <ScrollView x:Name="Scroll_Add" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                                        <StackPanel>
+                                            <RelativePanel>
+                                                <StackPanel x:Name="Choose_Option_Class_Add" Orientation="Horizontal">
+                                                    <ComboBox x:Name="Class_StudyYear_Add"
+                                                            Header="ឆ្នាំសិក្សា"
+                                                            ItemsSource="{Binding EducationStudyYear_Combobox}"
+                                                            DisplayMemberPath="Stu_StudyYear"
+                                                            SelectedValuePath="Stu_StudyYear_ID"
+                                                            Style="{StaticResource Stye_KH_Combobox}"
+                                                            Margin="5"
+                                                            SelectedItem="{Binding Class_In_Study_Year_Select,Mode=TwoWay}"
+                                                            BorderBrush="{Binding Class_In_Study_Year_BorderBrush}">
+                                                    </ComboBox>
+                                                    <ComboBox x:Name="Class_Subject_Add"
+                                                            Header="ជំនាញសិក្សា"    
+                                                            ItemsSource="{Binding EducationSubjectSkill_Combobox}"
+                                                            DisplayMemberPath="Stu_EducationSubjects"
+                                                            SelectedValuePath="Stu_EducationSubject_ID"  
+                                                            Style="{StaticResource Stye_KH_Combobox}"
+                                                            Margin="5,5,5,5"
+                                                            Width="200"
+                                                            SelectedItem="{Binding Class_In_Skill_Select,Mode=TwoWay}"
+                                                            BorderBrush="{Binding Class_In_Skill_BorderBrush}">
+                                                    </ComboBox>
+                                                    <ComboBox x:Name="Class_EducationLevels_Add"
+                                                            Header="កម្រិតសិក្សា"
+                                                            ItemsSource="{Binding EducationsLevel_Combobox}"
+                                                            DisplayMemberPath="Stu_EducationLevels"
+                                                            SelectedValuePath="Stu_EducationLevels_ID"     
+                                                            Style="{StaticResource Stye_KH_Combobox}"
+                                                            Margin="5,5,5,0"
+                                                            Width="240"
+                                                            SelectedItem="{Binding Class_In_Level_Select,Mode=TwoWay}"
+                                                            BorderBrush="{Binding Class_In_Level_Select_BorderBrush}">
+                                                    </ComboBox>
+                                                    <ComboBox x:Name="Class_Student_Year_Add"
+                                                                Header="ឆ្នាំទី" 
+                                                                Style="{StaticResource Stye_KH_Combobox}"
+                                                                Margin="5"
+                                                                SelectedItem="{Binding Class_In_Student_Year,Mode=TwoWay}"
+                                                                BorderBrush="{Binding Class_In_Student_Year_BorderBrush}">
+                                                            <x:String>1</x:String>
+                                                            <x:String>2</x:String>
+                                                            <x:String>3</x:String>
+                                                            <x:String>4</x:String>
+                                                            <x:String>4.5</x:String>
+                                                    </ComboBox>
+                                                    <ComboBox x:Name="Class_Semester_Add"
+                                                              Header="ឆមាស"
+                                                              Style="{StaticResource Stye_KH_Combobox}"
+                                                              Margin="5"
+                                                              SelectedItem="{Binding Class_In_Semester,Mode=TwoWay}"
+                                                              BorderBrush="{Binding Class_Semester_BorderBrush}">
+                                                        <x:String>1</x:String>
+                                                        <x:String>2</x:String>
+                                                    </ComboBox>
+                                                    <NumberBox x:Name="Class_Generation_Add"
+                                                             Header="ជំនាន់ទី"
+                                                             Style="{StaticResource Stye_KH_NumberBox}"
+                                                             Margin="5"
+                                                             BorderBrush="{Binding Class_In_GenerationBorderBrush}"
+                                                             Text="{Binding Class_In_Generation,Mode=TwoWay}"/>
+                                                    <ComboBox x:Name="Class_StudyTime_Add"
+                                                                Header="វេនសិក្សា"
+                                                                ItemsSource="{Binding EducationStudyTimeShift_Combobox}"
+                                                                DisplayMemberPath="Stu_StudyTimeShift"
+                                                                SelectedValuePath="Stu_StudyTimeShift_ID"                                  
+                                                                Style="{StaticResource Stye_KH_Combobox}"
+                                                                Margin="5"
+                                                                SelectedItem="{Binding Class_In_Study_Timeshift_Select,Mode=TwoWay}"
+                                                                BorderBrush="{Binding Class_In_Study_TimeshiftBorderBrush}">
+                                                    </ComboBox>
+                                                    <ComboBox x:Name="Class_TypeStudy_Add"
+                                                            Header="ប្រភេទសិក្សា"
+                                                            ItemsSource="{Binding EducationStudyType_Combobox}"
+                                                            DisplayMemberPath="Stu_EducationType"
+                                                            SelectedValuePath="Stu_EducationType_ID"                                  
+                                                            Style="{StaticResource Stye_KH_Combobox}"
+                                                            Margin="5"
+                                                            SelectedItem="{Binding Class_In_Study_Type_Select,Mode=TwoWay}"
+                                                            BorderBrush="{Binding Class_In_Study_TypeBorderBrush}">
+                                                    </ComboBox>
+                                                    <TextBox x:Name="Class_Name_Add" 
+                                                           Text="{Binding Class_Name, Mode=TwoWay}"
+                                                           Header="ឈ្មោះថ្នាក់" 
+                                                           PlaceholderText="" 
+                                                           Style="{StaticResource Style_KH_TextBox}"
+                                                           BorderBrush="{Binding Class_NameBorderBrush}"/>
+                                                    <TextBox x:Name="Class_ID_Add" 
+                                                               Header="ID ថ្នាក់រៀន" 
+                                                               PlaceholderText="Auto ID"
+                                                               Style="{StaticResource Style_KH_TextBox}"
+                                                               Text="{Binding Class_ID, Mode=TwoWay}"
+                                                               IsReadOnly="True"/>
+                                                </StackPanel>
+                                            </RelativePanel>
+                                        </StackPanel>
+                                    </ScrollView>
+
+                                    <StackPanel x:Name="Button_Add" Orientation="Horizontal" Margin="5,5,15,0" HorizontalAlignment="Right">
+                                        <StackPanel HorizontalAlignment="Left">
+                                            <Image Source="{Binding ErrorImageSource}" Width="30" Height="30" Stretch="Uniform" />
+                                            <TextBlock  Text="{Binding ErrorMessage, Mode=TwoWay}" 
+                                                    Foreground="{Binding MessageColor}" 
+                                                    Margin="10,5,10,0" 
+                                                    />
+                                        </StackPanel>
+
+                                        <Button x:Name="Class_Add" Style="{StaticResource Stye_KH_Button}" Command="{Binding SubmitCommand_Class}" IsEnabled="{Binding IsInsertEnabled}">
+                                            <Button.Resources>
+                                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            </Button.Resources>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/Assets/Student_Info_Icon/icons8-add-48.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                                <TextBlock Text="បញ្ចូល" Margin="30,0,0,0"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="Class_Clear_Add" Command="{Binding ClearCommand_Class}"  Style="{StaticResource Stye_KH_Button}" >
+                                            <Button.Resources>
+                                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            </Button.Resources>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/Assets/Student_Info_Icon/icons8-broom-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                                <TextBlock Text="សម្អាតទិន្នន័យ" Margin="10,0,0,0"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <Button x:Name="btn_full_screnn" Click="btn_open_full_screen_add_class" Style="{StaticResource Stye_KH_Button}">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                        </Button.Resources>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/Assets/Classes/icons8-full-page-view-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                            <TextBlock Text="ពេញអេក្រង់" Margin="20,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                
+                                
+                            </ScrollView>
+
+                            
+                        </TabViewItem>
                     </TabView.TabItems>
                 </TabView>
             </Grid>
