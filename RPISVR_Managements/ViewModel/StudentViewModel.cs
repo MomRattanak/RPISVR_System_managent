@@ -5518,6 +5518,12 @@ namespace RPISVR_Managements.ViewModel
 
             //Class ID
             Class_ID = null;
+
+            ErrorMessage = "";
+            ErrorImageSource = null;
+            MessageColor = null;
+            
+
             OnPropertyChanged(nameof(Class_ID));
 
             if(string.IsNullOrEmpty(Class_ID))
@@ -5529,15 +5535,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 IsInsertEnabled = false;
                 IsUpdateEnabled = true;
-            }
-
-            if (SelectedClass_Edition == null)
-            {
-                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
-                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
-                MessageColor = new SolidColorBrush(Colors.Red);
-                return;
-            }
+            } 
 
             await Task.CompletedTask;
         }

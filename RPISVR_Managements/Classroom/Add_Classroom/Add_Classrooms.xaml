@@ -180,7 +180,7 @@
                         <Expander x:Name="Expander_Search" Width="230" CornerRadius="5">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icon/icons8-search-property-48.png" Width="28" Height="28"/>
+                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-search-96.png" Width="28" Height="28"/>
                                     <TextBlock Text="ស្វែងរកទិន្នន័យ"
                                          x:Name="Text_Search"
                                          Padding="10,5,0,0"
@@ -339,7 +339,7 @@
                                             RelativePanel.Below="Search_Class_TypeStudy">
                                         <Button.Content>
                                             <StackPanel Orientation="Horizontal">
-                                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-search-96.png" Width="28" Height="28"/>
+                                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-search-96.png" Width="28" Height="28"/>
                                                 <TextBlock Text="ស្វែងរក" Padding="19,5,0,0" Style="{StaticResource Font_KH_Body}"/>
                                             </StackPanel>
                                         </Button.Content>
@@ -352,7 +352,7 @@
                         <Expander x:Name="Expander_Edit_Class" Width="230" CornerRadius="5">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icon/icons8-edit-property-48.png" Width="28" Height="28" />
+                                    <Image Source="/Assets/Student_Info_Icon/icons8-edit-100.png" Width="28" Height="28" />
                                     <TextBlock Text="កែសម្រួលថ្នាក់រៀន"
                                              x:Name="Text_Edit"
                                              Padding="10,5,0,0"
@@ -371,7 +371,6 @@
                                         <Button.Content>
 
                                             <StackPanel Orientation="Horizontal" Margin="0">
-                                                <Image Source="/Assets/Student_Info_Icon/icons8-edit-100.png" Width="20" Height="20" Margin="0,0,20,0" />
                                                 <TextBlock Text="កែសម្រួលទិន្នន័យ"/>
                                             </StackPanel>
                                         </Button.Content>
@@ -383,7 +382,7 @@
                         <Expander x:Name="Expander_Delete_Class" Width="230" CornerRadius="5">
                              <Expander.Header>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="/Assets/Icon/icons8-edit-property-48.png" Width="28" Height="28" />
+                                    <Image Source="/Assets/Student_Info_Icon/icons8-delete-48.png" Width="28" Height="28" />
                                         <TextBlock Text="លុបទិន្នន័យថ្នាក់រៀន"
                                                  x:Name="Text_Delete"
                                                  Padding="10,5,0,0"
@@ -391,20 +390,18 @@
                                     </StackPanel>
                                 </Expander.Header>
                              <Expander.Content>
-                                    <StackPanel>
+                                <StackPanel>
                                     <Button x:Name="btn_Delete_Class" 
-                                                Style="{StaticResource Stye_KH_Button}"
-                                            Command="{Binding Command_Delete_Class}">
-                                            
-
+                                            Style="{StaticResource Stye_KH_Button}"
+                                            Click="btn_delete_class_selection"
+                                            >
+                                        <!--Command="{Binding Command_Delete_Class}"-->
                                         <Button.Resources>
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
                                             <SolidColorBrush x:Key="ButtonBackground" Color="Red"/>
                                         </Button.Resources>
                                         <Button.Content>
-
                                             <StackPanel Orientation="Horizontal" Margin="0">
-                                                <Image Source="/Assets/Student_Info_Icon/icons8-delete-48.png" Width="20" Height="20" Margin="0,0,20,0" />
                                                 <TextBlock Text="លុបទិន្នន័យ"/>
                                             </StackPanel>
                                         </Button.Content>
@@ -417,7 +414,7 @@
                         <Expander x:Name="Expander_Prepare_Class" Width="230" CornerRadius="5">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icon/icons8-edit-property-48.png" Width="28" Height="28" />
+                                    <Image Source="/Assets/Classes/icons8-class-96.png" Width="28" Height="28" />
                                     <TextBlock Text="រៀបចំថ្នាក់រៀន"
                                              x:Name="Text_Prepare_"
                                              Padding="10,5,0,0"
@@ -426,7 +423,18 @@
                             </Expander.Header>
                             <Expander.Content>
                                 <StackPanel >
-                                    
+                                    <Button x:Name="btn_prepare_class" Click="btn_open_prepare_class" Style="{StaticResource Stye_KH_Button}">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            <SolidColorBrush x:Key="ButtonBackground" Color="DarkGreen"/>
+                                        </Button.Resources>
+                                        <Button.Content>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <TextBlock Text="រៀបចំថ្នាក់រៀន"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
                                 </StackPanel>
                             </Expander.Content>
                         </Expander>

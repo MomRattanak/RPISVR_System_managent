@@ -290,7 +290,7 @@
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
-                            <Button x:Name="btn_delete_class" Style="{StaticResource Stye_KH_Button}">
+                            <Button x:Name="btn_delete_class" Click="btn_delete_class_selection" Style="{StaticResource Stye_KH_Button}">
                                 <Button.Content>
                                     <StackPanel>
                                         <TextBlock Text="លុប"
@@ -298,7 +298,7 @@
                                     </StackPanel>
                                 </Button.Content>
                             </Button>
-                            <Button x:Name="btn_insert_class" Style="{StaticResource Stye_KH_Button}">
+                            <Button x:Name="btn_insert_class" Click="btn_add_new_class" Style="{StaticResource Stye_KH_Button}">
                                 <Button.Content>
                                     <StackPanel>
                                         <TextBlock Text="បន្ថែមថ្នាក់រៀន"
