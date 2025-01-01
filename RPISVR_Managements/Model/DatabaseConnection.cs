@@ -22,6 +22,10 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office.Word;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using MySqlX.XDevAPI.Common;
+using System.Collections;
+using DocumentFormat.OpenXml.VariantTypes;
 
 namespace RPISVR_Managements.Model
 {
@@ -123,6 +127,38 @@ namespace RPISVR_Managements.Model
             }
             return count1;
         }
+        //Method to get Count Student Selected Class
+        public (string Total_Count, string Total_Female_Count) Get_Count_Total_and_Female_Students_Classes(string Class_In_Study_Year, string Class_In_Level, string Class_In_Skill, string Class_In_Student_Year, string Class_In_Study_Timeshift)
+        {
+            string Total_Count = "0";
+            string Total_Female_Count = "0";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT COUNT(ID) AS Total_Count, COUNT(CASE WHEN stu_gender = 'ស្រី' THEN 1 END) AS Total_Female_Count FROM student_infomations WHERE stu_study_year = @Class_In_Study_Year AND stu_education_level = @Class_In_Level AND stu_education_subject = @Class_In_Skill AND stu_studying_time = @Class_In_Student_Year AND stu_study_time_shift = @Class_In_Study_Timeshift";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
+                    cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
+                    cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
+                    cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
+                    cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            Total_Count = reader.IsDBNull(0) ? "0" : reader.GetValue(0).ToString();
+                            Total_Female_Count = reader.IsDBNull(1) ? "0" : reader.GetValue(1).ToString();
+                        }
+                    }
+                }
+            }
+            return (Total_Count, Total_Female_Count);
+        }
+
         //Method to Select Last ID and Stu_ID
         public (int ID, string Stu_ID) Get_ID_and_Stu_ID()
         {
@@ -258,6 +294,7 @@ namespace RPISVR_Managements.Model
             }
         }
 
+        
         //Method to fetch Student Information from Database
         public List<Student_Info> GetStudents_Info(int page, int pageSize, string Search_ID_Name_Insert)
         {
@@ -1978,6 +2015,7 @@ namespace RPISVR_Managements.Model
             }  
             return districts;       
         }
+        
         //Save District
         public bool Insert_Communes(Communes_Info communes_Info)
         {
@@ -3480,7 +3518,7 @@ namespace RPISVR_Managements.Model
         }
 
         //Student_Check-info Before Insert
-        public async Task<(string Stu_FirstName_KH1,string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1,string Stu_StudyYear1)> GetStudents_Check_Stu_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
+        public async Task<(string Stu_FirstName_KH1,string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1,string Stu_StudyYear1)> GetStudents_Check_Student_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
         {
             const string query = "SELECT stu_firstname_kh, stu_lastname_kh, stu_gender, stu_birthday_dateonly, stu_education_types, stu_study_year " +
                              "FROM student_infomations WHERE stu_firstname_kh = @Stu_FirstName_KH && stu_lastname_kh = @Stu_LastName_KH && stu_gender = @Stu_Gender && stu_education_types = @Stu_EducationType && stu_study_year = @Stu_StudyYear";
@@ -3523,8 +3561,6 @@ namespace RPISVR_Managements.Model
         //Search by Name, Generation Class
         public List<Student_Info> GetClass_Info(int page, int pageSize, string Search_Name_Generation)
         {
-            
-
             List<Student_Info> class_info = new List<Student_Info>();
             try
             {
@@ -3574,7 +3610,13 @@ namespace RPISVR_Managements.Model
                                     Class_In_Generation = reader.IsDBNull(reader.GetOrdinal("class_in_generation")) ? string.Empty : reader.GetString("class_in_generation"),
                                     Class_In_Study_Timeshift = reader.IsDBNull(reader.GetOrdinal("class_in_study_timeshift")) ? string.Empty : reader.GetString("class_in_study_timeshift"),
                                     Class_In_Study_Type = reader.IsDBNull(reader.GetOrdinal("class_in_study_type")) ? string.Empty : reader.GetString("class_in_study_type"),
-                                    
+                                    Max_Student_InClass = reader.IsDBNull(reader.GetOrdinal("Class_Real_Student"))
+                                                            ? 0 // Default value if NULL
+                                                            : reader.GetInt32("Class_Total_Student_Set"),
+                                    Current_Student_InClass = reader.IsDBNull(reader.GetOrdinal("Class_Real_Student"))
+                                                            ? 0 // Default value if NULL
+                                                            : reader.GetInt32("Class_Real_Student"),
+                                    Current_Class_State = reader.IsDBNull(reader.GetOrdinal("Class_State")) ? string.Empty : reader.GetString("Class_State"),
 
                                 };
                                 No_Classes--;
@@ -3679,6 +3721,14 @@ namespace RPISVR_Managements.Model
                                     Class_In_Generation = reader.IsDBNull(reader.GetOrdinal("class_in_generation")) ? string.Empty : reader.GetString("class_in_generation"),
                                     Class_In_Study_Timeshift = reader.IsDBNull(reader.GetOrdinal("class_in_study_timeshift")) ? string.Empty : reader.GetString("class_in_study_timeshift"),
                                     Class_In_Study_Type = reader.IsDBNull(reader.GetOrdinal("class_in_study_type")) ? string.Empty : reader.GetString("class_in_study_type"),
+                                    Max_Student_InClass = reader.IsDBNull(reader.GetOrdinal("Class_Real_Student"))
+                                                            ? 0 // Default value if NULL
+                                                            : reader.GetInt32("Class_Total_Student_Set"),
+                                    Current_Student_InClass = reader.IsDBNull(reader.GetOrdinal("Class_Real_Student"))
+                                                            ? 0 // Default value if NULL
+                                                            : reader.GetInt32("Class_Real_Student"),
+                                    Current_Class_State = reader.IsDBNull(reader.GetOrdinal("Class_State")) ? string.Empty : reader.GetString("Class_State"),
+
                                 };
                                 No_Classes--;
                                 class_info.Add(classes);
@@ -3723,6 +3773,239 @@ namespace RPISVR_Managements.Model
                 Debug.WriteLine($"Delete mutli class error: {ex.Message}");
             }
         }
+
+        //Method to Select Student to show in Class.
+        //int Stu_ID_Show = 1;
+        public List<Student_Info> Display_Student_List_in_Class(int Max_Student_InClass, string Class_In_Study_Year, string Class_In_Level, string Class_In_Skill, string Class_In_Student_Year, string Class_In_Study_Timeshift)
+        {
+            List<Student_Info> student_class_show = new List<Student_Info>();
+            try
+            {
+                //string query_count = "SELECT COUNT(*) AS TotalCount FROM student_infomations WHERE stu_study_year = @Class_In_Study_Year && stu_education_level = @Class_In_Level && stu_education_subject = @Class_In_Skill && stu_studying_time = @Class_In_Student_Year && stu_study_time_shift = @Class_In_Study_Timeshift LIMIT @Max_Student_InClass";
+                //string query = "SELECT * FROM student_infomations WHERE stu_study_year = @Class_In_Study_Year && stu_education_level = @Class_In_Level && stu_education_subject = @Class_In_Skill && stu_studying_time = @Class_In_Student_Year && stu_study_time_shift = @Class_In_Study_Timeshift && stu_classes IS NULL ORDER BY RAND() LIMIT @Max_Student_InClass";
+
+                string query = @"
+                                SELECT * 
+                                FROM student_infomations 
+                                WHERE 
+                                    stu_study_year = @Class_In_Study_Year
+                                    AND stu_education_level = @Class_In_Level
+                                    AND stu_education_subject = @Class_In_Skill
+                                    AND stu_studying_time = @Class_In_Student_Year
+                                    AND stu_study_time_shift = @Class_In_Study_Timeshift
+                                    AND stu_classes IS NULL
+                                    AND (stu_firstname_kh REGEXP '^[ក-អ]' 
+                                    OR stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]')
+                                ORDER BY 
+                                    CASE 
+                                        WHEN stu_firstname_kh REGEXP '[ក-អ]' THEN 1
+                                        WHEN stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2
+                                        ELSE 3
+                                    END, 
+                                    stu_firstname_kh ASC
+                                    LIMIT @Max_Student_InClass";
+
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    //Count
+                    //using (var cmd = new MySqlCommand(query_count, connection))
+                    //{
+                    //    cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
+                    //    cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
+                    //    cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
+                    //    cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
+                    //    cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
+                    //    cmd.Parameters.AddWithValue("@Max_Student_InClass", Max_Student_InClass);
+                    //    cmd.CommandTimeout = 30;
+
+                    //    Stu_ID_Show = Convert.ToInt32(cmd.ExecuteScalar()); // Assign the total count to No_Classes
+                    //}
+                    
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
+                        cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
+                        cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
+                        cmd.Parameters.AddWithValue("@Max_Student_InClass", Max_Student_InClass);
+                        cmd.CommandTimeout = 30;
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            int Stu_ID_Show = 1;
+                            while (reader.Read())
+                            {
+                                
+                                Student_Info student_in_class = new Student_Info
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Stu_ID = reader.GetString("stu_id"),
+                                    Stu_FirstName_KH = reader.GetString("stu_firstname_kh"),
+                                    Stu_LastName_KH = reader.GetString("stu_lastname_kh"),
+                                    Stu_BirthdayDateOnly = reader.GetString("stu_birthday_dateonly"),
+                                    Stu_Gender = reader.GetString("stu_gender"),
+                                    Stu_IDShow = Stu_ID_Show.ToString()
+                                };
+                                
+                                // Stu_Image
+                                if (!reader.IsDBNull(reader.GetOrdinal("stu_image_source")))
+                                {
+                                    // First, get the size of the image byte array from the database
+                                    long byteSize = reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, null, 0, 0);
+
+                                    if (byteSize > 0)
+                                    {
+                                        // Initialize the byte array with the correct size
+                                        byte[] imageBytes = new byte[byteSize];
+
+                                        // Now, read the image data into the byte array
+                                        reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, imageBytes, 0, (int)byteSize);
+
+                                        // If the image byte array is not empty, process it
+                                        if (imageBytes != null && imageBytes.Length > 0)
+                                        {
+                                            student_in_class.ProfileImageBytes = imageBytes;  // Store the image bytes for future use
+                                            student_in_class.Stu_Image_Source = ConvertBytesToImage(imageBytes);  // Convert the byte array to a BitmapImage
+                                        }
+                                        else
+                                        {
+                                            Debug.WriteLine("No image data found for student " + student_in_class.Stu_ID);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Debug.WriteLine("Byte size is 0 for student " + student_in_class.Stu_ID);
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("stu_image_source is NULL for student " + student_in_class.Stu_ID);
+                                }
+                                Stu_ID_Show++;
+                                student_class_show.Add(student_in_class);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Select Class for show students error: {ex.ToString()}");
+            }
+            return student_class_show;
+        }
+
+        public List<Student_Info> Display_Student_List_in_Class2(int Max_Student_InClass, string Class_In_Study_Year, string Class_In_Level, string Class_In_Skill, string Class_In_Student_Year, string Class_In_Study_Timeshift)
+        {
+            List<Student_Info> student_class_show = new List<Student_Info>();
+            try
+            {             
+                string query = @"
+                                SELECT * 
+                                FROM student_infomations 
+                                WHERE 
+                                    stu_study_year = @Class_In_Study_Year
+                                    AND stu_education_level = @Class_In_Level
+                                    AND stu_education_subject = @Class_In_Skill
+                                    AND stu_studying_time = @Class_In_Student_Year
+                                    AND stu_study_time_shift = @Class_In_Study_Timeshift
+                                    AND stu_classes IS NOT NULL                                   
+                                    AND (stu_firstname_kh REGEXP '^[ក-អ]' 
+                                    OR stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]')
+                                ORDER BY 
+                                    CASE 
+                                        WHEN stu_firstname_kh REGEXP '[ក-អ]' THEN 1
+                                        WHEN stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2
+                                        ELSE 3
+                                    END, 
+                                    stu_firstname_kh ASC
+                                    LIMIT @Max_Student_InClass";
+
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
+                        cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
+                        cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
+                        cmd.Parameters.AddWithValue("@Max_Student_InClass", Max_Student_InClass);
+                        cmd.CommandTimeout = 30;
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            int Stu_ID_Show = 1;
+                            while (reader.Read())
+                            {
+
+                                Student_Info student_in_class = new Student_Info
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Stu_ID = reader.GetString("stu_id"),
+                                    Stu_FirstName_KH = reader.GetString("stu_firstname_kh"),
+                                    Stu_LastName_KH = reader.GetString("stu_lastname_kh"),
+                                    Stu_BirthdayDateOnly = reader.GetString("stu_birthday_dateonly"),
+                                    Stu_Gender = reader.GetString("stu_gender"),
+                                    Stu_IDShow = Stu_ID_Show.ToString()
+                                };
+
+                                // Stu_Image
+                                if (!reader.IsDBNull(reader.GetOrdinal("stu_image_source")))
+                                {
+                                    // First, get the size of the image byte array from the database
+                                    long byteSize = reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, null, 0, 0);
+
+                                    if (byteSize > 0)
+                                    {
+                                        // Initialize the byte array with the correct size
+                                        byte[] imageBytes = new byte[byteSize];
+
+                                        // Now, read the image data into the byte array
+                                        reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, imageBytes, 0, (int)byteSize);
+
+                                        // If the image byte array is not empty, process it
+                                        if (imageBytes != null && imageBytes.Length > 0)
+                                        {
+                                            student_in_class.ProfileImageBytes = imageBytes;  // Store the image bytes for future use
+                                            student_in_class.Stu_Image_Source = ConvertBytesToImage(imageBytes);  // Convert the byte array to a BitmapImage
+                                        }
+                                        else
+                                        {
+                                            Debug.WriteLine("No image data found for student " + student_in_class.Stu_ID);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Debug.WriteLine("Byte size is 0 for student " + student_in_class.Stu_ID);
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("stu_image_source is NULL for student " + student_in_class.Stu_ID);
+                                }
+                                Stu_ID_Show++;
+                                student_class_show.Add(student_in_class);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Select Class for show students error: {ex.ToString()}");
+            }
+            return student_class_show;
+        }
+
+
         //Method Check class before insert
         //public async  Task<(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)> GetClasses_Check_Info(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)
         //{
@@ -3730,6 +4013,218 @@ namespace RPISVR_Managements.Model
 
         //    await Task.CompletedTask;
         //}
+
+        //Method for select count total student in class
+        public int GetTotalStudentsInClass(string class_id)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query_select_total_stu = "SELECT COUNT(*) AS student_total_count FROM class_enrollments WHERE class_id = @class_id";
+
+                    using (var cmd = new MySqlCommand(query_select_total_stu, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                        // Execute the query and retrieve the count
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && int.TryParse(result.ToString(), out int total_students))
+                        {
+                            return total_students; // Return the total count
+                        }
+                        else
+                        {
+                            return 0; // Return 0 if no result is found
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error retrieving total students in class: {ex.Message}");
+                return -1; // Return -1 in case of an error
+            }
+        }
+
+        //Method for Insert Multi Student to Class Mysql
+        public bool Insert_Students_to_Class(List<int> students_id, string class_id, int max_student_class)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Use a single query to insert multiple rows
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string query_insert_stu = "INSERT INTO class_enrollments (stu_id, class_id) VALUES (@stu_id, @class_id)";
+                        string query_update_classes = "UPDATE classes SET Class_Total_Student_Set = @Class_Total_Student_Set WHERE class_id = @class_id";
+                        string query_update_student = "UPDATE student_infomations SET stu_classes = @stu_classes WHERE ID = @students_id";
+                        //string query_select_total_stu = "SELECT COUNT(*) AS student_total_count FROM class_enrollments WHERE class_id = @class_id";
+                        int totalStudents = GetTotalStudentsInClass(class_id);
+                        //Insert Student to Class
+                        using (var cmd = new MySqlCommand(query_insert_stu, connection, transaction))
+                        {
+                            // Reuse the command for each student
+                            cmd.Parameters.Add("@stu_id", MySqlDbType.Int32);
+                            cmd.Parameters.Add("@class_id", MySqlDbType.VarChar);
+                            cmd.Parameters.Add("@total_student_set", MySqlDbType.Int32);
+
+                            foreach (var student_id in students_id)
+                            {
+                                cmd.Parameters["@stu_id"].Value = student_id;
+                                cmd.Parameters["@class_id"].Value = class_id;
+                                cmd.Parameters["@total_student_set"].Value = max_student_class;
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        
+                        // Update the classes table
+                        using (var cmd = new MySqlCommand(query_update_classes, connection, transaction))
+                        {
+                            cmd.Parameters.Add("@class_id", MySqlDbType.VarChar);
+                            cmd.Parameters.Add("@Class_Total_Student_Set", MySqlDbType.Int32);
+                            
+
+                            cmd.Parameters["@class_id"].Value = class_id;
+                            cmd.Parameters["@Class_Total_Student_Set"].Value = max_student_class;
+                            
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Update the student_infomations table
+                        using (var cmd = new MySqlCommand(query_update_student, connection, transaction))
+                        {
+                            cmd.Parameters.Add("@students_id", MySqlDbType.Int32);
+                            cmd.Parameters.Add("@stu_classes", MySqlDbType.VarChar);
+
+                            string stu_classes = "Yes";
+                            foreach (var student_id in students_id)
+                            {
+                                cmd.Parameters["@students_id"].Value = student_id;
+                                cmd.Parameters["@stu_classes"].Value = stu_classes;
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        // Commit the transaction after all inserts
+                        transaction.Commit();
+                    }
+                }
+
+                return true; // Return true if all inserts succeed
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error inserting students into the class: {ex.Message}");
+                return false; // Return false in case of an error
+            }
+        }
+
+        //Method for delete multi student in class
+        public bool Delete_Students_in_Class(List<int> students_id, string class_id)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Use a single query to insert multiple rows
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string query_delete_stu_in_class = "DELETE FROM class_enrollments WHERE stu_id = @stu_id AND class_id = @class_id";
+                        string query_update_student_class = "UPDATE student_infomations SET stu_classes = @stu_classes WHERE ID = @students_id";
+                        //string query_update_count_stu = "UPDATE classes SET Class_Real_Student = @student_select_count WHERE class_id = @class_id";
+
+                        int totalStudents = GetTotalStudentsInClass(class_id);
+
+                        using (var cmd = new MySqlCommand(query_delete_stu_in_class, connection, transaction))
+                        {
+                            // Reuse the command for each student
+                            cmd.Parameters.Add("@stu_id", MySqlDbType.Int32);
+                            cmd.Parameters.Add("@class_id", MySqlDbType.VarChar);
+                            
+
+                            foreach (var student_id in students_id)
+                            {
+                                cmd.Parameters["@stu_id"].Value = student_id;
+                                cmd.Parameters["@class_id"].Value = class_id;
+
+
+                                // Execute the query
+                                int rowsAffected = cmd.ExecuteNonQuery();
+
+                                // If no rows were affected for any student, rollback the transaction 
+                                if (rowsAffected == 0)
+                                {
+                                    Debug.WriteLine($"Failed to delete: No matching record for stu_id = {student_id}, class_id = {class_id}");
+                                    transaction.Rollback();
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // Update the student_infomations table
+                        using (var cmd = new MySqlCommand(query_update_student_class, connection, transaction))
+                        {
+                            cmd.Parameters.Add("@students_id", MySqlDbType.Int32);
+                            cmd.Parameters.Add("@stu_classes", MySqlDbType.VarChar);
+
+                            
+                            foreach (var student_id in students_id)
+                            {
+                                cmd.Parameters["@students_id"].Value = student_id;
+                                cmd.Parameters["@stu_classes"].Value = DBNull.Value;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        
+                        // Commit the transaction if all deletions succeed
+                        transaction.Commit();
+                        return true;
+                    }
+                }
+               
+            }catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete student in class error: {ex.ToString()}");
+                return false;
+            }
+        }
+
+        //Method Update total count student count
+        public void UpdateStudentSelectCount(string class_id, int student_select_count)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE classes SET Class_Real_Student = @student_select_count WHERE class_id = @class_id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@student_select_count", student_select_count);
+                        cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating student select count: {ex.Message}");
+            }
+        }
+
     }
 }
 

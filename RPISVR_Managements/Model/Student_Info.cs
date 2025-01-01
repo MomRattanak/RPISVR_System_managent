@@ -168,5 +168,12 @@ namespace RPISVR_Managements.Model
         public int Search_Class_In_Study_Timeshift_Select { get; set; }
         public string Search_Class_In_Study_Type { get; set; }
         public int Search_Class_In_Study_Type_Select { get; set; }
+
+        //Prepare Student to class
+        public string Total_Count_Students_Class {  get; set; }
+        public string Total_Count_Female_Class { get; set; }
+        public int Max_Student_InClass { get; set; }
+        public int Current_Student_InClass { get; set; }
+        public string Current_Class_State { get; set; }
     }
 }
