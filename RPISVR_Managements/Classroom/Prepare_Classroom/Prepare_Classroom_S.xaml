@@ -193,7 +193,7 @@
 
         
         
-        <ScrollView x:Name="Table_Class_Infos" Grid.Row="2" Height="200" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible" >
+        <ScrollView x:Name="Table_Class_Infos" Grid.Row="2" Height="200" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
             <StackPanel>
                 <!--Header-->
                 <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
@@ -201,14 +201,20 @@
                     <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ឆ្នាំសិក្សា" Width="80"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                    <TextBlock Text="កម្រិតសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="កម្រិតសិក្សា" Width="170" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ឆ្នាំទី" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ឆមាស" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ជំនាន់ទី" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                    <TextBlock Text="វេនសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="វេនសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ចំនួននិស្សិតកំណត់ក្នុងថ្នាក់" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ចំនួននិស្សិតជាក់ស្ដែង" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                     <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
                 </StackPanel>
+
+                <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" Height="180" VerticalScrollBarVisibility="Visible">
+                    
                 
                 <!--ListView-->
                 <ListView x:Name="Classes_Info_List" ItemsSource="{Binding Classes_Info}" SelectionChanged="PrepareClass_SelectionChanged" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
@@ -221,17 +227,21 @@
                                 <TextBlock Text="{Binding Class_Name}" Width="160"/>
                                 <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
-                                <TextBlock Text="{Binding Class_In_Level}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                <TextBlock Text="{Binding Class_In_Level}" Width="180" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Student_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Semester}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Study_Timeshift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
-                                <TextBlock Text="{Binding Class_In_Study_Type}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                <TextBlock Text="{Binding Class_In_Study_Type}" Width="180" Style="{StaticResource Font_KH_Body}"/>
+                                <TextBlock Text="{Binding Max_Student_InClass}" Width="140"/>
+                                <TextBlock Text="{Binding Current_Student_InClass}" Width="160"/>
+                                <TextBlock Text="{Binding Current_Class_State}" Width="30"/>
                                 <TextBlock Text="{Binding Class_ID}" Width="50" Visibility="Visible"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                </ScrollView>
             </StackPanel>
         </ScrollView>
 
@@ -322,7 +332,7 @@
                         </Expander.Header>
                         <Expander.Content>
                             <StackPanel Orientation="Vertical">
-                                <Button x:Name="btn_add_student_to_class" Click="btn_add_student_to_classes" Style="{StaticResource Stye_KH_Button}">
+                                    <Button x:Name="btn_add_student_to_class" Click="btn_add_student_to_classes" Command="{Binding Command_Add_Student_to_Class}" Style="{StaticResource Stye_KH_Button}">
                                     <Button.Content>
                                         <StackPanel>
                                             <TextBlock Text="បញ្ចូលសិស្សក្នុងថ្នាក់"
@@ -611,12 +621,7 @@
                                 </StackPanel>
                             </ScrollView>
                         </TabViewItem>
-
-                        <!--Insert Student in Class-->
-                        <TabViewItem x:Name="TabView_Add_Student_to_Class"  Header="បញ្ចូលសិស្សក្នុងថ្នាក់" Visibility="Collapsed">
-                            
-                        </TabViewItem>
-                        
+     
                         <!--Update Class-->
                         <TabViewItem x:Name="TabView_Update_Class" Header="កែសម្រួលថ្នាក់" Visibility="Collapsed">
                             <ScrollView>
@@ -769,10 +774,9 @@
                                         </Button>
                                     </StackPanel>
                                 
-                                               
+                                              
                                     <!--Header-->
                                     <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
-
                                         <TextBlock Text="លេខរៀង" Margin="40,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ឆ្នាំសិក្សា" Width="90"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -782,14 +786,14 @@
                                         <TextBlock Text="ឆមាស" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ជំនាន់ទី" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="វេនសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                        <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="ប្រភេទសិក្សា" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                         <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
                                     </StackPanel>
                                     <ScrollView x:Name="Table_Class" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
-                                    <StackPanel>
-                                        
+                                        <StackPanel>
 
-                                        <!--Items Selected-->
+
+                                            <!--Items Selected-->
                                             <ListView x:Name="Class_List_Edit" ItemsSource="{Binding Class_Info_Edit_Selected}" SelectionMode="Single" SelectedItem="{Binding SelectedClass_Edition,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
                                                 <ListView.ItemTemplate>
                                                     <DataTemplate>
@@ -810,15 +814,13 @@
                                                 </ListView.ItemTemplate>
                                             </ListView>
                                         </StackPanel>
-
-                                        
-                                </ScrollView>
+                                    </ScrollView>
                             </StackPanel>
                             </ScrollView>
                         </TabViewItem>
                         
                         <!--Add Class-->
-                        <TabViewItem x:Name="Tabview_Add_Class" Header="បន្ថែមថ្នាករៀន" Visibility="Collapsed">
+                        <TabViewItem x:Name="Tabview_Add_Class" Header="បន្ថែមថ្នាក់រៀន" Visibility="Collapsed">
                             <ScrollView>
                                 <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
                                     <ScrollView x:Name="Scroll_Add" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
@@ -863,11 +865,11 @@
                                                                 Margin="5"
                                                                 SelectedItem="{Binding Class_In_Student_Year,Mode=TwoWay}"
                                                                 BorderBrush="{Binding Class_In_Student_Year_BorderBrush}">
-                                                            <x:String>1</x:String>
-                                                            <x:String>2</x:String>
-                                                            <x:String>3</x:String>
-                                                            <x:String>4</x:String>
-                                                            <x:String>4.5</x:String>
+                                                        <x:String>1</x:String>
+                                                        <x:String>2</x:String>
+                                                        <x:String>3</x:String>
+                                                        <x:String>4</x:String>
+                                                        <x:String>4.5</x:String>
                                                     </ComboBox>
                                                     <ComboBox x:Name="Class_Semester_Add"
                                                               Header="ឆមាស"
@@ -960,11 +962,299 @@
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
-                                
-                                
                             </ScrollView>
+                        </TabViewItem>
 
-                            
+                        <!--Insert Student in Class-->
+                        <TabViewItem x:Name="TabView_Add_Student_to_Class"  Header="បញ្ចូលសិស្សក្នុងថ្នាក់" Visibility="Collapsed">
+                            <ScrollView>
+                                <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
+                                    <!--Class info Student Count-->
+                                    <StackPanel x:Name="Click_Class_Info" Margin="10,0,10,0" HorizontalAlignment="Left">
+                                       <!--Header-->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យថ្នាក់រៀន" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
+                                            <Button x:Name="Clear_Class_Add_Student" Command="{Binding Clear_Class_In_Add_Student_Into_Class}" Style="{StaticResource Stye_KH_Button}" Width="50">
+                                                <Button.Resources>
+                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Red" />
+                                                    <SolidColorBrush x:Key="ButtonBackground" Color="Yellow"/>
+                                                </Button.Resources>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/Assets/Classes/icons8-subtract-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                        
+                                        <ScrollView x:Name="Table_Class_Add_Student" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                                            <StackPanel>
+                                                <!--Items Selected-->
+                                                <ListView x:Name="Class_List_Add_Student" ItemsSource="{Binding Class_Info_Add_Student_Selected}" SelectionMode="Single" SelectedItem="{Binding SelectedClass_Add_Student,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                                                    <ListView.Header>
+                                                        <StackPanel Orientation="Horizontal" Background="Green">
+                                                            <TextBlock Text="លេខរៀង" Margin="10,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆ្នាំសិក្សា" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="កម្រិតសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆ្នាំទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆមាស" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ជំនាន់ទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="វេនសិក្សា" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ប្រភេទសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ចំនួននិស្សិតកំណត់ក្នុងថ្នាក់" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
+                                                        </StackPanel>
+                                                    </ListView.Header>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                <TextBlock Text="{Binding No_Class}" Margin="10,0,0,0" Width="40"/>
+                                                                <TextBlock Text="{Binding Class_Name}" Width="160"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Level}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Student_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Semester}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Timeshift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Type}" Width="170" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Max_Student_InClass}" Width="130"/>
+                                                                <TextBlock Text="{Binding Current_Class_State}" Style="{StaticResource Font_KH_Body}" Width="70"/>
+                                                                <TextBlock Text="{Binding Class_ID}" Width="50" Visibility="Visible"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </StackPanel>
+                                        </ScrollView>
+                                    </StackPanel>
+
+                                    <RelativePanel>
+                                        <!--Student Count Info-->
+                                        <StackPanel x:Name="Panel_Student_Count_for_Class" Margin="10" Width="500" Padding="5" BorderBrush="Green" BorderThickness="3" CornerRadius="3" HorizontalAlignment="Left">
+                                            <RelativePanel>
+                                                <TextBlock x:Name="Study_Year"
+                                                       Style="{StaticResource Font_KH_Body}">
+                                                <Run Text="ឆ្នាំសិក្សា៖ "/>
+                                                <Run Text="{Binding Class_In_Study_Year}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Study_Skill"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.RightOf="Study_Year">
+                                                <Run Text=" ជំនាញ៖ "/>
+                                                <Run Text="{Binding Class_In_Skill}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Study_Level"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.Below="Study_Year">
+                                                <Run Text="កម្រិត៖ "/>
+                                                <Run Text="{Binding Class_In_Level}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Study_Student_Year"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.RightOf="Study_Level"
+                                                       RelativePanel.Below="Study_Skill">
+                                                <Run Text=" ឆ្នាំទី៖ "/>
+                                                <Run Text="{Binding Class_In_Student_Year}" Foreground="Aqua"/>
+                                                </TextBlock>
+
+                                                <TextBlock x:Name="Study_Time"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.Below="Study_Level">
+                                                <Run Text="វេនសិក្សា៖ "/>
+                                                <Run Text="{Binding Class_In_Study_Timeshift}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Student_Count_Total"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.Below="Study_Time">
+                                                <Run Text="មាននិស្សិតចុះឈ្មោះចូលរៀនសរុបចំនួន៖ "/>
+                                                <Run Text="{Binding Total_Count_Students_Class}" Foreground="Aqua"/>
+                                                <Run Text="នាក់"/>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Total_Student_Female"
+                                                       Style="{StaticResource Font_KH_Body}"
+                                                       RelativePanel.RightOf="Student_Count_Total"
+                                                       RelativePanel.Below="Study_Time">
+                                                <Run Text=" ,ស្រី៖ "/>
+                                                <Run Text="{Binding Total_Count_Female_Class}" Foreground="Aqua"/>
+                                                <Run Text=" នាក់"/>
+                                                </TextBlock>
+                                            </RelativePanel>
+                                        </StackPanel>
+                                        
+                                        <!--Add_Student_Count_To_Class-->
+                                        <StackPanel x:Name="Panel_Add_Count_Student" 
+                                                    RelativePanel.RightOf="Panel_Student_Count_for_Class"
+                                                    Margin="0,10,10,10" Padding="5"  HorizontalAlignment="Left">
+
+                                            <RelativePanel>
+                                                <TextBlock x:Name="Class_Name"
+                                                           Style="{StaticResource Font_KH_Body}">
+                                                    <Run Text=" ថ្នាក់រៀនឈ្មោះ៖ "/>
+                                                    <Run Text="{Binding Class_Name}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <NumberBox x:Name="Input_Total_Student_In_Class"
+                                                         Text="{Binding Max_Student_InClass,Mode=TwoWay}"
+                                                         Header=" បញ្ចូលចំនួនសិស្សសរុបក្នុងថ្នាក់រៀននេះ"
+                                                         Style="{StaticResource Stye_KH_NumberBox}"
+                                                         RelativePanel.Below="Class_Name"
+                                                         Width="200"/>
+                                                <Button x:Name="btn_show_students" Style="{StaticResource Stye_KH_Button}"
+                                                        Command="{Binding Command_Show_Student_In_Class,Mode=TwoWay}"
+                                                        RelativePanel.RightOf="Input_Total_Student_In_Class"
+                                                        RelativePanel.Below="Class_Name"
+                                                        Margin="0,30,0,0"
+                                                        Width="190"
+                                                        Background="Green">
+                                                    <Button.Resources>
+                                                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                                    </Button.Resources>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Source="/Assets/Check_Student_Info_Icon/icons8-student-100.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                                        <TextBlock Text="បង្ហាញឈ្មោះនិស្សិត" Margin="5,0,0,0"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </RelativePanel>
+                                        </StackPanel>
+                                    </RelativePanel>
+
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            
+                                        
+                                    <!--Table Student-->
+                                    <StackPanel Orientation="Horizontal" >
+                                        <TextBlock HorizontalAlignment="Left" Text="  ទិន្នន័យនិស្សិតមិនទាន់មានថ្នាក់រៀន" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
+                                        <Button x:Name="Clear_Class_Students" Margin="5,0,0,0" Command="{Binding Command_ClearStudent_in_ClassList}" ToolTipService.ToolTip="ដកនិស្សិតចេញ">
+                                            <Button.Resources>
+                                                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Red" />
+                                                    </Button.Resources>
+                                            <StackPanel Orientation="Horizontal">
+                                                <FontIcon Glyph="&#xE738;"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <ToggleButton  x:Name="Select_All_Class_Students" Margin="5,0,0,0" Click="btn_select_all_Items" Style="{StaticResource Stye_KH_TogleButton}">
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xE73D;" />
+                                                    </StackPanel>
+                                        </ToggleButton>
+                                        <Button x:Name="btn_Insert_Students_in_Class" Margin="5,0,0,0" Command="{Binding Command_Insert_Students_to_Class}">
+                                            <Button.Resources>
+                                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Blue" />
+                                                <SolidColorBrush x:Key="ButtonBackground" Color="Green" />      
+                                            </Button.Resources>
+                                            <StackPanel Orientation="Horizontal">
+                                                <FontIcon Glyph="&#xE725;" />
+                                                <TextBlock Text="បញ្វូលក្នុងថ្នាក់រៀន" Margin="5,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Loading indicator -->
+                                        <ProgressRing x:Name="Loading_Students"
+                                                   Margin="20,0,0,0"
+                                                   IsActive="{Binding IsLoading}"
+                                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                    <!--Table-->
+                                    <StackPanel Orientation="Horizontal" Spacing="20" Background="Green" Margin="10,0,10,0" CornerRadius="3" Width="550" HorizontalAlignment="Left">
+                                        <TextBlock Text="លេខរៀង" Margin="25,0,0,0" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="រូបភាព" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="ឈ្មោះ" Width="100"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="ថ្ងៃខែកំណើត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        <TextBlock Text="អត្តលេខ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <ScrollView x:Name="Table_Class_Show_Student" ContentOrientation="Horizontal" HorizontalAlignment="Left" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                                        <StackPanel Margin="10,0,10,10" CornerRadius="3">
+                                            <!--Items Selected-->
+                                            <ListView x:Name="List_Students_Display" Width="550" IsMultiSelectCheckBoxEnabled="True" SelectionMode="Multiple" ItemsSource="{Binding List_Students_Display}" SelectionChanged="Selected_Student_Add_to_Class" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Green" BorderThickness="3">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                            <TextBlock Text="{Binding Stu_IDShow}" Width="15" TextAlignment="Center" Padding="0,15,0,0"/>
+                                                            <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
+                                                            <TextBlock Text="{Binding Full_Name_KH}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                            <TextBlock Text="{Binding Stu_Gender}" Width="40" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                            <TextBlock Text="{Binding Stu_BirthdayDateOnly}" Width="70" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                            <TextBlock Text="{Binding Stu_ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                            <TextBlock Text="{Binding ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </StackPanel>
+                                    </ScrollView>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock HorizontalAlignment="Left" Text="( តារាងទិន្នន័យនិស្សិតមាននៅក្នុងថ្នាក់ )" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
+                                                <TextBlock x:Name="Current_Students"
+                                                           Style="{StaticResource Font_KH_Body}"
+                                                           FontSize="12" FontWeight="Bold" Margin="10,10,0,10">
+                                                    <Run Text=" បច្ចុប្បន្នមាននិស្សិតចំនួន៖ "/>
+                                                    <Run Text="{Binding Current_Student_InClass,Mode=TwoWay}" Foreground="Aqua"/>
+                                                    <Run Text="នាក់" Foreground="Aqua"/>
+                                                </TextBlock>
+                                                <Button x:Name="btn_delete_student_in_class" Command="{Binding Command_Delete_Student_in_Class,Mode=TwoWay}" Margin="10,0,0,0" ToolTipService.ToolTip="លុបនិស្សិតនៅក្នុងថ្នាក់">
+                                                    <Button.Content>
+                                                        <StackPanel>
+                                                            <FontIcon Glyph="&#xE74D;" />
+                                                        </StackPanel>
+                                                    </Button.Content>
+                                                </Button>
+
+                                                <!-- Loading indicator -->
+                                                <ProgressRing x:Name="Loading_Students_in_Class"
+                                                           Margin="20,0,0,0"
+                                                           IsActive="{Binding IsLoading}"
+                                                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <!--Table-->
+                                            <StackPanel Orientation="Horizontal" Spacing="20" Background="Green" Margin="10,0,10,0" CornerRadius="3" Width="550" HorizontalAlignment="Left">
+                                                <TextBlock Text="លេខរៀង" Margin="25,0,0,0" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="រូបភាព" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ឈ្មោះ" Width="100"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ថ្ងៃខែកំណើត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="អត្តលេខ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <ScrollView x:Name="Table_Show_Student_In_Class" ContentOrientation="Horizontal" HorizontalAlignment="Left" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                                                <StackPanel Margin="10,0,10,10" CornerRadius="3">
+                                                    <!--Items Selected-->
+                                                    <ListView x:Name="List_Students_In_Class_Display" Width="550" IsMultiSelectCheckBoxEnabled="True" SelectionMode="Multiple" ItemsSource="{Binding List_Student_In_Class_Display}" SelectionChanged="Selected_Student_In_Class_Delete" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Green" BorderThickness="3">
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                    <TextBlock Text="{Binding Stu_IDShow}" Width="15" TextAlignment="Center" Padding="0,15,0,0"/>
+                                                                    <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
+                                                                    <TextBlock Text="{Binding Full_Name_KH}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding Stu_Gender}" Width="40" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding Stu_BirthdayDateOnly}" Width="70" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding Stu_ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+                                                    </ListView>
+                                                </StackPanel>
+                                            </ScrollView>
+                                        </StackPanel>
+                                    </Grid>
+
+                                </StackPanel>
+                                    
+                            </ScrollView>
                         </TabViewItem>
                     </TabView.TabItems>
                 </TabView>

@@ -30,6 +30,7 @@ using System.Data.Common;
 using RPISVR_Managements.ViewModel;
 using System.Data;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office.Word;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -92,6 +93,13 @@ namespace RPISVR_Managements.ViewModel
             Command_Delete_Class = new RelayCommand(async () => await Delete_Class());
             Command_Edit_Class_Prepare = new RelayCommand(async () => await Edit_Class_Prepare());
             Clear_Class_Update = new RelayCommand(async () => await Clear_Class_UpdateAsync());
+            Command_Add_Student_to_Class = new RelayCommand(async () => await Edit_Class_Prepare_Student());
+            Clear_Class_In_Add_Student_Into_Class = new RelayCommand(async () => await Clear_Class_In_Add_Student());
+            Command_Show_Student_In_Class = new RelayCommand(async () => await Get_Student_to_ListClassPrepare());
+            Command_Insert_Students_to_Class = new RelayCommand(async () => await Insert_Students_to_Class());
+            Command_ClearStudent_in_ClassList = new RelayCommand(async () => await ClearStudent_in_ClassList());
+            Command_Delete_Student_in_Class = new RelayCommand(async () => await Delete_Student_in_Class());
+
 
             //Student
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
@@ -114,7 +122,12 @@ namespace RPISVR_Managements.ViewModel
             //Classs
             Classes_Info = new ObservableCollection<Student_Info>();
             //Prepare Edit Class 
-            Class_Info_Edit_Selected = new ObservableCollection<Student_Info>();    
+            Class_Info_Edit_Selected = new ObservableCollection<Student_Info>();
+            //Add Student to Class 
+            Class_Info_Add_Student_Selected = new ObservableCollection<Student_Info>();
+            //Show Student for Class
+            List_Students_Display = new ObservableCollection<Student_Info>();
+            List_Student_In_Class_Display = new ObservableCollection<Student_Info>();
 
             //Command for Previouse,Back Button
             PreviousPageCommand = new RelayCommand(PreviousPage, CanGoPreviousPage);
@@ -207,9 +220,10 @@ namespace RPISVR_Managements.ViewModel
             IsLoading = true;
             _ = LoadStudents(SearchText_ID_Name_Insert);
 
-
             //Classes to ListView
             _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+
+            
         }
 
         
@@ -992,6 +1006,40 @@ namespace RPISVR_Managements.ViewModel
             {
                 _seleceted_class_edit = value;
                 OnPropertyChanged(nameof(Class_Info_Edit_Selected));
+            }
+        }
+        //Add Student to Class
+        private ObservableCollection<Student_Info> _seleceted_class_add_Student;
+        public ObservableCollection<Student_Info> Class_Info_Add_Student_Selected
+        {
+            get => _seleceted_class_add_Student;
+            set
+            {
+                _seleceted_class_add_Student = value;
+                OnPropertyChanged(nameof(Class_Info_Add_Student_Selected));
+            }
+        }
+        //List Student Display
+        private ObservableCollection<Student_Info> _list_student_selected;
+        public ObservableCollection<Student_Info> List_Students_Display
+        {
+            get => _list_student_selected;
+            set
+            {   
+                _list_student_selected = value;
+                OnPropertyChanged(nameof(List_Students_Display));
+                
+            }
+        }
+        //List Student In Class Display
+        private ObservableCollection<Student_Info> _list_student_in_class_display;
+        public ObservableCollection<Student_Info> List_Student_In_Class_Display
+        {
+            get => _list_student_in_class_display;
+            set
+            {
+                _list_student_in_class_display = value;
+                OnPropertyChanged(nameof(List_Student_In_Class_Display));
             }
         }
         //Search ID_Name in Insert_Student
@@ -3596,28 +3644,28 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Generation: {Stu_Generation}");
 
             //Check Student Infomation Before Insert
-            var student_check_info = await _dbConnection.GetStudents_Check_Stu_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
+            //var student_check_info = await _dbConnection.GetStudents_Check_Student_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
             
 
-            if ((Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1.Trim() &&
-                    Stu_LastName_KH == student_check_info.Stu_LastName_KH1.Trim() &&
-                    Stu_Gender.Trim() == student_check_info.Stu_Gender1.Trim() &&
-                    Stu_BirthdayDateOnly.Trim() == student_check_info.Stu_BirthdayDateOnly1.Trim() &&
-                    Stu_EducationType.Trim() == student_check_info.Stu_EducationType1.Trim() &&
-                    Stu_StudyYear.Trim() == student_check_info.Stu_StudyYear1.Trim()))
-                {
-                    ErrorMessage = "និស្សិតឈ្មោះ " + Stu_FirstName_KH +Stu_LastName_KH+" "+ Stu_EducationType+" "+Stu_StudyYear+ " មានទិន្នន័យរួចរាល់ហើយ !";
-                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
-                    MessageColor = new SolidColorBrush(Colors.Red);
-                    return;
-                }
-            else
-            {
+            //if ((Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1.Trim() &&
+            //        Stu_LastName_KH == student_check_info.Stu_LastName_KH1.Trim() &&
+            //        Stu_Gender.Trim() == student_check_info.Stu_Gender1.Trim() &&
+            //        Stu_BirthdayDateOnly.Trim() == student_check_info.Stu_BirthdayDateOnly1.Trim() &&
+            //        Stu_EducationType.Trim() == student_check_info.Stu_EducationType1.Trim() &&
+            //        Stu_StudyYear.Trim() == student_check_info.Stu_StudyYear1.Trim()))
+            //        {
+            //            ErrorMessage = "និស្សិតឈ្មោះ " + Stu_FirstName_KH +Stu_LastName_KH+" "+ Stu_EducationType+" "+Stu_StudyYear+ " មានទិន្នន័យរួចរាល់ហើយ !";
+            //            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+            //            MessageColor = new SolidColorBrush(Colors.Red);
+            //            return;
+            //        }
+            //else
+            //{
                 // If everything is valid
                 SaveStudentInformationToDatabase();
                 ClearStudentInfo();
                 await LoadStudents(SearchText_ID_Name_Insert);
-            }
+            //}
 
             
             await Task.CompletedTask;
@@ -5573,6 +5621,7 @@ namespace RPISVR_Managements.ViewModel
                 await Task.Delay(10);
 
                 //
+                
                 var classList = _dbConnection.GetClass_Info(CurrentPage, _classSize, newText_Name_Generation);
                 // Clear the existing list to prepare for the new page data
                 Classes_Info.Clear();
@@ -6074,8 +6123,49 @@ namespace RPISVR_Managements.ViewModel
         //Command Prepare Class
         public ICommand Command_Edit_Class_Prepare { get; set; }
         public ICommand Clear_Class_Update { get; set; }
+        public ICommand Command_Add_Student_to_Class { get; set; }
 
-        
+        //Add Student
+        public async Task Edit_Class_Prepare_Student()
+        {
+            if (SelectedClasses_Prepare_All == null || !SelectedClasses_Prepare_All.Any())
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine("Selected");
+                Class_Info_Add_Student_Selected.Clear();
+                foreach (var classes_edit in SelectedClasses_Prepare_All)
+                {
+
+                    Class_Info_Add_Student_Selected.Add(new Student_Info
+                    {
+                        No_Class = classes_edit.No_Class,
+                        Class_ID = classes_edit.Class_ID,
+                        Class_Name = classes_edit.Class_Name,
+                        Class_In_Study_Year = classes_edit.Class_In_Study_Year,
+                        Class_In_Skill = classes_edit.Class_In_Skill,
+                        Class_In_Level = classes_edit.Class_In_Level,
+                        Class_In_Student_Year = classes_edit.Class_In_Student_Year,
+                        Class_In_Semester = classes_edit.Class_In_Semester,
+                        Class_In_Generation = classes_edit.Class_In_Generation,
+                        Class_In_Study_Timeshift = classes_edit.Class_In_Study_Timeshift,
+                        Class_In_Study_Type = classes_edit.Class_In_Study_Type,
+                        Max_Student_InClass = classes_edit.Max_Student_InClass,
+                        Current_Student_InClass = classes_edit.Current_Student_InClass,
+                        Current_Class_State = classes_edit.Current_Class_State
+                    });
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+        //Update Add
         public async Task Edit_Class_Prepare()
         {
             if(SelectedClasses_Prepare_All==null || !SelectedClasses_Prepare_All.Any())
@@ -6113,6 +6203,7 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask;
         }
 
+        
 
         private Student_Info _selectedClass_Edit;
         public Student_Info SelectedClass_Edition
@@ -6167,6 +6258,10 @@ namespace RPISVR_Managements.ViewModel
 
                     //Update_Class_ID_Edit
                     Class_ID = _selectedClass_Edit.Class_ID;
+
+                    ErrorMessage = "";
+                    ErrorImageSource = null;
+                    MessageColor = null;
                 }
                 OnPropertyChanged(nameof(SelectedClass_Edition));
                 if (_selectedClass_Edit != null)
@@ -6242,6 +6337,50 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+
+        //Clear Add Class
+        public async Task Clear_Class_In_Add_Student()
+        {
+            if(SelectedClass_Add_Student == null)
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            // Remove the selected item from the collection
+            if (Class_Info_Add_Student_Selected.Contains(SelectedClass_Add_Student))
+            {
+                Class_Info_Add_Student_Selected.Remove(SelectedClass_Add_Student);
+                Class_ID = null;
+                Class_In_Study_Year = null;
+                Class_In_Skill = null;
+                Class_In_Level = null;
+                Class_In_Student_Year = null;
+                Class_In_Study_Timeshift = null;
+                Class_Name = null;
+                Total_Count_Students_Class = null;
+                Total_Count_Female_Class = null;
+                Max_Student_InClass = 0;
+                Current_Student_InClass = 0;
+                Current_Class_State = null;
+            }
+            OnPropertyChanged(nameof(SelectedClass_Add_Student));
+            // Clear the selection
+            SelectedClass_Add_Student = null;
+            List_Students_Display.Clear();
+            List_Student_In_Class_Display.Clear();
+
+            Debug.WriteLine("Clear Class in ListView Success.");
+
+            // Provide feedback to the user
+            ErrorMessage = "ថ្នាក់ជ្រើសរើសត្រូវបានដកចេញជោគជ័យ!";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+
+            await Task.CompletedTask;
+        }
         //Clear
         public async Task Clear_Class_UpdateAsync()
         {
@@ -6269,6 +6408,439 @@ namespace RPISVR_Managements.ViewModel
             MessageColor = new SolidColorBrush(Colors.Green);
             await Task.CompletedTask;
         }
+
+
+        //Add Student into Class
+        private Student_Info _selectedClass_Add_Student;
+        public Student_Info SelectedClass_Add_Student
+        {
+            get => _selectedClass_Add_Student;
+            set
+            {
+                _selectedClass_Add_Student = value;
+                OnPropertyChanged();
+
+                if (_selectedClass_Add_Student != null)
+                {
+                    Class_ID = _selectedClass_Add_Student.Class_ID;
+                    Class_Name = _selectedClass_Add_Student.Class_Name;
+                    Class_In_Study_Year = _selectedClass_Add_Student.Class_In_Study_Year;
+                    Class_In_Skill = _selectedClass_Add_Student.Class_In_Skill;
+                    Class_In_Level = _selectedClass_Add_Student.Class_In_Level;
+                    Class_In_Student_Year = _selectedClass_Add_Student.Class_In_Student_Year;
+                    Class_In_Semester = _selectedClass_Add_Student.Class_In_Semester;
+                    Class_In_Generation = _selectedClass_Add_Student.Class_In_Generation;
+                    Class_In_Study_Timeshift = _selectedClass_Add_Student.Class_In_Study_Timeshift;
+                    Class_In_Study_Type = _selectedClass_Add_Student.Class_In_Study_Type;
+                    Max_Student_InClass = _selectedClass_Add_Student.Max_Student_InClass;
+                    Current_Class_State = _selectedClass_Add_Student.Current_Class_State;
+
+                    Debug.WriteLine($"Class ID: {Class_ID}");
+                    _=Count_Student_Selected_Class();
+                }
+            }
+        }
+        public ICommand Clear_Class_In_Add_Student_Into_Class { get; set; }
+
+        //Total_Count_Students
+        private string _Total_Count_Students_Class;
+        public string Total_Count_Students_Class
+        {
+            get => _Total_Count_Students_Class;
+            set
+            {
+                _Total_Count_Students_Class = value;
+                OnPropertyChanged(nameof(Total_Count_Students_Class));
+            }
+        }
+        //Total_Count_Female
+        private string _Total_Count_Female_Class;
+        public string Total_Count_Female_Class
+        {
+            get => _Total_Count_Female_Class;
+            set
+            {
+                _Total_Count_Female_Class = value;
+                OnPropertyChanged(nameof(Total_Count_Female_Class));
+            }
+        }
+
+        //Select Student Count
+        public async Task Count_Student_Selected_Class()
+        {
+            //Get count student when selected classes.
+            _studentModel = new DatabaseConnection();
+            var (student_total_count, student_female_count) = _studentModel.Get_Count_Total_and_Female_Students_Classes(Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
+            Total_Count_Students_Class = student_total_count;
+            Total_Count_Female_Class = student_female_count;
+            Debug.WriteLine($"Count Student: {Total_Count_Students_Class}.Female: {Total_Count_Female_Class}");
+            await Task.CompletedTask;
+        }
+
+        //Command Show Students
+        public ICommand Command_Show_Student_In_Class { get; set; }
+
+        //Setup Total Student
+        private int _Max_Student_In_Class;
+        public int Max_Student_InClass
+        {
+            get => _Max_Student_In_Class;
+            set
+            {
+                if(_Max_Student_In_Class != value)
+                {
+                    _Max_Student_In_Class = value;
+                    OnPropertyChanged(nameof(Max_Student_InClass));
+                }
+            }
+        }
+        //Current Student in class
+        private int _Current_Student_InClass;
+        public int Current_Student_InClass
+        {
+            get => _Current_Student_InClass;
+            set
+            {
+                if(_Current_Student_InClass != value)
+                {
+                    _Current_Student_InClass = value;
+                    OnPropertyChanged(nameof(Current_Student_InClass));
+                }               
+            }
+        }
+        //State Class
+        private string _Current_Class_State;
+        public string Current_Class_State
+        {
+            get => _Current_Class_State;
+            set
+            {
+                _Current_Class_State = value;
+                OnPropertyChanged(nameof(Current_Class_State));
+
+            }
+        }
+
+        //Methods to Select Students in class
+        public async Task Get_Student_to_ListClassPrepare()
+        {
+            var viewModel = new StudentViewModel();
+
+            if (string.IsNullOrEmpty(Class_Name) )
+            {
+                Debug.WriteLine("No Class Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Max_Student_InClass==0)
+            {
+                Debug.WriteLine("No Enter total Student.");
+                ErrorMessage = "សូមបញ្ចូលចំនួននិស្សិតសរុបក្នុងថ្នាក់ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Max_Student_InClass < 1 || Max_Student_InClass >= 50)
+            {
+                Debug.WriteLine("Total Student should smaller than 50.");
+                ErrorMessage = "ចំនួននិស្សិតសរុបក្នុងថ្នាក់ត្រូវតែតិចជាង 50 នាក់ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                IsLoading = true;
+                try
+                {
+                    await Task.Delay(10);
+
+                    //
+                    var classList_Displays = _dbConnection.Display_Student_List_in_Class(Max_Student_InClass, Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
+                    var studentList_Displays = _dbConnection.Display_Student_List_in_Class2(Max_Student_InClass, Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
+                    // Clear the existing list to prepare for the new page data
+                    List_Students_Display.Clear();
+                    List_Student_In_Class_Display.Clear();
+                    Debug.WriteLine("Loading student.");
+
+                    // Iterate over the studentsList returned by the database and add them to the ObservableCollection                  
+                    foreach (var student in classList_Displays)
+                    {
+                        List_Students_Display.Add(student);
+                        student.Full_Name_KH = student.Stu_FirstName_KH +" "+ student.Stu_LastName_KH;                               
+                       
+                    }
+
+                    List_Students_Display = new ObservableCollection<Student_Info>(classList_Displays);
+                
+                    foreach (var student_in_class in studentList_Displays)
+                    {
+                        List_Student_In_Class_Display.Add(student_in_class);
+                        student_in_class.Full_Name_KH = student_in_class.Stu_FirstName_KH + " " + student_in_class.Stu_LastName_KH;
+                    }
+
+                    List_Student_In_Class_Display = new ObservableCollection<Student_Info>(studentList_Displays);
+
+                    int total_stu = viewModel.GetTotalStudents(Class_ID);
+                    Current_Student_InClass = total_stu;
+                    
+                   
+                }
+                finally
+                {
+                    // Hide the loading indicator
+                    IsLoading = false;
+                }
+
+                Debug.WriteLine($"Total Students: {Max_Student_InClass}");
+                Debug.WriteLine("Click Show Student in Class.");
+                OnPropertyChanged(nameof(Max_Student_InClass));
+            }
+            
+            await Task.CompletedTask;
+        }
+
+        //Add Students to class
+        private List<Student_Info> _selected_students_Add_to_Class = new List<Student_Info>();
+        public List<Student_Info> Selected_Students_to_Class
+        {
+            get => _selected_students_Add_to_Class;
+            set
+            {
+                _selected_students_Add_to_Class = value;
+                OnPropertyChanged(nameof(Selected_Students_to_Class));
+            }
+        }
+        //Delete Student in class
+        private List<Student_Info> _selected_students_in_Class = new List<Student_Info>();
+        public List<Student_Info> Selected_Students_in_Class
+        {
+            get => _selected_students_in_Class;
+            set
+            {
+                _selected_students_in_Class = value;
+                OnPropertyChanged(nameof(Selected_Students_in_Class));
+            }
+        }
+
+        //Command Insert Student to Class
+        public ICommand Command_Insert_Students_to_Class {  get; set; }
+
+        public int GetTotalStudents(string class_id)
+        {
+            // Call the method from the Database class
+            int total_stu = _dbConnection.GetTotalStudentsInClass(class_id);
+
+            if (total_stu >= 0)
+            {
+                Debug.WriteLine($"Total students in class {class_id}: {total_stu}");
+            }
+            else
+            {
+                Debug.WriteLine("An error occurred while retrieving the total student count.");
+            }
+
+            return total_stu; // Return the value for further use
+        }
+
+        
+
+        //Method Insert students to class
+        public async Task Insert_Students_to_Class()
+        {
+            var viewModel = new StudentViewModel();
+            int Total_Current_Student = viewModel.GetTotalStudents(Class_ID);
+
+            if (Selected_Students_to_Class == null || !Selected_Students_to_Class.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_ID))
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (Max_Student_InClass < 0 || Max_Student_InClass >= 50)
+            {
+                Debug.WriteLine("Total Student should smaller than 50.");
+                ErrorMessage = "ចំនួននិស្សិតសរុបក្នុងថ្នាក់ត្រូវតែតិចជាង 50 នាក់ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Max_Student_InClass < Total_Current_Student)
+            {
+                Debug.WriteLine("Total Student should bigger than Before value.");
+                ErrorMessage = "ចំនួនកំណត់និស្សិតសរុបក្នុងថ្នាក់តិចជាងចំនួននិស្សិតជាក់ស្ដែង !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {               
+                int total_stu = 0; 
+                int student_id_count = 0;
+                var class_id = Class_ID;
+                foreach (var student_class in Selected_Students_to_Class)
+                {
+                    
+                    //var class_id = Class_ID;
+                    var max_student_class = Max_Student_InClass;
+                    var student_id = new List<int> { student_class.ID };
+                    
+                    _dbConnection.Insert_Students_to_Class(student_id, class_id, max_student_class);
+                    _dbConnection.GetTotalStudentsInClass(class_id);
+
+                   
+                    Debug.WriteLine($"Selected Student ID: {student_class.ID}");
+                    Debug.WriteLine($"Selected Class ID: {class_id}");
+
+                    student_id_count++;
+                }
+
+                
+                total_stu = viewModel.GetTotalStudents(class_id);
+                Current_Student_InClass = total_stu;
+                
+                int student_select_count = Current_Student_InClass;
+
+                _dbConnection.UpdateStudentSelectCount(class_id, student_select_count);
+                await Task.CompletedTask;
+            }
+            _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+            _ = Get_Student_to_ListClassPrepare();
+
+            ErrorMessage = "និស្សិតត្រូវបានបញ្ចូលទៅក្នុងថ្នាក់បានជោគជ័យ !";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        //Command Delete Students in Class
+        public ICommand Command_Delete_Student_in_Class { get; set; }
+
+        //Method for delete student in class
+        public async Task Delete_Student_in_Class()
+        {
+            var viewModel = new StudentViewModel();
+
+            if (Selected_Students_in_Class == null || !Selected_Students_in_Class.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_ID))
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                int total_stu = 0;
+                int student_select_count = 0;
+                var class_id = Class_ID;
+
+                foreach (var student_in_class in Selected_Students_in_Class)
+                {
+                    student_select_count++;
+                                      
+                    var student_id = new List<int> { student_in_class.ID };
+
+
+                    Debug.WriteLine($"Selected Student in Class ID: {student_in_class.ID}");
+                    Debug.WriteLine($"Selected Class ID: {class_id}");
+                    
+
+                    var result = _dbConnection.Delete_Students_in_Class(student_id, class_id);
+                    
+
+                    if (result)
+                    {
+                        total_stu = viewModel.GetTotalStudents(class_id);
+                        Current_Student_InClass = total_stu;
+
+                        _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
+                        _ = Get_Student_to_ListClassPrepare();
+
+                        Debug.WriteLine("All students were successfully removed from the class.");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Failed to remove one or more students from the class.");
+
+                        //Error Message
+                        ErrorMessage = "បរាជ័យ  !";
+                        ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                        MessageColor = new SolidColorBrush(Colors.Red);
+                        return;
+                    }                 
+                }
+
+                total_stu = viewModel.GetTotalStudents(class_id);
+                Current_Student_InClass = total_stu;
+
+                int total_student_select_count = Current_Student_InClass;
+
+                _dbConnection.UpdateStudentSelectCount(class_id, total_student_select_count);
+
+                Debug.WriteLine($"Current Student Selected Count: {total_student_select_count}");
+
+                //Success Message
+                Debug.WriteLine("Success delete students in class.");
+                ErrorMessage = "និស្សិតត្រូវបានលុបចេញជោគជ័យ!";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public ICommand Command_ClearStudent_in_ClassList { get; set; }
+        //Clear Multi Student Class
+        public async Task ClearStudent_in_ClassList()
+        {
+            if (Selected_Students_to_Class == null || !Selected_Students_to_Class.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                foreach (var student_class in Selected_Students_to_Class)
+                {
+                    //var student_id = Selected_Students_to_Class.Select(c => c.ID).ToList();
+
+                    if (List_Students_Display.Contains(student_class))
+                    {
+                        List_Students_Display.Remove(student_class);
+                    }
+                    Debug.WriteLine("Student Removed");
+                    OnPropertyChanged(nameof(Selected_Students_to_Class));
+                    Selected_Students_to_Class = null;
+
+                }         
+
+                //Success Message
+                ErrorMessage = "និស្សិតត្រូវបានដកចេញជោគជ័យ!";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+                
+            }
+            await Task.CompletedTask;
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

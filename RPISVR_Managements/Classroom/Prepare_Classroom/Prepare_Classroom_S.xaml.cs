@@ -432,5 +432,62 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
         {
             Frame.Navigate(typeof(Add_Classrooms));
         }
+
+        private void Selected_Student_Add_to_Class(object sender, SelectionChangedEventArgs e)
+        {
+            var listView_student = sender as ListView;
+            var selected_Students_to_Classes = listView_student.SelectedItems.Cast<Student_Info>().ToList();
+            // Check if there are any selected items
+            var first_Student_ClassSelectedItem = listView_student.SelectedItems.Cast<Student_Info>().FirstOrDefault();
+            // Update the ViewModel with the selected items
+            if (DataContext is StudentViewModel viewModel)
+            {
+                viewModel.Selected_Students_to_Class = selected_Students_to_Classes;
+                //viewModel.FirstSelectedClass = first_Student_ClassSelectedItem;
+            }
+        }
+
+        private void btn_select_all_Items(object sender, RoutedEventArgs e)
+        {
+            if(sender is ToggleButton toggleButton)
+            {
+                // Check if the ListView has items
+                if (List_Students_Display.ItemsSource is IEnumerable<object> items)
+                {
+                    if (toggleButton.IsChecked == true) // If ToggleButton is checked
+                    {
+                        // Select all items
+                        List_Students_Display.SelectedItems.Clear();
+                        foreach (var item in items)
+                        {
+                            List_Students_Display.SelectedItems.Add(item);
+                        }
+                        FontIcon icon = new FontIcon();
+                        icon.Glyph = "\uE73A"; // Update the button content
+                    }
+                    else // If ToggleButton is unchecked
+                    {
+                        // Deselect all items
+                        List_Students_Display.SelectedItems.Clear();
+                        FontIcon icon = new FontIcon();
+                        icon.Glyph = "\uE73B";
+                    }
+                }
+            }
+        }
+
+        private void Selected_Student_In_Class_Delete(object sender, SelectionChangedEventArgs e)
+        {
+            var listView_student_in_class = sender as ListView;
+            var selected_Students_in_Classes = listView_student_in_class.SelectedItems.Cast<Student_Info>().ToList();
+            // Check if there are any selected items
+            var first_Student_ClassSelectedItem = listView_student_in_class.SelectedItems.Cast<Student_Info>().FirstOrDefault();
+            // Update the ViewModel with the selected items
+            if (DataContext is StudentViewModel viewModel)
+            {
+                viewModel.Selected_Students_in_Class = selected_Students_in_Classes;
+                //viewModel.FirstSelectedClass = first_Student_ClassSelectedItem;
+            }
+        }
     }
 }
