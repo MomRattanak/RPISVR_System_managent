@@ -1281,6 +1281,11 @@
                                     
                             </ScrollView>
                         </TabViewItem>
+
+                        <!--Create a curriculum-->
+                        <TabViewItem x:Name="TabView_Create_Curriculum">
+                            
+                        </TabViewItem>
                     </TabView.TabItems>
                 </TabView>
             </Grid>
