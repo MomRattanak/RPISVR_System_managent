@@ -1225,7 +1225,7 @@
                                                 <TextBlock Text="លេខរៀង" Margin="25,0,0,0" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="រូបភាព" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="ឈ្មោះ" Width="100"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="ភេទ" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="ថ្ងៃខែកំណើត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="អត្តលេខ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             </StackPanel>
@@ -1240,7 +1240,7 @@
                                                                     <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
                                                                     <TextBlock Text="{Binding Full_Name_KH}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding Stu_Gender}" Width="40" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
-                                                                    <TextBlock Text="{Binding Stu_BirthdayDateShow}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding Stu_BirthdayDateShow}" Width="80" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding Stu_ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                 </StackPanel>
@@ -1266,7 +1266,7 @@
                                                     </Button.Content>
                                                 </Button>
 
-                                                <Button x:Name="btn_export_stu_to_excel" Style="{StaticResource Stye_KH_Button}" Width="80" Height="60">
+                                                <Button x:Name="btn_export_stu_to_excel" Command="{Binding Command_Export_Student_Inclass_ToExcel}" Style="{StaticResource Stye_KH_Button}" Width="80" Height="60">
                                                     <StackPanel Orientation="Vertical">
                                                         <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="25" Height="25"/>
                                                         <TextBlock Text="Excel"/>

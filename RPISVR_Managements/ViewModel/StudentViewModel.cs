@@ -100,7 +100,7 @@ namespace RPISVR_Managements.ViewModel
             Command_ClearStudent_in_ClassList = new RelayCommand(async () => await ClearStudent_in_ClassList());
             Command_Delete_Student_in_Class = new RelayCommand(async () => await Delete_Student_in_Class());
             Command_Export_Student_in_class_to_PDF = new RelayCommand(async () => await Export_Student_in_class_to_PDF());
-
+            Command_Export_Student_Inclass_ToExcel = new RelayCommand(async () => await GenerateExcel_Student_In_Class_Report());
 
             //Student
             SubmitCommand = new RelayCommand(async () => await SubmitAsync());
@@ -6896,6 +6896,9 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask; 
         }
 
+        //Command Export Student in Class to Excel
+        public ICommand Command_Export_Student_Inclass_ToExcel {  get; set; }
+
         //Student in Class Report Excel
         public async Task GenerateExcel_Student_In_Class_Report()
         {
@@ -6915,8 +6918,19 @@ namespace RPISVR_Managements.ViewModel
             }
             else
             {
+                var class_id = Class_ID;
+                string class_name = Class_Name;
+                string class_in_skill = Class_In_Skill;
+                string class_in_level = Class_In_Level;
+                string class_in_study_year = Class_In_Study_Year;
+                string class_in_student_year = Class_In_Student_Year;
+                string class_in_semester = Class_In_Semester;
+                string class_in_generation = Class_In_Generation;
+                string class_study_time_shift = Class_In_Study_Timeshift;
+                string class_in_study_type = Class_In_Study_Type;
+
                 //ExportExcel_Student_Report.ExportToExcel(SelectedStudents_Report.ToList(), Education_Level_Text);
-                Export_Excel_Students_In_Class.
+                Export_Excel_Students_In_Class.ExportToExcel(Selected_Students_in_Class, class_id, class_name, class_in_skill, class_in_level, class_in_study_year, class_in_student_year, class_in_semester, class_in_generation, class_study_time_shift, class_in_study_type);
             }
             await Task.CompletedTask;
         }
