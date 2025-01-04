@@ -973,7 +973,7 @@
                                     <StackPanel x:Name="Click_Class_Info" Margin="10,0,10,0" HorizontalAlignment="Left">
                                        <!--Header-->
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យថ្នាក់រៀន" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
+                                            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យថ្នាក់រៀន (Local)" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
                                             <Button x:Name="Clear_Class_Add_Student" Command="{Binding Clear_Class_In_Add_Student_Into_Class}" Style="{StaticResource Stye_KH_Button}" Width="50">
                                                 <Button.Resources>
                                                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Red" />
@@ -995,14 +995,14 @@
                                                             <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ឆ្នាំសិក្សា" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                            <TextBlock Text="កម្រិតសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="កម្រិតសិក្សា" Width="170" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ឆ្នាំទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ឆមាស" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ជំនាន់ទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="វេនសិក្សា" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ប្រភេទសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ចំនួននិស្សិតកំណត់ក្នុងថ្នាក់" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                            <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                             <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
                                                         </StackPanel>
                                                     </ListView.Header>
@@ -1013,7 +1013,7 @@
                                                                 <TextBlock Text="{Binding Class_Name}" Width="160"/>
                                                                 <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                                                 <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
-                                                                <TextBlock Text="{Binding Class_In_Level}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Level}" Width="160" Style="{StaticResource Font_KH_Body}"/>
                                                                 <TextBlock Text="{Binding Class_In_Student_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                                                 <TextBlock Text="{Binding Class_In_Semester}" Width="90" Style="{StaticResource Font_KH_Body}"/>
                                                                 <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
@@ -1176,7 +1176,7 @@
                                     <ScrollView x:Name="Table_Class_Show_Student" ContentOrientation="Horizontal" HorizontalAlignment="Left" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
                                         <StackPanel Margin="10,0,10,10" CornerRadius="3">
                                             <!--Items Selected-->
-                                            <ListView x:Name="List_Students_Display" Width="550" IsMultiSelectCheckBoxEnabled="True" SelectionMode="Multiple" ItemsSource="{Binding List_Students_Display}" SelectionChanged="Selected_Student_Add_to_Class" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Green" BorderThickness="3">
+                                                    <ListView x:Name="List_Students_Display" Width="550" IsMultiSelectCheckBoxEnabled="True" SelectionMode="Multiple" ItemsSource="{Binding List_Students_Display}" SelectionChanged="Selected_Student_Add_to_Class" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Green" BorderThickness="3">
                                                 <ListView.ItemTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
@@ -1225,7 +1225,7 @@
                                                 <TextBlock Text="លេខរៀង" Margin="25,0,0,0" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="រូបភាព" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="ឈ្មោះ" Width="100"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ភេទ" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="ថ្ងៃខែកំណើត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                                 <TextBlock Text="អត្តលេខ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             </StackPanel>
@@ -1240,7 +1240,7 @@
                                                                     <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
                                                                     <TextBlock Text="{Binding Full_Name_KH}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding Stu_Gender}" Width="40" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
-                                                                    <TextBlock Text="{Binding Stu_BirthdayDateOnly}" Width="70" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
+                                                                    <TextBlock Text="{Binding Stu_BirthdayDateShow}" Width="100" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding Stu_ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                     <TextBlock Text="{Binding ID}" Width="90" Style="{StaticResource Font_KH_Body}" Padding="0,10,0,0"/>
                                                                 </StackPanel>
@@ -1249,6 +1249,31 @@
                                                     </ListView>
                                                 </StackPanel>
                                             </ScrollView>
+
+                                            <StackPanel Orientation="Horizontal">
+                                                <ToggleButton x:Name="btn_select_all_stu" Click="btn_select_all_student_in_class" Style="{StaticResource Stye_KH_TogleButton}" Width="80" Height="60" Margin="20,8,5,10">
+                                                    <StackPanel Orientation="Vertical">
+                                                        <FontIcon Glyph="&#xE73A;" />
+                                                        <TextBlock Text="ជ្រើសរើស" Style="{StaticResource Font_KH_Body}"/>
+                                                    </StackPanel>
+                                                </ToggleButton>
+                                                <Button x:Name="btn_export_stu_class_to_pdf" Command="{Binding Command_Export_Student_in_class_to_PDF}" Style="{StaticResource Stye_KH_Button}" Width="80" Height="60">
+                                                    <Button.Content>
+                                                        <StackPanel Orientation="Vertical">
+                                                            <Image Source="/Assets/Report_Student_Info_Icon/icons8-pdf-96.png" Width="25" Height="25"/>
+                                                            <TextBlock Text="PDF"/>
+                                                        </StackPanel>
+                                                    </Button.Content>
+                                                </Button>
+
+                                                <Button x:Name="btn_export_stu_to_excel" Style="{StaticResource Stye_KH_Button}" Width="80" Height="60">
+                                                    <StackPanel Orientation="Vertical">
+                                                        <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="25" Height="25"/>
+                                                        <TextBlock Text="Excel"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                            
                                         </StackPanel>
                                     </Grid>
 

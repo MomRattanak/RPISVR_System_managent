@@ -99,6 +99,7 @@ namespace RPISVR_Managements.ViewModel
             Command_Insert_Students_to_Class = new RelayCommand(async () => await Insert_Students_to_Class());
             Command_ClearStudent_in_ClassList = new RelayCommand(async () => await ClearStudent_in_ClassList());
             Command_Delete_Student_in_Class = new RelayCommand(async () => await Delete_Student_in_Class());
+            Command_Export_Student_in_class_to_PDF = new RelayCommand(async () => await Export_Student_in_class_to_PDF());
 
 
             //Student
@@ -6435,7 +6436,7 @@ namespace RPISVR_Managements.ViewModel
                     Max_Student_InClass = _selectedClass_Add_Student.Max_Student_InClass;
                     Current_Class_State = _selectedClass_Add_Student.Current_Class_State;
 
-                    Debug.WriteLine($"Class ID: {Class_ID}");
+                    Debug.WriteLine($"Class dd ID: {Class_ID}");
                     _=Count_Student_Selected_Class();
                 }
             }
@@ -6568,17 +6569,19 @@ namespace RPISVR_Managements.ViewModel
                     // Iterate over the studentsList returned by the database and add them to the ObservableCollection                  
                     foreach (var student in classList_Displays)
                     {
+                        student.Full_Name_KH = student.Stu_FirstName_KH +" "+ student.Stu_LastName_KH;
                         List_Students_Display.Add(student);
-                        student.Full_Name_KH = student.Stu_FirstName_KH +" "+ student.Stu_LastName_KH;                               
-                       
                     }
 
                     List_Students_Display = new ObservableCollection<Student_Info>(classList_Displays);
                 
                     foreach (var student_in_class in studentList_Displays)
                     {
-                        List_Student_In_Class_Display.Add(student_in_class);
+                        
                         student_in_class.Full_Name_KH = student_in_class.Stu_FirstName_KH + " " + student_in_class.Stu_LastName_KH;
+                        student_in_class.Full_Name_EN = student_in_class.Stu_FirstName_EN + " " + student_in_class.Stu_LastName_EN;
+                        student_in_class.Stu_BirthdayDateShow = ConvertToKhmerDate(student_in_class.Stu_BirthdayDateOnly);
+                        List_Student_In_Class_Display.Add(student_in_class);
                     }
 
                     List_Student_In_Class_Display = new ObservableCollection<Student_Info>(studentList_Displays);
@@ -6653,9 +6656,10 @@ namespace RPISVR_Managements.ViewModel
             var viewModel = new StudentViewModel();
             int Total_Current_Student = viewModel.GetTotalStudents(Class_ID);
 
+
             if (Selected_Students_to_Class == null || !Selected_Students_to_Class.Any())
             {
-                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន  !";
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន dd !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
@@ -6675,10 +6679,10 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Max_Student_InClass < Total_Current_Student)
+            if(Total_Current_Student >= Max_Student_InClass)
             {
                 Debug.WriteLine("Total Student should bigger than Before value.");
-                ErrorMessage = "ចំនួនកំណត់និស្សិតសរុបក្នុងថ្នាក់តិចជាងចំនួននិស្សិតជាក់ស្ដែង !";
+                ErrorMessage = "និស្សិតសរុបក្នុងថ្នាក់ គ្រប់ចំនួនហើយ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
@@ -6690,32 +6694,40 @@ namespace RPISVR_Managements.ViewModel
                 var class_id = Class_ID;
                 foreach (var student_class in Selected_Students_to_Class)
                 {
+                    total_stu = viewModel.GetTotalStudents(class_id);
+                    Current_Student_InClass = total_stu;
+
+                    
+
+                    if (Current_Student_InClass >= Max_Student_InClass)
+                    {
+                        Debug.WriteLine("The class is already full. No more students can be added.");
+                        //return;
+                        break;
+                    }
                     
                     //var class_id = Class_ID;
                     var max_student_class = Max_Student_InClass;
                     var student_id = new List<int> { student_class.ID };
-                    
-                    _dbConnection.Insert_Students_to_Class(student_id, class_id, max_student_class);
-                    _dbConnection.GetTotalStudentsInClass(class_id);
 
-                   
+                    _dbConnection.Insert_Students_to_Class(student_id, class_id, max_student_class);
+                        
                     Debug.WriteLine($"Selected Student ID: {student_class.ID}");
                     Debug.WriteLine($"Selected Class ID: {class_id}");
 
+                    total_stu = viewModel.GetTotalStudents(class_id);
+                    _dbConnection.UpdateStudentSelectCount(class_id, total_stu);
+                    Current_Student_InClass = total_stu;
                     student_id_count++;
+                   
                 }
+               
 
-                
-                total_stu = viewModel.GetTotalStudents(class_id);
-                Current_Student_InClass = total_stu;
-                
-                int student_select_count = Current_Student_InClass;
-
-                _dbConnection.UpdateStudentSelectCount(class_id, student_select_count);
                 await Task.CompletedTask;
             }
             _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
             _ = Get_Student_to_ListClassPrepare();
+  
 
             ErrorMessage = "និស្សិតត្រូវបានបញ្ចូលទៅក្នុងថ្នាក់បានជោគជ័យ !";
             ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -6779,7 +6791,7 @@ namespace RPISVR_Managements.ViewModel
                         Debug.WriteLine("Failed to remove one or more students from the class.");
 
                         //Error Message
-                        ErrorMessage = "បរាជ័យ  !";
+                        ErrorMessage = "បរាជ័យក្នុងការលុបទិន្នន័យ !";
                         ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                         MessageColor = new SolidColorBrush(Colors.Red);
                         return;
@@ -6841,6 +6853,73 @@ namespace RPISVR_Managements.ViewModel
             await Task.CompletedTask;
         }
 
+        //Command Export Student in class to PDF
+        public ICommand Command_Export_Student_in_class_to_PDF { get; set; }
+
+        public async Task Export_Student_in_class_to_PDF()
+        {
+            if (Selected_Students_in_Class == null || !Selected_Students_in_Class.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតក្នុងថ្នាក់ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_Name))
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine("Export Student to PDF Success.");
+                
+                //int student_select_count = 0;
+                var class_id = Class_ID;
+                string class_name = Class_Name;
+                string class_in_skill = Class_In_Skill;
+                string class_in_level = Class_In_Level;
+                string class_in_study_year = Class_In_Study_Year;
+                string class_in_student_year = Class_In_Student_Year;
+                string class_in_semester = Class_In_Semester;
+                string class_in_generation = Class_In_Generation;
+                string class_study_time_shift = Class_In_Study_Timeshift;
+                string class_in_study_type = Class_In_Study_Type;
+                
+                //File Class_toPDF.
+                PDFService_Generate_Student_In_Class.CreateReport(Selected_Students_in_Class, class_id, class_name, class_in_skill, class_in_level, class_in_study_year, class_in_student_year, class_in_semester, class_in_generation, class_study_time_shift, class_in_study_type);
+
+            }
+
+            await Task.CompletedTask; 
+        }
+
+        //Student in Class Report Excel
+        public async Task GenerateExcel_Student_In_Class_Report()
+        {
+            if (Selected_Students_in_Class == null || !Selected_Students_in_Class.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតក្នុងថ្នាក់ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (string.IsNullOrEmpty(Class_Name))
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                //ExportExcel_Student_Report.ExportToExcel(SelectedStudents_Report.ToList(), Education_Level_Text);
+                Export_Excel_Students_In_Class.
+            }
+            await Task.CompletedTask;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
