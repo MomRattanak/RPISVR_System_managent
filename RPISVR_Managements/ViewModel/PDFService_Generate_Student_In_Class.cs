@@ -1,32 +1,26 @@
-﻿using Mysqlx.Crud;
-using Mysqlx.Resultset;
-using MySqlX.XDevAPI.Relational;
-using QuestPDF.Drawing;
+﻿using QuestPDF.Drawing;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using RPISVR_Managements.Model;
-using RPISVR_Managements.Student_Informations.Report_Student_Informations;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.System;
 
 namespace RPISVR_Managements.ViewModel
 {
-    public class PDFService_Report_Student_Solarship
+    public class PDFService_Generate_Student_In_Class
     {
-        public static void CreateReport(List<Student_Info> student_solarship,string SearchText_Education_StudyType, string Education_Level_Text,string Education_Start_Date,string Stu_StudyYear)
+        public static void CreateReport(List<Student_Info> student_in_class,string class_id,string class_name,string class_in_skill,string class_in_level,string class_in_study_year,string class_in_student_year,string class_in_semester,string class_in_generation,string class_study_time_shift,string class_in_study_type)
         {
             //Set up QuestPDF license(community)
             QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
             //Define the path to save the PDF file in the Documents folder
             string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string filePath = Path.Combine(documentsPath, $"បញ្ជីឈ្មោះសិស្សនិស្សិត{SearchText_Education_StudyType}កម្រិត{Education_Level_Text}ឆ្នាំសិក្សា {Stu_StudyYear}.pdf");
+            string filePath = Path.Combine(documentsPath, $"បញ្ជីឈ្មោះសិស្សនិស្សិតថ្នាក់({class_name})_ជំនាញ({class_in_skill}).pdf");
 
             //Load Font Khmer
             string baseFontPath = Path.Combine(AppContext.BaseDirectory, "Resources");
@@ -39,15 +33,11 @@ namespace RPISVR_Managements.ViewModel
                 FontManager.RegisterFont(fontStream);
             }
 
-            // Group students by skill subject
-            var groupedStudents = student_solarship.GroupBy(s => s.Stu_EducationSubjects).ToList();
-
-
             //Count Total Student
-            int totalStudents = student_solarship.Count;
+            int totalStudents = student_in_class.Count;
             // Count female students
-            int femaleStudents = student_solarship.Count(student_solarship => student_solarship.Stu_Gender == "ស្រី");
-            //PDF Document
+            int femaleStudents = student_in_class.Count(student_in_class_female => student_in_class_female.Stu_Gender == "ស្រី");
+
             Document.Create(container =>
             {
                 container.Page(page =>
@@ -55,15 +45,6 @@ namespace RPISVR_Managements.ViewModel
                     page.Margin(20);
                     page.Size(PageSizes.A4);
 
-                    //Design Header Section
-                    page.Header().Column(column =>
-                    {
-                       
-                        
-                        //Education StudyYear
-
-
-                    });
                     // Table Content Section
                     page.Content().PaddingVertical(20).Column(column =>
                     {
@@ -106,17 +87,27 @@ namespace RPISVR_Managements.ViewModel
                             headerColumn.Item().PaddingVertical(10);
 
                             //Title Text
-                            headerColumn.Item().Text($"បញ្ជីរាយនាមសិស្សនិស្សិតដែលបានចុះឈ្មោះចូលរៀន{SearchText_Education_StudyType}")
+                            headerColumn.Item().Text($"បញ្ជីរាយនាមនិស្សិត")
                                 .FontFamily("Khmer Muol")
                                 .FontSize(11)
                                 .AlignCenter();
-                            //Education Level Text
-                            headerColumn.Item().Text($"កម្រិតសិក្សា {Education_Level_Text}")
+                            //Class Name Text
+                            headerColumn.Item().Text($"ថ្នាក់រៀន៖ {class_name}")
                                 .FontFamily("Khmer Muol")
                                 .FontSize(11)
                                 .AlignCenter();
-                            //Education Date Start
-                            headerColumn.Item().Text($"ឆ្នាំសិក្សា {Stu_StudyYear} ចូលរៀននៅ{Education_Start_Date}")
+                            //Study Year, Study Skill
+                            headerColumn.Item().Text($"ឆ្នាំសិក្សា {class_in_study_year} ជំនាញ {class_in_skill}")
+                                .FontFamily("Khmer Muol")
+                                .FontSize(11)
+                                .AlignCenter();
+                            //Study Level, Study Year, Semester
+                            headerColumn.Item().Text($"កម្រិត {class_in_level} ជំនាន់ទី {class_in_generation}  ឆ្នាំទី {class_in_student_year} ឆមាស {class_in_semester}")
+                                .FontFamily("Khmer Muol")
+                                .FontSize(11)
+                                .AlignCenter();
+                            //Study Type, Time Shift
+                            headerColumn.Item().Text($"{class_in_study_type} {class_study_time_shift}")
                                 .FontFamily("Khmer Muol")
                                 .FontSize(11)
                                 .AlignCenter();
@@ -147,40 +138,21 @@ namespace RPISVR_Managements.ViewModel
                                 header.Cell().Border(1).Text("លេខទូរស័ព្ទ").FontSize(11).FontFamily("Khmer Muol").AlignCenter();
                                 header.Cell().Border(1).Text("ប្រភេទសិស្ស").FontSize(11).FontFamily("Khmer Muol").AlignCenter();
                             });
-                            // Table Rows                      
-                            foreach (var group_student in groupedStudents)
+                            // Table Rows
+                            int index = 1;
+                            foreach (var student_info in student_in_class)
                             {
-                                var skillsubject = group_student.Key;
-                                bool isFirstRow = true;
-                                int index = 1;
-                                foreach (var student in group_student)
-                                {
+                                //Index
+                                table.Cell().Border(1).AlignCenter().Text(index.ToString()).FontSize(11);
+                                //Full Infomation
+                                table.Cell().Border(1).AlignLeft().PaddingLeft(3).EnsureSpace().Text(student_info.Full_Name_KH).FontSize(11).FontFamily("Khmer OS Siemreap");
+                                table.Cell().Border(1).AlignLeft().PaddingLeft(3).EnsureSpace().Text(student_info.Full_Name_EN).FontSize(11).FontFamily("Khmer OS Siemreap");
+                                table.Cell().Border(1).AlignCenter().Text(student_info.Stu_Gender).FontSize(11).FontFamily("Khmer OS Siemreap");
+                                table.Cell().Border(1).AlignCenter().Text(student_info.Stu_BirthdayDateShow).FontSize(11).FontFamily("Khmer OS Siemreap");
+                                table.Cell().Border(1).AlignLeft().PaddingLeft(3).Text($"0{student_info.Stu_PhoneNumber}").FontSize(11).FontFamily("Khmer OS Siemreap");
+                                table.Cell().Border(1).AlignCenter().Text(student_info.Stu_StatePoor).FontSize(11).FontFamily("Khmer OS Siemreap");
 
-                                    // Skill Subject Column (only displayed once per group)
-                                    if (isFirstRow)
-                                    {
-                                        table.Cell().ColumnSpan(7) // Apply RowSpan directly after Cell()
-                                        .Border(1)
-                                        .AlignLeft()
-                                        .PaddingLeft(5)
-                                        .Text($"ជំនាញ៖ {skillsubject}")
-                                        .FontSize(11)
-                                        .FontFamily("Khmer Muol");
-                                        isFirstRow = false;
-                                    }
-                                    //Index
-                                    table.Cell().Border(1).AlignCenter().Text(index.ToString()).FontSize(11);
-                                    //Full Name KH
-                                    table.Cell().Border(1).AlignLeft().PaddingLeft(3).EnsureSpace().Text(student.Full_Name_KH).FontSize(11).FontFamily("Khmer OS Siemreap");
-                                    table.Cell().Border(1).AlignLeft().PaddingLeft(3).EnsureSpace().Text(student.Full_Name_EN).FontSize(11).FontFamily("Khmer OS Siemreap");
-                                    table.Cell().Border(1).AlignCenter().Text(student.Stu_Gender).FontSize(11).FontFamily("Khmer OS Siemreap");
-                                    table.Cell().Border(1).AlignCenter().Text(student.Stu_BirthdayDateOnly).FontSize(11).FontFamily("Khmer OS Siemreap");
-                                    table.Cell().Border(1).AlignLeft().PaddingLeft(3).Text($"0{student.Stu_PhoneNumber}").FontSize(11).FontFamily("Khmer OS Siemreap");
-                                    table.Cell().Border(1).AlignCenter().Text(student.Stu_StatePoor).FontSize(11).FontFamily("Khmer OS Siemreap");
-
-                                    index++;
-
-                                }
+                                index++;
                             }
                         });
                         column.Item().Column(TotalStudent =>
@@ -191,7 +163,7 @@ namespace RPISVR_Managements.ViewModel
                                 row.RelativeItem().AlignRight().Text($"សិស្សនិស្សិតសរុប {totalStudents} នាក់ ស្រី {femaleStudents} នាក់")
                                     .FontFamily("Khmer OS Siemreap")
                                     .FontSize(11);
-                            });     
+                            });
                         });
                         column.Item().PaddingTop(10).Column(belowTableColumn =>
                         {
@@ -225,18 +197,7 @@ namespace RPISVR_Managements.ViewModel
                         });
 
                     });
-                    
-                    // Footer with Page Numbering
-                    page.Footer().AlignCenter().Text(text =>
-                    {
-                        text.Span("ទំព័រ ").FontFamily("Khmer OS Siemreap").FontSize(9);
-                        text.CurrentPageNumber().FontFamily("Khmer OS Siemreap").FontSize(9);
-                        text.Span(" នៃ ").FontFamily("Khmer OS Siemreap").FontSize(9);
-                        text.TotalPages().FontFamily("Khmer OS Siemreap").FontSize(9);
-                    });
-
                 });
-
             })
 
             .GeneratePdf(filePath);

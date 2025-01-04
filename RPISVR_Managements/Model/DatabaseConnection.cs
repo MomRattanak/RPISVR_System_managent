@@ -3951,9 +3951,13 @@ namespace RPISVR_Managements.Model
                                     ID = reader.GetInt32("ID"),
                                     Stu_ID = reader.GetString("stu_id"),
                                     Stu_FirstName_KH = reader.GetString("stu_firstname_kh"),
+                                    Stu_FirstName_EN = reader.GetString("stu_firstname_en"),
                                     Stu_LastName_KH = reader.GetString("stu_lastname_kh"),
+                                    Stu_LastName_EN = reader.GetString("stu_lastname_en"),
                                     Stu_BirthdayDateOnly = reader.GetString("stu_birthday_dateonly"),
                                     Stu_Gender = reader.GetString("stu_gender"),
+                                    Stu_PhoneNumber = reader.GetString("stu_phone_number"),
+                                    Stu_StatePoor = reader.GetString("stu_state_poor"),
                                     Stu_IDShow = Stu_ID_Show.ToString()
                                 };
 
