@@ -71,6 +71,8 @@ namespace RPISVR_Managements.Model
                 Debug.WriteLine("Connection Closed.");
             }
         }
+
+        
         //Method to Load Class to ListView
         //GetClass_Info
         //Method to Insert Class Information
@@ -3517,45 +3519,6 @@ namespace RPISVR_Managements.Model
             return student_info_report;
         }
 
-        //Student_Check-info Before Insert
-        public async Task<(string Stu_FirstName_KH1,string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1,string Stu_StudyYear1)> GetStudents_Check_Student_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
-        {
-            const string query = "SELECT stu_firstname_kh, stu_lastname_kh, stu_gender, stu_birthday_dateonly, stu_education_types, stu_study_year " +
-                             "FROM student_infomations WHERE stu_firstname_kh = @Stu_FirstName_KH && stu_lastname_kh = @Stu_LastName_KH && stu_gender = @Stu_Gender && stu_education_types = @Stu_EducationType && stu_study_year = @Stu_StudyYear";
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                await conn.OpenAsync();
-
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Stu_FirstName_KH", Stu_FirstName_KH);
-                    cmd.Parameters.AddWithValue("@Stu_LastName_KH", Stu_LastName_KH);
-                    cmd.Parameters.AddWithValue("@Stu_Gender", Stu_Gender);
-                    cmd.Parameters.AddWithValue("@Stu_BirthdayDateOnly", Stu_BirthdayDateOnly);
-                    cmd.Parameters.AddWithValue("@Stu_EducationType", Stu_EducationType);
-                    cmd.Parameters.AddWithValue("@Stu_StudyYear", Stu_StudyYear);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (await reader.ReadAsync())
-                        {
-                            return (
-                                Stu_FirstName_KH1: reader["stu_firstname_kh"].ToString(),
-                                Stu_LastName_KH1: reader["stu_lastname_kh"].ToString(),
-                                Stu_Gender1: reader["stu_gender"].ToString(),
-                                Stu_BirthdayDateOnly1: reader["stu_birthday_dateonly"].ToString(),
-                                Stu_EducationType1: reader["stu_education_types"].ToString(),
-                                Stu_StudyYear1: reader["stu_study_year"].ToString()
-                            );
-                        }
-                    }
-
-                }
-            }
-            return (Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType, Stu_StudyYear);
-
-        }
 
         int No_Classes = 0;
         //Search by Name, Generation Class
@@ -4010,14 +3973,6 @@ namespace RPISVR_Managements.Model
         }
 
 
-        //Method Check class before insert
-        //public async  Task<(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)> GetClasses_Check_Info(string Class_Name, string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)
-        //{
-        //    //const string query = "SELECT * FROM classes "
-
-        //    await Task.CompletedTask;
-        //}
-
         //Method for select count total student in class
         public int GetTotalStudentsInClass(string class_id)
         {
@@ -4229,6 +4184,157 @@ namespace RPISVR_Managements.Model
             }
         }
 
+        //Method to Insert Teacher
+        public bool Insert_TeacherInfomations(Teacher_Informatioins teacher_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO teacher_informatin(Techer_ID,Techer_Name_KH,Techer_Name_EN,Techer_Phone) " +
+                        "VALUES(@Techer_ID,@Techer_Name_KH,@Techer_Name_EN,@Techer_Phone)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    //cmd.Parameters.AddWithValue("@id", "ID");
+                    cmd.Parameters.AddWithValue("@Techer_ID", teacher_info.Teacher_ID);
+                    cmd.Parameters.AddWithValue("@Techer_Name_KH", teacher_info.Teacher_Name_KH);
+                    cmd.Parameters.AddWithValue("@Techer_Name_EN", teacher_info.Teacher_Name_EN);
+                    cmd.Parameters.AddWithValue("@Techer_Phone", teacher_info.Teacher_Phone);
+
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Insert Teacher Info Error: {ex.ToString()}");
+                return false;
+            }
+        }
+        //Check Teacher info before insert
+        public async Task<(string Teacher_Name_KH1,string Teacher_Name_EN1,string Teacher_Phone1)> GetTeacher_Info_Check(string Teacher_Name_KH, string Teacher_Name_EN, string Teacher_Phone)
+        {
+            try
+            {
+                const string query_check = "SELECT Techer_Name_KH,Techer_Name_EN,Techer_Phone FROM teacher_informatin WHERE Techer_Name_KH = @Techer_Name_KH AND Techer_Name_EN = @Techer_Name_EN AND Techer_Phone = @Techer_Phone";
+
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query_check, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Techer_Name_KH",Teacher_Name_KH);
+                        cmd.Parameters.AddWithValue("@Techer_Name_EN",Teacher_Name_EN);
+                        cmd.Parameters.AddWithValue("@Techer_Phone",Teacher_Phone);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return (
+                                    
+                                    Teacher_Name_KH1: reader["Techer_Name_KH"].ToString(),
+                                    Teacher_Name_EN1: reader["Techer_Name_EN"].ToString(),
+                                    Teacher_Phone1: reader["Techer_Phone"].ToString()
+                                   
+                                );
+                            }
+                        }
+                    }
+                }    
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($"Check Teacher before Insert Error: {ex.ToString()}");
+                
+            }
+            // Return default values if no match is found
+            return (null, null, null);
+        }
+        //Method Check Student Before Insert
+        public async Task<(string Stu_FirstName_KH1, string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1, string Stu_StudyYear1)> GetStudents_Check_Student_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
+        {
+            const string query = "SELECT stu_firstname_kh, stu_lastname_kh, stu_gender, stu_birthday_dateonly, stu_education_types, stu_study_year " +
+                             "FROM student_infomations WHERE stu_firstname_kh = @Stu_FirstName_KH && stu_lastname_kh = @Stu_LastName_KH && stu_gender = @Stu_Gender && stu_birthday_dateonly = @Stu_BirthdayDateOnly && stu_education_types = @Stu_EducationType && stu_study_year = @Stu_StudyYear";
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Stu_FirstName_KH", Stu_FirstName_KH);
+                    cmd.Parameters.AddWithValue("@Stu_LastName_KH", Stu_LastName_KH);
+                    cmd.Parameters.AddWithValue("@Stu_Gender", Stu_Gender);
+                    cmd.Parameters.AddWithValue("@Stu_BirthdayDateOnly", Stu_BirthdayDateOnly);
+                    cmd.Parameters.AddWithValue("@Stu_EducationType", Stu_EducationType);
+                    cmd.Parameters.AddWithValue("@Stu_StudyYear", Stu_StudyYear);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                Stu_FirstName_KH1: reader["stu_firstname_kh"].ToString(),
+                                Stu_LastName_KH1: reader["stu_lastname_kh"].ToString(),
+                                Stu_Gender1: reader["stu_gender"].ToString(),
+                                Stu_BirthdayDateOnly1: reader["stu_birthday_dateonly"].ToString(),
+                                Stu_EducationType1: reader["stu_education_types"].ToString(),
+                                Stu_StudyYear1: reader["stu_study_year"].ToString()
+                            );
+                        }
+                    }
+
+                }
+            }
+            return (null,null,null,null,null,null);
+        }
+
+        //Method Check Class Before Insert
+        public async Task<(string Class_In_Skill1, string Class_In_Study_Year1, string Class_In_Level1, string Class_In_Student_Year1, string Class_In_Semester1, string Class_In_Generation1, string Class_In_Study_Timeshift1, string Class_In_Study_Type1)>GetClasses_Check_Info(string Class_In_Skill, string Class_In_Study_Year, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester, string Class_In_Generation, string Class_In_Study_Timeshift, string Class_In_Study_Type)
+        {
+            const string query = "SELECT * FROM classes WHERE class_in_skill = @Class_In_Skill AND class_in_level = @Class_In_Level AND class_in_study_year = @Class_In_Study_Year AND class_in_student_year = @Class_In_Student_Year AND class_in_semester = @Class_In_Semester AND class_in_generation = @Class_In_Generation AND class_in_study_timeshift = @Class_In_Study_Timeshift AND class_in_study_type = @Class_In_Study_Type";
+ 
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                       
+                        cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
+                        cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
+                        cmd.Parameters.AddWithValue("@Class_In_Semester", Class_In_Semester);
+                        cmd.Parameters.AddWithValue("@Class_In_Generation", Class_In_Generation);
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
+                        cmd.Parameters.AddWithValue("@Class_In_Study_Type", Class_In_Study_Type);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return (
+                                    Class_In_Skill1: reader["class_in_skill"].ToString(),
+                                    Class_In_Study_Year1: reader["class_in_study_year"].ToString(),
+                                    Class_In_Level1: reader["class_in_level"].ToString(),
+                                    Class_In_Student_Year1: reader["class_in_student_year"].ToString(),
+                                    Class_In_Semester1: reader["class_in_semester"].ToString(),
+                                    Class_In_Generation1: reader["class_in_generation"].ToString(),
+                                    Class_In_Study_Timeshift1: reader["class_in_study_timeshift"].ToString(),
+                                    Class_In_Study_Type1: reader["class_in_study_type"].ToString()
+                                );
+                            }
+                        }
+
+                    }
+                }
+                return (null, null, null, null, null,null,null,null);     
+        }
     }
 }
 

@@ -3645,28 +3645,26 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Stu_Generation: {Stu_Generation}");
 
             //Check Student Infomation Before Insert
-            //var student_check_info = await _dbConnection.GetStudents_Check_Student_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
-            
+            var student_check_info = await _dbConnection.GetStudents_Check_Student_Info(Stu_FirstName_KH, Stu_LastName_KH, Stu_Gender, Stu_BirthdayDateOnly, Stu_EducationType = this.SelectedStu_EducationType_Info.Stu_EducationType, Stu_StudyYear = this.SelectesStu_StudyYear_Info.Stu_StudyYear);
 
-            //if ((Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1.Trim() &&
-            //        Stu_LastName_KH == student_check_info.Stu_LastName_KH1.Trim() &&
-            //        Stu_Gender.Trim() == student_check_info.Stu_Gender1.Trim() &&
-            //        Stu_BirthdayDateOnly.Trim() == student_check_info.Stu_BirthdayDateOnly1.Trim() &&
-            //        Stu_EducationType.Trim() == student_check_info.Stu_EducationType1.Trim() &&
-            //        Stu_StudyYear.Trim() == student_check_info.Stu_StudyYear1.Trim()))
-            //        {
-            //            ErrorMessage = "និស្សិតឈ្មោះ " + Stu_FirstName_KH +Stu_LastName_KH+" "+ Stu_EducationType+" "+Stu_StudyYear+ " មានទិន្នន័យរួចរាល់ហើយ !";
-            //            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
-            //            MessageColor = new SolidColorBrush(Colors.Red);
-            //            return;
-            //        }
-            //else
-            //{
-                // If everything is valid
-                SaveStudentInformationToDatabase();
-                ClearStudentInfo();
-                await LoadStudents(SearchText_ID_Name_Insert);
-            //}
+            if (Stu_FirstName_KH == student_check_info.Stu_FirstName_KH1 &&
+                    Stu_LastName_KH == student_check_info.Stu_LastName_KH1 &&
+                    Stu_Gender == student_check_info.Stu_Gender1 &&
+                    Stu_BirthdayDateOnly == student_check_info.Stu_BirthdayDateOnly1 &&
+                    Stu_EducationType == student_check_info.Stu_EducationType1 &&
+                    Stu_StudyYear == student_check_info.Stu_StudyYear1)
+            {
+                ErrorMessage = "និស្សិតឈ្មោះ " + Stu_FirstName_KH + Stu_LastName_KH + " " + Stu_EducationType + " " + Stu_StudyYear + " មានទិន្នន័យរួចរាល់ហើយ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            
+            // If everything is valid
+            SaveStudentInformationToDatabase();
+            ClearStudentInfo();
+            await LoadStudents(SearchText_ID_Name_Insert);
+           
 
             
             await Task.CompletedTask;
@@ -5488,6 +5486,23 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
             }
+            //Check Class Infomation Before Insert
+            var class_check_info = await _dbConnection.GetClasses_Check_Info(Class_In_Skill, Class_In_Study_Year, Class_In_Level, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Timeshift, Class_In_Study_Type);
+
+            if (Class_In_Skill == class_check_info.Class_In_Skill1 &&
+                Class_In_Study_Year == class_check_info.Class_In_Study_Year1 &&
+                Class_In_Level == class_check_info.Class_In_Level1 &&
+                Class_In_Student_Year == class_check_info.Class_In_Student_Year1 &&
+                Class_In_Semester == class_check_info.Class_In_Semester1 &&
+                Class_In_Generation == class_check_info.Class_In_Generation1 &&
+                Class_In_Study_Timeshift == class_check_info.Class_In_Study_Timeshift1 &&
+                Class_In_Study_Type == class_check_info.Class_In_Study_Type1)
+            {
+                ErrorMessage = "ថ្នាក់រៀន៖ " + Class_Name + " មានទិន្នន័យដូចគ្នារួចស្រេចហើយ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
             // Clear any previous error message
             ErrorMessage = string.Empty;
             MessageColor = null;
@@ -5504,10 +5519,8 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"ShiftTime: {Class_In_Study_Timeshift}");
             Debug.WriteLine($"Study Type: {Class_In_Study_Type}");
 
-            //Check Class Infomation Before Insert
-            //var class_check_info = await _dbConnection.GetClasses_Check_Info(Class_Name, Class_In_Skill, Class_In_Study_Year, Class_In_Level, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Timeshift, Class_In_Study_Type);
-            SaveClassInformationToDatabase();
             
+            SaveClassInformationToDatabase();        
             _ = LoadClasstoListViews(Search_Class_Search_Name_Generation);
             Clear_Class_Edit();
 
@@ -6934,6 +6947,8 @@ namespace RPISVR_Managements.ViewModel
             }
             await Task.CompletedTask;
         }
+
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

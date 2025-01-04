@@ -7,9 +7,135 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    xmlns:converters="using:RPISVR_Managements.Loading_View">
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Text_Header" Height="Auto"/>
+            <RowDefinition x:Name="Information_Insert" Height="120"/>
+            <RowDefinition x:Name="All_Button" Height="Auto"/>
+            <RowDefinition x:Name="Information_Show" Height="5*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="P_Header" Grid.Row="0" Margin="5">
+            <TextBlock x:Name="P_T_Header" 
+                      Text="បញ្ចូលព័ត៌មានគ្រូបច្ចេកទេស" 
+                      Style="{StaticResource Font_KH_Title}"/>
+        </StackPanel>
+
+        <StackPanel x:Name="P_InsertInfomation" Grid.Row="1" Margin="5" Padding="5" CornerRadius="3" BorderBrush="Aqua" BorderThickness="2">
+            <ScrollView x:Name="Scroll_P_Insert" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox x:Name="txt_Teacher_ID"
+                             Header="លេខសម្គាល់"
+                             Style="{StaticResource Style_KH_TextBox}"
+                             Text="{Binding Teacher_ID,Mode=TwoWay}"
+                             BorderBrush="{Binding Teacher_ID_BorderBrush}">
+
+                    </TextBox>
+                    <TextBox x:Name="txt_Teacher_Name_KH"
+                             Header="ឈ្មោះគ្រូបច្ចេកទេស(ខ្មែរ)"
+                             Style="{StaticResource Style_KH_TextBox}"
+                             Text="{Binding Teacher_Name_KH,Mode=TwoWay}"
+                             BorderBrush="{Binding Teacher_Name_KH_BorderBrush}">
+
+                    </TextBox>
+                    <TextBox x:Name="txt_Teacher_Name_EN"
+                             Header="ឈ្មោះគ្រូបច្ចេកទេស(EN)"
+                             Style="{StaticResource Style_KH_TextBox}"
+                             Text="{Binding Teacher_Name_EN,Mode=TwoWay}"
+                             BorderBrush="{Binding Teacher_Name_EN_BorderBrush}">
+
+                    </TextBox>
+                    <NumberBox x:Name="txt_Teacher_Phone"
+                               Header="លេខទូរស័ព្ទ"
+                               Height="70"
+                               Width="200"
+                               Margin="5,0,0,0"
+                               Text="{Binding Teacher_Phone,Mode=TwoWay}"
+                               BorderBrush="{Binding Teacher_Phone_BorderBrush}">
+
+                    </NumberBox>
+                </StackPanel>
+            </ScrollView>
+        </StackPanel>
+
+        <StackPanel x:Name="P_Button" Grid.Row="2" Orientation="Horizontal" Margin="5,5,15,0" HorizontalAlignment="Right">
+            <!-- TextBlock to show error messages -->
+            <StackPanel HorizontalAlignment="Left">
+                <Image Source="{Binding ErrorImageSource}" Width="30" Height="30" Stretch="Uniform" />
+                <TextBlock  Text="{Binding ErrorMessage, Mode=TwoWay}" 
+                        Foreground="{Binding MessageColor}" 
+                        Margin="10,5,10,0" 
+                        />
+            </StackPanel>
+
+            <Button x:Name="Teacher_Insert" Style="{StaticResource Stye_KH_Button}" Command="{Binding CommandInsert_Teacher_Info}" IsEnabled="{Binding IsInsertEnabled}">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-add-48.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="បញ្ចូល" Margin="30,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="Teacher_Update" Command="{Binding CommandInsert_Teacher_Info}" IsEnabled="{Binding IsUpdateEnabled}" Style="{StaticResource Stye_KH_Button}">
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-sync-48.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="ធ្វើបច្ចុប្បន្នភាព" Margin="2,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="Class_Delete" Command="{Binding ClearCommand_Class}"  Style="{StaticResource Stye_KH_Button}" >
+                <Button.Resources>
+                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/Student_Info_Icon/icons8-broom-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                    <TextBlock Text="សម្អាតទិន្នន័យ" Margin="10,0,0,0"/>
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+
+        <Grid x:Name="Informations_Show" Grid.Row="3" Margin="5" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3">
+            <RelativePanel>
+                <ScrollView x:Name="Search_Infos" VerticalScrollMode="Enabled" Width="250">
+                    <StackPanel>
+                        <Expander x:Name="Expander_Search" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-search-96.png" Width="28" Height="28"/>
+                                    <TextBlock Text="ស្វែងរកទិន្នន័យ"
+                                             x:Name="Text_Search"
+                                             Padding="10,5,0,0"
+                                             Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <TextBox x:Name="Search"
+                                              Text="{Binding Search_Class_Search_Name_Generation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Header="ស្វែងរក"
+                                              Style="{StaticResource Style_KH_TextBox}"
+                                              Margin="0,0,5,0"
+                                              Width="180"
+                                              CornerRadius="3"/>
+                                </StackPanel>
+                            </Expander.Content>
+                        
+                        </Expander>
+                    </StackPanel>
+                </ScrollView>
+            </RelativePanel>
+        </Grid>
 
     </Grid>
 </Page>
