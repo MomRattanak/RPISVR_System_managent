@@ -32,6 +32,7 @@
             <ScrollView x:Name="Scroll_P_Insert" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBox x:Name="txt_Teacher_ID"
+                             IsReadOnly="True"
                              Header="លេខសម្គាល់"
                              Style="{StaticResource Style_KH_TextBox}"
                              Text="{Binding Teacher_ID,Mode=TwoWay}"
@@ -93,7 +94,7 @@
                     <TextBlock Text="ធ្វើបច្ចុប្បន្នភាព" Margin="2,0,0,0"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="Class_Delete" Command="{Binding ClearCommand_Class}"  Style="{StaticResource Stye_KH_Button}" >
+            <Button x:Name="Class_Delete" Command="{Binding Command_Clear_Teacher}"  Style="{StaticResource Stye_KH_Button}" >
                 <Button.Resources>
                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
                 </Button.Resources>
@@ -122,7 +123,7 @@
                             <Expander.Content>
                                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
                                     <TextBox x:Name="Search"
-                                              Text="{Binding Search_Class_Search_Name_Generation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Text="{Binding SearchTeacherInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               Header="ស្វែងរក"
                                               Style="{StaticResource Style_KH_TextBox}"
                                               Margin="0,0,5,0"
@@ -132,7 +133,90 @@
                             </Expander.Content>
                         
                         </Expander>
+
+                        <Expander x:Name="Expander_Edit" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Student_Info_Icon/icons8-edit-100.png" Width="28" Height="28" />
+                                    <TextBlock Text="កែសម្រួលទិន្នន័យ"
+                                             x:Name="Text_Edit"
+                                             Padding="10,5,0,0"
+                                             Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel>
+                                    <Button x:Name="btn_Edit_Teacher" Command="{Binding Command_Edit_Teacher}"
+                                            Style="{StaticResource Stye_KH_Button}">
+
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            <SolidColorBrush x:Key="ButtonBackground" Color="#066A6E"/>
+                                        </Button.Resources>
+                                        <Button.Content>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <TextBlock Text="កែសម្រួលទិន្នន័យ"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button x:Name="btn_Delete_Teacher" Command="{Binding Command_Delete_Teacher}"
+                                                Style="{StaticResource Stye_KH_Button}" >
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            <SolidColorBrush x:Key="ButtonBackground" Color="Red"/>
+                                        </Button.Resources>
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <TextBlock Text="លុបទិន្នន័យ"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
                     </StackPanel>
+                </ScrollView>
+
+                <StackPanel x:Name="Table_Header" RelativePanel.RightOf="Search_Infos" Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យគ្រូបច្ចេកទេស" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+                    <ProgressRing x:Name="LoadingIndicator"
+                                    Margin="20,0,0,0"
+                                    IsActive="{Binding IsLoading}"
+                                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <ScrollView x:Name="Table_Teacher_Info" RelativePanel.RightOf="Search_Infos" RelativePanel.Below="Table_Header"  ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                            <TextBlock Text="លេខសម្គាល់" Margin="50,0,0,0" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឈ្មោះគ្រូបច្ចេកទេស" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ឡាតាំង" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="លេខទូរស័ព្ទ" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            <TextBlock Text="ID" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+                            <ListView x:Name="Teacher_Info_List" ItemsSource="{Binding Teacher_Info}" SelectionChanged="Selected_Teacher" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                            <TextBlock Text="{Binding Teacher_ID}" Margin="0,0,0,0" Width="80"/>
+                                            <TextBlock Text="{Binding Teacher_Name_KH}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                            <TextBlock Text="{Binding Teacher_Name_EN}" Width="150"/>
+                                            <TextBlock Text="{Binding Teacher_Phone}" Width="100"/>
+                                            <TextBlock Text="{Binding T_ID}" Width="90"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollView>
+                        
+                    </StackPanel>
+
+                    
                 </ScrollView>
             </RelativePanel>
         </Grid>

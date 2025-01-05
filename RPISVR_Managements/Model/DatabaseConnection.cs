@@ -160,7 +160,7 @@ namespace RPISVR_Managements.Model
             }
             return (Total_Count, Total_Female_Count);
         }
-
+        
         //Method to Select Last ID and Stu_ID
         public (int ID, string Stu_ID) Get_ID_and_Stu_ID()
         {
@@ -295,8 +295,8 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
-
         
+
         //Method to fetch Student Information from Database
         public List<Student_Info> GetStudents_Info(int page, int pageSize, string Search_ID_Name_Insert)
         {
@@ -619,6 +619,7 @@ namespace RPISVR_Managements.Model
             }
         }
 
+        
         //Method to Update Student_Information to Database
         public bool Update_Student_Information(Student_Info student_info)
         {
@@ -4335,6 +4336,156 @@ namespace RPISVR_Managements.Model
                 }
                 return (null, null, null, null, null,null,null,null);     
         }
+
+        //Method Fetch Teacher Infomation.
+        public List<Teacher_Informatioins> GetFetchTeacher_Info(string search_text)
+        {
+            List<Teacher_Informatioins> teacher_info = new List<Teacher_Informatioins>();
+            try
+            {
+                string query = string.IsNullOrEmpty(search_text)
+                           ? "SELECT * FROM teacher_informatin ORDER BY Techer_ID DESC"
+                           : "SELECT * FROM teacher_informatin WHERE Techer_ID LIKE @search_text || Techer_Name_KH LIKE @search_text || Techer_Name_EN LIKE @search_text || Techer_Phone LIKE @search_text ORDER BY Techer_ID DESC";
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search_text))
+                        {
+                            cmd.Parameters.AddWithValue("@search_text", $"%{search_text}%");
+                        }
+                        cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Teacher_Informatioins teachers = new Teacher_Informatioins
+                                {
+                                    T_ID = reader.GetInt32("ID"),
+                                    Teacher_ID = reader.GetString("Techer_ID"),
+                                    Teacher_Name_KH = reader.GetString("Techer_Name_KH"),
+                                    Teacher_Name_EN = reader.GetString("Techer_Name_EN"),
+                                    Teacher_Phone = reader.GetString("Techer_Phone")
+                                };
+                                teacher_info.Add(teachers);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Error get teacher info: {ex.ToString()}");
+                return null;
+            }
+            return teacher_info;
+        }
+
+        //Method update teacher
+        public bool Update_Teacher_Info(Teacher_Informatioins teacher_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE teacher_informatin SET Techer_Name_KH =@Teacher_Name_KH,Techer_Name_EN = @Teacher_Name_EN,Techer_Phone = @Teacher_Phone WHERE Techer_ID = @Teacher_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    {
+                        cmd.Parameters.AddWithValue("@Teacher_ID", teacher_info.Teacher_ID);
+                        cmd.Parameters.AddWithValue("@Teacher_Name_KH", teacher_info.Teacher_Name_KH);
+                        cmd.Parameters.AddWithValue("@Teacher_Name_EN", teacher_info.Teacher_Name_EN);
+                        cmd.Parameters.AddWithValue("@Teacher_Phone", teacher_info.Teacher_Phone);
+                    }
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;  // Return true if rows were updated
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Update Error: " + ex.ToString());
+                return false;
+            }
+        }
+
+        //Method Delete 
+        public bool Delete_Teacher_Info(string teacher_id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM teacher_informatin WHERE Techer_ID = @Teacher_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@Teacher_ID", teacher_id);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("Delete Teacher Error: " + ex.ToString());
+                return false;
+            }
+        }
+
+        //Method Get TeacherID
+        public (int T_ID, string Teacher_ID) GetTeacher_ID()
+        {
+            int T_ID = 0;
+            string Last_teacher_ID = "RPI_T0000";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT MAX(ID) AS T_ID, MAX(Techer_ID) AS Last_Teacher_ID FROM teacher_informatin";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            T_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("T_ID");
+                            Last_teacher_ID = reader.IsDBNull(1) ? "RPI0000" : reader.GetString("Last_Teacher_ID");
+                        }
+                    }
+                }
+            }
+            T_ID++;
+            string Teacher_ID = IncrementTeacherID(Last_teacher_ID);
+            return (T_ID, Teacher_ID);
+        }
+        //Method to Increase Teaacher_ID
+        public string IncrementTeacherID(String currentTeacherID)
+        {
+            // Assuming the format is always "RPI" + 7-digit number
+            string prefix = "RPI_T";
+            string numericPart = currentTeacherID.Substring(5); // Extract the numeric part after "RPI_T"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 4-digit string with leading zeros
+            string newNumericPart = number.ToString("D4");
+
+            // Combine the prefix and the incremented numeric part
+            string Teacher_ID = prefix + newNumericPart;
+
+            return Teacher_ID;
+        }
+
     }
 }
 
