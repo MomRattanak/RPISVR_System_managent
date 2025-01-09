@@ -175,5 +175,9 @@ namespace RPISVR_Managements.Model
         public int Max_Student_InClass { get; set; }
         public int Current_Student_InClass { get; set; }
         public string Current_Class_State { get; set; }
+
+        
+
+
     }
 }

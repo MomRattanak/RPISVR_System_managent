@@ -26,6 +26,8 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using MySqlX.XDevAPI.Common;
 using System.Collections;
 using DocumentFormat.OpenXml.VariantTypes;
+using Org.BouncyCastle.Asn1.Cmp;
+using RPISVR_Managements.ViewModel;
 
 namespace RPISVR_Managements.Model
 {
@@ -935,6 +937,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+
         //Method to fetch education_skill Information
         public List<Education_Skills> LoadEducation_Skill()
         {
@@ -4184,7 +4187,7 @@ namespace RPISVR_Managements.Model
                 Debug.WriteLine($"Error updating student select count: {ex.Message}");
             }
         }
-
+        
         //Method to Insert Teacher
         public bool Insert_TeacherInfomations(Teacher_Informatioins teacher_info)
         {
@@ -4216,6 +4219,7 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+       
         //Check Teacher info before insert
         public async Task<(string Teacher_Name_KH1,string Teacher_Name_EN1,string Teacher_Phone1)> GetTeacher_Info_Check(string Teacher_Name_KH, string Teacher_Name_EN, string Teacher_Phone)
         {
@@ -4256,6 +4260,7 @@ namespace RPISVR_Managements.Model
             // Return default values if no match is found
             return (null, null, null);
         }
+
         //Method Check Student Before Insert
         public async Task<(string Stu_FirstName_KH1, string Stu_LastName_KH1, string Stu_Gender1, string Stu_BirthdayDateOnly1, string Stu_EducationType1, string Stu_StudyYear1)> GetStudents_Check_Student_Info(string Stu_FirstName_KH, string Stu_LastName_KH, string Stu_Gender, string Stu_BirthdayDateOnly, string Stu_EducationType, string Stu_StudyYear)
         {
@@ -4486,6 +4491,296 @@ namespace RPISVR_Managements.Model
             return Teacher_ID;
         }
 
+        //Method to fetch Curriculum Info
+        public List<Curriculum_Info> GetFetchCurriculum_Info(string search_text)
+        {
+            Debug.WriteLine("Start Loading Curriculum Info List.");
+            List<Curriculum_Info> curriculum_info = new List<Curriculum_Info>();
+            {
+                try
+                {
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+
+                        //Select With Relationship
+                        string query = string.IsNullOrEmpty(search_text)
+                           ? @"SELECT ci.*,
+                                      si.ID,
+                                      si.edu_skill_name_kh,
+                                      ti.ID,
+                                      ti.Techer_Name_KH
+                                      FROM curriculum_info ci
+                                           LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
+                                           LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           ORDER BY ci.curriculum_id DESC"
+                           : @"SELECT ci.*,
+                                      si.ID,
+                                      si.edu_skill_name_kh,
+                                      ti.ID,
+                                      ti.Techer_Name_KH                               
+                                      FROM curriculum_info ci
+                                           LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
+                                           LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           WHERE ci.curriculum_id LIKE @search_text 
+                                              OR ci.curr_name_kh LIKE @search_text 
+                                              OR ci.curr_name_en LIKE @search_text 
+                                              OR ci.curr_total_time LIKE @search_text 
+                                              OR ci.curr_total_score LIKE @search_text
+                                           ORDER BY ci.curriculum_id DESC";
+                           
+                       
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                        {
+                            if (!string.IsNullOrWhiteSpace(search_text))
+                            {
+                                cmd.Parameters.AddWithValue("@search_text", $"%{search_text}%");
+                            }
+                            cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Curriculum_Info curriculum_list = new Curriculum_Info()
+                                    {                                 
+                                        Curriculum_ID = reader.GetString("curriculum_id"),
+                                        Curriculum_Name_KH = reader.GetString("curr_name_kh"),
+                                        Curriculum_Name_EN = reader.GetString("curr_name_en"),
+                                        Curriculum_Skill_ID = reader.GetInt32("curr_skill_id"),
+                                        Curriculum_Skill_Name = reader.GetString("edu_skill_name_kh"),
+                                        Curriculum_Teacher_ID = reader.GetInt32("curr_teacher_id"),
+                                        Curriculum_Teacher_Name = reader.GetString("Techer_Name_KH"),
+                                        Curriculum_Study_Year = reader.GetString("curr_study_year"),
+                                        Curriculum_Semester = reader.GetString("curr_semester"),
+                                        Curriculum_Total_Time = reader.GetInt32("curr_total_time"),
+                                        Curriculum_Total_Score = reader.GetInt32("curr_total_score"),
+                                    };
+                                    curriculum_info.Add(curriculum_list);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Loading Curriculum info list Error: {e.Message}");
+                    return null;
+                }
+                return curriculum_info;
+            }
+        }
+
+        //Method to fetch Teacher Info to Combobox
+        public List<Curriculum_Info> GetTeacherInfo_List_Curriculum()
+        {
+            Debug.WriteLine("Start Loading Teacher Info List.");
+            List<Curriculum_Info> teacher_info = new List<Curriculum_Info>();
+            {
+                try
+                {
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+
+                        string query = "SELECT ID,Techer_Name_KH FROM teacher_informatin ORDER BY " +
+                            "CASE " +
+                            "WHEN Techer_Name_KH REGEXP '[ក-អ]' THEN 1 " +
+                            "WHEN Techer_Name_KH REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 " +
+                            "ELSE 3 " +
+                            "END," +
+                            "Techer_Name_KH ASC";
+                        using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                        {
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Curriculum_Info curriculum_teacher = new Curriculum_Info()
+                                    {
+                                        Curriculum_Teacher_ID = reader.GetInt32("ID"),
+                                        Curriculum_Teacher_Name = reader.GetString("Techer_Name_KH"),
+                                    };
+                                    teacher_info.Add(curriculum_teacher);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Load Teacher Info Error: {ex.ToString()}");
+                    return null;
+                }
+
+            }
+            return teacher_info;
+        }
+
+        //Method to fetch Skill Info to Combobox
+        public List<Curriculum_Info> GetSkillInfo_List_Curriculum()
+        {
+            Debug.WriteLine("Start Loading Skill Info in Curriculum.");
+            List<Curriculum_Info>skill_info_curriculum = new List<Curriculum_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "SELECT ID,edu_skill_name_kh FROM education_skill_info ORDER BY " +
+                            "CASE " +
+                            "WHEN edu_skill_name_kh REGEXP '[ក-អ]' THEN 1 " +
+                            "WHEN edu_skill_name_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 " +
+                            "ELSE 3 " +
+                            "END," +
+                            "edu_skill_name_kh ASC";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Curriculum_Info curriculum_skill = new Curriculum_Info()
+                                {
+                                    Curriculum_Skill_ID = reader.GetInt32("ID"),
+                                    Curriculum_Skill_Name = reader.GetString("edu_skill_name_kh"),
+                                };
+                                skill_info_curriculum.Add(curriculum_skill);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Load Skill Info Curriculum Error: {ex.ToString()}");
+                return null;
+            }
+            return skill_info_curriculum;
+        }
+
+        //Method to Insert Curriculum
+        public bool Insert_CurriculumInfomation(Curriculum_Info curriculum_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO curriculum_info(curriculum_id,curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score) " +
+                        "VALUES(@Curriculum_ID,@Curriculum_Name_KH,@Curriculum_Name_EN,@Curriculum_Skill_ID,@Curriculum_Teacher_ID,@Curriculum_Study_Year,@Curriculum_Semester,@Curriculum_Total_Time,@Curriculum_Total_Score) ";
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@Curriculum_ID", curriculum_Info.Curriculum_ID);
+                    cmd.Parameters.AddWithValue("@Curriculum_Name_KH", curriculum_Info.Curriculum_Name_KH);
+                    cmd.Parameters.AddWithValue("@Curriculum_Name_EN", curriculum_Info.Curriculum_Name_EN);
+                    cmd.Parameters.AddWithValue("@Curriculum_Skill_ID", curriculum_Info.Curriculum_Skill_ID);
+                    cmd.Parameters.AddWithValue("@Curriculum_Teacher_ID", curriculum_Info.Curriculum_Teacher_ID);
+                    cmd.Parameters.AddWithValue("@Curriculum_Study_Year", curriculum_Info.Curriculum_Study_Year);
+                    cmd.Parameters.AddWithValue("@Curriculum_Semester", curriculum_Info.Curriculum_Semester);
+                    cmd.Parameters.AddWithValue("@Curriculum_Total_Time", curriculum_Info.Curriculum_Total_Time);
+                    cmd.Parameters.AddWithValue("@Curriculum_Total_Score", curriculum_Info.Curriculum_Total_Score);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Insert Curriculum Error: {ex.ToString()}");
+                return false;
+            }
+        }
+
+        //Method update curriculum
+        public bool Update_Curriculum_Info(Curriculum_Info curriculum_Info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE curriculum_info SET curr_name_kh = @curr_name_kh,curr_name_en = @curr_name_en,curr_study_year = @curr_study_year,curr_semester = @curr_semester,curr_skill_id = @curr_skill_id,curr_teacher_id = @curr_teacher_id,curr_total_time = @curr_total_time,curr_total_score = @curr_total_score WHERE curriculum_id = @curriculum_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    {
+                        cmd.Parameters.AddWithValue("@curriculum_id", curriculum_Info.Curriculum_ID);
+                        cmd.Parameters.AddWithValue("@curr_name_kh", curriculum_Info.Curriculum_Name_KH);
+                        cmd.Parameters.AddWithValue("@curr_name_en", curriculum_Info.Curriculum_Name_EN);
+                        cmd.Parameters.AddWithValue("@curr_study_year", curriculum_Info.Curriculum_Study_Year);
+                        cmd.Parameters.AddWithValue("@curr_semester", curriculum_Info.Curriculum_Semester);
+                        cmd.Parameters.AddWithValue("@curr_skill_id", curriculum_Info.Curriculum_Skill_ID);
+                        cmd.Parameters.AddWithValue("@curr_teacher_id", curriculum_Info.Curriculum_Teacher_ID);
+                        cmd.Parameters.AddWithValue("@curr_total_time", curriculum_Info.Curriculum_Total_Time);
+                        cmd.Parameters.AddWithValue("@curr_total_score", curriculum_Info.Curriculum_Total_Score);
+                    }
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Update curriculum error: {ex.ToString()}");
+                return false;
+            }
+        }
+
+        //Check Curriculum Info Before Insert
+        public async Task<(string Curriculum_Name_KH1, string Curriculum_Name_EN1, int Curriculum_Skill_ID1, int Curriculum_Teacher_ID1, string Curriculum_Study_Year1, string Curriculum_Semester1, int Curriculum_Total_Time1, int Curriculum_Total_Score1)> GetCurriculum_Info_Check(string Curriculum_Name_KH, string Curriculum_Name_EN, int Curriculum_Skill_ID, int Curriculum_Teacher_ID, string Curriculum_Study_Year, string Curriculum_Semester, int Curriculum_Total_Time, int Curriculum_Total_Score)
+        {
+            try
+            {
+                const string query_check = "SELECT curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score FROM curriculum_info WHERE curr_name_kh = @curr_name_kh AND curr_name_en = @curr_name_en AND curr_skill_id = @curr_skill_id AND curr_teacher_id = @curr_teacher_id AND curr_study_year = @curr_study_year AND curr_semester = @curr_semester AND curr_total_time = @curr_total_time AND curr_total_score =@curr_total_score";
+
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (MySqlCommand cmd = new MySqlCommand(query_check, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@curr_name_kh", Curriculum_Name_KH);
+                        cmd.Parameters.AddWithValue("@curr_name_en", Curriculum_Name_EN);
+                        cmd.Parameters.AddWithValue("@curr_skill_id", Curriculum_Skill_ID);
+
+                        cmd.Parameters.AddWithValue("@curr_teacher_id", Curriculum_Teacher_ID);
+                        cmd.Parameters.AddWithValue("@curr_study_year", Curriculum_Study_Year);
+                        cmd.Parameters.AddWithValue("@curr_semester", Curriculum_Semester);
+                        cmd.Parameters.AddWithValue("@curr_total_time", Curriculum_Total_Time);
+                        cmd.Parameters.AddWithValue("@curr_total_score", Curriculum_Total_Score);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return (
+
+                                    Curriculum_Name_KH1: reader["curr_name_kh"].ToString(),
+                                    Curriculum_Name_EN1: reader["curr_name_en"].ToString(),
+                                    Curriculum_Skill_ID1: Convert.ToInt32(reader["curr_skill_id"]),
+                                    Curriculum_Teacher_ID1: Convert.ToInt32(reader["curr_teacher_id"]),
+                                    Curriculum_Study_Year1: reader["curr_study_year"].ToString(),
+                                    Curriculum_Semester1: reader["curr_semester"].ToString(),
+                                    Curriculum_Total_Time1: Convert.ToInt32(reader["curr_total_time"]),
+                                    Curriculum_Total_Score1: Convert.ToInt32(reader["curr_total_score"])
+
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Check curriculum info before insert error: {ex.ToString()}");
+            }
+            // Return default values if no match is found
+            return (null, null, 0, 0, null, null, 0, 0);
+        }
     }
 }
 

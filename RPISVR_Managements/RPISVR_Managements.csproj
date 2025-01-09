@@ -32,6 +32,7 @@
     <None Remove="Attendance\Attendance_Teacher\Check_Attendance_Teacher.xaml" />
     <None Remove="Attendance\Attendance_Teacher\Insert_Attendance_Teacher.xaml" />
     <None Remove="Classroom\Add_Classroom\Add_Classrooms.xaml" />
+    <None Remove="Classroom\Add_Curriculum\Add_Curriculums.xaml" />
     <None Remove="Classroom\Check_Classroom\CheckClassInfo_Classroom.xaml" />
     <None Remove="Classroom\Prepare_Classroom\Prepare_Classroom_S.xaml" />
     <None Remove="Dialog_Control\DeleteConfirmationDialog.xaml" />
@@ -106,6 +107,11 @@
   <ItemGroup>
     <Folder Include="Assets\Check_Student_Info_Icon\" />
     <Folder Include="Assets\Student_Info_Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Classroom\Add_Curriculum\Add_Curriculums.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Student_Informations\Report_Student_Informations\Student_Card_Report.xaml">

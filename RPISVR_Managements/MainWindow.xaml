@@ -131,7 +131,7 @@
                                 </NavigationViewItem>
                                 
                                 <!--Prepare_Classroom_Student-->
-                        <NavigationViewItem x:Name="Prepare_Classroom_S" Content="រៀបចំថ្នាក់រៀន" Style="{StaticResource KH_Font_NavigationView}" Tag="Prepare_Classroom_S">
+                                <NavigationViewItem x:Name="Prepare_Classroom_S" Content="រៀបចំថ្នាក់រៀន" Style="{StaticResource KH_Font_NavigationView}" Tag="Prepare_Classroom_S">
                                     <NavigationViewItem.Icon>
                                         <FontIcon Glyph="&#xE82D;"/>
                                     </NavigationViewItem.Icon>
@@ -147,6 +147,16 @@
                                     </NavigationViewItem.Icon>
                                     <ToolTipService.ToolTip>
                                         <TextBlock Text="ត្រួតពិនិត្យថ្នាក់រៀន" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                </NavigationViewItem>
+
+                                <!--Create Curriculum-->
+                        <NavigationViewItem x:Name="Add_Curriculums" Content="បង្កើតកម្មវិធីសិក្សា" Style="{StaticResource KH_Font_NavigationView}" Tag="Add_Curriculums">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE8BF;" />
+                                    </NavigationViewItem.Icon>
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="បង្កើតកម្មវិធីសិក្សា" Style="{StaticResource KH_Tooltip}"/>
                                     </ToolTipService.ToolTip>
                                 </NavigationViewItem>
                              
