@@ -59,6 +59,7 @@ using MySql.Data.MySqlClient;
 using RPISVR_Managements.ViewModel;
 using System.Threading.Tasks;
 using RPISVR_Managements.Loading_View;
+using RPISVR_Managements.Classroom.Add_Curriculum;
 
 
 
@@ -394,6 +395,11 @@ namespace RPISVR_Managements
                 case "CheckClassInfo_Classroom":
                     AddTabIfNotExists("ត្រួតពិនិត្យថ្នាក់រៀន",typeof(CheckClassInfo_Classroom), iconSource);
                     Debug.WriteLine("Open Page Check Classroom");
+                    break;
+
+                case "Add_Curriculums":
+                    AddTabIfNotExists("បង្កើតកម្មវិធីសិក្សា", typeof(Add_Curriculums), iconSource);
+                    Debug.WriteLine("Open Page Add_Curriculums");
                     break;
 
                 //For Student Score
