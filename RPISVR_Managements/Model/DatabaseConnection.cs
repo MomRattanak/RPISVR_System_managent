@@ -4417,7 +4417,32 @@ namespace RPISVR_Managements.Model
             }
         }
 
-        //Method Delete 
+        //Method Delete Curriculum
+        public bool Delete_Curriculum_Info(string curriculum_id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM curriculum_info WHERE curriculum_id = @curriculum_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@curriculum_id", curriculum_id);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($"Delete curriculum info error: {ex.ToString()}");
+                return false;
+            }
+        }
+
+        //Method Delete Teacher
         public bool Delete_Teacher_Info(string teacher_id)
         {
             try
@@ -4445,6 +4470,53 @@ namespace RPISVR_Managements.Model
             }
         }
 
+        //Method Get CurriculumID
+        public (int C_ID, string Curriculum_ID) Get_CurriculumID()
+        {
+            int C_ID = 0;
+            string Last_Curriculum_ID = "RPI_C0000";
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT MAX(C_ID) as C_ID, MAX(curriculum_id) AS Last_Curriculum_ID FROM curriculum_info";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            C_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("C_ID");
+                            Last_Curriculum_ID = reader.IsDBNull(1) ? "RPI_C0000" : reader.GetString("Last_Curriculum_ID");
+                        }
+                    }
+                }
+            }
+            C_ID++;
+            string Curriculum_ID = IncrementCurriculum_ID(Last_Curriculum_ID);
+            return (C_ID, Curriculum_ID);
+        }
+
+        //Method to Increase Curriculum_ID
+        public string IncrementCurriculum_ID(String currentCurriculumID)
+        {
+            // Assuming the format is always "RPI_C" + 4-digit number
+            string prefix = "RPI_C";
+            string numericPart = currentCurriculumID.Substring(5); // Extract the numeric part after "RPI_C"
+
+            // Convert the numeric part to an integer, increment by 1
+            int number = int.Parse(numericPart) + 1;
+
+            // Reformat the number back to a 4-digit string with leading zeros
+            string newNumericPart = number.ToString("D4");
+
+            // Combine the prefix and the incremented numeric part
+            string Curriculum_ID = prefix + newNumericPart;
+
+            return Curriculum_ID;
+        }
+
         //Method Get TeacherID
         public (int T_ID, string Teacher_ID) GetTeacher_ID()
         {
@@ -4463,7 +4535,7 @@ namespace RPISVR_Managements.Model
                         if (reader.Read())
                         {
                             T_ID = reader.IsDBNull(0) ? 0 : reader.GetInt32("T_ID");
-                            Last_teacher_ID = reader.IsDBNull(1) ? "RPI0000" : reader.GetString("Last_Teacher_ID");
+                            Last_teacher_ID = reader.IsDBNull(1) ? "RPI_T0000" : reader.GetString("Last_Teacher_ID");
                         }
                     }
                 }
@@ -4472,6 +4544,7 @@ namespace RPISVR_Managements.Model
             string Teacher_ID = IncrementTeacherID(Last_teacher_ID);
             return (T_ID, Teacher_ID);
         }
+
         //Method to Increase Teaacher_ID
         public string IncrementTeacherID(String currentTeacherID)
         {
@@ -4509,24 +4582,33 @@ namespace RPISVR_Managements.Model
                                       si.ID,
                                       si.edu_skill_name_kh,
                                       ti.ID,
-                                      ti.Techer_Name_KH
+                                      ti.Techer_Name_KH,
+                                      li.ID,
+                                      li.edu_level_name_kh
                                       FROM curriculum_info ci
                                            LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
                                            LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           LEFT JOIN education_level_info li ON ci.curr_level_id = li.ID
                                            ORDER BY ci.curriculum_id DESC"
                            : @"SELECT ci.*,
                                       si.ID,
                                       si.edu_skill_name_kh,
                                       ti.ID,
-                                      ti.Techer_Name_KH                               
+                                      ti.Techer_Name_KH,
+                                      li.ID,
+                                      li.edu_level_name_kh
                                       FROM curriculum_info ci
                                            LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
                                            LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           LEFT JOIN education_level_info li ON ci.curr_level_id = li.ID
                                            WHERE ci.curriculum_id LIKE @search_text 
                                               OR ci.curr_name_kh LIKE @search_text 
                                               OR ci.curr_name_en LIKE @search_text 
                                               OR ci.curr_total_time LIKE @search_text 
-                                              OR ci.curr_total_score LIKE @search_text
+                                              OR ci.curr_total_score LIKE @search_text 
+                                              OR ti.Techer_Name_KH LIKE @search_text 
+                                              OR si.edu_skill_name_kh LIKE @search_text
+                                              OR li.edu_level_name_kh LIKE @search_text
                                            ORDER BY ci.curriculum_id DESC";
                            
                        
@@ -4556,6 +4638,8 @@ namespace RPISVR_Managements.Model
                                         Curriculum_Semester = reader.GetString("curr_semester"),
                                         Curriculum_Total_Time = reader.GetInt32("curr_total_time"),
                                         Curriculum_Total_Score = reader.GetInt32("curr_total_score"),
+                                        Curriculum_Level_ID = reader.GetInt32("curr_level_id"),
+                                        Curriculum_Level_Name = reader.GetString("edu_level_name_kh"),
                                     };
                                     curriculum_info.Add(curriculum_list);
                                 }
@@ -4661,6 +4745,50 @@ namespace RPISVR_Managements.Model
             return skill_info_curriculum;
         }
 
+        //Method to fetck Level Info to Combobox
+        public List<Curriculum_Info> GetLevelInfo_List_Curriculum()
+        {
+            Debug.WriteLine("Start Loading level Info in Curriculum.");
+            List<Curriculum_Info> level_curriculum_info = new List<Curriculum_Info>();
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "SELECT ID,edu_level_name_kh FROM education_level_info ORDER BY " +
+                            "CASE " +
+                            "WHEN edu_level_name_kh REGEXP '[ក-អ]' THEN 1 " +
+                            "WHEN edu_level_name_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 " +
+                            "ELSE 3 " +
+                            "END," +
+                            "edu_level_name_kh ASC";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Curriculum_Info curriculum_level = new Curriculum_Info()
+                                {
+                                    Curriculum_Level_ID = reader.GetInt32("ID"),
+                                    Curriculum_Level_Name = reader.GetString("edu_level_name_kh"),
+                                };
+                                level_curriculum_info.Add(curriculum_level);
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Loading level curriculum error: {ex.ToString()}");
+                return null;
+            }
+            return level_curriculum_info;
+        }
+
         //Method to Insert Curriculum
         public bool Insert_CurriculumInfomation(Curriculum_Info curriculum_Info)
         {
@@ -4669,8 +4797,8 @@ namespace RPISVR_Managements.Model
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO curriculum_info(curriculum_id,curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score) " +
-                        "VALUES(@Curriculum_ID,@Curriculum_Name_KH,@Curriculum_Name_EN,@Curriculum_Skill_ID,@Curriculum_Teacher_ID,@Curriculum_Study_Year,@Curriculum_Semester,@Curriculum_Total_Time,@Curriculum_Total_Score) ";
+                    string query = "INSERT INTO curriculum_info(curriculum_id,curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score,curr_level_id) " +
+                        "VALUES(@Curriculum_ID,@Curriculum_Name_KH,@Curriculum_Name_EN,@Curriculum_Skill_ID,@Curriculum_Teacher_ID,@Curriculum_Study_Year,@Curriculum_Semester,@Curriculum_Total_Time,@Curriculum_Total_Score,@Curriculum_Level_ID) ";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
                     cmd.Parameters.AddWithValue("@Curriculum_ID", curriculum_Info.Curriculum_ID);
@@ -4682,6 +4810,7 @@ namespace RPISVR_Managements.Model
                     cmd.Parameters.AddWithValue("@Curriculum_Semester", curriculum_Info.Curriculum_Semester);
                     cmd.Parameters.AddWithValue("@Curriculum_Total_Time", curriculum_Info.Curriculum_Total_Time);
                     cmd.Parameters.AddWithValue("@Curriculum_Total_Score", curriculum_Info.Curriculum_Total_Score);
+                    cmd.Parameters.AddWithValue("@Curriculum_Level_ID", curriculum_Info.Curriculum_Level_ID);
 
                     int result = cmd.ExecuteNonQuery();
                     return result == 1;
@@ -4704,7 +4833,7 @@ namespace RPISVR_Managements.Model
                 {
                     connection.Open();
 
-                    string query = "UPDATE curriculum_info SET curr_name_kh = @curr_name_kh,curr_name_en = @curr_name_en,curr_study_year = @curr_study_year,curr_semester = @curr_semester,curr_skill_id = @curr_skill_id,curr_teacher_id = @curr_teacher_id,curr_total_time = @curr_total_time,curr_total_score = @curr_total_score WHERE curriculum_id = @curriculum_id";
+                    string query = "UPDATE curriculum_info SET curr_name_kh = @curr_name_kh,curr_name_en = @curr_name_en,curr_study_year = @curr_study_year,curr_semester = @curr_semester,curr_skill_id = @curr_skill_id,curr_teacher_id = @curr_teacher_id,curr_total_time = @curr_total_time,curr_total_score = @curr_total_score,curr_level_id = @curr_level_id WHERE curriculum_id = @curriculum_id";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     {
@@ -4717,6 +4846,8 @@ namespace RPISVR_Managements.Model
                         cmd.Parameters.AddWithValue("@curr_teacher_id", curriculum_Info.Curriculum_Teacher_ID);
                         cmd.Parameters.AddWithValue("@curr_total_time", curriculum_Info.Curriculum_Total_Time);
                         cmd.Parameters.AddWithValue("@curr_total_score", curriculum_Info.Curriculum_Total_Score);
+                        cmd.Parameters.AddWithValue("@curr_level_id", curriculum_Info.Curriculum_Level_ID);
+
                     }
                     // Execute the query
                     int rowsAffected = cmd.ExecuteNonQuery();
@@ -4731,11 +4862,11 @@ namespace RPISVR_Managements.Model
         }
 
         //Check Curriculum Info Before Insert
-        public async Task<(string Curriculum_Name_KH1, string Curriculum_Name_EN1, int Curriculum_Skill_ID1, int Curriculum_Teacher_ID1, string Curriculum_Study_Year1, string Curriculum_Semester1, int Curriculum_Total_Time1, int Curriculum_Total_Score1)> GetCurriculum_Info_Check(string Curriculum_Name_KH, string Curriculum_Name_EN, int Curriculum_Skill_ID, int Curriculum_Teacher_ID, string Curriculum_Study_Year, string Curriculum_Semester, int Curriculum_Total_Time, int Curriculum_Total_Score)
+        public async Task<(string Curriculum_Name_KH1, string Curriculum_Name_EN1, int Curriculum_Skill_ID1, int Curriculum_Teacher_ID1, string Curriculum_Study_Year1, string Curriculum_Semester1, int Curriculum_Total_Time1, int Curriculum_Total_Score1,int Curriculum_Level_ID1)> GetCurriculum_Info_Check(string Curriculum_Name_KH, string Curriculum_Name_EN, int Curriculum_Skill_ID, int Curriculum_Teacher_ID, string Curriculum_Study_Year, string Curriculum_Semester, int Curriculum_Total_Time, int Curriculum_Total_Score, int Curriculum_Level_ID)
         {
             try
             {
-                const string query_check = "SELECT curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score FROM curriculum_info WHERE curr_name_kh = @curr_name_kh AND curr_name_en = @curr_name_en AND curr_skill_id = @curr_skill_id AND curr_teacher_id = @curr_teacher_id AND curr_study_year = @curr_study_year AND curr_semester = @curr_semester AND curr_total_time = @curr_total_time AND curr_total_score =@curr_total_score";
+                const string query_check = "SELECT curr_name_kh,curr_name_en,curr_skill_id,curr_teacher_id,curr_study_year,curr_semester,curr_total_time,curr_total_score,curr_level_id FROM curriculum_info WHERE curr_name_kh = @curr_name_kh AND curr_name_en = @curr_name_en AND curr_skill_id = @curr_skill_id AND curr_teacher_id = @curr_teacher_id AND curr_study_year = @curr_study_year AND curr_semester = @curr_semester AND curr_total_time = @curr_total_time AND curr_total_score =@curr_total_score AND curr_level_id = @curr_level_id";
 
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
@@ -4746,7 +4877,7 @@ namespace RPISVR_Managements.Model
                         cmd.Parameters.AddWithValue("@curr_name_kh", Curriculum_Name_KH);
                         cmd.Parameters.AddWithValue("@curr_name_en", Curriculum_Name_EN);
                         cmd.Parameters.AddWithValue("@curr_skill_id", Curriculum_Skill_ID);
-
+                        cmd.Parameters.AddWithValue("@curr_level_id", Curriculum_Level_ID);
                         cmd.Parameters.AddWithValue("@curr_teacher_id", Curriculum_Teacher_ID);
                         cmd.Parameters.AddWithValue("@curr_study_year", Curriculum_Study_Year);
                         cmd.Parameters.AddWithValue("@curr_semester", Curriculum_Semester);
@@ -4761,12 +4892,13 @@ namespace RPISVR_Managements.Model
 
                                     Curriculum_Name_KH1: reader["curr_name_kh"].ToString(),
                                     Curriculum_Name_EN1: reader["curr_name_en"].ToString(),
-                                    Curriculum_Skill_ID1: Convert.ToInt32(reader["curr_skill_id"]),
+                                    Curriculum_Skill_ID1: Convert.ToInt32(reader["curr_skill_id"]),                                
                                     Curriculum_Teacher_ID1: Convert.ToInt32(reader["curr_teacher_id"]),
                                     Curriculum_Study_Year1: reader["curr_study_year"].ToString(),
                                     Curriculum_Semester1: reader["curr_semester"].ToString(),
                                     Curriculum_Total_Time1: Convert.ToInt32(reader["curr_total_time"]),
-                                    Curriculum_Total_Score1: Convert.ToInt32(reader["curr_total_score"])
+                                    Curriculum_Total_Score1: Convert.ToInt32(reader["curr_total_score"]),
+                                    Curriculum_Level_ID1: Convert.ToInt32(reader["curr_level_id"])
 
                                 );
                             }
@@ -4779,7 +4911,7 @@ namespace RPISVR_Managements.Model
                 Debug.WriteLine($"Check curriculum info before insert error: {ex.ToString()}");
             }
             // Return default values if no match is found
-            return (null, null, 0, 0, null, null, 0, 0);
+            return (null, null, 0, 0, null, null, 0, 0, 0);
         }
     }
 }
