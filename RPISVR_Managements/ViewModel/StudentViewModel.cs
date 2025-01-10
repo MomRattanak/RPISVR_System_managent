@@ -234,12 +234,24 @@ namespace RPISVR_Managements.ViewModel
             CurriculumSkill_Combobox = new ObservableCollection<Curriculum_Info>();
             LoadData_to_Combobox_Skill_InCurriculum();
 
+            CurriculumLevel_Combobox = new ObservableCollection<Curriculum_Info>();
+            LoadData_to_Combobox_Level_InCurriculum();
+
             //Load Curriculum to list view
             Curriculum_Info_List = new ObservableCollection<Curriculum_Info>();
             _ =LoadCurriculum_ListView(SearchCurriculumInfo);
 
-            //Command Edit Curriculum new RelayCommand(async () => await GeneratePDF_Solarship_Report());
+            //Command Edit Curriculum 
             Command_Edit_Curriculum = new RelayCommand(async () => await Edit_Curriculum_Info());
+
+            //Command Clear Curriculum
+            Command_Clear_Curriculum = new RelayCommand(async () => await Clear_Curriculum_Info());
+
+            //Get CurriculumID
+            Get_CurriculumID();
+
+            //Command Delete Curriculum
+            Command_Delete_Curriculum = new RelayCommand(async () => await Delete_Curriculum_Info());
 
         }
 
@@ -7128,6 +7140,58 @@ namespace RPISVR_Managements.ViewModel
                 ValidateCurriculum_Total_Score();
             }
         }
+        private int _Curriculum_Level_ID;
+        public int Curriculum_Level_ID
+        {
+            get => _Curriculum_Level_ID;
+            set
+            {
+                _Curriculum_Level_ID = value;
+                OnPropertyChanged(nameof(Curriculum_Level_ID));
+            }
+        }
+        private Curriculum_Info _SelectedCurriculum_Level_ID;
+        public Curriculum_Info SelectedCurriculum_Level_ID
+        {
+            get => _SelectedCurriculum_Level_ID;
+            set
+            {
+                _SelectedCurriculum_Level_ID = value;
+                OnPropertyChanged(nameof(SelectedCurriculum_Level_ID));
+
+                if(SelectedCurriculum_Level_ID == null)
+                {
+                    Curriculum_Level_ID = 0;
+                    ValidateCurriculum_Level_ID();
+                }
+                else
+                {
+                    Curriculum_Level_ID = SelectedCurriculum_Level_ID.Curriculum_Level_ID;
+                    ValidateCurriculum_Level_ID();
+                }
+            }
+        }
+        //ValidateCurriculum_Level_ID
+        public SolidColorBrush Curriculum_Level_IDBorderBrush
+        {
+            get => _ErrorBorderBrush;
+            set
+            {
+                _ErrorBorderBrush = value;
+                OnPropertyChanged(nameof(Curriculum_Level_IDBorderBrush));
+            }
+        }
+        private void ValidateCurriculum_Level_ID()
+        {
+            if (SelectedCurriculum_Level_ID == null)
+            {
+                Curriculum_Level_IDBorderBrush = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                Curriculum_Level_IDBorderBrush = new SolidColorBrush(Colors.Green);
+            }
+        }
         //ValidateCurriculum_ID
         public SolidColorBrush Curriculum_IDBorderBrush
         {
@@ -7371,6 +7435,7 @@ namespace RPISVR_Managements.ViewModel
             ValidateCurriculum_Name_KH();
             ValidateCurriculum_Name_EN();
             ValidateCurriculum_Skill_ID();
+            ValidateCurriculum_Level_ID();
             ValidateCurriculum_Teacher_ID();
             ValidateCurriculum_Study_Year();
             ValidateCurriculum_Semester();
@@ -7401,6 +7466,13 @@ namespace RPISVR_Managements.ViewModel
             if (SelectedCurriculum_Skill_ID == null)
             {
                 ErrorMessage = "ជំនាញ ត្រូវតែជ្រើសរើស  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
+                return;
+            }
+            if(SelectedCurriculum_Level_ID == null)
+            {
+                ErrorMessage = "កម្រិតសិក្សា ត្រូវតែជ្រើសរើស  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
@@ -7448,6 +7520,7 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Cur_ID: {Curriculum_ID}");
             Debug.WriteLine($"Name_KH: {Curriculum_Name_KH}");
             Debug.WriteLine($"Name_EN: {Curriculum_Name_EN}");
+            Debug.WriteLine($"Level: {Curriculum_Level_ID}");
             Debug.WriteLine($"Year: {Curriculum_Study_Year}");
             Debug.WriteLine($"Skill_ID: {Curriculum_Skill_ID}");
             Debug.WriteLine($"Teacher_ID: {Curriculum_Teacher_ID}");
@@ -7491,6 +7564,17 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(CurriculumSkill_Combobox));
             }
         }
+        //Get data to Combobox Level Curriculum
+        private ObservableCollection<Curriculum_Info> _level_info_curriculum;
+        public ObservableCollection<Curriculum_Info> CurriculumLevel_Combobox
+        {
+            get { return _level_info_curriculum; }
+            set
+            {
+                _level_info_curriculum = value;
+                OnPropertyChanged(nameof(CurriculumLevel_Combobox));
+            }
+        }
         //Get data to ListView
         private ObservableCollection<Curriculum_Info> _Curriculum_Info_List;
         public ObservableCollection<Curriculum_Info > Curriculum_Info_List
@@ -7511,16 +7595,26 @@ namespace RPISVR_Managements.ViewModel
                 CurriculumSkill_Combobox.Add(skill_list);
             }
         }
+        //Load data to Combobox Level
+        private void LoadData_to_Combobox_Level_InCurriculum()
+        {
+            var levelList = _dbConnection.GetLevelInfo_List_Curriculum();
+            foreach (var level_list in levelList)
+            {
+                CurriculumLevel_Combobox.Add(level_list);
+            }
+        }
 
         //Method to Save Curriculum_Info
         public async void SaveCurriculum_Infomation()
         {
             //Check Curriculum Info Before
-            var curriculum_check_first = await _dbConnection.GetCurriculum_Info_Check(Curriculum_Name_KH, Curriculum_Name_EN, Curriculum_Skill_ID, Curriculum_Teacher_ID, Curriculum_Study_Year, Curriculum_Semester, Curriculum_Total_Time,Curriculum_Total_Score);
+            var curriculum_check_first = await _dbConnection.GetCurriculum_Info_Check(Curriculum_Name_KH, Curriculum_Name_EN, Curriculum_Skill_ID, Curriculum_Teacher_ID, Curriculum_Study_Year, Curriculum_Semester, Curriculum_Total_Time,Curriculum_Total_Score, Curriculum_Level_ID);
 
             if(curriculum_check_first.Curriculum_Name_KH1 == Curriculum_Name_KH &&
                 curriculum_check_first.Curriculum_Name_EN1 == Curriculum_Name_EN &&
-                curriculum_check_first.Curriculum_Skill_ID1 == Curriculum_Skill_ID)
+                curriculum_check_first.Curriculum_Skill_ID1 == Curriculum_Skill_ID &&
+                curriculum_check_first.Curriculum_Level_ID1 == Curriculum_Level_ID)
             {
                 ErrorMessage = "កម្មវិធីសិក្សាមុខវិជ្ជា៖ " + Curriculum_Name_KH +" មានទិន្នន័យរួចស្រេចហើយ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
@@ -7536,6 +7630,7 @@ namespace RPISVR_Managements.ViewModel
                 UpdateCurriculum.Curriculum_Name_KH = Curriculum_Name_KH;
                 UpdateCurriculum.Curriculum_Name_EN = Curriculum_Name_EN;
                 UpdateCurriculum.Curriculum_Skill_ID = SelectedCurriculum_Skill_ID.Curriculum_Skill_ID;
+                UpdateCurriculum.Curriculum_Level_ID = SelectedCurriculum_Level_ID.Curriculum_Level_ID;
                 UpdateCurriculum.Curriculum_Teacher_ID = SelectedCurriculum_Teacher_ID.Curriculum_Teacher_ID;
                 UpdateCurriculum.Curriculum_Study_Year = Curriculum_Study_Year;
                 UpdateCurriculum.Curriculum_Semester = Curriculum_Semester;
@@ -7552,9 +7647,7 @@ namespace RPISVR_Managements.ViewModel
 
                     //Enable Button
                     IsInsertEnabled = true;
-                    IsUpdateEnabled = false;
-
-                    _ = LoadCurriculum_ListView(SearchCurriculumInfo);
+                    IsUpdateEnabled = false;      
 
                     ErrorMessage = "កម្មវិធីសិក្សាមុខវិជ្ជា៖ " + Curriculum_Name_KH + " បានធ្វើបច្ចុប្បន្នភាពជោគជ័យ !";
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -7568,6 +7661,9 @@ namespace RPISVR_Managements.ViewModel
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
                     MessageColor = new SolidColorBrush(Colors.Red);
                 }
+                ClearTextBox_Curriculum();
+                Get_CurriculumID();
+                _ = LoadCurriculum_ListView(SearchCurriculumInfo);
             }
             else
             {
@@ -7579,6 +7675,7 @@ namespace RPISVR_Managements.ViewModel
                     Curriculum_Name_KH = this.Curriculum_Name_KH,
                     Curriculum_Name_EN = this.Curriculum_Name_EN,
                     Curriculum_Skill_ID = SelectedCurriculum_Skill_ID.Curriculum_Skill_ID,
+                    Curriculum_Level_ID = SelectedCurriculum_Level_ID.Curriculum_Level_ID,
                     Curriculum_Teacher_ID = SelectedCurriculum_Teacher_ID.Curriculum_Teacher_ID,
                     Curriculum_Study_Year = this.Curriculum_Study_Year,
                     Curriculum_Semester = this.Curriculum_Semester,
@@ -7601,6 +7698,8 @@ namespace RPISVR_Managements.ViewModel
                     MessageColor = new SolidColorBrush(Colors.Red);
                     return;
                 }
+                ClearTextBox_Curriculum();
+                Get_CurriculumID();
                 _ = LoadCurriculum_ListView(SearchCurriculumInfo);
             }
             
@@ -7700,15 +7799,63 @@ namespace RPISVR_Managements.ViewModel
 
         //Method Clear Curriculum
         public async Task Clear_Curriculum_Info()
+        {          
+            Curriculum_Name_KH = null;
+            Curriculum_Name_EN = null;
+
+            SelectedCurriculum_Skill_ID = CurriculumSkill_Combobox
+                .FirstOrDefault(skill_curriculum => skill_curriculum.Curriculum_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Skill_ID));
+            SelectedCurriculum_Teacher_ID = CurriculumTeacher_Combobox
+                .FirstOrDefault(teacher_curriculum => teacher_curriculum.Curriculum_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Teacher_ID));
+            SelectedCurriculum_Level_ID = CurriculumLevel_Combobox
+                .FirstOrDefault(level_curriculum => level_curriculum.Curriculum_Level_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Level_ID));
+
+            Curriculum_Study_Year = null;
+            Curriculum_Semester = null;
+            Curriculum_Total_Time = 0;
+            Curriculum_Total_Score = 0;
+
+            ErrorMessage = string.Empty;
+            ErrorMessage_Delete = string.Empty;
+            ErrorImageSource = null;
+            ErrorImageSource_Delete = null;
+            MessageColor = new SolidColorBrush(Colors.Transparent);
+            MessageColor_Delete = new SolidColorBrush(Colors.Transparent);
+
+            //Enable Button
+            IsInsertEnabled = true;
+            IsUpdateEnabled = false;
+
+            Get_CurriculumID();
+
+            await Task.CompletedTask;
+        }
+
+        //Clear TextBox
+        private void ClearTextBox_Curriculum()
         {
             Curriculum_ID = null;
             Curriculum_Name_KH = null;
             Curriculum_Name_EN = null;
 
+            SelectedCurriculum_Skill_ID = CurriculumSkill_Combobox
+                .FirstOrDefault(skill_curriculum => skill_curriculum.Curriculum_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Skill_ID));
+            SelectedCurriculum_Teacher_ID = CurriculumTeacher_Combobox
+                .FirstOrDefault(teacher_curriculum => teacher_curriculum.Curriculum_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Teacher_ID));
+            SelectedCurriculum_Level_ID = CurriculumLevel_Combobox
+                .FirstOrDefault(level_curriculum => level_curriculum.Curriculum_Level_Name == null);
+            OnPropertyChanged(nameof(SelectedCurriculum_Level_ID));
 
-            await Task.CompletedTask;
+            Curriculum_Study_Year = null;
+            Curriculum_Semester = null;
+            Curriculum_Total_Time = 0;
+            Curriculum_Total_Score = 0;
         }
-
 
         //Method Edit Curriculum
         public async Task Edit_Curriculum_Info()
@@ -7732,6 +7879,10 @@ namespace RPISVR_Managements.ViewModel
             SelectedCurriculum_Teacher_ID = CurriculumTeacher_Combobox
                 .FirstOrDefault(teacher_curriculum => teacher_curriculum.Curriculum_Teacher_Name == First_Select_Curriculum.Curriculum_Teacher_Name);
             OnPropertyChanged(nameof(SelectedCurriculum_Teacher_ID));
+            SelectedCurriculum_Level_ID = CurriculumLevel_Combobox
+                .FirstOrDefault(level_curriculum => level_curriculum.Curriculum_Level_Name == First_Select_Curriculum.Curriculum_Level_Name);
+            OnPropertyChanged(nameof(SelectedCurriculum_Level_ID));
+
             Curriculum_Study_Year = First_Select_Curriculum.Curriculum_Study_Year;
             Curriculum_Semester = First_Select_Curriculum.Curriculum_Semester;
             Curriculum_Total_Time = First_Select_Curriculum.Curriculum_Total_Time;
@@ -7743,12 +7894,141 @@ namespace RPISVR_Managements.ViewModel
 
             await Task.CompletedTask;
         }
+
+        //Method Get_CurriculumID
+        private void Get_CurriculumID()
+        {
+            var (id, curr_id) = _dbConnection.Get_CurriculumID();
+            C_ID = id;
+            Curriculum_ID = curr_id;
+            OnPropertyChanged(nameof(Curriculum_ID));
+        }
+
+        //Method Delete Curriculum_Info
+        public async Task Delete_Curriculum_Info()
+        {
+            if(Multi_Selected_Curriculum == null || !Multi_Selected_Curriculum.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាក្នុងកម្មវិធីសិក្សាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = "តើអ្នកពិតជាចង់លុបទិន្នន័យទាំងនេះមែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+            }
+
+            await Task.CompletedTask;
+        }
         //Click Yes , No
         public void HandleYesResponse()
         {
-            Debug.WriteLine("Click OK.");
+            Debug.WriteLine("Yes response handled in ViewModel");
+            Debug.WriteLine("Delete Mode.");
+
+            foreach(var curriculum_id in Multi_Selected_Curriculum)
+            {
+                bool success = _dbConnection.Delete_Curriculum_Info(curriculum_id.Curriculum_ID);
+                if (success)
+                {
+                    Debug.WriteLine($"Delete success ID: {curriculum_id.Curriculum_ID}");
+                    Get_CurriculumID();
+                }
+                else
+                {
+                    Debug.WriteLine("Delete curriculum failed.");
+                    break;
+                }
+                _ = Clear_Curriculum_Info();
+                _ = LoadCurriculum_ListView(SearchCurriculumInfo);
+
+                ErrorMessage = "ទិន្នន័យបានលុបដោយជោគជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+            }
         }
 
+        //Search Table Curriculum TextBox
+        private string _Curriculum_Skill_Name;
+        public string Curriculum_Skill_Name
+        {
+            get => _Curriculum_Skill_Name;
+            set
+            {
+                _Curriculum_Skill_Name = value;
+                OnPropertyChanged(nameof(Curriculum_Skill_Name));
+            }
+        }
+        private Curriculum_Info _Selected_Search_Curriculum_Skill_ID;
+        public Curriculum_Info Selected_Search_Curriculum_Skill_ID
+        {
+            get => _Selected_Search_Curriculum_Skill_ID;
+            set
+            {
+                _Selected_Search_Curriculum_Skill_ID = value;
+                OnPropertyChanged(nameof(Selected_Search_Curriculum_Skill_ID));
+
+                if(Selected_Search_Curriculum_Skill_ID == null)
+                {
+                    Curriculum_Skill_Name = null;
+                }
+                else
+                {
+                    Curriculum_Skill_Name = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
+                }
+                OnSearchTextChanged_Curriculum_Info();
+            }
+        }
+        private string _Curriculum_Level_Name;
+        public string Curriculum_Level_Name
+        {
+            get => _Curriculum_Level_Name;
+            set
+            {
+                _Curriculum_Level_Name = value;
+                OnPropertyChanged(nameof(Curriculum_Level_Name));
+            }
+        }
+        private Curriculum_Info _Selected_Search_Curriculum_Level_ID;
+        public Curriculum_Info Selected_Search_Curriculum_Level_ID
+        {
+            get => _Selected_Search_Curriculum_Level_ID;
+            set
+            {
+                _Selected_Search_Curriculum_Level_ID = value;
+                OnPropertyChanged(nameof(Selected_Search_Curriculum_Level_ID));
+                if(Selected_Search_Curriculum_Level_ID == null)
+                {
+                    Curriculum_Level_Name = null;
+                }
+                else
+                {
+                    Curriculum_Level_Name = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
+                }
+                OnSearchTextChanged_Curriculum_Info();
+            }
+        }
+        private string _Curriculum_Search_Study_Year;
+        public string Curriculum_Search_Study_Year
+        {
+            get => _Curriculum_Search_Study_Year;
+            set
+            {
+                _Curriculum_Search_Study_Year = value;
+                OnPropertyChanged(nameof(Curriculum_Search_Study_Year));
+                OnSearchTextChanged_Curriculum_Info();
+            }
+        }
+
+        private void OnSearchTextChanged_Curriculum_Info()
+        {
+            Debug.WriteLine($"Level Name: {Curriculum_Level_Name}");
+            Debug.WriteLine($"Skill Name: {Curriculum_Skill_Name}");
+            Debug.WriteLine($"Study Year: {Curriculum_Search_Study_Year}");
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
