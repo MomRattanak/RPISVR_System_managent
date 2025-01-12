@@ -126,8 +126,16 @@ namespace RPISVR_Managements.Classroom.Add_Curriculum
                 if (result == ContentDialogResult.Primary)
                 {
                     // Yes button clicked
-                    Debug.WriteLine("OK");
-                    viewModel.HandleYesResponse(); // Call ViewModel's method to handle Yes
+                   if(viewModel.CurrentOperation == "Export_Curriculum_PDF")
+                    {
+                        viewModel.HandleYesResponseExport_Curriculum_PDF();
+                    }
+                   else if(viewModel.CurrentOperation == "Delete_Curriculum")
+                    {
+                        viewModel.HandleYesResponse(); // Call ViewModel's method to handle Yes
+                    }
+                    
+                    
                 }
                 //else if (result == ContentDialogResult.Secondary)
                 //{
@@ -233,6 +241,49 @@ namespace RPISVR_Managements.Classroom.Add_Curriculum
 
             if(DataContext is StudentViewModel viewModel_Curriculum)
             {
+                viewModel_Curriculum.Multi_Selected_Curriculum = selectedCurriculum_List;
+                viewModel_Curriculum.First_Select_Curriculum = first_SelectedCurriculum;
+            }
+        }
+
+        private void Selected_All_Curriculum_Info(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleButton toggleButton)
+            {
+                // Check if the ListView has items
+                if (Curriculum_Info_Table_Export.ItemsSource is IEnumerable<object> items)
+                {
+                    if (toggleButton.IsChecked == true) // If ToggleButton is checked
+                    {
+                        // Select all items
+                        Curriculum_Info_Table_Export.SelectedItems.Clear();
+                        foreach (var item in items)
+                        {
+                            Curriculum_Info_Table_Export.SelectedItems.Add(item);
+                        }
+                        FontIcon icon = new FontIcon();
+                        icon.Glyph = "\uE73A"; // Update the button content
+                    }
+                    else // If ToggleButton is unchecked
+                    {
+                        // Deselect all items
+                        Curriculum_Info_Table_Export.SelectedItems.Clear();
+                        FontIcon icon = new FontIcon();
+                        icon.Glyph = "\uE73B";
+                    }
+                }
+            }
+        }
+
+        private void Selected_Curriculum_Export(object sender, SelectionChangedEventArgs e)
+        {
+            var listview = sender as ListView;
+            var selectedCurriculum_List = listview.SelectedItems.Cast<Curriculum_Info>().ToList();
+            var first_SelectedCurriculum = listview.SelectedItems.Cast<Curriculum_Info>().FirstOrDefault();
+
+            if (DataContext is StudentViewModel viewModel_Curriculum)
+            {
+                viewModel_Curriculum.Multi_Selected_Curriculum_Export = selectedCurriculum_List;
                 viewModel_Curriculum.Multi_Selected_Curriculum = selectedCurriculum_List;
                 viewModel_Curriculum.First_Select_Curriculum = first_SelectedCurriculum;
             }
