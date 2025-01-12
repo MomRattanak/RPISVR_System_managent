@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using RPISVR_Managements.Classroom.Prepare_Classroom;
 using RPISVR_Managements.Model;
 using RPISVR_Managements.ViewModel;
 using System;
@@ -133,6 +134,10 @@ namespace RPISVR_Managements.Classroom.Add_Curriculum
                    else if(viewModel.CurrentOperation == "Delete_Curriculum")
                     {
                         viewModel.HandleYesResponse(); // Call ViewModel's method to handle Yes
+                    }
+                   else if(viewModel.CurrentOperation == "Export_Curriculum_Excel")
+                    {
+                        viewModel.HandleYesResponseExport_Curriculum_Excel();
                     }
                     
                     
@@ -287,6 +292,11 @@ namespace RPISVR_Managements.Classroom.Add_Curriculum
                 viewModel_Curriculum.Multi_Selected_Curriculum = selectedCurriculum_List;
                 viewModel_Curriculum.First_Select_Curriculum = first_SelectedCurriculum;
             }
+        }
+
+        private void btn_open_prepare_class(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Prepare_Classroom_S));
         }
     }
 }

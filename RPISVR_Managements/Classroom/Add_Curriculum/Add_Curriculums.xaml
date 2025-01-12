@@ -251,6 +251,34 @@
                             </Expander.Content>
                         </Expander>
 
+                        <Expander x:Name="Expander_Prepare_Class" Width="230" CornerRadius="5">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Classes/icons8-class-96.png" Width="28" Height="28" />
+                                    <TextBlock Text="រៀបចំថ្នាក់រៀន"
+                     x:Name="Text_Prepare_"
+                     Padding="10,5,0,0"
+                     Style="{StaticResource Font_KH_Body}"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <Expander.Content>
+                                <StackPanel >
+                                    <Button x:Name="btn_prepare_class" Click="btn_open_prepare_class" Style="{StaticResource Stye_KH_Button}">
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#605EFF" />
+                                            <SolidColorBrush x:Key="ButtonBackground" Color="DarkGreen"/>
+                                        </Button.Resources>
+                                        <Button.Content>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0">
+                                                <TextBlock Text="រៀបចំថ្នាក់រៀន"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </Expander.Content>
+                        </Expander>
+
                     </StackPanel>
                 </ScrollView>
             </Grid>
@@ -405,13 +433,12 @@
                                                 </Button.Content>
                                             </Button>
                                             <Button x:Name="btn_export_to_excel"
-                                                    Command="{Binding }"
+                                                    Command="{Binding Command_Export_Curricum_To_Excel}"
                                                     Margin="5,30,0,0"
                                                     ToolTipService.ToolTip="Export to Excel.">
                                                 <Button.Content>
                                                     <StackPanel>
                                                         <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="20" Height="20" />
-
                                                     </StackPanel>
                                                 </Button.Content>
                                             </Button>

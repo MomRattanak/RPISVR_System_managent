@@ -269,8 +269,15 @@ namespace RPISVR_Managements.ViewModel
             Text_Year = "1,2,3,4";
             _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name, Curriculum_Search_Study_Year);
 
-            //Curriculum to PDf
+            //Curriculum to PDF and Excel
+            Command_Export_Curricum_To_Excel = new RelayCommand(async () => await Export_Curriculum_Info_to_Excel());
             Command_Export_Curriclum_To_PDF = new RelayCommand(async () => await Export_Curriculum_Info_to_PDF());
+
+            //Schedule
+            Class_Info_List_Selected_In_Schedule = new ObservableCollection<Student_Info>();
+            Command_Add_Class_to_List_in_Schedule = new RelayCommand(async () => await Load_Class_ToList_in_Schedule());
+            CommandClear_Class_in_Schedule = new RelayCommand(async () => await Clear_Class_in_Schedule_List());
+                 
         }
 
 
@@ -1079,6 +1086,17 @@ namespace RPISVR_Managements.ViewModel
             {
                 _seleceted_class_add_Student = value;
                 OnPropertyChanged(nameof(Class_Info_Add_Student_Selected));
+            }
+        }
+        //Class In Add Schedule
+        private ObservableCollection<Student_Info> _selected_class_In_Add_Schedule;
+        public ObservableCollection<Student_Info> Class_Info_List_Selected_In_Schedule
+        {
+            get => _selected_class_In_Add_Schedule;
+            set
+            {
+                _selected_class_In_Add_Schedule = value;
+                OnPropertyChanged(nameof(Class_Info_List_Selected_In_Schedule));
             }
         }
         //List Student Display
@@ -6733,7 +6751,7 @@ namespace RPISVR_Managements.ViewModel
 
             if (Selected_Students_to_Class == null || !Selected_Students_to_Class.Any())
             {
-                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន dd !";
+                ErrorMessage = "សូមជ្រើសរើសសិស្សនិស្សិតជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
@@ -8287,6 +8305,30 @@ namespace RPISVR_Managements.ViewModel
 
         //Command Export Currriculum to PDf
         public ICommand Command_Export_Curriclum_To_PDF {  get; set; }
+        //Command Export Curriculum to Excel
+        public ICommand Command_Export_Curricum_To_Excel { get; set; }
+
+        //Method Export to Excel
+        public async Task Export_Curriculum_Info_to_Excel()
+        {
+            if (Multi_Selected_Curriculum_Export == null || !Multi_Selected_Curriculum_Export.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាក្នុងកម្មវិធីសិក្សាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = "តើអ្នកពិតជាចង់យកទិន្នន័យទាំងនេះ ចេញជាឯកសារប្រភេទ Excel មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+                CurrentOperation = "Export_Curriculum_Excel";
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+
+            await Task.CompletedTask;
+        }
 
         //Method Export to PDF
         public async Task Export_Curriculum_Info_to_PDF()
@@ -8304,22 +8346,17 @@ namespace RPISVR_Managements.ViewModel
                 ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
                 MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
                 CurrentOperation = "Export_Curriculum_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
             }
             
             await Task.CompletedTask;
         }
 
-        //Method Export Curr.. PDF Click Yes
-        
+        //Method Export Curr.. PDF Click Yes   
         public void HandleYesResponseExport_Curriculum_PDF()
         {
             
             Debug.WriteLine("Export Yes.");
-
-            //foreach(var curr_id in Multi_Selected_Curriculum_Export)
-            //{
-            //    Debug.WriteLine($"Export Select ID: {curr_id.Curriculum_Name_EN}");
-            //}
 
             string curriculum_skill_select = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
             string curriculum_level_select = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
@@ -8335,6 +8372,152 @@ namespace RPISVR_Managements.ViewModel
 
             //File Curriculum_toPDF.
             PDFService_Generate_Curriculum_Info.CreateReport(Multi_Selected_Curriculum_Export,curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        //Method Export Curr.. Excel Click Yes
+        public void HandleYesResponseExport_Curriculum_Excel()
+        {
+            Debug.WriteLine("Export to Excel.");
+            string curriculum_skill_select = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
+            string curriculum_level_select = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
+            string curriculum_study_year_select;
+            if (Search_Study_Year_Curr == null)
+            {
+                curriculum_study_year_select = "1,2,3,4";
+            }
+            else
+            {
+                curriculum_study_year_select = Search_Study_Year_Curr;
+            }
+            Export_Excel_Curriculum_Info.ExportToExcel(Multi_Selected_Curriculum_Export, curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
+            ErrorMessage = "ឯកសារ Excel ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+
+        //Command add schedule
+        public ICommand Command_Add_Class_to_List_in_Schedule { get; set; }
+
+        //Method add class to List in Schedule
+        public async Task Load_Class_ToList_in_Schedule()
+        {
+            if (SelectedClasses_Prepare_All == null || !SelectedClasses_Prepare_All.Any())
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine("Selected");
+                Class_Info_List_Selected_In_Schedule.Clear();
+                foreach (var classes_edit in SelectedClasses_Prepare_All)
+                {
+
+                    Class_Info_List_Selected_In_Schedule.Add(new Student_Info
+                    {
+                        No_Class = classes_edit.No_Class,
+                        Class_ID = classes_edit.Class_ID,
+                        Class_Name = classes_edit.Class_Name,
+                        Class_In_Study_Year = classes_edit.Class_In_Study_Year,
+                        Class_In_Skill = classes_edit.Class_In_Skill,
+                        Class_In_Level = classes_edit.Class_In_Level,
+                        Class_In_Student_Year = classes_edit.Class_In_Student_Year,
+                        Class_In_Semester = classes_edit.Class_In_Semester,
+                        Class_In_Generation = classes_edit.Class_In_Generation,
+                        Class_In_Study_Timeshift = classes_edit.Class_In_Study_Timeshift,
+                        Class_In_Study_Type = classes_edit.Class_In_Study_Type,
+                        Max_Student_InClass = classes_edit.Max_Student_InClass,
+                        Current_Student_InClass = classes_edit.Current_Student_InClass,
+                        Current_Class_State = classes_edit.Current_Class_State
+                    });
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private Student_Info _selected_class_in_schedule_list;
+        public Student_Info Selected_class_in_Schedule_List
+        {
+            get => _selected_class_in_schedule_list;
+            set
+            {
+                _selected_class_in_schedule_list = value;
+                OnPropertyChanged(nameof(Selected_class_in_Schedule_List));
+
+                if (_selected_class_in_schedule_list != null)
+                {
+                    Class_ID = _selected_class_in_schedule_list.Class_ID;
+                    Class_Name = _selected_class_in_schedule_list.Class_Name;
+                    Class_In_Study_Year = _selected_class_in_schedule_list.Class_In_Study_Year;
+                    Class_In_Skill = _selected_class_in_schedule_list.Class_In_Skill;
+                    Class_In_Level = _selected_class_in_schedule_list.Class_In_Level;
+                    Class_In_Student_Year = _selected_class_in_schedule_list.Class_In_Student_Year;
+                    Class_In_Semester = _selected_class_in_schedule_list.Class_In_Semester;
+                    Class_In_Generation = _selected_class_in_schedule_list.Class_In_Generation;
+                    Class_In_Study_Timeshift = _selected_class_in_schedule_list.Class_In_Study_Timeshift;
+                    Class_In_Study_Type = _selected_class_in_schedule_list.Class_In_Study_Type;
+                    Max_Student_InClass = _selected_class_in_schedule_list.Max_Student_InClass;
+                    Current_Class_State = _selected_class_in_schedule_list.Current_Class_State;
+
+                    Debug.WriteLine($"Class dd ID: {Class_ID}");
+                    _ = Count_Student_Selected_Class();
+                }
+
+            }
+        }
+        //Command Clear Class in Schedule
+        public ICommand CommandClear_Class_in_Schedule { get; set; }
+
+        //Method
+        public async Task Clear_Class_in_Schedule_List()
+        {
+            if (Selected_class_in_Schedule_List == null)
+            {
+                Debug.WriteLine("No Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            // Remove the selected item from the collection
+            if (Class_Info_List_Selected_In_Schedule.Contains(Selected_class_in_Schedule_List))
+            {
+                Class_Info_List_Selected_In_Schedule.Remove(Selected_class_in_Schedule_List);
+                Class_ID = null;
+                Class_In_Study_Year = null;
+                Class_In_Skill = null;
+                Class_In_Level = null;
+                Class_In_Student_Year = null;
+                Class_In_Study_Timeshift = null;
+                Class_Name = null;
+                Total_Count_Students_Class = null;
+                Total_Count_Female_Class = null;
+                Max_Student_InClass = 0;
+                Current_Student_InClass = 0;
+                Current_Class_State = null;
+            }
+            OnPropertyChanged(nameof(Selected_class_in_Schedule_List));
+            // Clear the selection
+            Selected_class_in_Schedule_List = null;
+            List_Students_Display.Clear();
+            List_Student_In_Class_Display.Clear();
+
+            Debug.WriteLine("Clear Class in ListView Success.");
+
+            // Provide feedback to the user
+            ErrorMessage = "ថ្នាក់ជ្រើសរើសត្រូវបានដកចេញជោគជ័យ!";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+
+            await Task.CompletedTask;
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
