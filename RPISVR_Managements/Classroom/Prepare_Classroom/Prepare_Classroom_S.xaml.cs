@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Navigation;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using RPISVR_Managements.Classroom.Add_Classroom;
+using RPISVR_Managements.Classroom.Add_Curriculum;
 using RPISVR_Managements.Model;
 using RPISVR_Managements.Student_Informations.Check_Student_Informations;
 using RPISVR_Managements.Student_Informations.Insert_Student_Informations;
@@ -533,6 +534,23 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                 viewModel.Selected_Students_in_Class = selected_Students_in_Classes;
                 //viewModel.FirstSelectedClass = first_Student_ClassSelectedItem;
             }
+        }
+
+        private void btn_all_curriculum(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Add_Curriculums));
+        }
+
+        private void btn_add_schedule(object sender, RoutedEventArgs e)
+        {
+            TabView_Create_Schedule.Visibility = Visibility.Visible;
+
+            //Add to TabView
+            if (!TabView_Class_Info.TabItems.Contains(TabView_Create_Schedule))
+            {
+                TabView_Class_Info.TabItems.Add(TabView_Create_Schedule);
+            }
+            TabView_Class_Info.SelectedItem = TabView_Create_Schedule;
         }
     }
 }

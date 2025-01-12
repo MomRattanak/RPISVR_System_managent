@@ -379,7 +379,7 @@
                             </Expander.Header>
                             <Expander.Content>
                                 <StackPanel Orientation="Vertical">
-                                    <Button x:Name="btn_add_schedule_to_class" Style="{StaticResource Stye_KH_Button}">
+                                    <Button x:Name="btn_add_schedule_to_class" Click="btn_add_schedule" Command="{Binding Command_Add_Class_to_List_in_Schedule}" Style="{StaticResource Stye_KH_Button}">
                                         <Button.Content>
                                             <StackPanel>
                                                 <TextBlock Text="បង្កើតកាលវិភាគ"
@@ -411,7 +411,7 @@
                             </Expander.Header>
                             <Expander.Content>
                                 <StackPanel Orientation="Vertical">
-                                    <Button x:Name="btn_add_curriculum" Style="{StaticResource Stye_KH_Button}">
+                                    <Button x:Name="btn_add_curriculum" Click="btn_all_curriculum" Style="{StaticResource Stye_KH_Button}">
                                         <Button.Content>
                                             <StackPanel>
                                                 <TextBlock Text="បង្កើតកម្មវិធីសិក្សា"
@@ -1282,9 +1282,88 @@
                             </ScrollView>
                         </TabViewItem>
 
-                        <!--Create a curriculum-->
-                        <TabViewItem x:Name="TabView_Create_Curriculum">
-                            
+                        <!--Create a Schedule-->
+                        <TabViewItem x:Name="TabView_Create_Schedule" Header="កាលវិភាគ" Visibility="Collapsed">
+                            <ScrollView>
+                                <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
+                                    <!--Class info Student Count-->
+                                    <StackPanel x:Name="Click_Class_Info_Schedule" Margin="10,0,10,0" HorizontalAlignment="Left">
+                                        <!--Header-->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យថ្នាក់រៀន (Local)" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold" Margin="10,10,0,10"/>
+                                            <Button x:Name="Clear_Class_Add_Schedule" Command="{Binding CommandClear_Class_in_Schedule}" Style="{StaticResource Stye_KH_Button}" Width="50">
+                                                <Button.Resources>
+                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Red" />
+                                                    <SolidColorBrush x:Key="ButtonBackground" Color="Yellow"/>
+                                                </Button.Resources>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/Assets/Classes/icons8-subtract-96.png" Width="25" Height="25" Margin="0,0,20,0"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <ScrollView x:Name="Table_Class_Add_Schedule" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                                            <StackPanel>
+                                                <!--Items Selected-->
+                                                <ListView x:Name="Class_List_Add_Schedule" ItemsSource="{Binding Class_Info_List_Selected_In_Schedule}" SelectionMode="Single" SelectedItem="{Binding Selected_class_in_Schedule_List,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                                                    <ListView.Header>
+                                                        <StackPanel Orientation="Horizontal" Background="Green">
+                                                            <TextBlock Text="លេខរៀង" Margin="10,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆ្នាំសិក្សា" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="កម្រិតសិក្សា" Width="170" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆ្នាំទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆមាស" Width="110" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ជំនាន់ទី" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="វេនសិក្សា" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ប្រភេទសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ចំនួននិស្សិតកំណត់ក្នុងថ្នាក់" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
+                                                        </StackPanel>
+                                                    </ListView.Header>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                <TextBlock Text="{Binding No_Class}" Margin="10,0,0,0" Width="40"/>
+                                                                <TextBlock Text="{Binding Class_Name}" Width="160"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Level}" Width="160" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Student_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Semester}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Timeshift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Class_In_Study_Type}" Width="170" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Max_Student_InClass}" Width="130"/>
+                                                                <TextBlock Text="{Binding Current_Class_State}" Style="{StaticResource Font_KH_Body}" Width="70"/>
+                                                                <TextBlock Text="{Binding Class_ID}" Width="50" Visibility="Visible"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </StackPanel>
+                                        </ScrollView>
+                                        <TabView x:Name="Table_Schedule" CloseButtonOverlayMode="OnPointerOver" IsAddTabButtonVisible="False">
+                                            <TabView.TabItems>
+                                                <TabViewItem x:Name="Schedule_Mon_Fri" Header="ចន្ទសុក្រ" IsClosable="False">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Mon-Fri"/>
+                                                    </StackPanel>
+                                                </TabViewItem>
+                                                <TabViewItem x:Name="Schedule_Sat_Sun" Header="សៅរ៍អាទិត្យ" IsClosable="False">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Sat-Sun"/>
+                                                    </StackPanel>
+                                                </TabViewItem>
+
+                                            </TabView.TabItems>
+                                        </TabView>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                            </ScrollView>
                         </TabViewItem>
                     </TabView.TabItems>
                 </TabView>
