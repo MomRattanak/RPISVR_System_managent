@@ -319,20 +319,15 @@
                             <ScrollView>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="580"/>
-                                        <ColumnDefinition Width="580"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        
                                     </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,5,5,0" BorderBrush="Blue" BorderThickness="2" CornerRadius="3">
+                                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,5,5,0" BorderBrush="Blue" BorderThickness="3" CornerRadius="3">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យកម្មវិធីសិក្សា" Foreground="Aqua" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
-                                            <ProgressRing x:Name="LoadingIndicator2"
-                                                        Margin="20,0,0,0"
-                                                        IsActive="{Binding IsLoading}"
-                                                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <ComboBox x:Name="txt_Search_Curriculum_Skill_ID"
@@ -343,8 +338,8 @@
                                                         Style="{StaticResource Stye_KH_Combobox}"
                                                         Margin="5,5,0,0"
                                                         Width="200"
-                                                        SelectedItem="{Binding Selected_Search_Curriculum_Skill_ID,Mode=TwoWay}"
-                                                        BorderBrush="{Binding Curriculum_Skill_IDBorderBrush}">
+                                                        SelectedItem="{Binding Selected_Search_Curriculum_Skill_ID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                        BorderBrush="Green">
                                             </ComboBox>
                                             <ComboBox x:Name="txt_Search_Curriculum_Level"
                                                         Header="កម្រិតសិក្សា"    
@@ -354,92 +349,177 @@
                                                         Style="{StaticResource Stye_KH_Combobox}"
                                                         Margin="5,5,0,0"
                                                         Width="200"
-                                                        SelectedItem="{Binding Selected_Search_Curriculum_Level_ID,Mode=TwoWay}"
-                                                        BorderBrush="{Binding Curriculum_Level_IDBorderBrush}">
+                                                        SelectedItem="{Binding Selected_Search_Curriculum_Level_ID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                        BorderBrush="Green">
                                             </ComboBox>
 
                                             <ComboBox x:Name="txt_Search_Curriculum_Study_Year"
                                                         Header="ឆ្នាំទី" 
                                                         Style="{StaticResource Stye_KH_Combobox}"
                                                         Margin="5"
-                                                        SelectedItem="{Binding Curriculum_Search_Study_Year,Mode=TwoWay}"
-                                                        BorderBrush="{Binding Curriculum_Study_YearBorderBrush}">
+                                                        SelectedItem="{Binding Curriculum_Search_Study_Year,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        BorderBrush="Green">
                                                 <x:String>1</x:String>
                                                 <x:String>2</x:String>
                                                 <x:String>3</x:String>
                                                 <x:String>4</x:String>
                                                 <x:String>4.5</x:String>
-                                                <x:String>ទាំងអស់</x:String>
                                             </ComboBox>
+                                            <Button x:Name="btn_Search_Clear"
+                                                    Command="{Binding Command_Clear_Search_Year}"                                       
+                                                    Margin="-3,30,0,0"
+                                                    Foreground="Red"
+                                                    ToolTipService.ToolTip="Clear study year.">
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xECC9;" />
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                            <Button x:Name="btn_Search_Curriculum_info"
+                                                    Command="{Binding Command_Search_Currculum}"                                  
+                                                    Margin="5,30,0,0"
+                                                    ToolTipService.ToolTip="Search">
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xE721;" />
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                            <ToggleButton x:Name="btn_select_all" Click="Selected_All_Curriculum_Info" Margin="5,30,0,0" ToolTipService.ToolTip="Select all.">
+                                                <ToggleButton.Content>
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xE73D;" Foreground="Green"/>
+                                                    </StackPanel>
+                                                </ToggleButton.Content>
+                                            </ToggleButton>
+                                            <Button x:Name="btn_export_to_pdf"
+                                                    Command="{Binding Command_Export_Curriclum_To_PDF}"
+                                                    Margin="5,30,0,0"
+                                                    Foreground="OrangeRed"
+                                                    ToolTipService.ToolTip="Export to PDF.">
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xEA90;" />
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                            <Button x:Name="btn_export_to_excel"
+                                                    Command="{Binding }"
+                                                    Margin="5,30,0,0"
+                                                    ToolTipService.ToolTip="Export to Excel.">
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                        <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="20" Height="20" />
+
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                                    
                                             
+                                                    
                                         </StackPanel>
                                         
-                                        <StackPanel x:Name="List_01">
+                                        <StackPanel x:Name="List_01" Margin="5,0,0,10">
                                             <ScrollView x:Name="Table_Curriculum_Info1" Margin="0,5,0,0" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible">
-                                                <StackPanel Orientation="Horizontal" Background="Green">
-                                                    <TextBlock Text="ឆ្នាំទី" Margin="10,0,0,0" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ឆមាស" Margin="0,0,0,0" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ឈ្មោះមុខវិជ្ជា (ខ្មែរ)" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ឡាតាំង" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="គ្រូបច្ចេកទេស" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ជំនាញ" Margin="0,0,0,0" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="កម្រិត" Margin="0,0,0,0" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ចំនួនម៉ោងសរុប" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ចំនួនពិន្ទុសរុប" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="លេខសម្គាល់" Margin="0,0,0,0" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ID ជំនាញ" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                    <TextBlock Text="ID គ្រូបច្ចេកទេស" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal" Background="Green">
+                                                            <TextBlock Text="ឆ្នាំទី" Margin="40,0,0,0" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឆមាស" Margin="0,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឈ្មោះមុខវិជ្ជា (ខ្មែរ)" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ឡាតាំង" Width="150"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="គ្រូបច្ចេកទេស" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ជំនាញ" Width="160" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="កម្រិត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ចំនួនម៉ោងសរុប" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ចំនួនពិន្ទុសរុប" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="លេខសម្គាល់" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ID ជំនាញ" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ID គ្រូបច្ចេកទេស" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                            <TextBlock Text="ID កម្រិតសិក្សា" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                    </StackPanel>
+                                                <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+                                                        <ListView x:Name="Curriculum_Info_Table_Export" ItemsSource="{Binding Curriculum_Info_List_Table}" SelectionChanged="Selected_Curriculum_Export" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+                                                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                        <TextBlock Text="{Binding Curriculum_Study_Year}" Width="20"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Semester}" Width="20"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Name_KH}" Width="190" Style="{StaticResource Font_KH_Body}"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Name_EN}" Width="150"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Teacher_Name}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Skill_Name}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Level_Name}" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Total_Time}" Width="80"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Total_Score}" Width="50"/>
+                                                                        <TextBlock Text="{Binding Curriculum_ID}" Width="80"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Skill_ID}" Width="70"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Teacher_ID}" Width="70"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Level_ID}" Width="90"/>
+                                                                    </StackPanel>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+                                                    </ListView>
+                                                </ScrollView>
                                                 </StackPanel>
-                                                
                                             </ScrollView>
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,5,0,0" BorderBrush="Blue" BorderThickness="3" CornerRadius="3">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យកម្មវិធីសិក្សា" Foreground="Aqua" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
-                                            <ProgressRing x:Name="LoadingIndicator3"
-                Margin="20,0,0,0"
-                IsActive="{Binding IsLoading}"
-                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,5,5,0" BorderBrush="Blue" BorderThickness="3" CornerRadius="3">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock HorizontalAlignment="Left" Text="ទិន្នន័យចំនួនម៉ោងបង្រៀនសរុបរបស់គ្រូបច្ចកទេស " Foreground="Aqua" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            <TextBlock HorizontalAlignment="Left" Text=" (ផ្អែកតាមកម្មវិធីសិក្សា)" Foreground="Aqua" Style="{StaticResource Font_KH_Title}" FontSize="12" FontWeight="Bold"/>
+                                            
                                         </StackPanel>
-                                        <StackPanel>
-                                            <ComboBox x:Name="txt_Search_Curriculum_Skill_ID2"
-                Header="ជំនាញសិក្សា"    
-                ItemsSource="{Binding CurriculumSkill_Combobox}"
-                DisplayMemberPath="Curriculum_Skill_Name"
-                SelectedValuePath="Curriculum_Skill_ID"  
-                Style="{StaticResource Stye_KH_Combobox}"
-                Margin="5,5,0,0"
-                Width="200"
-                SelectedItem="{Binding SelectedCurriculum_Skill_ID,Mode=TwoWay}"
-                BorderBrush="{Binding Curriculum_Skill_IDBorderBrush}">
-                                            </ComboBox>
+                                        <StackPanel Orientation="Horizontal" Margin="0,40,0,0">
+                                            <TextBlock x:Name="Text_Skill"
+                                                       Style="{StaticResource Font_KH_Body}">
+                                                <Run Text=" ជំនាញ៖"/>
+                                                <Run Text="{Binding Curriculum_Skill_Name,Mode=TwoWay}" Foreground="Aqua"/>
+                                            </TextBlock>
+                                            <TextBlock x:Name="Text_Level"
+                                                       Margin="10,0,0,0"
+                                                       Style="{StaticResource Font_KH_Body}">
+                                                <Run Text="កម្រិត៖ "/>
+                                                <Run Text="{Binding Curriculum_Level_Name,Mode=TwoWay}" Foreground="Aqua"/>
+                                            </TextBlock>
+                                            <TextBlock x:Name="Text_Year"
+                                                       Margin="10,0,0,0"
+                                                       Style="{StaticResource Font_KH_Body}">
+                                                <Run Text="ឆ្នាំទី៖ "/>
+                                                <Run Text="{Binding Search_Study_Year_Curr,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text="{Binding Text_Year,Mode=TwoWay}" Foreground="Aqua"/>
+                                            </TextBlock>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" x:Name="Search_Option_02">
-                                            <ComboBox x:Name="txt_Search_Curriculum_Study_Year2"
-                    Header="ឆ្នាំទី" 
-                    Style="{StaticResource Stye_KH_Combobox}"
-                    Margin="5"
-                    SelectedItem="{Binding Curriculum_Study_Year,Mode=TwoWay}"
-                    BorderBrush="{Binding Curriculum_Study_YearBorderBrush}">
-                                                <x:String>1</x:String>
-                                                <x:String>2</x:String>
-                                                <x:String>3</x:String>
-                                                <x:String>4</x:String>
-                                                <x:String>4.5</x:String>
-                                            </ComboBox>
+                                        <StackPanel x:Name="List_Teacher_Time">
+                                            <ScrollView x:Name="Table_Curriculum_Info2" Margin="5,5,5,0" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible">
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal" Background="Green">
+                                                        <TextBlock Text="ឆ្នាំទី" Margin="15,0,0,0" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="ឆមាស" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="គ្រូបច្ចេកទេស" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="ចំនួនម៉ោងសរុប (h)" Width="110" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                    </StackPanel>
 
-                                            <ComboBox x:Name="txt_Search_Curriculum_Semester2"
-                      Header="ឆមាស"
-                      Style="{StaticResource Stye_KH_Combobox}"
-                      Margin="10,5,0,0"
-                      SelectedItem="{Binding Curriculum_Semester,Mode=TwoWay}"
-                      BorderBrush="{Binding Curriculum_SemesterBorderBrush}">
-                                                <x:String>1</x:String>
-                                                <x:String>2</x:String>
-                                            </ComboBox>
+                                                    <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+                                                        <ListView x:Name="Curriculum_Info_Table3" ItemsSource="{Binding Curriculum_TotalTime_List_Table}" SelectionChanged="Selected_Curriculum" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+                                                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
+                                                            <ListView.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                        <TextBlock Text="{Binding Curriculum_Study_Year}" Width="20"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Semester}" Width="20"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Teacher_Name}" Width="120" Style="{StaticResource Font_KH_Body}"/>
+                                                                        <TextBlock Text="{Binding Curriculum_Total_Time}" Width="80" Foreground="Aqua"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ListView.ItemTemplate>
+                                                        </ListView>
+                                                    </ScrollView>
+                                                </StackPanel>
+                                            </ScrollView>
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>

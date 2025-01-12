@@ -28,6 +28,7 @@ using System.Collections;
 using DocumentFormat.OpenXml.VariantTypes;
 using Org.BouncyCastle.Asn1.Cmp;
 using RPISVR_Managements.ViewModel;
+using RPISVR_Managements.List_and_Reports.Curriculum;
 
 namespace RPISVR_Managements.Model
 {
@@ -4562,6 +4563,190 @@ namespace RPISVR_Managements.Model
             string Teacher_ID = prefix + newNumericPart;
 
             return Teacher_ID;
+        }
+
+        //Method to fetch Curriculum TotalTime Table
+        public List<Curriculum_Info> GetFetchCurriculum_TotalTime_Info(string Curriculum_Level_Name, string Curriculum_Skill_Name, string Curriculum_Search_Study_Year)
+        {
+            List<Curriculum_Info> curriculum_totaltime = new List<Curriculum_Info>();
+            {
+                try
+                {
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+                        //Select With Relationship
+                        string query = string.IsNullOrEmpty(Curriculum_Search_Study_Year)
+                            ? @"SELECT 
+                                    ci.curr_study_year AS Year,
+                                    ci.curr_semester AS Semester,
+                                    ti.Techer_Name_KH AS Teacher_Name,
+                                    SUM(ci.curr_total_time) AS Total_Time
+                                FROM 
+                                    curriculum_info ci
+                                LEFT JOIN 
+                                    teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                LEFT JOIN 
+                                    education_skill_info si ON ci.curr_skill_id = si.ID -- Assuming the correct join column for skills
+                                LEFT JOIN 
+                                    education_level_info li ON ci.curr_level_id = li.ID -- Assuming the correct join column for levels
+                                WHERE 
+                                    si.edu_skill_name_kh = @Curriculum_Skill_Name
+                                    AND li.edu_level_name_kh = @Curriculum_Level_Name                                  
+                                GROUP BY 
+                                    ci.curr_study_year, ci.curr_semester, ti.Techer_Name_KH
+                                ORDER BY 
+                                    CAST(ci.curr_study_year AS UNSIGNED) ASC,
+                                    CAST(ci.curr_semester AS UNSIGNED) ASC"
+                            : @"SELECT 
+                                    ci.curr_study_year AS Year,
+                                    ci.curr_semester AS Semester,
+                                    ti.Techer_Name_KH AS Teacher_Name,
+                                    SUM(ci.curr_total_time) AS Total_Time
+                                FROM 
+                                    curriculum_info ci
+                                LEFT JOIN 
+                                    teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                LEFT JOIN 
+                                    education_skill_info si ON ci.curr_skill_id = si.ID -- Assuming the correct join column for skills
+                                LEFT JOIN 
+                                    education_level_info li ON ci.curr_level_id = li.ID -- Assuming the correct join column for levels
+                                WHERE 
+                                    si.edu_skill_name_kh = @Curriculum_Skill_Name
+                                    AND li.edu_level_name_kh = @Curriculum_Level_Name
+                                    AND ci.curr_study_year = @Curriculum_Search_Study_Year
+                                GROUP BY 
+                                    ci.curr_study_year, ci.curr_semester, ti.Techer_Name_KH
+                                ORDER BY 
+                                    CAST(ci.curr_study_year AS UNSIGNED) ASC,
+                                    CAST(ci.curr_semester AS UNSIGNED) ASC";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Curriculum_Skill_Name", Curriculum_Skill_Name);
+                            cmd.Parameters.AddWithValue("@Curriculum_Level_Name", Curriculum_Level_Name);
+                            cmd.Parameters.AddWithValue("@Curriculum_Search_Study_Year", Curriculum_Search_Study_Year);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Curriculum_Info curriculum_list = new Curriculum_Info()
+                                    {                    
+                                        Curriculum_Teacher_Name = reader.GetString("Teacher_Name"),
+                                        Curriculum_Study_Year = reader.GetString("Year"),
+                                        Curriculum_Semester = reader.GetString("Semester"),
+                                        Curriculum_Total_Time = reader.GetInt32("Total_Time"),                        
+                                    };
+                                    curriculum_totaltime.Add(curriculum_list);
+                                }
+                            }
+
+                        }
+                    }
+                }
+                catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Database error: {ex.Message}");
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Load Curriculum Teacher TotalTime Error: {e.ToString()}");                   
+                }
+                
+            }
+            return curriculum_totaltime;
+        }
+
+        //Method to fetch Curriculum Info Table
+        public List<Curriculum_Info> GetFetchCurriculum_Table_Info(string Curriculum_Level_Name, string Curriculum_Skill_Name,string Curriculum_Search_Study_Year)
+        {
+            List<Curriculum_Info> curriculum_table = new List<Curriculum_Info>();
+            {
+                try
+                {
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+
+                        //Select With Relationship
+                        string query = string.IsNullOrEmpty(Curriculum_Search_Study_Year)
+                           ? @"SELECT ci.*,
+                                      si.ID,
+                                      si.edu_skill_name_kh,
+                                      ti.ID,
+                                      ti.Techer_Name_KH,
+                                      li.ID,
+                                      li.edu_level_name_kh
+                                      FROM curriculum_info ci
+                                           LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
+                                           LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           LEFT JOIN education_level_info li ON ci.curr_level_id = li.ID
+                                           WHERE si.edu_skill_name_kh = @Curriculum_Skill_Name
+                                                 AND li.edu_level_name_kh = @Curriculum_Level_Name
+                                           ORDER BY CAST(ci.curr_study_year AS UNSIGNED) ASC,
+                                                    CAST(ci.curr_semester AS UNSIGNED) ASC"    
+                           : @"SELECT ci.*,
+                                      si.ID,
+                                      si.edu_skill_name_kh,
+                                      ti.ID,
+                                      ti.Techer_Name_KH,
+                                      li.ID,
+                                      li.edu_level_name_kh
+                                      FROM curriculum_info ci
+                                           LEFT JOIN education_skill_info si ON ci.curr_skill_id = si.ID
+                                           LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID
+                                           LEFT JOIN education_level_info li ON ci.curr_level_id = li.ID
+                                           WHERE si.edu_skill_name_kh = @Curriculum_Skill_Name
+                                              AND li.edu_level_name_kh = @Curriculum_Level_Name
+                                              AND ci.curr_study_year = @Curriculum_Search_Study_Year
+                                           ORDER BY CAST(ci.curr_study_year AS UNSIGNED) ASC,
+                                                    CAST(ci.curr_semester AS UNSIGNED) ASC";
+                        
+                        using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Curriculum_Skill_Name", Curriculum_Skill_Name);
+                            cmd.Parameters.AddWithValue("@Curriculum_Level_Name", Curriculum_Level_Name);
+                            cmd.Parameters.AddWithValue("@Curriculum_Search_Study_Year", Curriculum_Search_Study_Year);
+                            
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Curriculum_Info curriculum_list = new Curriculum_Info()
+                                    {
+                                        Curriculum_ID = reader.GetString("curriculum_id"),
+                                        Curriculum_Name_KH = reader.GetString("curr_name_kh"),
+                                        Curriculum_Name_EN = reader.GetString("curr_name_en"),
+                                        Curriculum_Skill_ID = reader.GetInt32("curr_skill_id"),
+                                        Curriculum_Skill_Name = reader.GetString("edu_skill_name_kh"),
+                                        Curriculum_Teacher_ID = reader.GetInt32("curr_teacher_id"),
+                                        Curriculum_Teacher_Name = reader.GetString("Techer_Name_KH"),
+                                        Curriculum_Study_Year = reader.GetString("curr_study_year"),
+                                        Curriculum_Semester = reader.GetString("curr_semester"),
+                                        Curriculum_Total_Time = reader.GetInt32("curr_total_time"),
+                                        Curriculum_Total_Score = reader.GetInt32("curr_total_score"),
+                                        Curriculum_Level_ID = reader.GetInt32("curr_level_id"),
+                                        Curriculum_Level_Name = reader.GetString("edu_level_name_kh"),
+                                    };
+                                    curriculum_table.Add(curriculum_list);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Database error: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Load Curriculum Table Error: {ex.ToString()}");
+                    
+                }             
+            }
+            return curriculum_table;
         }
 
         //Method to fetch Curriculum Info

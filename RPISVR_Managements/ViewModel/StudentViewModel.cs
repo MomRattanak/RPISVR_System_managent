@@ -32,6 +32,7 @@ using System.Data;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office.Word;
 using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Tsp;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -240,12 +241,15 @@ namespace RPISVR_Managements.ViewModel
             //Load Curriculum to list view
             Curriculum_Info_List = new ObservableCollection<Curriculum_Info>();
             _ =LoadCurriculum_ListView(SearchCurriculumInfo);
-
+            Curriculum_Info_List_Table = new ObservableCollection<Curriculum_Info>();
+            Curriculum_TotalTime_List_Table = new ObservableCollection<Curriculum_Info>();
+            
             //Command Edit Curriculum 
             Command_Edit_Curriculum = new RelayCommand(async () => await Edit_Curriculum_Info());
 
             //Command Clear Curriculum
             Command_Clear_Curriculum = new RelayCommand(async () => await Clear_Curriculum_Info());
+            Command_Clear_Search_Year = new RelayCommand(async () => await Clear_Search_Year());
 
             //Get CurriculumID
             Get_CurriculumID();
@@ -253,9 +257,34 @@ namespace RPISVR_Managements.ViewModel
             //Command Delete Curriculum
             Command_Delete_Curriculum = new RelayCommand(async () => await Delete_Curriculum_Info());
 
+            //Command Search Curriculum
+            Command_Search_Currculum = new RelayCommand(async () => await FetchCurriculum_Info_Table_TotalTime());
+            //Defaule Select
+            Selected_Search_Curriculum_Skill_ID = CurriculumSkill_Combobox
+                .FirstOrDefault(skill_curriculum => skill_curriculum.Curriculum_Skill_Name == "វិទ្យាសាស្ត្រកុំព្យូទ័រ");
+            OnPropertyChanged(nameof(Selected_Search_Curriculum_Skill_ID));
+            Selected_Search_Curriculum_Level_ID = CurriculumLevel_Combobox
+                .FirstOrDefault(level_curriculum => level_curriculum.Curriculum_Level_Name == "បរិញ្ញាបត្រ");
+            OnPropertyChanged(nameof(Selected_Search_Curriculum_Level_ID));
+            Text_Year = "1,2,3,4";
+            _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name, Curriculum_Search_Study_Year);
+
+            //Curriculum to PDf
+            Command_Export_Curriclum_To_PDF = new RelayCommand(async () => await Export_Curriculum_Info_to_PDF());
         }
 
 
+        //For click Yes in Delete
+        private string _CurrentOperation;
+        public string CurrentOperation
+        {
+            get => _CurrentOperation;
+            set
+            {
+                _CurrentOperation = value;
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+        }
 
         //Get_data_to_combobox Province
         private ObservableCollection<Student_Info> _provinces;
@@ -7586,6 +7615,26 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Curriculum_Info_List));
             }
         }
+        private ObservableCollection<Curriculum_Info> _Curriculum_Info_List_Table;
+        public ObservableCollection<Curriculum_Info> Curriculum_Info_List_Table
+        {
+            get { return _Curriculum_Info_List_Table; }
+            set
+            {
+                _Curriculum_Info_List_Table = value;
+                OnPropertyChanged(nameof(Curriculum_Info_List_Table));
+            }
+        }
+        private ObservableCollection<Curriculum_Info> _Curriculum_TotalTime_List_Table;
+        public ObservableCollection <Curriculum_Info> Curriculum_TotalTime_List_Table
+        {
+            get { return _Curriculum_TotalTime_List_Table; }
+            set
+            {
+                _Curriculum_TotalTime_List_Table = value;
+                OnPropertyChanged(nameof(Curriculum_TotalTime_List_Table));
+            }
+        }
         //Load data to Combobox Skill 
         private void LoadData_to_Combobox_Skill_InCurriculum()
         {
@@ -7768,6 +7817,17 @@ namespace RPISVR_Managements.ViewModel
             }
             await Task.CompletedTask;
         }
+        //Multi Selection Export
+        private List<Curriculum_Info> _selected_multi_export;
+        public List<Curriculum_Info> Multi_Selected_Curriculum_Export
+        {
+            get => _selected_multi_export;
+            set
+            {
+                _selected_multi_export = value;
+                OnPropertyChanged(nameof(Multi_Selected_Curriculum_Export));
+            }
+        }
 
         //Selection Curriculum List
         private List<Curriculum_Info> _selected_Curriculum;
@@ -7791,12 +7851,32 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(First_Select_Curriculum));
             }
         }
+        private string _Text_Year;
+        public string Text_Year
+        {
+            get => _Text_Year;
+            set
+            {
+                _Text_Year = value;
+                OnPropertyChanged(nameof(Text_Year));
+            }
+        }
+
 
         //Command Edit, Delete, Clear
         public ICommand Command_Edit_Curriculum { get; set; }
         public ICommand Command_Delete_Curriculum { get; set; }
         public ICommand Command_Clear_Curriculum { get;set; }
+        public ICommand Command_Clear_Search_Year { get; set; }
 
+        //Method Clear Search Year
+        public async Task Clear_Search_Year()
+        {
+            Curriculum_Search_Study_Year = null;
+            Text_Year = "1,2,3,4";
+
+            await Task.CompletedTask;
+        }
         //Method Clear Curriculum
         public async Task Clear_Curriculum_Info()
         {          
@@ -7919,6 +7999,7 @@ namespace RPISVR_Managements.ViewModel
                 ErrorMessage_Delete = "តើអ្នកពិតជាចង់លុបទិន្នន័យទាំងនេះមែនទេ?";
                 ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
                 MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+                CurrentOperation = "Delete_Curriculum";
             }
 
             await Task.CompletedTask;
@@ -7926,6 +8007,7 @@ namespace RPISVR_Managements.ViewModel
         //Click Yes , No
         public void HandleYesResponse()
         {
+
             Debug.WriteLine("Yes response handled in ViewModel");
             Debug.WriteLine("Delete Mode.");
 
@@ -7979,7 +8061,8 @@ namespace RPISVR_Managements.ViewModel
                 {
                     Curriculum_Skill_Name = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
                 }
-                OnSearchTextChanged_Curriculum_Info();
+                OnPropertyChanged(nameof(Curriculum_Skill_Name));
+                _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name, Curriculum_Search_Study_Year);
             }
         }
         private string _Curriculum_Level_Name;
@@ -8008,7 +8091,8 @@ namespace RPISVR_Managements.ViewModel
                 {
                     Curriculum_Level_Name = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
                 }
-                OnSearchTextChanged_Curriculum_Info();
+                OnPropertyChanged(nameof(Curriculum_Level_Name));
+                _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name, Curriculum_Search_Study_Year);
             }
         }
         private string _Curriculum_Search_Study_Year;
@@ -8019,15 +8103,238 @@ namespace RPISVR_Managements.ViewModel
             {
                 _Curriculum_Search_Study_Year = value;
                 OnPropertyChanged(nameof(Curriculum_Search_Study_Year));
-                OnSearchTextChanged_Curriculum_Info();
+
+                if(Curriculum_Search_Study_Year == null)
+                {
+                    Search_Study_Year_Curr = null;
+                    Text_Year = "1,2,3,4";
+                }
+                else
+                {
+                    Search_Study_Year_Curr = Curriculum_Search_Study_Year;
+                    Text_Year = "";
+                }
+                OnPropertyChanged(nameof(Text_Year));
+                OnPropertyChanged(nameof(Search_Study_Year_Curr));
+                _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name,Curriculum_Search_Study_Year);
+            }
+        }
+        private string _Search_Study_Year_Curr;
+        public string Search_Study_Year_Curr
+        {
+            get => _Search_Study_Year_Curr;
+            set
+            {
+                _Search_Study_Year_Curr = value;
+                OnPropertyChanged(nameof(Search_Study_Year_Curr));
             }
         }
 
-        private void OnSearchTextChanged_Curriculum_Info()
+        private async Task OnSearchTextChanged_Curriculum_Info_Table(string Curriculum_Skill_Name, string Curriculum_Level_Name, string Curriculum_Search_Study_Year)
         {
-            Debug.WriteLine($"Level Name: {Curriculum_Level_Name}");
-            Debug.WriteLine($"Skill Name: {Curriculum_Skill_Name}");
-            Debug.WriteLine($"Study Year: {Curriculum_Search_Study_Year}");
+            try
+            {
+                Debug.WriteLine($"Level Name: {Curriculum_Level_Name}");
+                Debug.WriteLine($"Skill Name: {Curriculum_Skill_Name}");
+                Debug.WriteLine($"Study Year: {Curriculum_Search_Study_Year}");
+                await LoadCurriculum_ListView_Table(Curriculum_Level_Name, Curriculum_Skill_Name, Curriculum_Search_Study_Year);
+                await LoadCurriculum_TotalTime_ListView(Curriculum_Level_Name, Curriculum_Skill_Name, Curriculum_Search_Study_Year);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+
+        }
+
+        //Load Curriculum List Table
+        public async Task LoadCurriculum_ListView_Table(string Curriculum_Level_Name, string Curriculum_Skill_Name, string Search_Study_Year_Curr)
+        {
+            if (string.IsNullOrEmpty(Search_Study_Year_Curr))
+            {
+                Debug.WriteLine("You Select all Study Year 1,2,3,4.");
+
+                var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+                if (curriculum_table == null)
+                {
+                    Debug.WriteLine("No data returned from the database.");
+                }
+
+                Curriculum_Info_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_table)
+                {
+                    Curriculum_Info_List_Table.Add(curriculum_info);
+                }
+                return;
+            }
+
+
+            try
+            {
+                await Task.Delay(10);
+                var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+                Curriculum_Info_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_table)
+                {
+                    Curriculum_Info_List_Table.Add(curriculum_info);
+                }
+                Curriculum_Info_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_table);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Load Curriculum TotalTime Table
+        public async Task LoadCurriculum_TotalTime_ListView(string Curriculum_Level_Name, string Curriculum_Skill_Name, string Search_Study_Year_Curr)
+        {
+            if (string.IsNullOrEmpty(Search_Study_Year_Curr))
+            {
+                Debug.WriteLine("You Select all Study Year 1,2,3,4.");
+
+                var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+                if (curriculum_totaltime == null)
+                {
+                    Debug.WriteLine("No data returned from the database.");
+                }
+
+                Curriculum_TotalTime_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_totaltime)
+                {
+                    Curriculum_TotalTime_List_Table.Add(curriculum_info);
+                }
+                return;
+            }
+
+
+            try
+            {
+                await Task.Delay(10);
+                var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+                Curriculum_TotalTime_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_totaltime)
+                {
+                    Curriculum_TotalTime_List_Table.Add(curriculum_info);
+                }
+                Curriculum_TotalTime_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_totaltime);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Command Search Curriculum Info
+        public ICommand Command_Search_Currculum { get; set; }
+
+        //Method to Select Curriculum Table
+        public async Task FetchCurriculum_Info_Table_TotalTime()
+        {
+            if(string.IsNullOrEmpty(Search_Study_Year_Curr))
+            {
+                var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+                var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+                Curriculum_Info_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_table)
+                {
+                    Curriculum_Info_List_Table.Add(curriculum_info);
+                }
+
+                Curriculum_TotalTime_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_totaltime)
+                {
+                    Curriculum_TotalTime_List_Table.Add(curriculum_info);
+                }
+                return;
+            }
+            
+            try
+            {
+                await Task.Delay(10);
+                var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+                var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+                Curriculum_TotalTime_List_Table.Clear();
+                foreach (var curriculum_info1 in curriculum_totaltime)
+                {
+                    Curriculum_TotalTime_List_Table.Add(curriculum_info1);
+                }
+                Curriculum_TotalTime_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_totaltime);
+
+                Curriculum_Info_List_Table.Clear();
+                foreach (var curriculum_info in curriculum_table)
+                {
+                    Curriculum_Info_List_Table.Add(curriculum_info);
+                }
+                Curriculum_Info_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_table);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            
+            await Task.CompletedTask;
+        }
+
+        //Command Export Currriculum to PDf
+        public ICommand Command_Export_Curriclum_To_PDF {  get; set; }
+
+        //Method Export to PDF
+        public async Task Export_Curriculum_Info_to_PDF()
+        {
+            if (Multi_Selected_Curriculum_Export == null || !Multi_Selected_Curriculum_Export.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាក្នុងកម្មវិធីសិក្សាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = "តើអ្នកពិតជាចង់យកទិន្នន័យទាំងនេះ ចេញជាឯកសារប្រភេទ PDF មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+                CurrentOperation = "Export_Curriculum_PDF";
+            }
+            
+            await Task.CompletedTask;
+        }
+
+        //Method Export Curr.. PDF Click Yes
+        
+        public void HandleYesResponseExport_Curriculum_PDF()
+        {
+            
+            Debug.WriteLine("Export Yes.");
+
+            //foreach(var curr_id in Multi_Selected_Curriculum_Export)
+            //{
+            //    Debug.WriteLine($"Export Select ID: {curr_id.Curriculum_Name_EN}");
+            //}
+
+            string curriculum_skill_select = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
+            string curriculum_level_select = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
+            string curriculum_study_year_select;
+            if(Search_Study_Year_Curr == null)
+            {
+                curriculum_study_year_select = "1,2,3,4";
+            }
+            else
+            {
+                curriculum_study_year_select = Search_Study_Year_Curr;
+            }
+
+            //File Curriculum_toPDF.
+            PDFService_Generate_Curriculum_Info.CreateReport(Multi_Selected_Curriculum_Export,curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
