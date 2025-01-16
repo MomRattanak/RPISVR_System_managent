@@ -1283,7 +1283,7 @@
                         </TabViewItem>
 
                         <!--Create a Schedule-->
-                        <TabViewItem x:Name="TabView_Create_Schedule" Header="កាលវិភាគ" Visibility="Collapsed">
+                        <TabViewItem x:Name="TabView_Create_Schedule" Header="បង្កើតកាលវិភាគ" Visibility="Collapsed">
                             <ScrollView>
                                 <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
                                     <!--Class info Student Count-->
@@ -1305,7 +1305,7 @@
                                         <ScrollView x:Name="Table_Class_Add_Schedule" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
                                             <StackPanel>
                                                 <!--Items Selected-->
-                                                <ListView x:Name="Class_List_Add_Schedule" ItemsSource="{Binding Class_Info_List_Selected_In_Schedule}" SelectionMode="Single" SelectedItem="{Binding Selected_class_in_Schedule_List,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                                                <ListView x:Name="Class_List_Add_Schedule" ItemsSource="{Binding Class_Info_List_Selected_In_Schedule}" SelectionMode="Single" SelectionChanged="TabViewChange" SelectedItem="{Binding Selected_class_in_Schedule_List,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
                                                     <ListView.Header>
                                                         <StackPanel Orientation="Horizontal" Background="Green">
                                                             <TextBlock Text="លេខរៀង" Margin="10,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
@@ -1347,15 +1347,967 @@
                                         </ScrollView>
                                         <TabView x:Name="Table_Schedule" CloseButtonOverlayMode="OnPointerOver" IsAddTabButtonVisible="False">
                                             <TabView.TabItems>
-                                                <TabViewItem x:Name="Schedule_Mon_Fri" Header="ចន្ទសុក្រ" IsClosable="False">
-                                                    <StackPanel>
-                                                        <TextBlock Text="Mon-Fri"/>
-                                                    </StackPanel>
+                                                <TabViewItem x:Name="Schedule_Mon_Fri" Header="វេនចន្ទសុក្រ" IsClosable="False" Visibility="Collapsed">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+
+                                                        <StackPanel x:Name="Text_Info" Grid.Row="0" >
+                                                            <StackPanel Orientation="Vertical">
+                                                                <TextBlock x:Name="Text_Header"
+                                                                           Style="{StaticResource Font_KH_Title}"
+                                                                           FontFamily="Khmer OS Muol Light"
+                                                                           FontSize="12"
+                                                                           Text="រៀបចំកាលវិភាគ"
+                                                                           HorizontalAlignment="Center">
+                                                                </TextBlock>
+                                                                <TextBlock x:Name="Text_ClassName"
+                                                                           Style="{StaticResource Font_KH_Body}"
+                                                                           HorizontalAlignment="Center">
+                                                                    <Run Text="ថ្នាក់ឈ្មោះ "/>
+                                                                    <Run Text="{Binding Class_Name}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Skill" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock x:Name="txt_skill"
+                                                                           Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="ជំនាញ "/>
+                                                                    <Run Text="{Binding Class_In_Skill}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock x:Name="txt_year"
+                                                                           Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆ្នាំទី "/>
+                                                                    <Run Text="{Binding Class_In_Student_Year}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆមាស "/>
+                                                                    <Run Text="{Binding Class_In_Semester}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ជំនាន់ទី "/>
+                                                                    <Run Text="{Binding Class_In_Generation}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Level" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="កម្រិត "/>
+                                                                    <Run Text="{Binding Class_In_Level}"
+                                                                         Foreground="Aqua"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ប្រភេទសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Type}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Year" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="វេនសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Timeshift}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆ្នាំសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Year}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </StackPanel>
+
+                                                        <StackPanel x:Name="Table_schedule" Grid.Row="1" HorizontalAlignment="Center" BorderBrush="Blue" BorderThickness="3" CornerRadius="3">
+                                                            <ScrollView>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition x:Name="Column_DateTime" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Monday" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Tuesday" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Wednesday" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Thursday" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Colum_Friday" Width="230"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <StackPanel Grid.Column="0" x:Name="Culumn_DataTime1" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Center" Orientation="Vertical" Padding="0,0,0,20">
+                                                                        <StackPanel x:Name="Header_Time" Background="Green" CornerRadius="3">
+                                                                            <TextBlock Text="ម៉ោងសិក្សា " 
+                                                                                       Style="{StaticResource Font_KH_Body}" 
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Foreground="Aqua"
+                                                                                       />
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Time_M1" Orientation="Vertical">
+                                                                            <TextBlock Text="ម៉ោងចាប់ផ្ដើម"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Margin="0,20,0,0"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                            <TimePicker x:Name="Time_Start1">
+
+                                                                            </TimePicker>
+                                                                            <TextBlock Text="ម៉ោងបញ្ចប់"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Margin="0,5,0,0"/>
+                                                                            <TimePicker x:Name="Time_Stop1">
+
+                                                                            </TimePicker>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"
+                                                                              Margin="0,20,0,0"
+                                                                              StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Time_M2" Orientation="Vertical">
+                                                                            <TextBlock Text="ម៉ោងចាប់ផ្ដើម"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Margin="0,20,0,0"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                            <TimePicker x:Name="Time_Start2">
+
+                                                                            </TimePicker>
+                                                                            <TextBlock Text="ម៉ោងបញ្ចប់"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Margin="0,5,0,0"/>
+                                                                            <TimePicker x:Name="Time_Stop2">
+
+                                                                            </TimePicker>
+                                                                        </StackPanel>
+
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="1" x:Name="Culumn_Monday1" BorderBrush="Blue" BorderThickness="3" >
+                                                                        <StackPanel x:Name="Header_Monday" Background="Purple" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃចន្ទ" 
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Foreground="Aqua"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Mon_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Mon_Skill_Option"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Mon_Teacher_Name"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Mon_Skill_Time"                                    
+                                                                                         Header="h" 
+                                                                                          Padding="0,0,0,0"
+                                                                                          Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Mon_Teacher_Name"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"
+                                                                              Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Mon_Skill_Teacher_Info1" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Mon_Skill_Option1"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Mon_Teacher_Name1"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Mon_Skill_Time1"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Mon_Teacher_Name1"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="2" x:Name="Column_Tuesday1" BorderBrush="Blue" BorderThickness="3">
+                                                                        <StackPanel x:Name="Header_Tuesday" Background="Green" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃអង្គារ" 
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Foreground="Aqua"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Tues_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Tues_Skill_Option"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Tues_Teacher_Name"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Tues_Skill_Time"                                    
+                                                                                             Header="h" 
+                                                                                             Padding="0,0,0,0"
+                                                                                             Margin="0,-5,0,0"
+                                                                                             RelativePanel.RightOf="Tues_Teacher_Name"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"
+                                                                          Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Tues_Skill_Teacher_Info1" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Tues_Skill_Option1"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Tues_Teacher_Name1"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Tues_Skill_Time1"                                    
+                                                                                             Header="h" 
+                                                                                             Padding="0,0,0,0"
+                                                                                             Margin="0,-5,0,0"
+                                                                                             RelativePanel.RightOf="Tues_Teacher_Name1"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="3" x:Name="Column_Wednesday1" BorderBrush="Blue" BorderThickness="3">
+                                                                        <StackPanel x:Name="Header_Wednesday" Background="Purple" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃពុធ" 
+                                                                                   Style="{StaticResource Font_KH_Body}"
+                                                                                   Foreground="Aqua"
+                                                                                   HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Wed_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Wed_Skill_Option"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Wed_Teacher_Name"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Wed_Skill_Time"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Wed_Teacher_Name"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"
+                                                                              Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Wed_Skill_Teacher_Info1" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Wed_Skill_Option1"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Wed_Teacher_Name1"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Wed_Skill_Time1"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Wed_Teacher_Name1"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="4" x:Name="Column_Thursday1" BorderBrush="Blue" BorderThickness="3">
+                                                                        <StackPanel x:Name="Header_Thursday" Background="Green" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃព្រហស្បត្តិ" 
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Foreground="Aqua"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Thurs_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Thurs_Skill_Option"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Thurs_Teacher_Name"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Thurs_Skill_Time"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Thurs_Teacher_Name"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"
+                                                                          Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Thurs_Skill_Teacher_Info1" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Thurs_Skill_Option1"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Thurs_Teacher_Name1"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Thurs_Skill_Time1"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Thurs_Teacher_Name1"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="5" x:Name="Column_Friday1" BorderBrush="Blue" BorderThickness="3,3,6,3">
+                                                                        <StackPanel x:Name="Header_Friday" Background="Purple" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃសុក្រ" 
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Foreground="Aqua"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                      X1="0" Y1="0"
+                                                                                      X2="300" Y2="0"                                                               
+                                                                                      StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Fri_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Fri_Skill_Option"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Fri_Teacher_Name"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Fri_Skill_Time"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Fri_Teacher_Name"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"
+                                                                              Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Fri_Skill_Teacher_Info1" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Fri_Skill_Option1"
+                                                                                      Header="មុខវិជ្ជា"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Fri_Teacher_Name1"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Fri_Skill_Time1"                                    
+                                                                                         Header="h" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Fri_Teacher_Name1"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </ScrollView>
+                                                        </StackPanel>
+
+                                                        <StackPanel x:Name="Button" Grid.Row="2" Margin="0,10,0,10" HorizontalAlignment="Left">
+                                                            <StackPanel x:Name="Start_Date">
+
+                                                                <RelativePanel>
+                                                                    <TextBlock x:Name="Text_BT" Text="កាលបរិច្ឆេទចាប់ផ្ដើមកាលវិភាគ" Style="{StaticResource Style_KH_TextBox}"/>
+
+                                                                    <!--Day ComboBox-->
+                                                                    <ComboBox x:Name="DayPicker"
+                                                                            RelativePanel.Below="Text_BT"  
+                                                                            Style="{StaticResource Stye_KH_Combobox}"
+                                                                            ItemsSource="{Binding Days}"
+                                                                            SelectedItem="{Binding SelectedDay, Mode=TwoWay}"
+                                                                            Width="100"                      
+                                                                            Margin="5,10,0,0" />
+
+                                                                    <!--Khmer Month ComboBox-->
+                                                                    <ComboBox x:Name="KhmerMonthPicker"
+                                                                              RelativePanel.RightOf="DayPicker"
+                                                                              RelativePanel.Below="Text_BT" 
+                                                                              Style="{StaticResource Stye_KH_Combobox}"                                        
+                                                                              ItemsSource="{Binding KhmerMonths}"
+                                                                              SelectedItem="{Binding SelectedKhmerMonth, Mode=TwoWay}"
+                                                                              Width="100"
+                                                                              Margin="0,10,0,0" />
+
+                                                                    <!--Year ComboBox-->
+                                                                    <ComboBox x:Name="YearPicker"
+                                                                              RelativePanel.RightOf="KhmerMonthPicker"
+                                                                              RelativePanel.Below="Text_BT" 
+                                                                              Style="{StaticResource Stye_KH_Combobox}"
+                                                                              ItemsSource="{Binding Years}"
+                                                                              MaxDropDownHeight="500"
+                                                                              SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+                                                                              Width="100"
+                                                                              Margin="0,10,5,0" />
+
+                                                                    <TextBlock x:Name="Text_Build" Text="អគារ"
+                                                                           Style="{StaticResource Font_KH_Body}"
+                                                                           Margin="150,0,0,0"
+                                                                           RelativePanel.RightOf="Text_BT"/>
+                                                                    <TextBox x:Name="Text_Building"
+                                                                         Style="{StaticResource Style_KH_TextBox}"
+                                                                         RelativePanel.RightOf="YearPicker"
+                                                                         RelativePanel.Below="Text_Build"
+                                                                             Margin="0,12,0,0"/>
+                                                                    <TextBlock x:Name="txt_Room" Text="បន្ទប់"
+                                                                               Margin="130,0,0,0"
+                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                               RelativePanel.RightOf="Text_Build"/>
+                                                                    <TextBox x:Name="Text_Room"
+                                                                             Style="{StaticResource Style_KH_TextBox}"
+                                                                             Margin="5,12,0,0"
+                                                                             RelativePanel.Below="txt_Room"
+                                                                             RelativePanel.RightOf="Text_Building"/>
+                                                                </RelativePanel>
+                                                            </StackPanel>
+
+                                                            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                                                                <Button x:Name="btn_save_schedule"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xE74E;" />
+                                                                            <TextBlock Text="រក្សាទុក" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_clear_schedule"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xED62;" />
+                                                                            <TextBlock Text="សម្អាត" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+
+                                                                </Button>
+                                                            </StackPanel>
+
+                                                            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                                                                <Button x:Name="btn_delete_schedule"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
+                                                                        <TextBlock Text="លុបកាលវិភាគ" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_export_schedule_pdf"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xEA90;" />
+                                                                            <TextBlock Text="PDF" Margin="30,0,0,0"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_export_schedule_excel"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="22" Height="22"/>
+                                                                            <TextBlock Text="Excel" Margin="30,0,0,0"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </Grid>
                                                 </TabViewItem>
-                                                <TabViewItem x:Name="Schedule_Sat_Sun" Header="សៅរ៍អាទិត្យ" IsClosable="False">
-                                                    <StackPanel>
-                                                        <TextBlock Text="Sat-Sun"/>
-                                                    </StackPanel>
+                                                
+                                                <!--Schedule_Sat_Sun-->
+                                                <TabViewItem x:Name="Schedule_Sat_Sun" Header="វេនសៅរ៍អាទិត្យ" IsClosable="False" Visibility="Collapsed">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+
+                                                        <StackPanel x:Name="Text_Info_SS" Grid.Row="0" >
+                                                            <StackPanel Orientation="Vertical">
+                                                                <TextBlock x:Name="Text_Header_SS"
+                                                                           Style="{StaticResource Font_KH_Title}"
+                                                                           FontFamily="Khmer OS Muol Light"
+                                                                           FontSize="12"
+                                                                           Text="រៀបចំកាលវិភាគ"
+                                                                           HorizontalAlignment="Center">
+                                                                </TextBlock>
+                                                                <TextBlock x:Name="Text_ClassName_SS"
+                                                                           Style="{StaticResource Font_KH_Body}"
+                                                                           HorizontalAlignment="Center">
+                                                                    <Run Text="ថ្នាក់ឈ្មោះ "/>
+                                                                    <Run Text="{Binding Class_Name}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Skill_SS" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock x:Name="txt_skill_SS"
+                                                                           Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="ជំនាញ "/>
+                                                                    <Run Text="{Binding Class_In_Skill}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock x:Name="txt_year_SS"
+                                                                           Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆ្នាំទី "/>
+                                                                    <Run Text="{Binding Class_In_Student_Year}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆមាស "/>
+                                                                    <Run Text="{Binding Class_In_Semester}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ជំនាន់ទី "/>
+                                                                    <Run Text="{Binding Class_In_Generation}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Level_SS" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="កម្រិត "/>
+                                                                    <Run Text="{Binding Class_In_Level}"
+                                                                         Foreground="Aqua"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ប្រភេទសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Type}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel x:Name="Text_Year_SS" HorizontalAlignment="Left" Orientation="Horizontal">
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text="វេនសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Timeshift}"
+                                                                         FontFamily="Khmer OS Muol Light"
+                                                                         FontSize="12"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                                    <Run Text=" ឆ្នាំសិក្សា "/>
+                                                                    <Run Text="{Binding Class_In_Study_Year}"
+                                                                         Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </StackPanel>
+
+                                                        <StackPanel x:Name="Table_Schedule_Sat_Sun" Grid.Row="1" HorizontalAlignment="Center" BorderBrush="Blue" BorderThickness="3" CornerRadius="3">
+                                                            <ScrollView>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition x:Name="Column_DateTime_SS" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Skill_Sat" Width="230"/>
+                                                                        <ColumnDefinition x:Name="Column_Skill_sun" Width="230"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <StackPanel Grid.Column="0" x:Name="Column_DataTime_SS" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Center" Orientation="Vertical" Padding="0,0,0,20">
+                                                                        <StackPanel x:Name="Header_Time_SS" Background="Green" CornerRadius="3">
+                                                                            <TextBlock Text="ម៉ោងសិក្សា " 
+                                                                                       Style="{StaticResource Font_KH_Body}" 
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Foreground="Aqua"
+                                                                                       />
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Time_SS_M" Orientation="Vertical">
+                                                                            <TextBlock Text="ម៉ោងចាប់ផ្ដើម (ព្រឹក)"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Margin="0,20,0,0"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                            <TimePicker x:Name="Time_SS_Start_M">
+
+                                                                            </TimePicker>
+                                                                            <TextBlock Text="ម៉ោងបញ្ចប់ (ព្រឹក)"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Margin="0,5,0,0"/>
+                                                                            <TimePicker x:Name="Time_SS_Stop_M">
+
+                                                                            </TimePicker>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                      X1="0" Y1="0"
+                                                                                      X2="300" Y2="0"
+                                                                                  Margin="0,20,0,0"
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Time_SS_A" Orientation="Vertical">
+                                                                            <TextBlock Text="ម៉ោងចាប់ផ្ដើម (រសៀល)"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Margin="0,20,0,0"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                            <TimePicker x:Name="Time_SS_Start_A">
+
+                                                                            </TimePicker>
+                                                                            <TextBlock Text="ម៉ោងបញ្ចប់ (រសៀល)"
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Margin="0,5,0,0"/>
+                                                                            <TimePicker x:Name="Time_SS_Stop_A">
+
+                                                                            </TimePicker>
+                                                                        </StackPanel>
+
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="1" x:Name="Column_Satureday" BorderBrush="Blue" BorderThickness="3" >
+                                                                        <StackPanel x:Name="Header_Satureday" Background="Purple" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃសៅរ៍" 
+                                                                                   Style="{StaticResource Font_KH_Body}"
+                                                                                   Foreground="Aqua"
+                                                                                   HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Sat_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Sat_Skill_OptionM"
+                                                                                      Header="មុខវិជ្ជា (ព្រឹក)"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Sat_Teacher_NameM"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Sat_Skill_TimeM"                                    
+                                                                                         Header="(h)" 
+                                                                                          Padding="0,0,0,0"
+                                                                                          Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Sat_Teacher_NameM"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"
+                                                                              Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Sat_Skill_Teacher_Info_A" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Sat_Skill_OptionA"
+                                                                                      Header="មុខវិជ្ជា (រសៀល)"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Sat_Teacher_NameA"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Sat_Skill_TimeA"                                    
+                                                                                         Header="(h)" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Sat_Teacher_NameA"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="2" x:Name="Column_Sunday" BorderBrush="Blue" BorderThickness="3" >
+                                                                        <StackPanel x:Name="Header_Sunday" Background="Green" CornerRadius="3">
+                                                                            <TextBlock Text="ថ្ងៃអាទិត្យ" 
+                                                                                       Style="{StaticResource Font_KH_Body}"
+                                                                                       Foreground="Aqua"
+                                                                                       HorizontalAlignment="Center"/>
+                                                                        </StackPanel>
+
+                                                                        <Line Stroke="Blue"
+                                                                                  X1="0" Y1="0"
+                                                                                  X2="300" Y2="0"                                                               
+                                                                                  StrokeThickness="10"/>
+
+                                                                        <StackPanel x:Name="Sun_Skill_Teacher_Info" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Sun_Skill_OptionM"
+                                                                                  Header="មុខវិជ្ជា (ព្រឹក)"
+                                                                                  Style="{StaticResource Stye_KH_Combobox}"
+                                                                                  Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Sun_Teacher_NameM"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Sun_Skill_TimeM"                                    
+                                                                                             Header="(h)" 
+                                                                                             Padding="0,0,0,0"
+                                                                                             Margin="0,-5,0,0"
+                                                                                             RelativePanel.RightOf="Sun_Teacher_NameM"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                        <Line Stroke="Blue"
+                                                                              X1="0" Y1="0"
+                                                                              X2="300" Y2="0"                                                               
+                                                                              StrokeThickness="10"
+                                                                          Margin="0,14,0,0"/>
+
+                                                                        <StackPanel x:Name="Sun_Skill_Teacher_Info_A" Margin="0,10,0,0">
+                                                                            <ComboBox x:Name="Sun_Skill_OptionA"
+                                                                                      Header="មុខវិជ្ជា (រសៀល)"
+                                                                                      Style="{StaticResource Stye_KH_Combobox}"
+                                                                                      Width="220">
+
+                                                                            </ComboBox>
+                                                                            <RelativePanel>
+                                                                                <ComboBox x:Name="Sun_Teacher_NameA"
+                                                                                          Header="គ្រូបច្ចេកទេស"
+                                                                                          Style="{StaticResource Stye_KH_Combobox}"
+                                                                                          Width="155">
+                                                                                </ComboBox>
+                                                                                <NumberBox x:Name="Sun_Skill_TimeA"                                    
+                                                                                         Header="(h)" 
+                                                                                         Padding="0,0,0,0"
+                                                                                         Margin="0,-5,0,0"
+                                                                                         RelativePanel.RightOf="Sun_Teacher_NameA"/>
+                                                                            </RelativePanel>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                    
+                                                                </Grid>
+                                                            </ScrollView>
+                                                        </StackPanel>
+
+                                                        <StackPanel x:Name="Button_SS" Grid.Row="2" Margin="0,10,0,10" HorizontalAlignment="Left">
+                                                            <StackPanel x:Name="Start_Date_SS">
+
+                                                                <RelativePanel>
+                                                                    <TextBlock x:Name="Text_BT_SS" 
+                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                               Text="កាលបរិច្ឆេទចាប់ផ្ដើមកាលវិភាគ"/>
+
+                                                                    <!--Day ComboBox-->
+                                                                    <ComboBox x:Name="DayPicker_SS"
+                                                                                RelativePanel.Below="Text_BT_SS"  
+                                                                                Style="{StaticResource Stye_KH_Combobox}"
+                                                                                ItemsSource="{Binding Days}"
+                                                                                SelectedItem="{Binding SelectedDay, Mode=TwoWay}"
+                                                                                Width="100"                      
+                                                                                Margin="5,10,0,0" />
+
+                                                                    <!--Khmer Month ComboBox-->
+                                                                    <ComboBox x:Name="KhmerMonthPicker_SS"
+                                                                              RelativePanel.RightOf="DayPicker_SS"
+                                                                              RelativePanel.Below="Text_BT_SS" 
+                                                                              Style="{StaticResource Stye_KH_Combobox}"                                        
+                                                                              ItemsSource="{Binding KhmerMonths}"
+                                                                              SelectedItem="{Binding SelectedKhmerMonth, Mode=TwoWay}"
+                                                                              Width="100"
+                                                                              Margin="0,10,0,0" />
+
+                                                                    <!--Year ComboBox-->
+                                                                    <ComboBox x:Name="YearPicker_SS"
+                                                                                  RelativePanel.RightOf="KhmerMonthPicker_SS"
+                                                                                  RelativePanel.Below="Text_BT_SS" 
+                                                                                  Style="{StaticResource Stye_KH_Combobox}"
+                                                                                  ItemsSource="{Binding Years}"
+                                                                                  MaxDropDownHeight="500"
+                                                                                  SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+                                                                                  Width="100"
+                                                                                  Margin="0,10,5,0" />
+
+                                                                    <TextBlock x:Name="Text_Build_SS" Text="អគារ"
+                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                               Margin="150,0,0,0"
+                                                                               RelativePanel.RightOf="Text_BT_SS"/>
+                                                                    <TextBox x:Name="Text_Building_SS"
+                                                                             Style="{StaticResource Style_KH_TextBox}"
+                                                                             RelativePanel.RightOf="YearPicker_SS"
+                                                                             RelativePanel.Below="Text_Build_SS"
+                                                                                 Margin="0,12,0,0"/>
+                                                                    <TextBlock x:Name="txt_Room_SS" Text="បន្ទប់"
+                                                                               Margin="130,0,0,0"
+                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                               RelativePanel.RightOf="Text_Build_SS"/>
+                                                                    <TextBox x:Name="Text_Room_SS"
+                                                                                 Style="{StaticResource Style_KH_TextBox}"
+                                                                                 Margin="5,12,0,0"
+                                                                                 RelativePanel.Below="txt_Room_SS"
+                                                                                 RelativePanel.RightOf="Text_Building_SS"/>
+                                                                </RelativePanel>
+                                                            </StackPanel>
+
+                                                            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                                                                <Button x:Name="btn_save_schedule_ss"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xE74E;" />
+                                                                            <TextBlock Text="រក្សាទុក" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_clear_schedule_ss"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xED62;" />
+                                                                            <TextBlock Text="សម្អាត" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+
+                                                                </Button>
+                                                            </StackPanel>
+
+                                                            <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+                                                                <Button x:Name="btn_delete_schedule_ss"
+                                                                          Style="{StaticResource Stye_KH_Button}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
+                                                                        <TextBlock Text="លុបកាលវិភាគ" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_export_schedule_ss_pdf"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <FontIcon Glyph="&#xEA90;" />
+                                                                            <TextBlock Text="PDF" Margin="30,0,0,0"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+
+                                                                <Button x:Name="btn_export_schedule_ss_excel"
+                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="22" Height="22"/>
+                                                                            <TextBlock Text="Excel" Margin="30,0,0,0"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        
+                                                    </Grid>
                                                 </TabViewItem>
 
                                             </TabView.TabItems>

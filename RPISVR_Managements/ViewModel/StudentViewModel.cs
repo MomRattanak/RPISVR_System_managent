@@ -8451,28 +8451,32 @@ namespace RPISVR_Managements.ViewModel
             {
                 _selected_class_in_schedule_list = value;
                 OnPropertyChanged(nameof(Selected_class_in_Schedule_List));
-
+                //Class_In_Study_Timeshift = Selected_class_in_Schedule_List.Class_In_Study_Timeshift;
                 if (_selected_class_in_schedule_list != null)
                 {
-                    Class_ID = _selected_class_in_schedule_list.Class_ID;
-                    Class_Name = _selected_class_in_schedule_list.Class_Name;
-                    Class_In_Study_Year = _selected_class_in_schedule_list.Class_In_Study_Year;
-                    Class_In_Skill = _selected_class_in_schedule_list.Class_In_Skill;
-                    Class_In_Level = _selected_class_in_schedule_list.Class_In_Level;
-                    Class_In_Student_Year = _selected_class_in_schedule_list.Class_In_Student_Year;
-                    Class_In_Semester = _selected_class_in_schedule_list.Class_In_Semester;
-                    Class_In_Generation = _selected_class_in_schedule_list.Class_In_Generation;
-                    Class_In_Study_Timeshift = _selected_class_in_schedule_list.Class_In_Study_Timeshift;
-                    Class_In_Study_Type = _selected_class_in_schedule_list.Class_In_Study_Type;
-                    Max_Student_InClass = _selected_class_in_schedule_list.Max_Student_InClass;
-                    Current_Class_State = _selected_class_in_schedule_list.Current_Class_State;
+                    Class_ID = Selected_class_in_Schedule_List.Class_ID;
+                    Class_Name = Selected_class_in_Schedule_List.Class_Name;
+                    Class_In_Study_Year = Selected_class_in_Schedule_List.Class_In_Study_Year;
+                    Class_In_Skill = Selected_class_in_Schedule_List.Class_In_Skill;
+                    Class_In_Level = Selected_class_in_Schedule_List.Class_In_Level;
+                    Class_In_Student_Year = Selected_class_in_Schedule_List.Class_In_Student_Year;
+                    Class_In_Semester = Selected_class_in_Schedule_List.Class_In_Semester;
+                    Class_In_Generation = Selected_class_in_Schedule_List.Class_In_Generation;
+                    Class_In_Study_Timeshift = Selected_class_in_Schedule_List.Class_In_Study_Timeshift;
+                    Class_In_Study_Type = Selected_class_in_Schedule_List.Class_In_Study_Type;
+                    Max_Student_InClass = Selected_class_in_Schedule_List.Max_Student_InClass;
+                    Current_Class_State = Selected_class_in_Schedule_List.Current_Class_State;
 
                     Debug.WriteLine($"Class dd ID: {Class_ID}");
-                    _ = Count_Student_Selected_Class();
-                }
 
+                    _ = Count_Student_Selected_Class();
+
+                }
+                OnPropertyChanged(nameof(Class_In_Study_Timeshift));
+                Debug.WriteLine($"Change ShiftTime: {Class_In_Study_Timeshift}");
             }
         }
+        
         //Command Clear Class in Schedule
         public ICommand CommandClear_Class_in_Schedule { get; set; }
 
@@ -8495,6 +8499,9 @@ namespace RPISVR_Managements.ViewModel
                 Class_In_Study_Year = null;
                 Class_In_Skill = null;
                 Class_In_Level = null;
+                Class_In_Semester = null;
+                Class_In_Generation = null;
+                Class_In_Study_Type = null;
                 Class_In_Student_Year = null;
                 Class_In_Study_Timeshift = null;
                 Class_Name = null;
@@ -8519,6 +8526,19 @@ namespace RPISVR_Managements.ViewModel
 
             await Task.CompletedTask;
         }
+
+        //Schedule
+
+
+        //Command Insert Schedule
+        public ICommand Command_SaveSchedule { get; set; }
+        public ICommand Command_ClearSchedule { get; set; }
+        public ICommand Command_DeleteSchedule { get; set; }
+        public ICommand Command_Export_Schedule_PDF { get; set; }
+        public ICommand Command_Export_Schedule_Excel { get; set; }
+
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

@@ -35,6 +35,8 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
     public sealed partial class Prepare_Classroom_S : Page
     {
         public StudentViewModel ViewModel { get; set; }
+        public StudentViewModel viewModel_Tab { get; set; }
+
         private DatabaseConnection _ConnectionString;
 
         public Prepare_Classroom_S()
@@ -42,6 +44,8 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             this.InitializeComponent();
 
             ViewModel = new StudentViewModel();
+            viewModel_Tab = new StudentViewModel();
+
             this.DataContext = new StudentViewModel();
 
             //ErrorMessage
@@ -551,6 +555,50 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                 TabView_Class_Info.TabItems.Add(TabView_Create_Schedule);
             }
             TabView_Class_Info.SelectedItem = TabView_Create_Schedule;
+        }
+
+        
+        
+
+        private void TabViewChange(object sender, SelectionChangedEventArgs e)
+        {
+            var listView_class_in_schedule = sender as ListView;
+            //var selected_class_in_schedule = listView_class_in_schedule.SelectedItems.Cast<Student_Info>().ToList();
+            // Check if there are any selected items
+            var first_selected_class_in_schedule = listView_class_in_schedule.SelectedItems.Cast<Student_Info>().FirstOrDefault();
+            // Update the ViewModel with the selected items
+            if (DataContext is StudentViewModel viewModel)
+            {
+                viewModel.Selected_class_in_Schedule_List = first_selected_class_in_schedule;
+                //viewModel.FirstSelectedClass = first_Student_ClassSelectedItem;
+
+                if(viewModel.Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+                {
+                    Debug.WriteLine("Open Tab Sat Sun.");
+                    Schedule_Mon_Fri.Visibility = Visibility.Collapsed;
+                    Schedule_Sat_Sun.Visibility = Visibility.Visible;
+
+                    //Add to TabView
+                    if (!Table_Schedule.TabItems.Contains(Schedule_Sat_Sun))
+                    {
+                        Table_Schedule.TabItems.Add(Schedule_Sat_Sun);
+                    }
+                    Table_Schedule.SelectedItem = Schedule_Sat_Sun;
+                }
+                else
+                {
+                    Debug.WriteLine("Open Tab Mon Fri.");
+                    Schedule_Mon_Fri.Visibility = Visibility.Visible;
+                    Schedule_Sat_Sun.Visibility = Visibility.Collapsed;
+                    //Add to TabView
+                    if (!Table_Schedule.TabItems.Contains(Schedule_Mon_Fri))
+                    {
+                        Table_Schedule.TabItems.Add(Schedule_Mon_Fri);
+                    }
+                    Table_Schedule.SelectedItem = Schedule_Mon_Fri;
+                }
+            }
+           
         }
     }
 }

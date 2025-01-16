@@ -330,9 +330,9 @@
                         </NavigationViewItem>
                         
                         <!--Teacher_Information-->
-                        <NavigationViewItem Content="ព័ត៌មានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Font_NavigationView}" Icon="Calendar" Tag="SamplePage4">
+                        <NavigationViewItem Content="ដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Font_NavigationView}" Icon="Calendar" Tag="SamplePage4">
                             <ToolTipService.ToolTip>
-                                <TextBlock Text="ព័ត៌មានគ្រូបច្ចេកទេស" Style="{StaticResource KH_Tooltip}"/>
+                                    <TextBlock Text="ដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Tooltip}"/>
                             </ToolTipService.ToolTip>
                             <NavigationViewItem.MenuItems>
                                 
@@ -348,7 +348,18 @@
                                         <FontIcon Glyph="&#xE7EE;" />
                                     </NavigationViewItem.Icon>
                                 </NavigationViewItem>
-                            </NavigationViewItem.MenuItems>
+                                
+                                <!--Department-->
+                                <NavigationViewItem x:Name="Add_Department" Content="រៀបចំដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Font_NavigationView}" Tag="Check_Teacher_Info">
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="រៀបចំដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Tooltip}"/>
+                                    </ToolTipService.ToolTip>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE7EE;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                
+                    </NavigationViewItem.MenuItems>
                         </NavigationViewItem>
 
                         <!--Administrative letter-->
