@@ -37,7 +37,8 @@ namespace RPISVR_Managements.Model
         //public string ConnectionString { get; set; }
         public string _connectionString { get; set; }
         private MySqlConnection _dbConnection;
-
+        DateTime Create_Datetime = DateTime.Now;
+        string User_Create = "MOM RATTANAK";
         public DatabaseConnection()
         {
             //Local
@@ -5097,6 +5098,281 @@ namespace RPISVR_Managements.Model
             }
             // Return default values if no match is found
             return (null, null, 0, 0, null, null, 0, 0, 0);
+        }
+
+        //Load Data Combobox Skill in Schedule List
+        int skill_id;
+        int level_id;
+        public List<Class_Schedule> GetSkill_toCombobox_Class_Schedule(string Class_In_Skill,string Class_In_Level, string Class_In_Student_Year,string Class_In_Semester)
+        {
+            
+            try
+            {
+                string query_skill = "SELECT ID FROM education_skill_info WHERE edu_skill_name_kh = @edu_skill_name_kh";
+                using (MySqlConnection con = new MySqlConnection(_connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand(query_skill, con);
+                    cmd.Parameters.AddWithValue("@edu_skill_name_kh", Class_In_Skill);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            skill_id = reader.GetInt32("ID");
+                        }                   
+                    }
+                }             
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+
+            //Level ID
+            try
+            {
+                string query_level = "SELECT ID FROM education_level_info WHERE edu_level_name_kh = @edu_level_name_kh";
+
+                using(MySqlConnection con = new MySqlConnection(_connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand(query_level, con);
+                    cmd.Parameters.AddWithValue("@edu_level_name_kh", Class_In_Level);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            level_id = reader.GetInt32("ID");
+                        }
+
+                    }
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            Debug.WriteLine($"level id: {level_id}");
+            Debug.WriteLine($"skill id: {skill_id}");
+
+            List<Class_Schedule> skill_schedule = new List<Class_Schedule>();
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = @"
+                                SELECT C_ID, curr_name_kh, curr_name_en 
+                                FROM curriculum_info 
+                                WHERE curr_skill_id = @curr_skill_id 
+                                  AND curr_level_id = @curr_level_id 
+                                  AND curr_study_year = @curr_study_year 
+                                  AND curr_semester = @curr_semester 
+                                ORDER BY 
+                                    CASE 
+                                        WHEN curr_name_kh REGEXP '[ក-អ]' THEN 1 
+                                        WHEN curr_name_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 
+                                        ELSE 3 
+                                    END, 
+                                    curr_name_kh ASC;";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@curr_skill_id", skill_id);
+                        command.Parameters.AddWithValue("@curr_level_id", level_id);
+                        command.Parameters.AddWithValue("@curr_study_year", Class_In_Student_Year);
+                        command.Parameters.AddWithValue("@curr_semester", Class_In_Semester);
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                skill_schedule.Add(new Class_Schedule
+                                {
+                                    SD_Skill_ID = reader.GetInt32("C_ID"),
+                                    SD_Skill_Name = reader.GetString("curr_name_kh")
+                                });
+                            }
+                        }
+                    }     
+                }              
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database error: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw;
+            }
+            return skill_schedule;
+        }
+        
+        //Load Data Combobox Teacher in Schedule List
+        public List<Class_Schedule> GetTeacher_toCombobox_Class_Schedule()
+        {
+            List<Class_Schedule> teacher_schedule = new List<Class_Schedule>();
+            try
+            {
+                
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                                SELECT ID, Techer_Name_KH, Techer_Name_EN 
+                                FROM teacher_informatin                                
+                                ORDER BY 
+                                    CASE 
+                                        WHEN Techer_Name_KH REGEXP '[ក-អ]' THEN 1 
+                                        WHEN Techer_Name_KH REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 
+                                        ELSE 3 
+                                    END, 
+                                    Techer_Name_KH ASC;";
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                teacher_schedule.Add(new Class_Schedule
+                                {
+                                    SD_Teacher_ID = reader.GetInt32("ID"),
+                                    SD_Teacher_Name = reader.GetString("Techer_Name_KH")
+                                });
+                            }
+                        }
+                    }
+                }
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Database error: {ex.Message}");
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
+            return teacher_schedule;
+        }       
+
+        //Load Teacher Name, Total Time Selected Skill
+        public async Task<(string teacher_name, int total_Time1)> GetTeacher_Time_SelecetedSkill(string skill_name)
+        {
+            try
+            {
+                string query = "SELECT " +
+                       "ci.curr_total_time AS TotalTime, " +
+                       "ti.Techer_Name_KH AS Teacher_Name " +
+                       "FROM curriculum_info ci " +
+                       "LEFT JOIN teacher_informatin ti ON ci.curr_teacher_id = ti.ID " +
+                       "WHERE ci.curr_name_kh = @curr_name_kh;";
+                using (MySqlConnection con = new MySqlConnection(_connectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@curr_name_kh", skill_name);
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return (
+
+                                    teacher_name: reader["Teacher_Name"].ToString(),
+                                    total_Time1: Convert.ToInt32(reader["TotalTime"])                                 
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Database error get teacher and time: {ex.Message}");
+                Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+            return (null, 0);
+        }
+
+        //Method Insert class schedule
+        public bool Save_ScheduleInfo(Class_Schedule class_Schedule)
+        {
+            try
+            {
+                using(MySqlConnection con = new MySqlConnection(_connectionString))
+                {
+                    con.Open();
+                    string query = "INSERT INTO class_schedule_mon_fri_info(sd_class_id, sd_class_name, sd_class_timeshift, sd_start_time_1, sd_end_time_1, sd_start_time_2, sd_end_time_2, sd_mon_skill_1, sd_name_teacher_mon_1, sd_totaltime_skill_mon_1, sd_mon_skill_2, sd_name_teacher_mon_2, sd_totaltime_skill_mon_2, sd_tues_skill_1, sd_name_teacher_tues_1, sd_totaltime_skill_tues_1, sd_tues_skill_2, sd_name_teacher_tues_2, sd_totaltime_skill_tues_2, sd_wed_skill_1, sd_name_teacher_wed_1, sd_totaltime_skill_wed_1, sd_wed_skill_2, sd_name_teacher_wed_2, sd_totaltime_skill_wed_2, sd_thurs_skill_1, sd_name_teacher_thurs_1, sd_totaltime_skill_thurs_1, sd_thurs_skill_2, sd_name_teacher_thurs_2, sd_totaltime_skill_thurs_2, sd_fri_skill_1, sd_name_teacher_fri_1, sd_totaltime_skill_fri_1, sd_fri_skill_2, sd_name_teacher_fri_2, sd_totaltime_skill_fri_2, sd_datetime_start_schedule, sd_building_name, sd_building_room, sd_datetime_create, sd_user_create)" +
+                        "VALUES(@sd_class_id, @sd_class_name, @sd_class_timeshift, @sd_start_time_1, @sd_end_time_1, @sd_start_time_2, @sd_end_time_2, @sd_mon_skill_1, @sd_name_teacher_mon_1, @sd_totaltime_skill_mon_1, @sd_mon_skill_2, @sd_name_teacher_mon_2, @sd_totaltime_skill_mon_2, @sd_tues_skill_1, @sd_name_teacher_tues_1, @sd_totaltime_skill_tues_1, @sd_tues_skill_2, @sd_name_teacher_tues_2, @sd_totaltime_skill_tues_2, @sd_wed_skill_1, @sd_name_teacher_wed_1, @sd_totaltime_skill_wed_1, @sd_wed_skill_2, @sd_name_teacher_wed_2, @sd_totaltime_skill_wed_2, @sd_thurs_skill_1, @sd_name_teacher_thurs_1, @sd_totaltime_skill_thurs_1, @sd_thurs_skill_2, @sd_name_teacher_thurs_2, @sd_totaltime_skill_thurs_2, @sd_fri_skill_1, @sd_name_teacher_fri_1, @sd_totaltime_skill_fri_1, @sd_fri_skill_2, @sd_name_teacher_fri_2, @sd_totaltime_skill_fri_2, @sd_datetime_start_schedule, @sd_building_name, @sd_building_room, @sd_datetime_create, @sd_user_create)";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@sd_class_id", class_Schedule.Class_ID_Schedule);
+                        cmd.Parameters.AddWithValue("@sd_class_name", class_Schedule.SD_Class_Name);
+                        cmd.Parameters.AddWithValue("@sd_class_timeshift",class_Schedule.SD_Class_TimeShift);
+                        cmd.Parameters.AddWithValue("@sd_start_time_1", class_Schedule.SD_Start_DateTime_MF1);
+                        cmd.Parameters.AddWithValue("@sd_end_time_1", class_Schedule.SD_End_DateTime_MF1);
+                        cmd.Parameters.AddWithValue("@sd_start_time_2", class_Schedule.SD_Start_DateTime_MF2);
+                        cmd.Parameters.AddWithValue("@sd_end_time_2", class_Schedule.SD_End_DateTime_MF2);
+
+                        cmd.Parameters.AddWithValue("@sd_mon_skill_1", class_Schedule.SD_Skill_Name_Mon1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_mon_1", class_Schedule.SD_Teacher_Mon01);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_mon_1", class_Schedule.SD_TotalTime_Mon1);
+                        cmd.Parameters.AddWithValue("@sd_mon_skill_2", class_Schedule.SD_Skill_Name_Mon2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_mon_2", class_Schedule.SD_Teacher_Mon02);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_mon_2", class_Schedule.SD_TotalTime_Mon2);
+
+                        cmd.Parameters.AddWithValue("@sd_tues_skill_1", class_Schedule.SD_Skill_Name_Tues1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_tues_1", class_Schedule.SD_Teacher_Tues01);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_tues_1", class_Schedule.SD_TotalTime_Tues1);
+                        cmd.Parameters.AddWithValue("@sd_tues_skill_2", class_Schedule.SD_Skill_Name_Tues2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_tues_2", class_Schedule.SD_Teacher_Tues02);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_tues_2", class_Schedule.SD_TotalTime_Tues2);
+
+                        cmd.Parameters.AddWithValue("@sd_wed_skill_1", class_Schedule.SD_Skill_Name_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_wed_1", class_Schedule.SD_Teacher_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_wed_1", class_Schedule.SD_TotalTime_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_wed_skill_2", class_Schedule.SD_Skill_Name_Wed2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_wed_2", class_Schedule.SD_Teacher_Wed2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_wed_2", class_Schedule.SD_TotalTime_Wed2);
+
+                        cmd.Parameters.AddWithValue("@sd_thurs_skill_1", class_Schedule.SD_Skill_Name_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_thurs_1", class_Schedule.SD_Teacher_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_thurs_1", class_Schedule.SD_TotalTime_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_thurs_skill_2", class_Schedule.SD_Skill_Name_Thur2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_thurs_2", class_Schedule.SD_Teacher_Thur2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_thurs_2", class_Schedule.SD_TotalTime_Thur2);
+
+                        cmd.Parameters.AddWithValue("@sd_fri_skill_1", class_Schedule.SD_Skill_Name_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_fri_1", class_Schedule.SD_Teacher_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_fri_1", class_Schedule.SD_TotalTime_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_fri_skill_2", class_Schedule.SD_Skill_Name_Fri2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_fri_2", class_Schedule.SD_Teacher_Fri2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_fri_2", class_Schedule.SD_TotalTime_Fri2);
+
+                        cmd.Parameters.AddWithValue("@sd_datetime_start_schedule", class_Schedule.DateTime_Start_Schedule_Strating);
+                        cmd.Parameters.AddWithValue("@sd_building_name", class_Schedule.SD_Building_Name);
+                        cmd.Parameters.AddWithValue("@sd_building_room", class_Schedule.SD_Building_Room);
+                        cmd.Parameters.AddWithValue("@sd_datetime_create", Create_Datetime);
+                        cmd.Parameters.AddWithValue("@sd_user_create", User_Create);
+                        
+
+
+                        int result = cmd.ExecuteNonQuery();
+                        return result == 1;
+                    }                 
+                }
+            }
+            catch (MySqlException e)
+            {
+                Debug.WriteLine($"Save Schedule Info Databbase Error: {e.Message}");
+                return false;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($"Save Schedule Info Error: {ex.Message}");
+                return false;
+            }
         }
     }
 }
