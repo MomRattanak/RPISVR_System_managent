@@ -33,6 +33,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office.Word;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Tsp;
+using Microsoft.UI.Xaml.Data;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -277,9 +278,22 @@ namespace RPISVR_Managements.ViewModel
             Class_Info_List_Selected_In_Schedule = new ObservableCollection<Student_Info>();
             Command_Add_Class_to_List_in_Schedule = new RelayCommand(async () => await Load_Class_ToList_in_Schedule());
             CommandClear_Class_in_Schedule = new RelayCommand(async () => await Clear_Class_in_Schedule_List());
-                 
-        }
+            Command_SaveSchedule = new RelayCommand(async () => await SaveSchedule());
 
+            //SetTime
+            SD_Start_DateTime_MF1 = TimeSpan.Parse("07:30:00");
+            SD_End_DateTime_MF1 = TimeSpan.Parse("09:30:00");
+            SD_Start_DateTime_MF2 = TimeSpan.Parse("09:45:00");
+            SD_End_DateTime_MF2 = TimeSpan.Parse("11:45:00");
+            Class_ID_Schedule = 0;
+            //Load Combobox
+            Schedule_Skill_Name_Combobox = new ObservableCollection<Class_Schedule>();
+            Schedule_Teacher_Name_Combobox = new ObservableCollection<Class_Schedule>();
+            LoadData_to_Combobox_Schedule_Teacher();
+
+
+        }
+        
 
         //For click Yes in Delete
         private string _CurrentOperation;
@@ -1989,6 +2003,8 @@ namespace RPISVR_Managements.ViewModel
         {
             get => SelectedDate?.ToString("dd/MM/yyyy") ?? "No Date Selected";
         }
+
+        
         //Stu_BirthdayDateShow
         private string _Stu_BirthdayDateShow;
         public string Stu_BirthdayDateShow
@@ -8147,6 +8163,16 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Search_Study_Year_Curr));
             }
         }
+        private int _Class_In_Level_ID;
+        public int Class_In_Level_ID
+        {
+            get => _Class_In_Level_ID;
+            set
+            {
+                _Class_In_Level_ID = value;
+                OnPropertyChanged(nameof(Class_In_Level_ID));
+            }
+        }
 
         private async Task OnSearchTextChanged_Curriculum_Info_Table(string Curriculum_Skill_Name, string Curriculum_Level_Name, string Curriculum_Search_Study_Year)
         {
@@ -8466,14 +8492,16 @@ namespace RPISVR_Managements.ViewModel
                     Class_In_Study_Type = Selected_class_in_Schedule_List.Class_In_Study_Type;
                     Max_Student_InClass = Selected_class_in_Schedule_List.Max_Student_InClass;
                     Current_Class_State = Selected_class_in_Schedule_List.Current_Class_State;
-
-                    Debug.WriteLine($"Class dd ID: {Class_ID}");
-
+                    Class_ID_Schedule = int.Parse(Class_ID);
+                    SD_Class_Name = Class_Name;
+                    Debug.WriteLine($"Class Schedule ID: {Class_ID}");
+                    Debug.WriteLine($"Class Schedule Name: {Class_Name}");
                     _ = Count_Student_Selected_Class();
-
+                    
                 }
                 OnPropertyChanged(nameof(Class_In_Study_Timeshift));
-                Debug.WriteLine($"Change ShiftTime: {Class_In_Study_Timeshift}");
+                LoadData_to_Combobox_Schedule_Skill_Name_Combobox(Class_In_Skill, Class_In_Level, Class_In_Student_Year, Class_In_Semester);
+                
             }
         }
         
@@ -8529,6 +8557,977 @@ namespace RPISVR_Managements.ViewModel
 
         //Schedule
 
+        private int _Class_ID_Schedule;
+        public int Class_ID_Schedule
+        {
+            get => _Class_ID_Schedule;
+            set
+            {
+                _Class_ID_Schedule = value;
+                OnPropertyChanged(nameof(Class_ID_Schedule));
+            }
+        }
+        private TimeSpan? _SD_Start_DateTime_MF1;
+        public TimeSpan? SD_Start_DateTime_MF1
+        {
+            get => _SD_Start_DateTime_MF1;
+            set
+            {
+                if (_SD_Start_DateTime_MF1 != value)
+                {
+                    _SD_Start_DateTime_MF1 = value;
+                    Debug.WriteLine($"SD_Start_DateTime_MF1 updated to: {_SD_Start_DateTime_MF1}");
+                    OnPropertyChanged(nameof(SD_Start_DateTime_MF1));
+                }
+            }
+        }
+
+        private TimeSpan? _SD_End_DateTime_MF1;
+        public TimeSpan? SD_End_DateTime_MF1
+        {
+            get => _SD_End_DateTime_MF1;
+            set
+            {
+                if(_SD_End_DateTime_MF1!= value)
+                {
+                    _SD_End_DateTime_MF1 = value;
+                    OnPropertyChanged(nameof(SD_End_DateTime_MF1));
+                }               
+            }
+        }
+        private TimeSpan? _SD_Start_DateTime_MF2;
+        public TimeSpan? SD_Start_DateTime_MF2
+        {
+            get => _SD_Start_DateTime_MF2;
+            set
+            {
+                _SD_Start_DateTime_MF2 = value;
+                OnPropertyChanged(nameof(SD_Start_DateTime_MF2));
+            }
+        }
+        private TimeSpan? _SD_End_DateTime_MF2;
+        public TimeSpan? SD_End_DateTime_MF2
+        {
+            get => _SD_End_DateTime_MF2;
+            set
+            {
+                _SD_End_DateTime_MF2 = value;
+                OnPropertyChanged(nameof(SD_End_DateTime_MF2));
+            }
+        }
+        public string DateTime_Start_Schedule_Strating
+        {
+            get => SelectedDate?.ToString("dd/MM/yyyy") ?? "No Date Selected";
+        }
+        private int _SD_Skill_ID;
+        public int SD_Skill_ID
+        {
+            get => _SD_Skill_ID;
+            set
+            {
+                _SD_Skill_ID = value;
+                OnPropertyChanged(nameof(SD_Skill_ID));
+            }
+        }
+        private string _SD_Skill_Name;
+        public string SD_Skill_Name
+        {
+            get => _SD_Skill_Name;
+            set
+            {
+                _SD_Skill_Name = value;
+                OnPropertyChanged(nameof(_SD_Skill_Name));
+            }
+        }
+        private int _SD_Teacher_ID;
+        public int SD_Teacher_ID
+        {
+            get => _SD_Teacher_ID;
+            set
+            {
+                _SD_Teacher_ID = value;
+                OnPropertyChanged(nameof(SD_Teacher_ID));
+            }
+        }
+        private string _SD_Teacher_Name;
+        public string SD_Teacher_Name
+        {
+            get => _SD_Teacher_Name;
+            set
+            {
+                _SD_Teacher_Name = value;
+                OnPropertyChanged(nameof(SD_Teacher_Name));
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Mon1;
+        public Class_Schedule SelectedSkill_SD_Mon1
+        {
+            get => _SelectedSkill_SD_Mon1;
+            set
+            {
+                _SelectedSkill_SD_Mon1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Mon1));
+                if(_SelectedSkill_SD_Mon1 != null)
+                {
+                    SD_Skill_Name_Mon1 = SelectedSkill_SD_Mon1.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Mon Select: {SD_Skill_Name_Mon1}");
+                    LoadTeacher_andTime_BySelectSkill_Mon1(SD_Skill_Name_Mon1);
+                }
+            }
+        }
+        private string _SD_Skill_Name_Mon1;
+        public string SD_Skill_Name_Mon1
+        {
+            get => _SD_Skill_Name_Mon1;
+            set
+            {
+                _SD_Skill_Name_Mon1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Mon1));
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Mon2;
+        public Class_Schedule SelectedSkill_SD_Mon2
+        {
+            get => _SelectedSkill_SD_Mon2;
+            set
+            {
+                _SelectedSkill_SD_Mon2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Mon2));
+                if (_SelectedSkill_SD_Mon2 != null)
+                {
+                    SD_Skill_Name_Mon2 = SelectedSkill_SD_Mon2.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Mon Select2: {SD_Skill_Name_Mon2}");
+                    LoadTeacher_andTime_BySelectSkill_Mon2(SD_Skill_Name_Mon2);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Tues1;
+        public Class_Schedule SelectedSkill_SD_Tues1
+        {
+            get => _SelectedSkill_SD_Tues1;
+            set
+            {
+                _SelectedSkill_SD_Tues1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Tues1));
+                if (_SelectedSkill_SD_Tues1 != null)
+                {
+                    SD_Skill_Name_Tues1 = SelectedSkill_SD_Tues1.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Tues Select1: {SD_Skill_Name_Tues1}");
+                    LoadTeacher_andTime_BySelectSkill_Tues1(SD_Skill_Name_Tues1);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Tues2;
+        public Class_Schedule SelectedSkill_SD_Tues2
+        {
+            get => _SelectedSkill_SD_Tues2;
+            set
+            {
+                _SelectedSkill_SD_Tues2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Tues2));
+                if (_SelectedSkill_SD_Tues2 != null)
+                {
+                    SD_Skill_Name_Tues2 = SelectedSkill_SD_Tues2.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Tues Select2: {SD_Skill_Name_Tues2}");
+                    LoadTeacher_andTime_BySelectSkill_Tues2(SD_Skill_Name_Tues2);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Wed1;
+        public Class_Schedule SelectedSkill_SD_Wed1
+        {
+            get => _SelectedSkill_SD_Wed1;
+            set
+            {
+                _SelectedSkill_SD_Wed1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Wed1));
+                if (_SelectedSkill_SD_Wed1 != null)
+                {
+                    SD_Skill_Name_Wed1 = SelectedSkill_SD_Wed1.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Wed Select2: {SD_Skill_Name_Wed1}");
+                    LoadTeacher_andTime_BySelectSkill_Wed1(SD_Skill_Name_Wed1);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Wed2;
+        public Class_Schedule SelectedSkill_SD_Wed2
+        {
+            get => _SelectedSkill_SD_Wed2;
+            set
+            {
+                _SelectedSkill_SD_Wed2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Wed2));
+                if (_SelectedSkill_SD_Wed2 != null)
+                {
+                    SD_Skill_Name_Wed2 = SelectedSkill_SD_Wed2.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Wed Select2: {SD_Skill_Name_Wed2}");
+                    LoadTeacher_andTime_BySelectSkill_Wed2(SD_Skill_Name_Wed2);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Thur1;
+        public Class_Schedule SelectedSkill_SD_Thur1
+        {
+            get => _SelectedSkill_SD_Thur1;
+            set
+            {
+                _SelectedSkill_SD_Thur1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Thur1));
+                if (_SelectedSkill_SD_Thur1 != null)
+                {
+                    SD_Skill_Name_Thur1 = SelectedSkill_SD_Thur1.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Thurs Select1: {SD_Skill_Name_Thur1}");
+                    LoadTeacher_andTime_BySelectSkill_Thur1(SD_Skill_Name_Thur1);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Thur2;
+        public Class_Schedule SelectedSkill_SD_Thur2
+        {
+            get => _SelectedSkill_SD_Thur2;
+            set
+            {
+                _SelectedSkill_SD_Thur2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Thur2));
+                if (_SelectedSkill_SD_Thur2 != null)
+                {
+                    SD_Skill_Name_Thur2 = SelectedSkill_SD_Thur2.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Thurs Select2: {SD_Skill_Name_Thur2}");
+                    LoadTeacher_andTime_BySelectSkill_Thur2(SD_Skill_Name_Thur2);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Fri1;
+        public Class_Schedule SelectedSkill_SD_Fri1
+        {
+            get => _SelectedSkill_SD_Fri1;
+            set
+            {
+                _SelectedSkill_SD_Fri1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Fri1));
+                if (_SelectedSkill_SD_Fri1 != null)
+                {
+                    SD_Skill_Name_Fri1 = SelectedSkill_SD_Fri1.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Fri Select1: {SD_Skill_Name_Fri1}");
+                    LoadTeacher_andTime_BySelectSkill_Fri1(SD_Skill_Name_Fri1);
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Fri2;
+        public Class_Schedule SelectedSkill_SD_Fri2
+        {
+            get => _SelectedSkill_SD_Fri2;
+            set
+            {
+                _SelectedSkill_SD_Fri2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Fri2));
+                if (_SelectedSkill_SD_Fri2 != null)
+                {
+                    SD_Skill_Name_Fri2 = SelectedSkill_SD_Fri2.SD_Skill_Name;
+                    Debug.WriteLine($"Skill Fri Select2: {SD_Skill_Name_Fri2}");
+                    LoadTeacher_andTime_BySelectSkill_Fri2(SD_Skill_Name_Fri2);
+                }
+            }
+        }
+        private string _SD_Skill_Name_Fri2;
+        public string SD_Skill_Name_Fri2
+        {
+            get => _SD_Skill_Name_Fri2;
+            set
+            {
+                _SD_Skill_Name_Fri2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Fri2));
+            }
+        }
+        private string _SD_Skill_Name_Fri1;
+        public string SD_Skill_Name_Fri1
+        {
+            get => _SD_Skill_Name_Fri1;
+            set
+            {
+                _SD_Skill_Name_Fri1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Fri1));
+            }
+        }
+        private string _SD_Skill_Name_Thur2;
+        public string SD_Skill_Name_Thur2
+        {
+            get => _SD_Skill_Name_Thur2;
+            set
+            {
+                _SD_Skill_Name_Thur2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Thur2));
+            }
+        }
+        private string _SD_Skill_Name_Thur1;
+        public string SD_Skill_Name_Thur1
+        {
+            get => _SD_Skill_Name_Thur1;
+            set
+            {
+                _SD_Skill_Name_Thur1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Thur1));
+            }
+        }
+        private string _SD_Skill_Name_Wed2;
+        public string SD_Skill_Name_Wed2
+        {
+            get => _SD_Skill_Name_Wed2;
+            set
+            {
+                _SD_Skill_Name_Wed2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Wed2));
+            }
+        }
+        private string _SD_Skill_Name_Wed1;
+        public string SD_Skill_Name_Wed1
+        {
+            get => _SD_Skill_Name_Wed1;
+            set
+            {
+                _SD_Skill_Name_Wed1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Wed1));
+            }
+        }
+        private string _SD_Skill_Name_Tues1;
+        public string SD_Skill_Name_Tues1
+        {
+            get => _SD_Skill_Name_Tues1;
+            set
+            {
+                _SD_Skill_Name_Tues1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Tues1));
+            }
+        }
+        private string _SD_Skill_Name_Tues2;
+        public string SD_Skill_Name_Tues2
+        {
+            get => _SD_Skill_Name_Tues2;
+            set
+            {
+                _SD_Skill_Name_Tues2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Tues2));
+            }
+        }
+        private string _SD_Skill_Name_Mon2;
+        public string SD_Skill_Name_Mon2
+        {
+            get => _SD_Skill_Name_Mon2;
+            set
+            {
+                _SD_Skill_Name_Mon2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Mon2));
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Mon1;
+        public Class_Schedule SelectedTeacher_SD_Mon1
+        {
+            get => _SelectedTeacher_SD_Mon1;
+            set
+            {
+                _SelectedTeacher_SD_Mon1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Mon1));
+                if(_SelectedTeacher_SD_Mon1 != value)
+                {
+                    SD_Teacher_Mon01 = SelectedTeacher_SD_Mon1.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Mon select: {SD_Teacher_Mon01}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Mon2;
+        public Class_Schedule SelectedTeacher_SD_Mon2
+        {
+            get => _SelectedTeacher_SD_Mon2;
+            set
+            {
+                _SelectedTeacher_SD_Mon2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Mon2));
+                if (_SelectedTeacher_SD_Mon2 != value)
+                {
+                    SD_Teacher_Mon02 = SelectedTeacher_SD_Mon2.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Mon select: {SD_Teacher_Mon02}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Tues1;
+        public Class_Schedule SelectedTeacher_SD_Tues1
+        {
+            get => _SelectedTeacher_SD_Tues1;
+            set
+            {
+                _SelectedTeacher_SD_Tues1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Tues1));
+                if (_SelectedTeacher_SD_Tues1 != value)
+                {
+                    SD_Skill_Name_Tues1 = SelectedTeacher_SD_Tues1.SD_Skill_Name;
+                    Debug.WriteLine($"Teacher name Tues select: {SD_Skill_Name_Tues1}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Tues2;
+        public Class_Schedule SelectedTeacher_SD_Tues2
+        {
+            get => _SelectedTeacher_SD_Tues2;
+            set
+            {
+                _SelectedTeacher_SD_Tues2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Tues2));
+                if (_SelectedTeacher_SD_Tues2 != value)
+                {
+                    SD_Teacher_Tues02 = SelectedTeacher_SD_Tues2.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Tues select: {SD_Teacher_Tues02}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Wed1;
+        public Class_Schedule SelectedTeacher_SD_Wed1
+        {
+            get => _SelectedTeacher_SD_Wed1;
+            set
+            {
+                _SelectedTeacher_SD_Wed1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Wed1));
+                if (_SelectedTeacher_SD_Wed1 != value)
+                {
+                    SD_Teacher_Wed1 = SelectedTeacher_SD_Wed1.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Tues select: {SD_Teacher_Wed1}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Wed2;
+        public Class_Schedule SelectedTeacher_SD_Wed2
+        {
+            get => _SelectedTeacher_SD_Wed2;
+            set
+            {
+                _SelectedTeacher_SD_Wed2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Wed2));
+                if (_SelectedTeacher_SD_Wed2 != value)
+                {
+                    SD_Teacher_Wed2 = SelectedTeacher_SD_Wed2.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Wed select: {SD_Teacher_Wed2}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Thur1;
+        public Class_Schedule SelectedTeacher_SD_Thur1
+        {
+            get => _SelectedTeacher_SD_Thur1;
+            set
+            {
+                _SelectedTeacher_SD_Thur1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Thur1));
+                if (_SelectedTeacher_SD_Thur1 != value)
+                {
+                    SD_Teacher_Thur1 = SelectedTeacher_SD_Thur1.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Wed select: {SD_Teacher_Thur1}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Thur2;
+        public Class_Schedule SelectedTeacher_SD_Thur2
+        {
+            get => _SelectedTeacher_SD_Thur2;
+            set
+            {
+                _SelectedTeacher_SD_Thur2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Thur2));
+                if (_SelectedTeacher_SD_Thur2 != value)
+                {
+                    SD_Teacher_Thur2 = SelectedTeacher_SD_Thur2.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Thur select: {SD_Teacher_Thur2}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Fri1;
+        public Class_Schedule SelectedTeacher_SD_Fri1
+        {
+            get => _SelectedTeacher_SD_Fri1;
+            set
+            {
+                _SelectedTeacher_SD_Fri1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Fri1));
+                if (_SelectedTeacher_SD_Fri1 != value)
+                {
+                    SD_Teacher_Fri1 = SelectedTeacher_SD_Fri1.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Fri select: {SD_Teacher_Fri1}");
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Fri2;
+        public Class_Schedule SelectedTeacher_SD_Fri2
+        {
+            get => _SelectedTeacher_SD_Fri2;
+            set
+            {
+                _SelectedTeacher_SD_Fri2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Fri2));
+                if (_SelectedTeacher_SD_Fri2 != value)
+                {
+                    SD_Teacher_Fri2 = SelectedTeacher_SD_Fri2.SD_Teacher_Name;
+                    Debug.WriteLine($"Teacher name Fri select2: {SD_Teacher_Fri2}");
+                }
+            }
+        }
+        private string _SD_Teacher_Mon01;
+        public string SD_Teacher_Mon01
+        {
+            get => _SD_Teacher_Mon01;
+            set
+            {
+                _SD_Teacher_Mon01 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Mon01));
+            }
+        }
+        private string _SD_Teacher_Mon02;
+        public string SD_Teacher_Mon02
+        {
+            get => _SD_Teacher_Mon02;
+            set
+            {
+                _SD_Teacher_Mon02 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Mon02));
+            }
+        }
+        private string _SD_Teacher_Tues01;
+        public string SD_Teacher_Tues01
+        {
+            get => _SD_Teacher_Tues01;
+            set
+            {
+                _SD_Teacher_Tues01 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Tues01));
+            }
+        }
+        private string _SD_Teacher_Tues02;
+        public string SD_Teacher_Tues02
+        {
+            get => _SD_Teacher_Tues02;
+            set
+            {
+                _SD_Teacher_Tues02 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Tues02));
+            }
+        }
+        private string _SD_Teacher_Wed1;
+        public string SD_Teacher_Wed1
+        {
+            get => _SD_Teacher_Wed1;
+            set
+            {
+                _SD_Teacher_Wed1 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Wed1));
+            }
+        }
+        private string _SD_Teacher_Wed2;
+        public string SD_Teacher_Wed2
+        {
+            get => _SD_Teacher_Wed2;
+            set
+            {
+                _SD_Teacher_Wed2 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Wed2));
+            }
+        }
+        private string _SD_Teacher_Thur1;
+        public string SD_Teacher_Thur1
+        {
+            get => _SD_Teacher_Thur1;
+            set
+            {
+                _SD_Teacher_Thur1 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Thur1));
+            }
+        }
+        private string _SD_Teacher_Thur2;
+        public string SD_Teacher_Thur2
+        {
+            get => _SD_Teacher_Thur2;
+            set
+            {
+                _SD_Teacher_Thur2 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Thur2));
+            }
+        }
+        private string _SD_Teacher_Fri1;
+        public string SD_Teacher_Fri1
+        {
+            get => _SD_Teacher_Fri1;
+            set
+            {
+                _SD_Teacher_Fri1 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Fri1));
+            }
+        }
+        private string _SD_Teacher_Fri2;
+        public string SD_Teacher_Fri2
+        {
+            get => _SD_Teacher_Fri2;
+            set
+            {
+                _SD_Teacher_Fri2 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Fri2));
+            }
+        }
+        private int _SD_TotalTime_Mon1;
+        public int SD_TotalTime_Mon1
+        {
+            get => _SD_TotalTime_Mon1;
+            set
+            {
+                _SD_TotalTime_Mon1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Mon1));
+            }
+        }
+        private int _SD_TotalTime_Mon2;
+        public int SD_TotalTime_Mon2
+        {
+            get => _SD_TotalTime_Mon2;
+            set
+            {
+                _SD_TotalTime_Mon2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Mon2));
+            }
+        }
+        private int _SD_TotalTime_Tues1;
+        public int SD_TotalTime_Tues1
+        {
+            get => _SD_TotalTime_Tues1;
+            set
+            {
+                _SD_TotalTime_Tues1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Tues1));
+            }
+        }
+        private int _SD_TotalTime_Tues2;
+        public int SD_TotalTime_Tues2
+        {
+            get => _SD_TotalTime_Tues2;
+            set
+            {
+                _SD_TotalTime_Tues2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Tues2));
+            }
+        }
+        private int _SD_TotalTime_Wed1;
+        public int SD_TotalTime_Wed1
+        {
+            get => _SD_TotalTime_Wed1;
+            set
+            {
+                _SD_TotalTime_Wed1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Wed1));
+            }
+        }
+        private int _SD_TotalTime_Wed2;
+        public int SD_TotalTime_Wed2
+        {
+            get => _SD_TotalTime_Wed2;
+            set
+            {
+                _SD_TotalTime_Wed2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Wed2));
+            }
+        }
+        private int _SD_TotalTime_Thur1;
+        public int SD_TotalTime_Thur1
+        {
+            get => _SD_TotalTime_Thur1;
+            set
+            {
+                _SD_TotalTime_Thur1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Thur1));
+            }
+        }
+
+        private int _SD_TotalTime_Thur2;
+        public int SD_TotalTime_Thur2
+        {
+            get => _SD_TotalTime_Thur2;
+            set
+            {
+                _SD_TotalTime_Thur2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Thur2));
+            }
+        }
+        private int _SD_TotalTime_Fri1;
+        public int SD_TotalTime_Fri1
+        {
+            get => _SD_TotalTime_Fri1;
+            set
+            {
+                _SD_TotalTime_Fri1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Fri1));
+            }
+        }
+        private int _SD_TotalTime_Fri2;
+        public int SD_TotalTime_Fri2
+        {
+            get => _SD_TotalTime_Fri2;
+            set
+            {
+                _SD_TotalTime_Fri2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Fri2));
+            }
+        }
+
+        //Load Data Teacher and Time
+        private async void LoadTeacher_andTime_BySelectSkill_Mon1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Mon1 != null)
+            {
+                //Monday1
+                SelectedTeacher_SD_Mon1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_mon1 => teacher_mon1.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Mon1));
+
+                SD_TotalTime_Mon1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Mon1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Mon2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Mon2 != null)
+            {
+                //Monday2
+                SelectedTeacher_SD_Mon2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_mon2 => teacher_mon2.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Mon2));
+
+                SD_TotalTime_Mon2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Mon2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Tues1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Tues1 != null)
+            {
+                //Tuesday01
+                SelectedTeacher_SD_Tues1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_tues1 => teacher_tues1.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Tues1));
+
+                SD_TotalTime_Tues1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Tues1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Tues2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Tues2 != null)
+            {
+                //Tuesday01
+                SelectedTeacher_SD_Tues2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_tues2 => teacher_tues2.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Tues2));
+
+                SD_TotalTime_Tues2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Tues2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Wed1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Wed1 != null)
+            {
+                //Wednesday01
+                SelectedTeacher_SD_Wed1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_wed1 => teacher_wed1.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Wed1));
+
+                SD_TotalTime_Wed1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Wed1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Wed2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Wed2 != null)
+            {
+                //Wednesday02
+                SelectedTeacher_SD_Wed2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_wed2 => teacher_wed2.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Wed2));
+
+                SD_TotalTime_Wed2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Wed2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Thur1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Thur1 != null)
+            {
+                //Thursday01
+                SelectedTeacher_SD_Thur1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_thurs1 => teacher_thurs1.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Thur1));
+
+                SD_TotalTime_Thur1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Thur1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Thur2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Thur2 != null)
+            {
+                //Thursday01
+                SelectedTeacher_SD_Thur2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_thurs2 => teacher_thurs2.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Thur2));
+
+                SD_TotalTime_Thur2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Thur2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Fri1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Fri1 != null)
+            {
+                //Friday01
+                SelectedTeacher_SD_Fri1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_fri1 => teacher_fri1.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Fri1));
+
+                SD_TotalTime_Fri1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Fri1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Fri2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Fri2 != null)
+            {
+                //Friday01
+                SelectedTeacher_SD_Fri2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher_fri2 => teacher_fri2.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Fri2));
+
+                SD_TotalTime_Fri2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Fri2));
+                return;
+            }
+        }
+        private string _SD_Building_Name;
+        public string SD_Building_Name
+        {
+            get => _SD_Building_Name;
+            set
+            {
+                _SD_Building_Name = value;
+                OnPropertyChanged(nameof(SD_Building_Name));
+            }
+        }
+        private string _SD_Building_Room;
+        public string SD_Building_Room
+        {
+            get => _SD_Building_Room;
+            set
+            {
+                _SD_Building_Room = value;
+                OnPropertyChanged(nameof(SD_Building_Room));
+            }
+        }
+        private string _SD_Class_Name;
+        public string SD_Class_Name
+        {
+            get => _SD_Class_Name;
+            set
+            {
+                _SD_Class_Name = value;
+                OnPropertyChanged(nameof(SD_Class_Name));
+            }
+        }
+        private string _SD_Class_TimeShift;
+        public string SD_Class_TimeShift
+        {
+            get => _SD_Class_TimeShift;
+            set
+            {
+                _SD_Class_TimeShift = value;
+                OnPropertyChanged(nameof(SD_Class_TimeShift));
+            }
+        }
+
+        //Data to Combobox
+        private ObservableCollection<Class_Schedule> _skill_class_schedule;
+        public ObservableCollection<Class_Schedule> Schedule_Skill_Name_Combobox
+        {
+            get { return _skill_class_schedule; }
+            set
+            {
+                _skill_class_schedule = value;
+                OnPropertyChanged(nameof(Schedule_Skill_Name_Combobox));
+            }
+        }
+        private ObservableCollection<Class_Schedule> _teacher_class_schedule;
+        public ObservableCollection<Class_Schedule>Schedule_Teacher_Name_Combobox
+        {
+            get { return _teacher_class_schedule; }
+            set
+            {
+                _teacher_class_schedule = value;
+                OnPropertyChanged(nameof(Schedule_Teacher_Name_Combobox));
+            }
+        }
+        private void LoadData_to_Combobox_Schedule_Skill_Name_Combobox(string Class_In_Skill, string Class_In_Level, string Class_In_Student_Year,string Class_In_Semester)
+        {
+            var skill_id = Class_In_Skill;
+            var class_level = Class_In_Level;
+            var class_year = Class_In_Student_Year;
+            var class_semester = Class_In_Semester;
+
+            Debug.WriteLine($" Test Select AAA: {skill_id},{class_level},{class_year},{class_semester}");
+            var SkillList = _dbConnection.GetSkill_toCombobox_Class_Schedule(skill_id, class_level, class_year, class_semester);
+            Schedule_Skill_Name_Combobox.Clear();
+            foreach (var skill_SD in SkillList)
+            {
+                Schedule_Skill_Name_Combobox.Add(skill_SD);
+            }
+        }
+        private void LoadData_to_Combobox_Schedule_Teacher()
+        {
+            var TeacherList = _dbConnection.GetTeacher_toCombobox_Class_Schedule();
+            Schedule_Teacher_Name_Combobox.Clear();
+            foreach(var teacher_SD in TeacherList)
+            {
+                Schedule_Teacher_Name_Combobox.Add(teacher_SD);
+            }
+        }
 
         //Command Insert Schedule
         public ICommand Command_SaveSchedule { get; set; }
@@ -8537,12 +9536,149 @@ namespace RPISVR_Managements.ViewModel
         public ICommand Command_Export_Schedule_PDF { get; set; }
         public ICommand Command_Export_Schedule_Excel { get; set; }
 
+        //Method Save Schedule
+        public async Task SaveSchedule()
+        {
+            
+            if(Class_ID_Schedule == 0)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_Start_DateTime_MF1 == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសម៉ោងចាប់ផ្ដើមមុខវិជ្ជាជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_End_DateTime_MF1 == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសម៉ោងចាប់ផ្ដើមមុខវិជ្ជាជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_Start_DateTime_MF2 == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសម៉ោងចាប់ផ្ដើមមុខវិជ្ជាជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_End_DateTime_MF2 == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសម៉ោងចាប់ផ្ដើមមុខវិជ្ជាជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_Building_Name == null)
+            {
+                ErrorMessage = "សូមបំពេញឈ្មោះអគារជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_Building_Room == null)
+            {
+                ErrorMessage = "សូមបំពេញឈ្មោះថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            ConfirmValue();
+            SaveScheduleToDatabase();
 
+            await Task.CompletedTask;
+        }
+        DateTime Create_Datetime = DateTime.Now;
+        public void ConfirmValue()
+        {
+            
+            Debug.WriteLine($"Class_ID_Schedule: {Class_ID_Schedule}");
+            Debug.WriteLine($"Schedule Time Start1: {SD_Start_DateTime_MF1}");
+            Debug.WriteLine($"Schedule Time End1: {SD_End_DateTime_MF1}");
+            Debug.WriteLine($"Schedule Time Start2: {SD_Start_DateTime_MF2}");
+            Debug.WriteLine($"Schedule Time End2: {SD_End_DateTime_MF2}");
+            Debug.WriteLine($"Schedule Start Date: {DateTime_Start_Schedule_Strating}");
+            Debug.WriteLine($"Schedule Create Time: {Create_Datetime}");
+        }       
+        public void SaveScheduleToDatabase()
+        {
 
+            Class_Schedule class_Schedule_Items = new Class_Schedule()
+            {
+                Class_ID_Schedule = this.Class_ID_Schedule,
+                SD_Class_Name = this.SD_Class_Name,
+                SD_Class_TimeShift = this.Class_In_Study_Timeshift,
+                SD_Start_DateTime_MF1 = this.SD_Start_DateTime_MF1.Value,
+                SD_End_DateTime_MF1 = this.SD_End_DateTime_MF1.Value,
+                SD_Start_DateTime_MF2 = this.SD_Start_DateTime_MF2.Value,
+                SD_End_DateTime_MF2 = this.SD_End_DateTime_MF2.Value,
+                SD_Skill_Name_Mon1 = SelectedSkill_SD_Mon1.SD_Skill_Name,
+                SD_Teacher_Mon01 = SelectedTeacher_SD_Mon1.SD_Teacher_Name,
+                SD_TotalTime_Mon1 = this.SD_TotalTime_Mon1,
+                SD_Skill_Name_Mon2 = SelectedSkill_SD_Mon2.SD_Skill_Name,
+                SD_Teacher_Mon02 = SelectedTeacher_SD_Mon2.SD_Teacher_Name,
+                SD_TotalTime_Mon2 = this.SD_TotalTime_Mon2,
+                SD_Skill_Name_Tues1 = SelectedSkill_SD_Tues1.SD_Skill_Name,
+                SD_Teacher_Tues01 = SelectedTeacher_SD_Mon2.SD_Teacher_Name,
+                SD_TotalTime_Tues1 = this.SD_TotalTime_Tues1,
+                SD_Skill_Name_Tues2 = SelectedSkill_SD_Tues2.SD_Skill_Name,
+                SD_Teacher_Tues02 = SelectedTeacher_SD_Tues2.SD_Teacher_Name,
+                SD_TotalTime_Tues2 = this.SD_TotalTime_Tues2,
+                SD_Skill_Name_Wed1 = SelectedSkill_SD_Wed1.SD_Skill_Name,
+                SD_Teacher_Wed1 = SelectedTeacher_SD_Wed1.SD_Teacher_Name,
+                SD_TotalTime_Wed1 = this.SD_TotalTime_Wed1,
+                SD_Skill_Name_Wed2 = SelectedSkill_SD_Wed2.SD_Skill_Name,
+                SD_Teacher_Wed2 = SelectedTeacher_SD_Wed2.SD_Teacher_Name,
+                SD_TotalTime_Wed2 = this.SD_TotalTime_Wed2,
+                SD_Skill_Name_Thur1 = SelectedSkill_SD_Thur1.SD_Skill_Name,
+                SD_Teacher_Thur1 = SelectedTeacher_SD_Thur1.SD_Teacher_Name,
+                SD_TotalTime_Thur1 = this.SD_TotalTime_Thur1,
+                SD_Skill_Name_Thur2 = SelectedSkill_SD_Thur2.SD_Skill_Name,
+                SD_Teacher_Thur2 = SelectedTeacher_SD_Thur2.SD_Teacher_Name,
+                SD_TotalTime_Thur2 = this.SD_TotalTime_Thur2,
+                SD_Skill_Name_Fri1 = SelectedSkill_SD_Fri1.SD_Skill_Name,
+                SD_Teacher_Fri1 = SelectedTeacher_SD_Fri1.SD_Teacher_Name,
+                SD_TotalTime_Fri1 = this.SD_TotalTime_Fri1,
+                SD_Skill_Name_Fri2 = SelectedSkill_SD_Fri2.SD_Skill_Name,
+                SD_Teacher_Fri2 = SelectedTeacher_SD_Fri2.SD_Teacher_Name,
+                SD_TotalTime_Fri2 = this.SD_TotalTime_Fri2,
+                DateTime_Start_Schedule_Strating = this.DateTime_Start_Schedule_Strating,
+                SD_Building_Name = this.SD_Building_Name,
+                SD_Building_Room = this.SD_Building_Room
+               
+            };
+            bool success = _dbConnection.Save_ScheduleInfo(class_Schedule_Items);
+
+            if (success)
+            {
+                ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " បានរក្សាទុកជោគជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+            }
+            else
+            {
+                ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " រក្សាទុកបរាជ៏យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+
+        //Method Clear Schedule
+        public async Task ClearSchedule()
+        {
+
+            await Task.CompletedTask;
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
-
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }   

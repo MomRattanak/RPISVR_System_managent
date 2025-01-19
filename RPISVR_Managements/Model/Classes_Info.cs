@@ -28,7 +28,7 @@ namespace RPISVR_Managements.Model
         public string Class_In_Student_Year { get; set; }
         public int Class_In_Student_Year_Select { get; set; }
 
-        public int Class_In_Semester { get; set; }
+        public string Class_In_Semester { get; set; }
         public int Class_In_Semester_Select { get; set; }
 
         public int Class_In_Generation { get; set; }

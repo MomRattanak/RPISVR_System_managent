@@ -7,8 +7,11 @@
     RequestedTheme="Dark">
    
 
+    
     <Application.Resources>
- 
+        
+        
+        
         <ResourceDictionary>
 
             
@@ -21,7 +24,7 @@
 
             <!-- Add the PageEnabledConverter -->
             <local:PageEnabledConverter x:Key="PageEnabledConverter"/>
-            
+            <local:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
             <!--Font Dialog All-->
             <Style TargetType="Button" x:Key="CustomDialogButtonStyle">
                 <Setter Property="FontFamily" Value="Khmer OS Battambang"/>
