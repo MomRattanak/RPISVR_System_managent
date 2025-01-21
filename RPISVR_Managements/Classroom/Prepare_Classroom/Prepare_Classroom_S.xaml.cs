@@ -51,11 +51,122 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             //ErrorMessage
             var viewModel = (StudentViewModel)this.DataContext;
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            viewModel.PropertyChanged += ViewModel_Delete_PropertyChanged;
 
             //Connect Database
             _ConnectionString = new DatabaseConnection();
             string connectionString = _ConnectionString._connectionString;
 
+        }
+        private async void ViewModel_Delete_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var viewModel = (StudentViewModel)sender;
+
+            // Check if the changed property is ErrorMessage_Delete
+            if (e.PropertyName == nameof(viewModel.ErrorMessage_Delete) && !string.IsNullOrEmpty(viewModel.ErrorMessage_Delete))
+            {
+
+                var dialog = new ContentDialog
+                {
+                    Title = new TextBlock
+                    {
+                        Text = "ការជូនដំណឹង",
+                        FontSize = 18,
+                        FontFamily = new FontFamily("Khmer OS Battambang"),
+                        FontWeight = FontWeights.Bold,
+                    },
+                    //CloseButtonText = "យល់ព្រម",
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = ElementTheme.Default
+                };
+                //
+                // Create the Image control and bind its Source property
+                Image errorImage = new Image
+                {
+                    Width = 30,
+                    Height = 30
+                };
+
+                // Bind the Image.Source to the ErrorImageSource in the ViewModel
+                Binding imageBinding = new Binding
+                {
+                    Path = new PropertyPath("ErrorImageSource_Delete"),
+                    Source = viewModel, // The ViewModel is the source of the binding
+                    Mode = BindingMode.TwoWay
+                };
+                errorImage.SetBinding(Image.SourceProperty, imageBinding);
+
+                // Create the TextBlock control and bind its Text property
+                TextBlock messageTextBlock = new TextBlock
+                {
+                    FontSize = 12,
+                    FontFamily = new FontFamily("Khmer OS Battambang"),
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                // Bind the TextBlock.Text to the ErrorMessage in the ViewModel
+                Binding textBinding = new Binding
+                {
+                    Path = new PropertyPath("ErrorMessage_Delete"),
+                    Source = viewModel, // The ViewModel is the source of the binding
+                    Mode = BindingMode.TwoWay
+                };
+                messageTextBlock.SetBinding(TextBlock.TextProperty, textBinding);
+
+                // Create the StackPanel to hold the Image and TextBlock
+                StackPanel contentStackPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = 10,
+                    Children =
+                    {
+                        errorImage,   // Add the Image control to the StackPanel
+                        messageTextBlock // Add the TextBlock control to the StackPanel
+                    }
+                };
+
+                // Set the ContentDialog's content to the StackPanel
+                dialog.Content = contentStackPanel;
+
+                // Add "Yes" and "No" buttons to the ContentDialog
+                dialog.PrimaryButtonText = "យល់ព្រម";
+                dialog.CloseButtonText = "ទេ";
+
+                // Set custom styles if needed
+                dialog.PrimaryButtonStyle = (Style)Application.Current.Resources["CustomDialogButtonStyle"];
+                //dialog.SecondaryButtonStyle = (Style)Application.Current.Resources["CustomDialogButtonStyle"];
+
+                // Handle the result when the dialog is closed
+                var result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Yes button clicked
+                    if (viewModel.CurrentOperation == "Export_Curriculum_PDF")
+                    {
+                        viewModel.HandleYesResponseExport_Curriculum_PDF();
+                    }
+                    else if (viewModel.CurrentOperation == "Delete_Schedule")
+                    {
+                        viewModel.HandleYes_DeleteSchedule();
+                    }
+                    else if (viewModel.CurrentOperation == "Export_Curriculum_Excel")
+                    {
+                        viewModel.HandleYesResponseExport_Curriculum_Excel();
+                    }
+
+
+                }
+                //else if (result == ContentDialogResult.Secondary)
+                //{
+                //    // No button clicked
+                //    Debug.WriteLine("No");
+                //    viewModel.HandleNoResponse(); // Call ViewModel's method to handle No
+                //}
+
+                dialog.CloseButtonStyle = (Style)Application.Current.Resources["CustomDialogButtonStyle"];
+                //await dialog.ShowAsync();
+                Debug.WriteLine(viewModel.ErrorImageSource);
+            }
         }
 
         private async void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
