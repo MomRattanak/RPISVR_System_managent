@@ -29,6 +29,8 @@ using DocumentFormat.OpenXml.VariantTypes;
 using Org.BouncyCastle.Asn1.Cmp;
 using RPISVR_Managements.ViewModel;
 using RPISVR_Managements.List_and_Reports.Curriculum;
+using RPISVR_Managements.List_and_Reports.Schedule;
+using System.Drawing;
 
 namespace RPISVR_Managements.Model
 {
@@ -38,7 +40,9 @@ namespace RPISVR_Managements.Model
         public string _connectionString { get; set; }
         private MySqlConnection _dbConnection;
         DateTime Create_Datetime = DateTime.Now;
+        DateTime Update_Datetime = DateTime.Now;
         string User_Create = "MOM RATTANAK";
+        string User_Update = "MOM RATTANAK";
         public DatabaseConnection()
         {
             //Local
@@ -5371,6 +5375,213 @@ namespace RPISVR_Managements.Model
             catch(Exception ex)
             {
                 Debug.WriteLine($"Save Schedule Info Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method to Load Schedule Info to List Schedule
+        public List<Class_Schedule> Load_Schedule_Table_Info(int class_id)
+        {
+            List<Class_Schedule> class_schedule_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT * FROM class_schedule_mon_fri_info WHERE sd_class_id = @class_id";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Schedule schedule_info = new Class_Schedule()
+                                    {
+                                        Schedule_ID = reader.GetInt32("ID"),
+                                        Class_ID_Schedule = reader.GetInt32("sd_class_id"),
+                                        SD_Class_Name = reader.GetString("sd_class_name"),
+                                        SD_Class_TimeShift = reader.GetString("sd_class_timeshift"),
+
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("sd_start_time_1"),
+                                        SD_End_DateTime_MF1 = reader.GetTimeSpan("sd_end_time_1"),
+                                        SD_Start_DateTime_MF2 = reader.GetTimeSpan("sd_start_time_2"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("sd_end_time_2"),
+
+                                        SD_Skill_Name_Mon1 = reader.GetString("sd_mon_skill_1"),
+                                        SD_Teacher_Mon01 = reader.GetString("sd_name_teacher_mon_1"),
+                                        SD_TotalTime_Mon1 = reader.GetInt32("sd_totaltime_skill_mon_1"),
+
+                                        SD_Skill_Name_Mon2 = reader.GetString("sd_mon_skill_2"),
+                                        SD_Teacher_Mon02 = reader.GetString("sd_name_teacher_mon_2"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("sd_totaltime_skill_mon_2"),
+
+                                        SD_Skill_Name_Tues1 = reader.GetString("sd_tues_skill_1"),
+                                        SD_Teacher_Tues01 = reader.GetString("sd_name_teacher_tues_1"),
+                                        SD_TotalTime_Tues1 = reader.GetInt32("sd_totaltime_skill_tues_1"),
+
+                                        SD_Skill_Name_Tues2 = reader.GetString("sd_tues_skill_2"),
+                                        SD_Teacher_Tues02 = reader.GetString("sd_name_teacher_tues_2"),
+                                        SD_TotalTime_Tues2 = reader.GetInt32("sd_totaltime_skill_tues_2"),
+
+                                        SD_Skill_Name_Wed1 = reader.GetString("sd_wed_skill_1"),
+                                        SD_Teacher_Wed1 = reader.GetString("sd_name_teacher_wed_1"),
+                                        SD_TotalTime_Wed1 = reader.GetInt32("sd_totaltime_skill_wed_1"),
+
+                                        SD_Skill_Name_Wed2 = reader.GetString("sd_wed_skill_2"),
+                                        SD_Teacher_Wed2 = reader.GetString("sd_name_teacher_wed_2"),
+                                        SD_TotalTime_Wed2 = reader.GetInt32("sd_totaltime_skill_wed_2"),
+
+                                        SD_Skill_Name_Thur1 = reader.GetString("sd_thurs_skill_1"),
+                                        SD_Teacher_Thur1 = reader.GetString("sd_name_teacher_thurs_1"),
+                                        SD_TotalTime_Thur1 = reader.GetInt32("sd_totaltime_skill_thurs_1"),
+
+                                        SD_Skill_Name_Thur2 = reader.GetString("sd_thurs_skill_2"),
+                                        SD_Teacher_Thur2 = reader.GetString("sd_name_teacher_thurs_2"),
+                                        SD_TotalTime_Thur2 = reader.GetInt32("sd_totaltime_skill_thurs_2"),
+
+                                        SD_Skill_Name_Fri1 = reader.GetString("sd_fri_skill_1"),
+                                        SD_Teacher_Fri1 = reader.GetString("sd_name_teacher_fri_1"),
+                                        SD_TotalTime_Fri1 = reader.GetInt32("sd_totaltime_skill_fri_1"),
+
+                                        SD_Skill_Name_Fri2 = reader.GetString("sd_fri_skill_2"),
+                                        SD_Teacher_Fri2 = reader.GetString("sd_name_teacher_fri_2"),
+                                        SD_TotalTime_Fri2 = reader.GetInt32("sd_totaltime_skill_fri_2"),
+
+                                        DateTime_Start_Schedule_Strating = reader.GetString("sd_datetime_start_schedule"),
+                                        SD_Building_Name = reader.GetString("sd_building_name"),
+                                        SD_Building_Room = reader.GetString("sd_building_room"),
+
+                                    };
+                                    class_schedule_info.Add(schedule_info);
+                                }
+
+                            }
+
+
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database load schedule error: {ex.Message}");
+                }
+            };
+            return class_schedule_info;
+        }
+
+        //Method Update class schedule
+        public bool UpdateSchedule(Class_Schedule class_Schedule)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    string query_update = "UPDATE class_schedule_mon_fri_info SET sd_class_name = @sd_class_name, sd_class_timeshift = @sd_class_timeshift, sd_start_time_1 = @sd_start_time_1, sd_end_time_1 = @sd_end_time_1, sd_start_time_2 = @sd_start_time_2, sd_end_time_2 = @sd_end_time_2, sd_mon_skill_1 = @sd_mon_skill_1, sd_name_teacher_mon_1 = @sd_name_teacher_mon_1, sd_totaltime_skill_mon_1 = @sd_totaltime_skill_mon_1, sd_mon_skill_2 = @sd_mon_skill_2, sd_name_teacher_mon_2 = @sd_name_teacher_mon_2, sd_totaltime_skill_mon_2 = @sd_totaltime_skill_mon_2, sd_tues_skill_1 = @sd_tues_skill_1, sd_name_teacher_tues_1 = @sd_name_teacher_tues_1, sd_totaltime_skill_tues_1 = @sd_totaltime_skill_tues_1, sd_tues_skill_2 = @sd_tues_skill_2, sd_name_teacher_tues_2 = @sd_name_teacher_tues_2, sd_totaltime_skill_tues_2 = @sd_totaltime_skill_tues_2, sd_wed_skill_1 = @sd_wed_skill_1, sd_name_teacher_wed_1 = @sd_name_teacher_wed_1, sd_totaltime_skill_wed_1 = @sd_totaltime_skill_wed_1, sd_wed_skill_2 = @sd_wed_skill_2, sd_name_teacher_wed_2 = @sd_name_teacher_wed_2, sd_totaltime_skill_wed_2 = @sd_totaltime_skill_wed_2, sd_thurs_skill_1 = @sd_thurs_skill_1, sd_name_teacher_thurs_1 = @sd_name_teacher_thurs_1, sd_totaltime_skill_thurs_1 = @sd_totaltime_skill_thurs_1, sd_thurs_skill_2 = @sd_thurs_skill_2, sd_name_teacher_thurs_2 = @sd_name_teacher_thurs_2, sd_totaltime_skill_thurs_2 = @sd_totaltime_skill_thurs_2, sd_fri_skill_1 = @sd_fri_skill_1, sd_name_teacher_fri_1 = @sd_name_teacher_fri_1, sd_totaltime_skill_fri_1 = @sd_totaltime_skill_fri_1, sd_fri_skill_2 = @sd_fri_skill_2, sd_name_teacher_fri_2 = @sd_name_teacher_fri_2, sd_totaltime_skill_fri_2 = @sd_totaltime_skill_fri_2, sd_datetime_start_schedule = @sd_datetime_start_schedule, sd_building_name = @sd_building_name, sd_building_room = @sd_building_room, sd_datetime_update = @sd_datetime_update, sd_user_update = @sd_user_update WHERE ID = @Schedule_ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query_update, conn);
+                    {
+                       
+                        cmd.Parameters.AddWithValue("@sd_class_name", class_Schedule.SD_Class_Name);
+                        cmd.Parameters.AddWithValue("@sd_class_timeshift", class_Schedule.SD_Class_TimeShift);
+                        cmd.Parameters.AddWithValue("@sd_start_time_1", class_Schedule.SD_Start_DateTime_MF1);
+                        cmd.Parameters.AddWithValue("@sd_end_time_1", class_Schedule.SD_End_DateTime_MF1);
+                        cmd.Parameters.AddWithValue("@sd_start_time_2", class_Schedule.SD_Start_DateTime_MF2);
+                        cmd.Parameters.AddWithValue("@sd_end_time_2", class_Schedule.SD_End_DateTime_MF2);
+
+                        cmd.Parameters.AddWithValue("@sd_mon_skill_1", class_Schedule.SD_Skill_Name_Mon1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_mon_1", class_Schedule.SD_Teacher_Mon01);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_mon_1", class_Schedule.SD_TotalTime_Mon1);
+                        cmd.Parameters.AddWithValue("@sd_mon_skill_2", class_Schedule.SD_Skill_Name_Mon2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_mon_2", class_Schedule.SD_Teacher_Mon02);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_mon_2", class_Schedule.SD_TotalTime_Mon2);
+
+                        cmd.Parameters.AddWithValue("@sd_tues_skill_1", class_Schedule.SD_Skill_Name_Tues1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_tues_1", class_Schedule.SD_Teacher_Tues01);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_tues_1", class_Schedule.SD_TotalTime_Tues1);
+                        cmd.Parameters.AddWithValue("@sd_tues_skill_2", class_Schedule.SD_Skill_Name_Tues2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_tues_2", class_Schedule.SD_Teacher_Tues02);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_tues_2", class_Schedule.SD_TotalTime_Tues2);
+
+                        cmd.Parameters.AddWithValue("@sd_wed_skill_1", class_Schedule.SD_Skill_Name_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_wed_1", class_Schedule.SD_Teacher_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_wed_1", class_Schedule.SD_TotalTime_Wed1);
+                        cmd.Parameters.AddWithValue("@sd_wed_skill_2", class_Schedule.SD_Skill_Name_Wed2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_wed_2", class_Schedule.SD_Teacher_Wed2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_wed_2", class_Schedule.SD_TotalTime_Wed2);
+
+                        cmd.Parameters.AddWithValue("@sd_thurs_skill_1", class_Schedule.SD_Skill_Name_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_thurs_1", class_Schedule.SD_Teacher_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_thurs_1", class_Schedule.SD_TotalTime_Thur1);
+                        cmd.Parameters.AddWithValue("@sd_thurs_skill_2", class_Schedule.SD_Skill_Name_Thur2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_thurs_2", class_Schedule.SD_Teacher_Thur2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_thurs_2", class_Schedule.SD_TotalTime_Thur2);
+
+                        cmd.Parameters.AddWithValue("@sd_fri_skill_1", class_Schedule.SD_Skill_Name_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_fri_1", class_Schedule.SD_Teacher_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_fri_1", class_Schedule.SD_TotalTime_Fri1);
+                        cmd.Parameters.AddWithValue("@sd_fri_skill_2", class_Schedule.SD_Skill_Name_Fri2);
+                        cmd.Parameters.AddWithValue("@sd_name_teacher_fri_2", class_Schedule.SD_Teacher_Fri2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_fri_2", class_Schedule.SD_TotalTime_Fri2);
+
+                        cmd.Parameters.AddWithValue("@sd_datetime_start_schedule", class_Schedule.DateTime_Start_Schedule_Strating);
+                        cmd.Parameters.AddWithValue("@sd_building_name", class_Schedule.SD_Building_Name);
+                        cmd.Parameters.AddWithValue("@sd_building_room", class_Schedule.SD_Building_Room);
+                        cmd.Parameters.AddWithValue("@sd_datetime_update", Update_Datetime);
+                        cmd.Parameters.AddWithValue("@sd_user_update", User_Update);
+
+                        cmd.Parameters.AddWithValue("@Schedule_ID", class_Schedule.Schedule_ID);
+                    }
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }catch(MySqlException e)
+            {
+                Debug.WriteLine($"Datebase update schedule error: {e.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Update schedule error: {ex.Message}");
+                return false;
+            }
+
+        }
+
+        //Method Delete Schedule
+        public bool DeleteSchedule(int scheduleID)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM class_schedule_mon_fri_info WHERE ID = @scheduleID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+
+                    cmd.Parameters.AddWithValue("@scheduleID", scheduleID);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Database delete schedule error: {ex.Message}");
+                return false;
+            }catch (Exception ex)
+            {
+                Debug.WriteLine($"Delete schedule error: {ex.Message}");
                 return false;
             }
         }

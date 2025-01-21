@@ -8,7 +8,9 @@ namespace RPISVR_Managements.Model
 {
     public class Class_Schedule
     {
+        public int Schedule_ID { get; set; }
         public int Class_ID_Schedule { get; set; }
+        public string Schedule_State { get; set; }
         public string SD_Class_Name { get; set; }
         public string SD_Class_TimeShift { get; set; }
         public TimeSpan SD_Start_DateTime_MF1 { get; set; }

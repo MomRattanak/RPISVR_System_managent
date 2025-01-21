@@ -1374,6 +1374,25 @@
                                                                     <Run Text="{Binding Class_Name}"
                                                                          Foreground="Aqua"/>
                                                                 </TextBlock>
+                                                                <TextBlock x:Name="Text_Class_State"
+                                                                           Style="{StaticResource Font_KH_Body}"
+                                                                           HorizontalAlignment="Center">
+                                                                    <Run Text="កាលវិភាគ៖ "/>
+                                                                    <Run Text="{Binding Schedule_State,Mode=TwoWay}" Foreground="Aqua"/>
+                                                                </TextBlock>
+                                                                <Button x:Name="btn_load_schedule"
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        HorizontalAlignment="Center"
+                                                                        Width="100"
+                                                                        Command="{Binding Command_Load_Schedule}">
+                                                                    <Button.Content>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Image Source="/Assets/Setting/icons8-downloads-96.png" Width="20" Height="20"/>
+                                                                            <TextBlock Text="ទាញយក"
+                                                                                       Style="{StaticResource Font_KH_Body}"/>
+                                                                        </StackPanel>
+                                                                    </Button.Content>
+                                                                </Button>
                                                             </StackPanel>
                                                             <StackPanel x:Name="Text_Skill" HorizontalAlignment="Left" Orientation="Horizontal">
                                                                 <TextBlock x:Name="txt_skill"
@@ -1981,7 +2000,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_clear_schedule"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_ClearSchedule}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <FontIcon Glyph="&#xED62;" />
@@ -1994,7 +2014,8 @@
 
                                                             <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                                                                 <Button x:Name="btn_delete_schedule"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_DeleteSchedule}">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
                                                                         <TextBlock Text="លុបកាលវិភាគ" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
@@ -2002,7 +2023,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_export_schedule_pdf"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_Export_Schedule_PDF}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <FontIcon Glyph="&#xEA90;" />
@@ -2012,7 +2034,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_export_schedule_excel"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_Export_Schedule_Excel}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="22" Height="22"/>
@@ -2383,7 +2406,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_clear_schedule_ss"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_ClearSchedule}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <FontIcon Glyph="&#xED62;" />
