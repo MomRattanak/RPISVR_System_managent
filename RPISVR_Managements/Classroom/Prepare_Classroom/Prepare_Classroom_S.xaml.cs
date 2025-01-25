@@ -141,17 +141,17 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                 if (result == ContentDialogResult.Primary)
                 {
                     // Yes button clicked
-                    if (viewModel.CurrentOperation == "Export_Curriculum_PDF")
+                    if (viewModel.CurrentOperation == "Export_Schedule_PDF")
                     {
-                        viewModel.HandleYesResponseExport_Curriculum_PDF();
+                        viewModel.HandleYesResponseExport_Schedule_PDF();
                     }
                     else if (viewModel.CurrentOperation == "Delete_Schedule")
                     {
                         viewModel.HandleYes_DeleteSchedule();
                     }
-                    else if (viewModel.CurrentOperation == "Export_Curriculum_Excel")
+                    else if (viewModel.CurrentOperation == "Export_Schedule_Excel")
                     {
-                        viewModel.HandleYesResponseExport_Curriculum_Excel();
+                        viewModel.HandleYesResponseExport_Schedule_Excel();
                     }
 
 

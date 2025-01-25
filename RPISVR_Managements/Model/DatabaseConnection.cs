@@ -5585,6 +5585,106 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+
+        //Method Insert class Schedule Sat-Sun
+        public bool Save_Schedule_SatSun_Info(Class_Schedule class_schedule_sat_sun)
+        {
+            try
+            {
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = "INSERT INTO class_schedule_sat_sun(sd_class_id, sd_class_name, sd_class_timeshift, sd_schedule_name, sd_start_time_ss1, sd_end_time_ss1, sd_start_time_ss2, sd_end_time_ss2, sd_skill_name_sat1, sd_teacher_name_sat1, sd_totaltime_skill_sat1, sd_skill_name_sat2, sd_teacher_name_sat2, sd_totaltime_skill_sat2, sd_skill_name_sun1, sd_teacher_name_sun1, sd_totaltime_skill_sun1, sd_skill_name_sun2, sd_teacher_name_sun2, sd_totaltime_skill_sun2, sd_datetime_start_schedule, sd_building_name, sd_building_room, sd_datetime_create, sd_user_create)" +
+                        "VALUES(@sd_class_id, @sd_class_name, @sd_class_timeshift, @sd_schedule_name, @sd_start_time_ss1, @sd_end_time_ss1, @sd_start_time_ss2, @sd_end_time_ss2, @sd_skill_name_sat1, @sd_teacher_name_sat1, @sd_totaltime_skill_sat1, @sd_skill_name_sat2, @sd_teacher_name_sat2, @sd_totaltime_skill_sat2, @sd_skill_name_sun1, @sd_teacher_name_sun1, @sd_totaltime_skill_sun1, @sd_skill_name_sun2, @sd_teacher_name_sun2, @sd_totaltime_skill_sun2, @sd_datetime_start_schedule, @sd_building_name, @sd_building_room, @sd_datetime_create, @sd_user_create)";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@sd_class_id", class_schedule_sat_sun.Class_ID_Schedule);
+                        cmd.Parameters.AddWithValue("@sd_class_name", class_schedule_sat_sun.SD_Class_Name);
+                        cmd.Parameters.AddWithValue("@sd_class_timeshift", class_schedule_sat_sun.SD_Class_TimeShift);
+                        cmd.Parameters.AddWithValue("@sd_schedule_name", class_schedule_sat_sun.Schedule_Name);
+                        cmd.Parameters.AddWithValue("@sd_start_time_ss1", class_schedule_sat_sun.SD_Start_DateTime_SS1);
+                        cmd.Parameters.AddWithValue("@sd_end_time_ss1", class_schedule_sat_sun.SD_End_DateTime_SS1);
+                        cmd.Parameters.AddWithValue("@sd_start_time_ss2", class_schedule_sat_sun.SD_Start_DateTime_SS2);
+                        cmd.Parameters.AddWithValue("@sd_end_time_ss2", class_schedule_sat_sun.SD_End_DateTime_SS2);
+
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sat1", class_schedule_sat_sun.SD_Skill_Name_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sat1", class_schedule_sat_sun.SD_Teacher_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sat1", class_schedule_sat_sun.SD_TotalTime_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sat2", class_schedule_sat_sun.SD_Skill_Name_Sat2);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sat2", class_schedule_sat_sun.SD_Teacher_Sat2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sat2", class_schedule_sat_sun.SD_TotalTime_Sat2);
+
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sun1", class_schedule_sat_sun.SD_Skill_Name_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sun1", class_schedule_sat_sun.SD_Teacher_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sun1", class_schedule_sat_sun.SD_TotalTime_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sun2", class_schedule_sat_sun.SD_Skill_Name_Sun2);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sun2", class_schedule_sat_sun.SD_Teacher_Sun2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sun2", class_schedule_sat_sun.SD_TotalTime_Sun2);
+
+                        cmd.Parameters.AddWithValue("@sd_datetime_start_schedule", class_schedule_sat_sun.DateTime_Start_Schedule_Strating);
+                        cmd.Parameters.AddWithValue("@sd_building_name", class_schedule_sat_sun.SD_Building_Name);
+                        cmd.Parameters.AddWithValue("@sd_building_room", class_schedule_sat_sun.SD_Building_Room);
+                        cmd.Parameters.AddWithValue("@sd_datetime_create", Create_Datetime);
+                        cmd.Parameters.AddWithValue("@sd_user_create", User_Create);
+
+                        int result = cmd.ExecuteNonQuery();
+                        return result == 1;
+                    }
+                }
+            }catch(MySqlException e)
+            {
+                Debug.WriteLine($"Database error insert schedule sat sun: {e.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error insert schedule sat sun: {ex.StackTrace}");
+                return false;
+            }
+        }
+
+        //Method Load Schedule Sat Sun
+        public List<Class_Schedule> GetFetchSchedule_Table_Info(string class_id)
+        {
+            List<Class_Schedule> class_schedule_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = "SELECT ID,sd_schedule_name FROM class_schedule_sat_sun WHERE sd_class_id = @sd_class_id ORDER BY sd_schedule_name DESC";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query,conn))
+                        {
+                            cmd.Parameters.AddWithValue("@sd_class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while(reader.Read())
+                                {
+                                    Class_Schedule schedule_info = new Class_Schedule()
+                                    {
+                                        Schedule_ID = reader.GetInt32("ID"),
+                                        Schedule_Name = reader.GetString("sd_schedule_name"),
+                                    };
+                                    class_schedule_info.Add(schedule_info);
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+                catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data schedule sat sun error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_schedule_info;
+            }
+        }
     }
 }
 

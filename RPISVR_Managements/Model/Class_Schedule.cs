@@ -9,6 +9,7 @@ namespace RPISVR_Managements.Model
     public class Class_Schedule
     {
         public int Schedule_ID { get; set; }
+        public string Schedule_Name { get; set; }
         public int Class_ID_Schedule { get; set; }
         public string Schedule_State { get; set; }
         public string SD_Class_Name { get; set; }
@@ -17,6 +18,12 @@ namespace RPISVR_Managements.Model
         public TimeSpan SD_End_DateTime_MF1 { get; set; }
         public TimeSpan SD_Start_DateTime_MF2 { get;set; }
         public TimeSpan SD_End_DateTime_MF2 { get; set; }
+
+        public TimeSpan SD_Start_DateTime_SS1 { get; set; }
+        public TimeSpan SD_End_DateTime_SS1 { get; set; }
+        public TimeSpan SD_Start_DateTime_SS2 { get; set; }
+        public TimeSpan SD_End_DateTime_SS2 { get; set; }
+
 
         //All TextBox
         public int SD_Skill_ID { get; set; }
@@ -89,6 +96,10 @@ namespace RPISVR_Managements.Model
         public string SD_Teacher_Fri2 { get; set; }
         public int SD_TotalTime_Fri2 { get; set; }
 
+        //ItemsSource="{Binding Schedule_Teacher_Name_Combobox}"
+        //DisplayMemberPath="SD_Teacher_Name"
+        //SelectedValuePath="SD_Teacher_ID"
+
         //Satureday
         public int SelectedSkill_SD_Sat1 { get; set; }
         public string SD_Skill_Name_Sat1 { get; set; }
@@ -109,10 +120,18 @@ namespace RPISVR_Managements.Model
         public string SD_Teacher_Sun1 { get; set; }
         public int SD_TotalTime_Sun1 { get; set; }
 
+        public int SelectedSkill_SD_Sun2 { get; set; }
+        public string SD_Skill_Name_Sun2 { get; set; }
+        public int SelectedTeacher_SD_Sun2 { get; set; }
+        public string SD_Teacher_Sun2 { get; set; }
+        public int SD_TotalTime_Sun2 { get; set; }
+
         //DateTime Start+Building
         public string DateTime_Start_Schedule_Strating { get; set; }
         public DateTime DateTime_StartSchedule_Date { get; set; }
-        public string SD_Building_Name { get;set; }
+        public string SD_Building_Name { get; set; }
         public string SD_Building_Room { get; set; }
+
+
     }
 }

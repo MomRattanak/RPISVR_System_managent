@@ -2034,6 +2034,7 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_export_schedule_excel"
+                                                                        Visibility="Collapsed"
                                                                         Style="{StaticResource Stye_KH_Button}"
                                                                         Command="{Binding Command_Export_Schedule_Excel}">
                                                                     <Button.Content>
@@ -2136,12 +2137,58 @@
                                                             <ScrollView>
                                                                 <Grid>
                                                                     <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition x:Name="Column_Schedule_Table" Width="300"/>
+                                                                        <ColumnDefinition x:Name="Column_Button" Width="80"/>
                                                                         <ColumnDefinition x:Name="Column_DateTime_SS" Width="230"/>
                                                                         <ColumnDefinition x:Name="Column_Skill_Sat" Width="230"/>
                                                                         <ColumnDefinition x:Name="Column_Skill_sun" Width="230"/>
                                                                     </Grid.ColumnDefinitions>
 
-                                                                    <StackPanel Grid.Column="0" x:Name="Column_DataTime_SS" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Center" Orientation="Vertical" Padding="0,0,0,20">
+                                                                    <StackPanel Grid.Column="0" x:Name="Column_Table_Schedule_List" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Left">
+                                                                        <TextBlock Text="ទិន្នន័យកាលវិភាគក្នុងថ្នាក់"
+                                                                                   Style="{StaticResource Font_KH_Body}"/>
+                                                                        <ListView x:Name="Schedule_List" ItemsSource="{Binding Schedule_List_Sat_Sun}">
+                                                                            <ListView.Header>
+                                                                                <StackPanel Orientation="Horizontal">
+                                                                                    <TextBlock Text="លេខសម្គាល់"
+                                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                                               Margin="10,0,0,0"/>
+                                                                                    <TextBlock Text="ឈ្មោះកាលវិភាគ"
+                                                                                               Style="{StaticResource Font_KH_Body}"
+                                                                                               Margin="20,0,0,0"/>
+                                                                                </StackPanel>
+                                                                            </ListView.Header>
+                                                                            <ListView.ItemTemplate>
+                                                                                <DataTemplate>
+                                                                                    <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                                        <TextBlock Text="{Binding Schedule_ID}" Margin="10,0,0,0" Width="40"/>
+                                                                                        <TextBlock Text="{Binding Schedule_Name}" Margin="10,0,0,0" Width="160" Style="{StaticResource Font_KH_Body}"/>
+                                                                                    </StackPanel>
+                                                                                </DataTemplate>
+                                                                            </ListView.ItemTemplate>
+                                                                        </ListView>
+                                                                    </StackPanel>
+
+                                                                    <StackPanel Grid.Column="1" x:Name="Column_Button_Edit_Delete" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="3">
+                                                                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                                            <Button x:Name="btn_edit_schedule_from_list"
+                                                                                    Margin="5,5,5,0">
+                                                                                <Button.Content>
+                                                                                    <StackPanel>
+                                                                                        <FontIcon Glyph="&#xE932;" />
+                                                                                    </StackPanel>
+                                                                                </Button.Content>
+                                                                            </Button>
+                                                                            <Button x:Name="btn_delete_schedule_from_list" Margin="5">
+                                                                                <Button.Content>
+                                                                                    <StackPanel>
+                                                                                        <FontIcon Glyph="&#xE74D;" />
+                                                                                    </StackPanel>
+                                                                                </Button.Content>
+                                                                            </Button>
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="2" x:Name="Column_DataTime_SS" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Center" Orientation="Vertical" Padding="0,0,0,20">
                                                                         <StackPanel x:Name="Header_Time_SS" Background="Green" CornerRadius="3">
                                                                             <TextBlock Text="ម៉ោងសិក្សា " 
                                                                                        Style="{StaticResource Font_KH_Body}" 
@@ -2160,14 +2207,14 @@
                                                                                        Style="{StaticResource Font_KH_Body}"
                                                                                        Margin="0,20,0,0"
                                                                                        HorizontalAlignment="Center"/>
-                                                                            <TimePicker x:Name="Time_SS_Start_M">
+                                                                            <TimePicker x:Name="Time_SS_Start_M" SelectedTime="{Binding SD_Start_DateTime_SS1,Mode=TwoWay}">
 
                                                                             </TimePicker>
                                                                             <TextBlock Text="ម៉ោងបញ្ចប់ (ព្រឹក)"
                                                                                        Style="{StaticResource Font_KH_Body}"
                                                                                        HorizontalAlignment="Center"
                                                                                        Margin="0,5,0,0"/>
-                                                                            <TimePicker x:Name="Time_SS_Stop_M">
+                                                                            <TimePicker x:Name="Time_SS_Stop_M" SelectedTime="{Binding SD_End_DateTime_SS1,Mode=TwoWay}">
 
                                                                             </TimePicker>
                                                                         </StackPanel>
@@ -2183,21 +2230,21 @@
                                                                                        Style="{StaticResource Font_KH_Body}"
                                                                                        Margin="0,20,0,0"
                                                                                        HorizontalAlignment="Center"/>
-                                                                            <TimePicker x:Name="Time_SS_Start_A">
+                                                                            <TimePicker x:Name="Time_SS_Start_A" SelectedTime="{Binding SD_Start_DateTime_SS2,Mode=TwoWay}">
 
                                                                             </TimePicker>
                                                                             <TextBlock Text="ម៉ោងបញ្ចប់ (រសៀល)"
                                                                                        Style="{StaticResource Font_KH_Body}"
                                                                                        HorizontalAlignment="Center"
                                                                                        Margin="0,5,0,0"/>
-                                                                            <TimePicker x:Name="Time_SS_Stop_A">
+                                                                            <TimePicker x:Name="Time_SS_Stop_A" SelectedTime="{Binding SD_End_DateTime_SS2,Mode=TwoWay}">
 
                                                                             </TimePicker>
                                                                         </StackPanel>
 
                                                                     </StackPanel>
 
-                                                                    <StackPanel Grid.Column="1" x:Name="Column_Satureday" BorderBrush="Blue" BorderThickness="3" >
+                                                                    <StackPanel Grid.Column="3" x:Name="Column_Satureday" BorderBrush="Blue" BorderThickness="3" >
                                                                         <StackPanel x:Name="Header_Satureday" Background="Purple" CornerRadius="3">
                                                                             <TextBlock Text="ថ្ងៃសៅរ៍" 
                                                                                    Style="{StaticResource Font_KH_Body}"
@@ -2214,8 +2261,9 @@
                                                                             <ComboBox x:Name="Sat_Skill_OptionM"
                                                                                       Header="មុខវិជ្ជា (ព្រឹក)"
                                                                                       ItemsSource="{Binding Schedule_Skill_Name_Combobox}"  
-                                                                                        DisplayMemberPath="SD_Skill_Name"
-                                                                                        SelectedValuePath="SD_Skill_ID"
+                                                                                      DisplayMemberPath="SD_Skill_Name"
+                                                                                      SelectedValuePath="SD_Skill_ID"
+                                                                                      SelectedItem="{Binding SelectedSkill_SD_Sat1,Mode=TwoWay}"
                                                                                       Style="{StaticResource Stye_KH_Combobox}"
                                                                                       Width="220">
 
@@ -2223,13 +2271,18 @@
                                                                             <RelativePanel>
                                                                                 <ComboBox x:Name="Sat_Teacher_NameM"
                                                                                           Header="គ្រូបច្ចេកទេស"
+                                                                                          ItemsSource="{Binding Schedule_Teacher_Name_Combobox}"
+                                                                                          DisplayMemberPath="SD_Teacher_Name"
+                                                                                          SelectedValuePath="SD_Teacher_ID"
                                                                                           Style="{StaticResource Stye_KH_Combobox}"
-                                                                                          Width="155">
+                                                                                          Width="155"
+                                                                                          SelectedItem="{Binding SelectedTeacher_SD_Sat1,Mode=TwoWay}">
                                                                                 </ComboBox>
                                                                                 <NumberBox x:Name="Sat_Skill_TimeM"                                    
                                                                                          Header="(h)" 
                                                                                           Padding="0,0,0,0"
                                                                                           Margin="0,-5,0,0"
+                                                                                          Text="{Binding SD_TotalTime_Sat1,Mode=TwoWay}"
                                                                                          RelativePanel.RightOf="Sat_Teacher_NameM"/>
                                                                             </RelativePanel>
                                                                         </StackPanel>
@@ -2243,8 +2296,9 @@
                                                                             <ComboBox x:Name="Sat_Skill_OptionA"
                                                                                       Header="មុខវិជ្ជា (រសៀល)"
                                                                                       ItemsSource="{Binding Schedule_Skill_Name_Combobox}"  
-                                                                                        DisplayMemberPath="SD_Skill_Name"
-                                                                                        SelectedValuePath="SD_Skill_ID"
+                                                                                      DisplayMemberPath="SD_Skill_Name"
+                                                                                      SelectedValuePath="SD_Skill_ID"
+                                                                                      SelectedItem="{Binding SelectedSkill_SD_Sat2,Mode=TwoWay}"
                                                                                       Style="{StaticResource Stye_KH_Combobox}"
                                                                                       Width="220">
 
@@ -2252,11 +2306,16 @@
                                                                             <RelativePanel>
                                                                                 <ComboBox x:Name="Sat_Teacher_NameA"
                                                                                           Header="គ្រូបច្ចេកទេស"
+                                                                                          ItemsSource="{Binding Schedule_Teacher_Name_Combobox}"
+                                                                                          DisplayMemberPath="SD_Teacher_Name"
+                                                                                          SelectedValuePath="SD_Teacher_ID"
+                                                                                          SelectedItem="{Binding SelectedTeacher_SD_Sat2,Mode=TwoWay}"
                                                                                           Style="{StaticResource Stye_KH_Combobox}"
                                                                                           Width="155">
                                                                                 </ComboBox>
                                                                                 <NumberBox x:Name="Sat_Skill_TimeA"                                    
-                                                                                         Header="(h)" 
+                                                                                         Header="(h)"
+                                                                                         Text="{Binding SD_TotalTime_Sat2,Mode=TwoWay}"
                                                                                          Padding="0,0,0,0"
                                                                                          Margin="0,-5,0,0"
                                                                                          RelativePanel.RightOf="Sat_Teacher_NameA"/>
@@ -2264,7 +2323,7 @@
                                                                         </StackPanel>
                                                                     </StackPanel>
 
-                                                                    <StackPanel Grid.Column="2" x:Name="Column_Sunday" BorderBrush="Blue" BorderThickness="3" >
+                                                                    <StackPanel Grid.Column="4" x:Name="Column_Sunday" BorderBrush="Blue" BorderThickness="3" >
                                                                         <StackPanel x:Name="Header_Sunday" Background="Green" CornerRadius="3">
                                                                             <TextBlock Text="ថ្ងៃអាទិត្យ" 
                                                                                        Style="{StaticResource Font_KH_Body}"
@@ -2280,9 +2339,10 @@
                                                                         <StackPanel x:Name="Sun_Skill_Teacher_Info" Margin="0,10,0,0">
                                                                             <ComboBox x:Name="Sun_Skill_OptionM"
                                                                                   Header="មុខវិជ្ជា (ព្រឹក)"
-                                                                                      ItemsSource="{Binding Schedule_Skill_Name_Combobox}"  
-                                                                                        DisplayMemberPath="SD_Skill_Name"
-                                                                                        SelectedValuePath="SD_Skill_ID"
+                                                                                  ItemsSource="{Binding Schedule_Skill_Name_Combobox}"  
+                                                                                  DisplayMemberPath="SD_Skill_Name"
+                                                                                  SelectedValuePath="SD_Skill_ID"
+                                                                                  SelectedItem="{Binding SelectedSkill_SD_Sun1,Mode=TwoWay}"
                                                                                   Style="{StaticResource Stye_KH_Combobox}"
                                                                                   Width="220">
 
@@ -2290,11 +2350,16 @@
                                                                             <RelativePanel>
                                                                                 <ComboBox x:Name="Sun_Teacher_NameM"
                                                                                           Header="គ្រូបច្ចេកទេស"
+                                                                                          ItemsSource="{Binding Schedule_Teacher_Name_Combobox}"
+                                                                                          DisplayMemberPath="SD_Teacher_Name"
+                                                                                          SelectedValuePath="SD_Teacher_ID"
+                                                                                          SelectedItem="{Binding SelectedTeacher_SD_Sun1,Mode=TwoWay}"
                                                                                           Style="{StaticResource Stye_KH_Combobox}"
                                                                                           Width="155">
                                                                                 </ComboBox>
                                                                                 <NumberBox x:Name="Sun_Skill_TimeM"                                    
-                                                                                             Header="(h)" 
+                                                                                           Header="(h)" 
+                                                                                           Text="{Binding SD_TotalTime_Sun1,Mode=TwoWay}"
                                                                                              Padding="0,0,0,0"
                                                                                              Margin="0,-5,0,0"
                                                                                              RelativePanel.RightOf="Sun_Teacher_NameM"/>
@@ -2310,8 +2375,9 @@
                                                                             <ComboBox x:Name="Sun_Skill_OptionA"
                                                                                       Header="មុខវិជ្ជា (រសៀល)"
                                                                                       ItemsSource="{Binding Schedule_Skill_Name_Combobox}"  
-                                                                                        DisplayMemberPath="SD_Skill_Name"
-                                                                                        SelectedValuePath="SD_Skill_ID"
+                                                                                      DisplayMemberPath="SD_Skill_Name"
+                                                                                      SelectedValuePath="SD_Skill_ID"
+                                                                                      SelectedItem="{Binding SelectedSkill_SD_Sun2,Mode=TwoWay}"
                                                                                       Style="{StaticResource Stye_KH_Combobox}"
                                                                                       Width="220">
 
@@ -2319,11 +2385,16 @@
                                                                             <RelativePanel>
                                                                                 <ComboBox x:Name="Sun_Teacher_NameA"
                                                                                           Header="គ្រូបច្ចេកទេស"
+                                                                                          ItemsSource="{Binding Schedule_Teacher_Name_Combobox}"
+                                                                                          DisplayMemberPath="SD_Teacher_Name"
+                                                                                          SelectedValuePath="SD_Teacher_ID"
+                                                                                          SelectedItem="{Binding SelectedTeacher_SD_Sun2,Mode=TwoWay}"
                                                                                           Style="{StaticResource Stye_KH_Combobox}"
                                                                                           Width="155">
                                                                                 </ComboBox>
                                                                                 <NumberBox x:Name="Sun_Skill_TimeA"                                    
                                                                                          Header="(h)" 
+                                                                                         Text="{Binding SD_TotalTime_Sun2,Mode=TwoWay}"
                                                                                          Padding="0,0,0,0"
                                                                                          Margin="0,-5,0,0"
                                                                                          RelativePanel.RightOf="Sun_Teacher_NameA"/>
@@ -2381,7 +2452,8 @@
                                                                              Style="{StaticResource Style_KH_TextBox}"
                                                                              RelativePanel.RightOf="YearPicker_SS"
                                                                              RelativePanel.Below="Text_Build_SS"
-                                                                                 Margin="0,12,0,0"/>
+                                                                             Text="{Binding SD_Building_Name,Mode=TwoWay}"
+                                                                             Margin="0,12,0,0"/>
                                                                     <TextBlock x:Name="txt_Room_SS" Text="បន្ទប់"
                                                                                Margin="130,0,0,0"
                                                                                Style="{StaticResource Font_KH_Body}"
@@ -2389,13 +2461,20 @@
                                                                     <TextBox x:Name="Text_Room_SS"
                                                                                  Style="{StaticResource Style_KH_TextBox}"
                                                                                  Margin="5,12,0,0"
+                                                                                 Text="{Binding SD_Building_Room,Mode=TwoWay}"
                                                                                  RelativePanel.Below="txt_Room_SS"
                                                                                  RelativePanel.RightOf="Text_Building_SS"/>
+                                                                    <TextBox x:Name="txt_class_schedule_name"
+                                                                             Style="{StaticResource Style_KH_TextBox}"
+                                                                             Header="ឈ្មោះកាលវិភាគ"
+                                                                             Text="{Binding Schedule_Name,Mode=TwoWay}"
+                                                                             RelativePanel.RightOf="Text_Room_SS"/>
                                                                 </RelativePanel>
                                                             </StackPanel>
 
                                                             <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                                                                 <Button x:Name="btn_save_schedule_ss"
+                                                                        Command="{Binding Command_SaveSchedule_SatSun}"
                                                                         Style="{StaticResource Stye_KH_Button}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
@@ -2407,15 +2486,15 @@
 
                                                                 <Button x:Name="btn_clear_schedule_ss"
                                                                         Style="{StaticResource Stye_KH_Button}"
-                                                                        Command="{Binding Command_ClearSchedule}">
+                                                                        Command="{Binding Command_ClearSchedule_SatSun}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <FontIcon Glyph="&#xED62;" />
                                                                             <TextBlock Text="សម្អាត" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}"/>
                                                                         </StackPanel>
                                                                     </Button.Content>
-
                                                                 </Button>
+                                                                
                                                             </StackPanel>
 
                                                             <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
