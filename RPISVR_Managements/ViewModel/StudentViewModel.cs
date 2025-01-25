@@ -281,11 +281,18 @@ namespace RPISVR_Managements.ViewModel
             CommandClear_Class_in_Schedule = new RelayCommand(async () => await Clear_Class_in_Schedule_List());
             Command_SaveSchedule = new RelayCommand(async () => await SaveSchedule());
 
-            //SetTime
+            //SetTime Mon-Fri
             SD_Start_DateTime_MF1 = TimeSpan.Parse("07:30:00");
             SD_End_DateTime_MF1 = TimeSpan.Parse("09:30:00");
             SD_Start_DateTime_MF2 = TimeSpan.Parse("09:45:00");
             SD_End_DateTime_MF2 = TimeSpan.Parse("11:45:00");
+
+            //SetTime Sat-Sun
+            SD_Start_DateTime_SS1 = TimeSpan.Parse("07:30:00");
+            SD_End_DateTime_SS1 = TimeSpan.Parse("09:30:00");
+            SD_Start_DateTime_SS2 = TimeSpan.Parse("09:45:00");
+            SD_End_DateTime_SS2 = TimeSpan.Parse("11:45:00");
+
             Class_ID_Schedule = 0;
             //Load Combobox
             Schedule_Skill_Name_Combobox = new ObservableCollection<Class_Schedule>();
@@ -295,6 +302,12 @@ namespace RPISVR_Managements.ViewModel
             Command_Load_Schedule = new RelayCommand(async () => await LoadSchedule(Class_ID_Schedule));
             Command_ClearSchedule = new RelayCommand(async () => await ClearSchedule());
             Command_DeleteSchedule = new RelayCommand(async () => await DeleteSchedule());
+            Command_Export_Schedule_PDF = new RelayCommand(async () => await Export_Schedule_PDF());
+
+            //Sat_Sun
+            Command_SaveSchedule_SatSun = new RelayCommand(async () => await SaveSchedule_SatSun());
+            Command_ClearSchedule_SatSun = new RelayCommand(async () => await Clear_Schedule_Sat_Sun());
+            Schedule_List_Sat_Sun = new ObservableCollection<Class_Schedule>();
         }
         
 
@@ -7673,6 +7686,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Curriculum_TotalTime_List_Table));
             }
         }
+        
         //Load data to Combobox Skill 
         private void LoadData_to_Combobox_Skill_InCurriculum()
         {
@@ -8429,7 +8443,6 @@ namespace RPISVR_Managements.ViewModel
             MessageColor = new SolidColorBrush(Colors.Green);
         }
 
-
         //Command add schedule
         public ICommand Command_Add_Class_to_List_in_Schedule { get; set; }
 
@@ -8502,8 +8515,8 @@ namespace RPISVR_Managements.ViewModel
                     Debug.WriteLine($"Class Schedule ID: {Class_ID}");
                     Debug.WriteLine($"Class Schedule Name: {Class_Name}");
                     _ = Count_Student_Selected_Class();
-                    Schedule_State = "";
                     _ = LoadSchedule(Class_ID_Schedule);
+                    _ = Load_Schedule_Sat_Sun_ToList(Class_ID);
 
 
                 }
@@ -8527,10 +8540,10 @@ namespace RPISVR_Managements.ViewModel
                 if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
                 {
                     //SetTime
-                    SD_Start_DateTime_MF1 = TimeSpan.Parse("07:30:00");
-                    SD_End_DateTime_MF1 = TimeSpan.Parse("11:30:00");
-                    SD_Start_DateTime_MF2 = TimeSpan.Parse("13:00:00");
-                    SD_End_DateTime_MF2 = TimeSpan.Parse("17:00:00");
+                    SD_Start_DateTime_SS1 = TimeSpan.Parse("07:30:00");
+                    SD_End_DateTime_SS1 = TimeSpan.Parse("11:30:00");
+                    SD_Start_DateTime_SS2 = TimeSpan.Parse("13:00:00");
+                    SD_End_DateTime_SS2 = TimeSpan.Parse("17:00:00");
                 }
                 LoadData_to_Combobox_Schedule_Skill_Name_Combobox(Class_In_Skill, Class_In_Level, Class_In_Student_Year, Class_In_Semester);
                 
@@ -8615,6 +8628,20 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
+        private TimeSpan? _SD_Start_DateTime_SS1;
+        public TimeSpan? SD_Start_DateTime_SS1
+        {
+            get => _SD_Start_DateTime_SS1;
+            set
+            {
+                if (_SD_Start_DateTime_SS1 != value)
+                {
+                    _SD_Start_DateTime_SS1 = value;
+                    Debug.WriteLine($"SD_Start_DateTime_SS1 updated to: {_SD_Start_DateTime_MF1}");
+                    OnPropertyChanged(nameof(SD_Start_DateTime_SS1));
+                }
+            }
+        }
 
         private TimeSpan? _SD_End_DateTime_MF1;
         public TimeSpan? SD_End_DateTime_MF1
@@ -8629,6 +8656,19 @@ namespace RPISVR_Managements.ViewModel
                 }               
             }
         }
+        private TimeSpan? _SD_End_DateTime_SS1;
+        public TimeSpan? SD_End_DateTime_SS1
+        {
+            get => _SD_End_DateTime_SS1;
+            set
+            {
+                if (_SD_End_DateTime_SS1 != value)
+                {
+                    _SD_End_DateTime_SS1 = value;
+                    OnPropertyChanged(nameof(SD_End_DateTime_SS1));
+                }
+            }
+        }
         private TimeSpan? _SD_Start_DateTime_MF2;
         public TimeSpan? SD_Start_DateTime_MF2
         {
@@ -8639,6 +8679,17 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SD_Start_DateTime_MF2));
             }
         }
+        private TimeSpan? _SD_Start_DateTime_SS2;
+        public TimeSpan? SD_Start_DateTime_SS2
+        {
+            get => _SD_Start_DateTime_SS2;
+            set
+            {
+                _SD_Start_DateTime_SS2 = value;
+                OnPropertyChanged(nameof(SD_Start_DateTime_SS2));
+            }
+        }
+
         private TimeSpan? _SD_End_DateTime_MF2;
         public TimeSpan? SD_End_DateTime_MF2
         {
@@ -8649,6 +8700,17 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SD_End_DateTime_MF2));
             }
         }
+        private TimeSpan? _SD_End_DateTime_SS2;
+        public TimeSpan? SD_End_DateTime_SS2
+        {
+            get => _SD_End_DateTime_SS2;
+            set
+            {
+                _SD_End_DateTime_SS2 = value;
+                OnPropertyChanged(nameof(SD_End_DateTime_SS2));
+            }
+        }
+
         public string DateTime_Start_Schedule_Strating
         {
             get => SelectedDate?.ToString("dd/MM/yyyy") ?? "No Date Selected";
@@ -9519,6 +9581,7 @@ namespace RPISVR_Managements.ViewModel
                 return;
             }
         }
+
         private string _SD_Building_Name;
         public string SD_Building_Name
         {
@@ -9601,6 +9664,197 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Schedule_State));
             }
         }
+        private string _Schedule_Name;
+        public string Schedule_Name
+        {
+            get => _Schedule_Name;
+            set
+            {
+                _Schedule_Name = value;
+                OnPropertyChanged(nameof(Schedule_Name));
+            }
+        }
+        private string _SD_Skill_Name_Sat1;
+        public string SD_Skill_Name_Sat1
+        {
+            get => _SD_Skill_Name_Sat1;
+            set
+            {
+                _SD_Skill_Name_Sat1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Sat1));
+            }
+        }
+        private string _SD_Skill_Name_Sat2;
+        public string SD_Skill_Name_Sat2
+        {
+            get => _SD_Skill_Name_Sat2;
+            set
+            {
+                _SD_Skill_Name_Sat2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Sat2));
+            }
+        }
+        private string _SD_Teacher_Sat1;
+        public string SD_Teacher_Sat1
+        {
+            get => _SD_Teacher_Sat1;
+            set
+            {
+                _SD_Teacher_Sat1 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Sat1));
+            }
+        }
+        private string _SD_Teacher_Sat2;
+        public string SD_Teacher_Sat2
+        {
+            get => _SD_Teacher_Sat2;
+            set
+            {
+                _SD_Teacher_Sat2 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Sat2));
+            }
+        }
+        private int _SD_TotalTime_Sat1;
+        public int SD_TotalTime_Sat1
+        {
+            get => _SD_TotalTime_Sat1;
+            set
+            {
+                _SD_TotalTime_Sat1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Sat1));
+            }
+        }
+        private int _SD_TotalTime_Sat2;
+        public int SD_TotalTime_Sat2
+        {
+            get => _SD_TotalTime_Sat2;
+            set
+            {
+                _SD_TotalTime_Sat2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Sat2));
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Sat1;
+        public Class_Schedule SelectedTeacher_SD_Sat1
+        {
+            get => _SelectedTeacher_SD_Sat1;
+            set
+            {
+                _SelectedTeacher_SD_Sat1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sat1));
+                if(_SelectedTeacher_SD_Sat1 != null)
+                {
+                    SD_Teacher_Sat1 = _SelectedTeacher_SD_Sat1.SD_Teacher_Name;
+                    OnPropertyChanged(nameof(SD_Teacher_Sat1));
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Sat2;
+        public Class_Schedule SelectedTeacher_SD_Sat2
+        {
+            get => _SelectedTeacher_SD_Sat2;
+            set
+            {
+                _SelectedTeacher_SD_Sat2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sat2));
+                if(_SelectedTeacher_SD_Sat2 != null)
+                {
+                    SD_Teacher_Sat2 = _SelectedTeacher_SD_Sat2.SD_Teacher_Name;
+                    OnPropertyChanged(nameof(SD_Teacher_Sat2));
+                }
+            }
+        }
+        private string _SD_Skill_Name_Sun1;
+        public string SD_Skill_Name_Sun1
+        {
+            get => _SD_Skill_Name_Sun1;
+            set
+            {
+                _SD_Skill_Name_Sun1 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Sun1));
+            }
+        }
+        private string _SD_Skill_Name_Sun2;
+        public string SD_Skill_Name_Sun2
+        {
+            get => _SD_Skill_Name_Sun2;
+            set
+            {
+                _SD_Skill_Name_Sun2 = value;
+                OnPropertyChanged(nameof(SD_Skill_Name_Sun2));
+            }
+        }
+        private string _SD_Teacher_Sun1;
+        public string SD_Teacher_Sun1
+        {
+            get => _SD_Teacher_Sun1;
+            set
+            {
+                _SD_Teacher_Sun1 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Sun1));
+            }
+        }
+        private string _SD_Teacher_Sun2;
+        public string SD_Teacher_Sun2
+        {
+            get => _SD_Teacher_Sun2;
+            set
+            {
+                _SD_Teacher_Sun2 = value;
+                OnPropertyChanged(nameof(SD_Teacher_Sun2));
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Sun1;
+        public Class_Schedule SelectedTeacher_SD_Sun1
+        {
+            get => _SelectedTeacher_SD_Sun1;
+            set
+            {
+                _SelectedTeacher_SD_Sun1 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sun1));
+                if(_SelectedTeacher_SD_Sun1 != null)
+                {
+                    SD_Teacher_Sun1 = _SelectedTeacher_SD_Sun1.SD_Teacher_Name;
+                    OnPropertyChanged(nameof(SD_Teacher_Name));
+                }
+            }
+        }
+        private Class_Schedule _SelectedTeacher_SD_Sun2;
+        public Class_Schedule SelectedTeacher_SD_Sun2
+        {
+            get => _SelectedTeacher_SD_Sun2;
+            set
+            {
+                _SelectedTeacher_SD_Sun2 = value;
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sun2));
+                if(_SelectedTeacher_SD_Sun2 != null)
+                {
+                    SD_Teacher_Sun2 = _SelectedTeacher_SD_Sun2.SD_Teacher_Name;
+                    OnPropertyChanged(nameof(SD_Teacher_Sun2));
+                }
+            }
+        }
+        private int _SD_TotalTime_Sun1;
+        public int SD_TotalTime_Sun1
+        {
+            get => _SD_TotalTime_Sun1;
+            set
+            {
+                _SD_TotalTime_Sun1 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Sun1));
+            }
+        }
+        private int _SD_TotalTime_Sun2;
+        public int SD_TotalTime_Sun2
+        {
+            get => _SD_TotalTime_Sun2;
+            set
+            {
+                _SD_TotalTime_Sun2 = value;
+                OnPropertyChanged(nameof(SD_TotalTime_Sun2));
+            }
+        }
+
         private void LoadData_to_Combobox_Schedule_Skill_Name_Combobox(string Class_In_Skill, string Class_In_Level, string Class_In_Student_Year,string Class_In_Semester)
         {
             var skill_id = Class_In_Skill;
@@ -9686,6 +9940,76 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
+            if(SelectedSkill_SD_Mon1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃចន្ទជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Mon2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃចន្ទជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Tues1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃអង្គារជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Tues2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃអង្គារជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Wed1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Wed2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Thur1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Thur2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Fri1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Fri2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃពុធជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
             ConfirmValue();
             SaveScheduleToDatabase();
 
@@ -9703,7 +10027,8 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Schedule Time End2: {SD_End_DateTime_MF2}");
             Debug.WriteLine($"Schedule Start Date: {DateTime_Start_Schedule_Strating}");
             Debug.WriteLine($"Schedule Create Time: {Create_Datetime}");
-        }       
+        }
+      
         public void SaveScheduleToDatabase()
         {
             if(Schedule_State == "មាន" && Schedule_ID !=0)
@@ -9872,13 +10197,6 @@ namespace RPISVR_Managements.ViewModel
                     Schedule_ID = schedule_info.Schedule_ID;
                     OnPropertyChanged(nameof(Schedule_State));
                     OnPropertyChanged(nameof(Schedule_ID));
-
-                   
-
-                    
-
-
-
                 }
                 SelectedSkill_SD_Mon1 = null;
                 SelectedTeacher_SD_Mon1 = null;
@@ -10144,6 +10462,509 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Method Export Schedule PDF
+        public async Task Export_Schedule_PDF()
+        {
+            var schedule_id = Schedule_ID;
+
+            if (schedule_id == 0)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនដែលមានកាលវិភាគជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (schedule_id != 0)
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញយកឯកសារកាលវិភាគ ជាប្រភេទ PDF មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+                CurrentOperation = "Export_Schedule_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Method Export Schedule PDF
+        public void HandleYesResponseExport_Schedule_PDF()
+        {
+            Class_Schedule class_Schedule_Items = new Class_Schedule()
+            {
+                Class_ID_Schedule = this.Class_ID_Schedule,
+                SD_Class_Name = this.SD_Class_Name,
+                SD_Class_TimeShift = this.Class_In_Study_Timeshift,
+                SD_Start_DateTime_MF1 = this.SD_Start_DateTime_MF1.Value,
+                SD_End_DateTime_MF1 = this.SD_End_DateTime_MF1.Value,
+                SD_Start_DateTime_MF2 = this.SD_Start_DateTime_MF2.Value,
+                SD_End_DateTime_MF2 = this.SD_End_DateTime_MF2.Value,
+                SD_Skill_Name_Mon1 = SelectedSkill_SD_Mon1.SD_Skill_Name,
+                SD_Teacher_Mon01 = SelectedTeacher_SD_Mon1.SD_Teacher_Name,
+                SD_TotalTime_Mon1 = this.SD_TotalTime_Mon1,
+                SD_Skill_Name_Mon2 = SelectedSkill_SD_Mon2.SD_Skill_Name,
+                SD_Teacher_Mon02 = SelectedTeacher_SD_Mon2.SD_Teacher_Name,
+                SD_TotalTime_Mon2 = this.SD_TotalTime_Mon2,
+                SD_Skill_Name_Tues1 = SelectedSkill_SD_Tues1.SD_Skill_Name,
+                SD_Teacher_Tues01 = SelectedTeacher_SD_Mon2.SD_Teacher_Name,
+                SD_TotalTime_Tues1 = this.SD_TotalTime_Tues1,
+                SD_Skill_Name_Tues2 = SelectedSkill_SD_Tues2.SD_Skill_Name,
+                SD_Teacher_Tues02 = SelectedTeacher_SD_Tues2.SD_Teacher_Name,
+                SD_TotalTime_Tues2 = this.SD_TotalTime_Tues2,
+                SD_Skill_Name_Wed1 = SelectedSkill_SD_Wed1.SD_Skill_Name,
+                SD_Teacher_Wed1 = SelectedTeacher_SD_Wed1.SD_Teacher_Name,
+                SD_TotalTime_Wed1 = this.SD_TotalTime_Wed1,
+                SD_Skill_Name_Wed2 = SelectedSkill_SD_Wed2.SD_Skill_Name,
+                SD_Teacher_Wed2 = SelectedTeacher_SD_Wed2.SD_Teacher_Name,
+                SD_TotalTime_Wed2 = this.SD_TotalTime_Wed2,
+                SD_Skill_Name_Thur1 = SelectedSkill_SD_Thur1.SD_Skill_Name,
+                SD_Teacher_Thur1 = SelectedTeacher_SD_Thur1.SD_Teacher_Name,
+                SD_TotalTime_Thur1 = this.SD_TotalTime_Thur1,
+                SD_Skill_Name_Thur2 = SelectedSkill_SD_Thur2.SD_Skill_Name,
+                SD_Teacher_Thur2 = SelectedTeacher_SD_Thur2.SD_Teacher_Name,
+                SD_TotalTime_Thur2 = this.SD_TotalTime_Thur2,
+                SD_Skill_Name_Fri1 = SelectedSkill_SD_Fri1.SD_Skill_Name,
+                SD_Teacher_Fri1 = SelectedTeacher_SD_Fri1.SD_Teacher_Name,
+                SD_TotalTime_Fri1 = this.SD_TotalTime_Fri1,
+                SD_Skill_Name_Fri2 = SelectedSkill_SD_Fri2.SD_Skill_Name,
+                SD_Teacher_Fri2 = SelectedTeacher_SD_Fri2.SD_Teacher_Name,
+                SD_TotalTime_Fri2 = this.SD_TotalTime_Fri2,
+                DateTime_Start_Schedule_Strating = this.DateTime_Start_Schedule_Strating,
+                SD_Building_Name = this.SD_Building_Name,
+                SD_Building_Room = this.SD_Building_Room
+
+            };
+
+            //File Schedule toPDF.
+            PDFService_Generate_Schedule_Info.CreateReport(class_Schedule_Items, Class_In_Skill, Class_In_Level, Class_In_Study_Year, Class_In_Student_Year, Class_In_Semester, Class_In_Generation);
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        //Method Export Schedule Excel
+        public void HandleYesResponseExport_Schedule_Excel()
+        {
+            Debug.WriteLine("Export to Excel.");
+            string curriculum_skill_select = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
+            string curriculum_level_select = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
+            string curriculum_study_year_select;
+            if (Search_Study_Year_Curr == null)
+            {
+                curriculum_study_year_select = "1,2,3,4";
+            }
+            else
+            {
+                curriculum_study_year_select = Search_Study_Year_Curr;
+            }
+            Export_Excel_Curriculum_Info.ExportToExcel(Multi_Selected_Curriculum_Export, curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
+            ErrorMessage = "ឯកសារ Excel ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        private Class_Schedule _SelectedSkill_SD_Sat1;
+        public Class_Schedule SelectedSkill_SD_Sat1
+        {
+            get => _SelectedSkill_SD_Sat1;
+            set
+            {
+                _SelectedSkill_SD_Sat1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Sat1));
+                if (_SelectedSkill_SD_Sat1 != null)
+                {
+                    if (Schedule_State == "មិនមាន")
+                    {
+                        SD_Skill_Name_Sat1 = SelectedSkill_SD_Sat1.SD_Skill_Name;
+                        Debug.WriteLine($"Skill Sat Select1: {SD_Skill_Name_Sat1}");
+                        LoadTeacher_andTime_BySelectSkill_Sat1(SD_Skill_Name_Sat1);
+                    }
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Sat2;
+        public Class_Schedule SelectedSkill_SD_Sat2
+        {
+            get => _SelectedSkill_SD_Sat2;
+            set
+            {
+                _SelectedSkill_SD_Sat2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Sat2));
+                if (_SelectedSkill_SD_Sat2 != null)
+                {
+                    if (Schedule_State == "មិនមាន")
+                    {
+                        SD_Skill_Name_Sat2 = SelectedSkill_SD_Sat2.SD_Skill_Name;
+                        Debug.WriteLine($"Skill Sat Select2: {SD_Skill_Name_Sat2}");
+                        LoadTeacher_andTime_BySelectSkill_Sat2(SD_Skill_Name_Sat2);
+                    }
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Sun1;
+        public Class_Schedule SelectedSkill_SD_Sun1
+        {
+            get => _SelectedSkill_SD_Sun1;
+            set
+            {
+                _SelectedSkill_SD_Sun1 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Sun1));
+                if (_SelectedSkill_SD_Sun1 != null)
+                {
+                    if (Schedule_State == "មិនមាន")
+                    {
+                        SD_Skill_Name_Sun1 = SelectedSkill_SD_Sun1.SD_Skill_Name;
+                        Debug.WriteLine($"Skill Sun Select1: {SD_Skill_Name_Sun1}");
+                        LoadTeacher_andTime_BySelectSkill_Sun1(SD_Skill_Name_Sun1);
+                    }
+                }
+            }
+        }
+        private Class_Schedule _SelectedSkill_SD_Sun2;
+        public Class_Schedule SelectedSkill_SD_Sun2
+        {
+            get => _SelectedSkill_SD_Sun2;
+            set
+            {
+                _SelectedSkill_SD_Sun2 = value;
+                OnPropertyChanged(nameof(SelectedSkill_SD_Sun2));
+                if (_SelectedSkill_SD_Sun2 != null)
+                {
+                    if (Schedule_State == "មិនមាន")
+                    {
+                        SD_Skill_Name_Sun2 = SelectedSkill_SD_Sun2.SD_Skill_Name;
+                        Debug.WriteLine($"Skill Sun Select2: {SD_Skill_Name_Sun2}");
+                        LoadTeacher_andTime_BySelectSkill_Sun2(SD_Skill_Name_Sun2);
+                    }
+                }
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Sun2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Sun2 != null)
+            {
+                //Sunday01
+                SelectedTeacher_SD_Sun2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher => teacher.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sun2));
+
+                SD_TotalTime_Sun2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Sun2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Sun1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Sun1 != null)
+            {
+                //Sunday01
+                SelectedTeacher_SD_Sun1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher => teacher.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sun1));
+
+                SD_TotalTime_Sun1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Sun1));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Sat2(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Sat2 != null)
+            {
+                //Satureday01
+                SelectedTeacher_SD_Sat2 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher => teacher.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sat2));
+
+                SD_TotalTime_Sat2 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Sat2));
+                return;
+            }
+        }
+        private async void LoadTeacher_andTime_BySelectSkill_Sat1(string Skill_Name_Get)
+        {
+            var Skill_Name = Skill_Name_Get;
+            var get_value = await _dbConnection.GetTeacher_Time_SelecetedSkill(Skill_Name);
+
+            if (SelectedSkill_SD_Sat1 != null)
+            {
+                //Satureday01
+                SelectedTeacher_SD_Sat1 = Schedule_Teacher_Name_Combobox
+                    .FirstOrDefault(teacher => teacher.SD_Teacher_Name == get_value.teacher_name);
+                OnPropertyChanged(nameof(SelectedTeacher_SD_Sat1));
+
+                SD_TotalTime_Sat1 = get_value.total_Time1;
+                OnPropertyChanged(nameof(SD_TotalTime_Sat1));
+                return;
+            }
+        }
+
+        public ICommand Command_SaveSchedule_SatSun { get; set; }
+        public ICommand Command_ClearSchedule_SatSun { get; set; }
+
+        //Method
+        public async Task SaveSchedule_SatSun()
+        {
+            if(SelectedSkill_SD_Sat1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃសៅរ៍ ពេលព្រឹកជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(SelectedSkill_SD_Sat2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃសៅរ៍ ពេលរសៀលជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Sun1 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃអាទិត្យ ពេលព្រឹកជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SelectedSkill_SD_Sun2 == null)
+            {
+                ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃអាទិត្យ ពេលរសៀលជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(SD_Building_Name == null)
+            {
+                ErrorMessage = "សូមបំពេញឈ្មោះអគារ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (SD_Building_Room == null)
+            {
+                ErrorMessage = "សូមបំពេញឈ្មោះបន្ទប់ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Schedule_Name == null)
+            {
+                ErrorMessage = "សូមបំពេញឈ្មោះកាលវិភាគ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            ConfirmValueSS();
+            SaveSchedule_Sat_Sun();
+            _ = Load_Schedule_Sat_Sun_ToList(Class_ID);
+            _ = Clear_Schedule_Sat_Sun();
+            await Task.CompletedTask;
+        }
+
+        private void ConfirmValueSS()
+        {
+            Debug.WriteLine($"SS Skill Sat1: {SD_Skill_Name_Sat1}");
+            Debug.WriteLine($"SS Skill Sat2: {SD_Skill_Name_Sat2}");
+            Debug.WriteLine($"SS Skill Sun1: {SD_Skill_Name_Sun1}");
+            Debug.WriteLine($"SS Skill Sun2: {SD_Skill_Name_Sun2}");
+            Debug.WriteLine($"S1S TeacherName: {SD_Teacher_Sat1}");
+            Debug.WriteLine($"S2S TeacherName: {SD_Teacher_Sat1}");
+            Debug.WriteLine($"SS1 TeacherName: {SD_Teacher_Sun1}");
+            Debug.WriteLine($"SS2 TeacherName: {SD_Teacher_Sun2}");
+            Debug.WriteLine($"S1S TotalTime: {SD_TotalTime_Sat1}");
+            Debug.WriteLine($"S2S TotalTime: {SD_TotalTime_Sat2}");
+            Debug.WriteLine($"SS1 TotalTime: {SD_TotalTime_Sun1}");
+            Debug.WriteLine($"SS2 TotalTime: {SD_TotalTime_Sun2}");
+        }
+
+        //Method Save Schedule Sat-Sun
+        public void SaveSchedule_Sat_Sun()
+        {
+            Class_Schedule schedule_ss_items = new Class_Schedule()
+            {
+                Schedule_Name = this.Schedule_Name,
+                Class_ID_Schedule = this.Class_ID_Schedule,
+                SD_Class_Name = this.SD_Class_Name,
+                SD_Class_TimeShift = this.Class_In_Study_Timeshift,
+                SD_Start_DateTime_SS1 = this.SD_Start_DateTime_SS1.Value,
+                SD_End_DateTime_SS1 = this.SD_End_DateTime_SS1.Value,
+                SD_Start_DateTime_SS2 = this.SD_Start_DateTime_SS2.Value,
+                SD_End_DateTime_SS2 = this.SD_End_DateTime_SS2.Value,
+                SD_Skill_Name_Sat1 = SelectedSkill_SD_Sat1.SD_Skill_Name,
+                SD_Teacher_Sat1 = SelectedTeacher_SD_Sat1.SD_Teacher_Name,
+                SD_TotalTime_Sat1 = this.SD_TotalTime_Sat1,
+                SD_Skill_Name_Sat2 = SelectedSkill_SD_Sat2.SD_Skill_Name,
+                SD_Teacher_Sat2 = SelectedTeacher_SD_Sat2.SD_Teacher_Name,
+                SD_TotalTime_Sat2 = this.SD_TotalTime_Sat2,
+                SD_Skill_Name_Sun1 = SelectedSkill_SD_Sun1.SD_Skill_Name,
+                SD_Teacher_Sun1 = SelectedTeacher_SD_Sun1.SD_Teacher_Name,
+                SD_TotalTime_Sun1 = this.SD_TotalTime_Sun1,
+                SD_Skill_Name_Sun2 = SelectedSkill_SD_Sun2.SD_Skill_Name,
+                SD_Teacher_Sun2 = SelectedTeacher_SD_Sun2.SD_Teacher_Name,
+                SD_TotalTime_Sun2 = this.SD_TotalTime_Sun2,
+                DateTime_Start_Schedule_Strating = this.DateTime_Start_Schedule_Strating,
+                SD_Building_Name = this.SD_Building_Name,
+                SD_Building_Room = this.SD_Building_Room
+            };
+
+            bool success = _dbConnection.Save_Schedule_SatSun_Info(schedule_ss_items);
+
+            if (success)
+            {
+                ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " បានរក្សាទុកដោយជោគជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+                //_ = LoadSchedule(Class_ID_Schedule);
+            }
+            else
+            {
+                ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " រក្សាទុកបរាជ៏យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+
+        //Method Clear Schedule
+        public async Task Clear_Schedule_Sat_Sun()
+        {
+            SelectedSkill_SD_Sat1 = Schedule_Skill_Name_Combobox
+                    .FirstOrDefault(skill => skill.SD_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedSkill_SD_Sat1));
+            SelectedTeacher_SD_Sat1 = Schedule_Teacher_Name_Combobox
+                .FirstOrDefault(teacher => teacher.SD_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedTeacher_SD_Sat1));
+            SD_TotalTime_Sat1 = 0;
+            OnPropertyChanged(nameof(SD_TotalTime_Sat1));
+
+            SelectedSkill_SD_Sat2 = Schedule_Skill_Name_Combobox
+                    .FirstOrDefault(skill => skill.SD_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedSkill_SD_Sat2));
+            SelectedTeacher_SD_Sat2 = Schedule_Teacher_Name_Combobox
+                .FirstOrDefault(teacher => teacher.SD_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedTeacher_SD_Sat2));
+            SD_TotalTime_Sat2 = 0;
+            OnPropertyChanged(nameof(SD_TotalTime_Sat2));
+
+            SelectedSkill_SD_Sun1 = Schedule_Skill_Name_Combobox
+                    .FirstOrDefault(skill => skill.SD_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedSkill_SD_Sun1));
+            SelectedTeacher_SD_Sun1 = Schedule_Teacher_Name_Combobox
+                .FirstOrDefault(teacher => teacher.SD_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedTeacher_SD_Sun1));
+            SD_TotalTime_Sun1 = 0;
+            OnPropertyChanged(nameof(SD_TotalTime_Sun1));
+
+            SelectedSkill_SD_Sun2 = Schedule_Skill_Name_Combobox
+                    .FirstOrDefault(skill => skill.SD_Skill_Name == null);
+            OnPropertyChanged(nameof(SelectedSkill_SD_Sun2));
+            SelectedTeacher_SD_Sun2 = Schedule_Teacher_Name_Combobox
+                .FirstOrDefault(teacher => teacher.SD_Teacher_Name == null);
+            OnPropertyChanged(nameof(SelectedTeacher_SD_Sun2));
+            SD_TotalTime_Sun2 = 0;
+            OnPropertyChanged(nameof(SD_TotalTime_Sun2));
+
+            Schedule_Name = null;
+            SD_Building_Name = null;
+            SD_Building_Room = null;
+
+            await Task.CompletedTask;
+        }
+
+        private ObservableCollection<Class_Schedule> _Schedule_List_Sat_Sun;
+        public ObservableCollection<Class_Schedule> Schedule_List_Sat_Sun
+        {
+            get { return _Schedule_List_Sat_Sun; }
+            set
+            {
+                _Schedule_List_Sat_Sun = value;
+                OnPropertyChanged(nameof(Schedule_List_Sat_Sun));
+            }
+        }
+
+        //Method Load Schedule Sat-Sun
+        public async Task Load_Schedule_Sat_Sun_ToList(string class_id)
+        {
+            string SD_Class_ID_Select = class_id;
+            try
+            {
+                Debug.WriteLine($"Selected Load Schedule Info Class ID: {SD_Class_ID_Select}");
+
+                var schedule_satsun_table = _dbConnection.GetFetchSchedule_Table_Info(SD_Class_ID_Select);
+
+                Schedule_List_Sat_Sun.Clear();
+
+                foreach(var schedule_ss_info in schedule_satsun_table)
+                {
+                    Schedule_List_Sat_Sun.Add(schedule_ss_info);
+                }
+                Schedule_List_Sat_Sun = new ObservableCollection<Class_Schedule>(schedule_satsun_table);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.StackTrace);
+            }
+            await Task.CompletedTask;
+        }
+
+        //Method to Select Curriculum Table
+        //public async Task FetchCurriculum_Info_Table_TotalTime()
+        //{
+        //    if (string.IsNullOrEmpty(Search_Study_Year_Curr))
+        //    {
+        //        var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+        //        var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+        //        Curriculum_Info_List_Table.Clear();
+        //        foreach (var curriculum_info in curriculum_table)
+        //        {
+        //            Curriculum_Info_List_Table.Add(curriculum_info);
+        //        }
+
+        //        Curriculum_TotalTime_List_Table.Clear();
+        //        foreach (var curriculum_info in curriculum_totaltime)
+        //        {
+        //            Curriculum_TotalTime_List_Table.Add(curriculum_info);
+        //        }
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        await Task.Delay(10);
+        //        var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+        //        var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
+
+        //        Curriculum_TotalTime_List_Table.Clear();
+        //        foreach (var curriculum_info1 in curriculum_totaltime)
+        //        {
+        //            Curriculum_TotalTime_List_Table.Add(curriculum_info1);
+        //        }
+        //        Curriculum_TotalTime_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_totaltime);
+
+        //        Curriculum_Info_List_Table.Clear();
+        //        foreach (var curriculum_info in curriculum_table)
+        //        {
+        //            Curriculum_Info_List_Table.Add(curriculum_info);
+        //        }
+        //        Curriculum_Info_List_Table = new ObservableCollection<Curriculum_Info>(curriculum_table);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+
+        //    await Task.CompletedTask;
+        //}
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
