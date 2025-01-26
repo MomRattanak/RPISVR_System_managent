@@ -2145,9 +2145,11 @@
                                                                     </Grid.ColumnDefinitions>
 
                                                                     <StackPanel Grid.Column="0" x:Name="Column_Table_Schedule_List" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Left">
-                                                                        <TextBlock Text="ទិន្នន័យកាលវិភាគក្នុងថ្នាក់"
-                                                                                   Style="{StaticResource Font_KH_Body}"/>
-                                                                        <ListView x:Name="Schedule_List" ItemsSource="{Binding Schedule_List_Sat_Sun}">
+                                                                        <TextBlock Text="តារាងកាលវិភាគក្នុងថ្នាក់"
+                                                                                   Style="{StaticResource Font_KH_Body}"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Foreground="Aqua"/>
+                                                                        <ListView x:Name="Schedule_List" ItemsSource="{Binding Schedule_List_Sat_Sun}" SelectedItem="{Binding Seleceted_Schedule_SatSun,Mode=TwoWay}">
                                                                             <ListView.Header>
                                                                                 <StackPanel Orientation="Horizontal">
                                                                                     <TextBlock Text="លេខសម្គាល់"
@@ -2172,6 +2174,7 @@
                                                                     <StackPanel Grid.Column="1" x:Name="Column_Button_Edit_Delete" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="3">
                                                                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                                                             <Button x:Name="btn_edit_schedule_from_list"
+                                                                                    Command="{Binding Command_EditSchedule_SatSun}"
                                                                                     Margin="5,5,5,0">
                                                                                 <Button.Content>
                                                                                     <StackPanel>
@@ -2179,13 +2182,22 @@
                                                                                     </StackPanel>
                                                                                 </Button.Content>
                                                                             </Button>
-                                                                            <Button x:Name="btn_delete_schedule_from_list" Margin="5">
+                                                                            <Button x:Name="btn_delete_schedule_from_list" Margin="5"
+                                                                                    Command="{Binding Command_DeleteSchedule_SatSun}">
                                                                                 <Button.Content>
                                                                                     <StackPanel>
-                                                                                        <FontIcon Glyph="&#xE74D;" />
+                                                                                        <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
                                                                                     </StackPanel>
                                                                                 </Button.Content>
                                                                             </Button>
+                                                                            <ToggleButton x:Name="btn_unselect_items" Margin="5"
+                                                                                          IsChecked="{Binding IsItemSelected, Mode=TwoWay}">
+                                                                                <ToggleButton.Content>
+                                                                                    <StackPanel>
+                                                                                        <FontIcon Glyph="&#xF16D;" />
+                                                                                    </StackPanel>
+                                                                                </ToggleButton.Content>
+                                                                            </ToggleButton>
                                                                         </StackPanel>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="2" x:Name="Column_DataTime_SS" BorderBrush="Blue" BorderThickness="3" HorizontalAlignment="Center" Orientation="Vertical" Padding="0,0,0,20">
@@ -2499,7 +2511,8 @@
 
                                                             <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                                                                 <Button x:Name="btn_delete_schedule_ss"
-                                                                          Style="{StaticResource Stye_KH_Button}">
+                                                                          Style="{StaticResource Stye_KH_Button}"
+                                                                        Visibility="Collapsed">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
                                                                         <TextBlock Text="លុបកាលវិភាគ" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
@@ -2507,7 +2520,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_export_schedule_ss_pdf"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Command="{Binding Command_ExportSchedule_SatSun_PDF}">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <FontIcon Glyph="&#xEA90;" />
@@ -2517,7 +2531,8 @@
                                                                 </Button>
 
                                                                 <Button x:Name="btn_export_schedule_ss_excel"
-                                                                        Style="{StaticResource Stye_KH_Button}">
+                                                                        Style="{StaticResource Stye_KH_Button}"
+                                                                        Visibility="Collapsed">
                                                                     <Button.Content>
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="22" Height="22"/>

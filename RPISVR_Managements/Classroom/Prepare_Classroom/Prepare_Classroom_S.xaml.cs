@@ -149,9 +149,13 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
                     {
                         viewModel.HandleYes_DeleteSchedule();
                     }
-                    else if (viewModel.CurrentOperation == "Export_Schedule_Excel")
+                    else if (viewModel.CurrentOperation == "Delete_Schedule_SatSun")
                     {
-                        viewModel.HandleYesResponseExport_Schedule_Excel();
+                        viewModel.HandleYes_DeleteSchedule_SatSun();
+                    }
+                    else if(viewModel.CurrentOperation == "Export_Schedule_SatSun_PDF")
+                    {
+                        viewModel.HandleYes_Export_Schedule_SatSun_PDF();
                     }
 
 
