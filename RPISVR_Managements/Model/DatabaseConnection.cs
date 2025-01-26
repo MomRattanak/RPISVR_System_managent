@@ -4226,6 +4226,50 @@ namespace RPISVR_Managements.Model
             }
         }
        
+        //Check Skill Schedule Sat Sun Before Insert
+        public async Task<(string SD_Skill_Name_Sat1_C,string SD_Skill_Name_Sat2_C,string SD_Skill_Name_Sun1_C, string SD_Skill_Name_Sun2_C)> GetSkill_Schedule_Info_Check(string SD_Class_Name)
+        {
+            try
+            {
+                const string query_check = "SELECT * FROM class_schedule_sat_sun WHERE sd_class_name = @SD_Class_Name";
+
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query_check, conn))
+                    {
+                        //cmd.Parameters.AddWithValue("@SD_Skill_Name_Sat1", SD_Skill_Name_Sat1);
+                        //cmd.Parameters.AddWithValue("@SD_Skill_Name_Sat2", SD_Skill_Name_Sat2);
+                        //cmd.Parameters.AddWithValue("@SD_Skill_Name_Sun1", SD_Skill_Name_Sun1);
+                        //cmd.Parameters.AddWithValue("@SD_Skill_Name_Sun2", SD_Skill_Name_Sun2);
+                        cmd.Parameters.AddWithValue("@SD_Class_Name", SD_Class_Name);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return (
+
+                                    SD_Skill_Name_Sat1_C: reader["sd_skill_name_sat1"].ToString(),
+                                    //SD_Teacher_Sat1_C: reader["sd_teacher_name_sat1"].ToString(),
+                                    //SD_TotalTime_Sat1_C: reader.GetInt32("sd_totaltime_skill_sat1"),
+
+                                    SD_Skill_Name_Sat2_C: reader["sd_skill_name_sat2"].ToString(),
+                                    SD_Skill_Name_Sun1_C: reader["sd_skill_name_sun1"].ToString(),
+                                    SD_Skill_Name_Sun2_C: reader["sd_skill_name_sun2"].ToString()
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database check skill schedule before insert update: {ex.Message}");            
+            }
+            return (null,null, null, null);
+        }
+
         //Check Teacher info before insert
         public async Task<(string Teacher_Name_KH1,string Teacher_Name_EN1,string Teacher_Phone1)> GetTeacher_Info_Check(string Teacher_Name_KH, string Teacher_Name_EN, string Teacher_Phone)
         {
@@ -5684,6 +5728,181 @@ namespace RPISVR_Managements.Model
                 }
                 return class_schedule_info;
             }
+        }
+
+        //Load Schedule Info by Select Table Schedule Info SatSun
+        public List<Class_Schedule> GetSchedule_Info_BySelectedTable(int schedule_id)
+        {
+            List<Class_Schedule> schedule_ss_info = new List<Class_Schedule>();
+
+            try
+            {
+                using (MySqlConnection con = new MySqlConnection(_connectionString))
+                {
+                    con.Open();
+                    string query = "SELECT * FROM class_schedule_sat_sun WHERE ID = @schedule_id";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@schedule_id", schedule_id);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                schedule_ss_info.Add(new Class_Schedule
+                                {
+                                    Schedule_ID = reader.GetInt32("ID"),
+                                    Schedule_Name = reader.GetString("sd_schedule_name"),
+                                    SD_Start_DateTime_SS1 = reader.GetTimeSpan("sd_start_time_ss1"),
+                                    SD_End_DateTime_SS1 = reader.GetTimeSpan("sd_end_time_ss1"),
+                                    SD_Start_DateTime_SS2 = reader.GetTimeSpan("sd_start_time_ss2"),
+                                    SD_End_DateTime_SS2 = reader.GetTimeSpan("sd_end_time_ss2"),
+                                    SD_Skill_Name_Sat1 = reader.GetString("sd_skill_name_sat1"),
+                                    SD_Skill_Name_Sat2 = reader.GetString("sd_skill_name_sat2"),
+                                    SD_Teacher_Sat1 = reader.GetString("sd_teacher_name_sat1"),
+                                    SD_Teacher_Sat2 = reader.GetString("sd_teacher_name_sat2"),
+                                    SD_TotalTime_Sat1 = reader.GetInt32("sd_totaltime_skill_sat1"),
+                                    SD_TotalTime_Sat2 = reader.GetInt32("sd_totaltime_skill_sat2"),
+
+                                    SD_Skill_Name_Sun1 = reader.GetString("sd_skill_name_sun1"),
+                                    SD_Skill_Name_Sun2 = reader.GetString("sd_skill_name_sun2"),
+                                    SD_Teacher_Sun1 = reader.GetString("sd_teacher_name_sun1"),
+                                    SD_Teacher_Sun2 = reader.GetString("sd_teacher_name_sun2"),
+                                    SD_TotalTime_Sun1 = reader.GetInt32("sd_totaltime_skill_sun1"),
+                                    SD_TotalTime_Sun2 = reader.GetInt32("sd_totaltime_skill_sun2"),
+
+                                    DateTime_Start_Schedule_Strating = reader.GetString("sd_datetime_start_schedule"),
+                                    SD_Building_Name = reader.GetString("sd_building_name"),
+                                    SD_Building_Room = reader.GetString("sd_building_room")
+
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database error GetSchedule_Info_BySelectedTable: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error GetSchedule_Info_BySelectedTable: {ex.Message}");
+                return null;
+            }
+            return schedule_ss_info;
+        }
+
+        //Method Update Schedule SatSun
+        public bool UpdateSchedule_SatSun(Class_Schedule schedule_ss_info_update)
+        {
+            try
+            {
+                string query_update = "UPDATE class_schedule_sat_sun SET " +
+                      "sd_schedule_name = @sd_schedule_name, " +
+                      "sd_start_time_ss1 = @sd_start_time_ss1, " +
+                      "sd_end_time_ss1 = @sd_end_time_ss1, " +
+                      "sd_start_time_ss2 = @sd_start_time_ss2, " +
+                      "sd_end_time_ss2 = @sd_end_time_ss2, " +
+                      "sd_skill_name_sat1 = @sd_skill_name_sat1, " +
+                      "sd_teacher_name_sat1 = @sd_teacher_name_sat1, " +
+                      "sd_totaltime_skill_sat1 = @sd_totaltime_skill_sat1, " +
+                      "sd_skill_name_sat2 = @sd_skill_name_sat2, " +
+                      "sd_teacher_name_sat2 = @sd_teacher_name_sat2, " +
+                      "sd_totaltime_skill_sat2 = @sd_totaltime_skill_sat2, " +
+                      "sd_skill_name_sun1 = @sd_skill_name_sun1, " +
+                      "sd_teacher_name_sun1 = @sd_teacher_name_sun1, " +
+                      "sd_totaltime_skill_sun1 = @sd_totaltime_skill_sun1, " +
+                      "sd_skill_name_sun2 = @sd_skill_name_sun2, " +
+                      "sd_teacher_name_sun2 = @sd_teacher_name_sun2, " +
+                      "sd_totaltime_skill_sun2 = @sd_totaltime_skill_sun2, " +
+                      "sd_datetime_start_schedule = @sd_datetime_start_schedule, " +
+                      "sd_building_name = @sd_building_name, " +
+                      "sd_building_room = @sd_building_room, " +
+                      "sd_datetime_update = @sd_datetime_update, " +
+                      "sd_user_update = @sd_user_update " +
+                      "WHERE ID = @Schedule_ID";
+
+
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query_update, conn);
+                    {
+                        cmd.Parameters.AddWithValue("@Schedule_ID", schedule_ss_info_update.Schedule_ID);
+                        cmd.Parameters.AddWithValue("@sd_schedule_name", schedule_ss_info_update.Schedule_Name);
+                        cmd.Parameters.AddWithValue("@sd_start_time_ss1", schedule_ss_info_update.SD_Start_DateTime_SS1);
+                        cmd.Parameters.AddWithValue("@sd_end_time_ss1", schedule_ss_info_update.SD_End_DateTime_SS1);
+                        cmd.Parameters.AddWithValue("@sd_start_time_ss2", schedule_ss_info_update.SD_Start_DateTime_SS2);
+                        cmd.Parameters.AddWithValue("@sd_end_time_ss2", schedule_ss_info_update.SD_End_DateTime_SS2);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sat1", schedule_ss_info_update.SD_Skill_Name_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sat1", schedule_ss_info_update.SD_Teacher_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sat1", schedule_ss_info_update.SD_TotalTime_Sat1);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sat2", schedule_ss_info_update.SD_Skill_Name_Sat2);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sat2", schedule_ss_info_update.SD_Teacher_Sat2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sat2", schedule_ss_info_update.SD_TotalTime_Sat2);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sun1", schedule_ss_info_update.SD_Skill_Name_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sun1", schedule_ss_info_update.SD_Teacher_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sun1", schedule_ss_info_update.SD_TotalTime_Sun1);
+                        cmd.Parameters.AddWithValue("@sd_skill_name_sun2", schedule_ss_info_update.SD_Skill_Name_Sun2);
+                        cmd.Parameters.AddWithValue("@sd_teacher_name_sun2", schedule_ss_info_update.SD_Teacher_Sun2);
+                        cmd.Parameters.AddWithValue("@sd_totaltime_skill_sun2", schedule_ss_info_update.SD_TotalTime_Sun2);
+                        cmd.Parameters.AddWithValue("@sd_datetime_start_schedule", schedule_ss_info_update.DateTime_Start_Schedule_Strating);
+                        cmd.Parameters.AddWithValue("@sd_building_name", schedule_ss_info_update.SD_Building_Name);
+                        cmd.Parameters.AddWithValue("@sd_building_room", schedule_ss_info_update.SD_Building_Room);
+                        cmd.Parameters.AddWithValue("@sd_datetime_update",Update_Datetime);
+                        cmd.Parameters.AddWithValue("@sd_user_update", User_Update);
+                    }
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Database error GetSchedule_Info_BySelectedTable :{ex.Message}");
+                return false;
+            }catch (Exception ex)
+            {
+                Debug.WriteLine($"Error GetSchedule_Info_BySelectedTable :{ex.Message}");
+                return false;
+            }
+        }
+
+        //Method Delete Schedule SatSun
+        public bool DeleteSchedule_SatSun(int schedule_id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM class_schedule_sat_sun WHERE ID = @schedule_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@schedule_id", schedule_id);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database error DeleteSchedule_SatSun: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error DeleteSchedule_SatSun: {ex.Message}");
+                return false;
+            }
+            
         }
     }
 }
