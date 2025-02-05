@@ -11,6 +11,7 @@ namespace RPISVR_Managements.Model
         public string Search_Class_Search_Name_Generation { get; set; }
         public int Class_ID { get; set; }
         public string Class_Name { get; set; }
+        public string Class_State { get; set; }
 
         public int Class_In_Skill_ID { get; set; }
         public string Class_In_Skill { get; set; }

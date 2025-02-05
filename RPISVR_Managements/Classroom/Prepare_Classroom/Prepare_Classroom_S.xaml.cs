@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Text;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -23,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.System;
@@ -38,6 +40,11 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
         public StudentViewModel viewModel_Tab { get; set; }
 
         private DatabaseConnection _ConnectionString;
+
+        //Refresh Timer
+        private Timer _refreshTimer;
+        private const int RefreshInterval = 10000;
+        private DispatcherTimer _dispatcherTimer;
 
         public Prepare_Classroom_S()
         {
@@ -57,7 +64,49 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             _ConnectionString = new DatabaseConnection();
             string connectionString = _ConnectionString._connectionString;
 
+            StartAutoRefresh();
         }
+        
+        public string selectedYear;
+        public string selectedSkill;
+        public string selectedLevel;
+        public string Class_State_Working = "ដំណើរការ";
+        public string Class_State_Complete = "បញ្ចប់";
+
+        private void StartAutoRefresh()
+        {
+            _refreshTimer = new Timer(RefreshData, null, 0, RefreshInterval);
+            _dispatcherTimer = new DispatcherTimer();
+            _dispatcherTimer.Interval = TimeSpan.FromSeconds(10); // Set to desired interval
+            _dispatcherTimer.Tick += (sender, e) => Load_Total_Class_By_Year(selectedYear);
+            _dispatcherTimer.Tick += (sender, e) => Load_Working_Class_By_Year(selectedYear, Class_State_Working);
+            _dispatcherTimer.Tick += (sender, e) => Load_Complete_Class_By_Year(selectedYear, Class_State_Complete);
+            _dispatcherTimer.Tick += (sender, e) => Load_Total_Class_By_Skill_Level_Year(selectedSkill, selectedLevel, selectedYear);
+            _dispatcherTimer.Tick += (sender, e) => Load_Total_Class_By_Skill_Level_Year_State(selectedSkill, selectedLevel, selectedYear, Class_State_Working);
+            _dispatcherTimer.Tick += (sender, e) => Load_Total_Class_By_Skill_Level_Year_State2(selectedSkill, selectedLevel, selectedYear, Class_State_Complete);
+        }
+
+        private void RefreshData(object state)
+        {
+            // Fetch and update data on the main thread
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (!string.IsNullOrEmpty(selectedYear)) // Ensure selectedYear is not null or empty
+                {
+                    Load_Total_Class_By_Year(selectedYear);
+                    Load_Working_Class_By_Year(selectedYear, Class_State_Working);
+                    Load_Complete_Class_By_Year(selectedYear, Class_State_Complete);
+                    Load_Total_Class_By_Skill_Level_Year(selectedSkill, selectedLevel, selectedYear);
+                    Load_Total_Class_By_Skill_Level_Year_State(selectedSkill, selectedLevel, selectedYear, Class_State_Working);
+                    Load_Total_Class_By_Skill_Level_Year_State2(selectedSkill, selectedLevel, selectedYear, Class_State_Complete);
+                }
+                else
+                {
+                    Debug.WriteLine("No selected year to refresh.");
+                }  
+            });
+        }
+
         private async void ViewModel_Delete_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var viewModel = (StudentViewModel)sender;
@@ -672,9 +721,6 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             TabView_Class_Info.SelectedItem = TabView_Create_Schedule;
         }
 
-        
-        
-
         private void TabViewChange(object sender, SelectionChangedEventArgs e)
         {
             var listView_class_in_schedule = sender as ListView;
@@ -715,6 +761,256 @@ namespace RPISVR_Managements.Classroom.Prepare_Classroom
             }
            
         }
-   
+
+       
+        public void Study_Year_Selected_Class_State(object sender, SelectionChangedEventArgs e)
+        {
+            if (Class_StudyYear_Count_State.SelectedItem != null)
+            {
+                var selectedItem = Class_StudyYear_Count_State.SelectedItem;
+                selectedYear = (selectedItem as Student_Info)?.Stu_StudyYear; // Replace "YourItemType" with the type of items in your ItemsSource
+
+                Debug.WriteLine($"Selected Year: {selectedYear}");
+                Load_Total_Class_By_Year(selectedYear);
+                Load_Working_Class_By_Year(selectedYear, Class_State_Working);
+                Load_Complete_Class_By_Year(selectedYear, Class_State_Complete);
+                Load_Total_Class_By_Skill_Level_Year(selectedSkill, selectedLevel, selectedYear);
+                Load_Total_Class_By_Skill_Level_Year_State(selectedSkill, selectedLevel, selectedYear, Class_State_Working);
+                Load_Total_Class_By_Skill_Level_Year_State2(selectedSkill, selectedLevel, selectedYear, Class_State_Complete);
+            }
+        }
+        //Load Total Class
+        private void Load_Total_Class_By_Year(string selectedYear)
+        {
+            Debug.WriteLine($"Loading total classes for the year: {selectedYear}");
+
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass FROM classes WHERE class_in_study_year = @class_in_study_year";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Total_Class_By_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count = reader.GetInt32("TotalClass");
+
+                        Total_Class_Count_Select_Year.Text = total_class_count.ToString();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }             
+            }     
+        }
+
+        //Load Class Working
+        private void Load_Working_Class_By_Year(string selectedYear,string Class_State_Working)
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass_Working FROM classes WHERE class_in_study_year = @class_in_study_year && Class_State = @Class_State";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Working_Class_By_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+                    cmd.Parameters.AddWithValue("@Class_State", Class_State_Working);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count_working = reader.GetInt32("TotalClass_Working");
+
+                        Total_Class_Working.Text = total_class_count_working.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+            }
+        }
+
+        //Load Class Complete
+        private void Load_Complete_Class_By_Year(string selectedYear, string Class_State_Complete)
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass_Complete FROM classes WHERE class_in_study_year = @class_in_study_year && Class_State = @Class_State";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Complete_Class_By_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+                    cmd.Parameters.AddWithValue("@Class_State", Class_State_Complete);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count_complete = reader.GetInt32("TotalClass_Complete");
+
+                        Total_Class_Complete.Text = total_class_count_complete.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+            }
+        }
+
+        private void Selected_Change_Skill(object sender, SelectionChangedEventArgs e)
+        {
+            if (Class_Subject_Count_State.SelectedItem != null)
+            {
+                var selectedItem = Class_Subject_Count_State.SelectedItem;
+                selectedSkill = (selectedItem as Student_Info)?.Stu_EducationSubjects;
+
+                Debug.WriteLine($"Selected Skill: {selectedSkill}");
+                Load_Total_Class_By_Skill_Level_Year(selectedSkill, selectedLevel, selectedYear);
+                Load_Total_Class_By_Skill_Level_Year_State(selectedSkill, selectedLevel, selectedYear, Class_State_Working);
+                Load_Total_Class_By_Skill_Level_Year_State2(selectedSkill, selectedLevel, selectedYear, Class_State_Complete);
+            }
+        }
+
+        private void Selected_Change_Level(object sender, SelectionChangedEventArgs e)
+        {
+            if (Class_Level_Count_State.SelectedItem != null)
+            {
+                var selectedItem = Class_Level_Count_State.SelectedItem;
+                selectedLevel = (selectedItem as Student_Info)?.Stu_EducationLevels;
+
+                Debug.WriteLine($"Selected Level: {selectedLevel}");
+                Load_Total_Class_By_Skill_Level_Year(selectedSkill, selectedLevel, selectedYear);
+                Load_Total_Class_By_Skill_Level_Year_State(selectedSkill, selectedLevel, selectedYear, Class_State_Working);
+                Load_Total_Class_By_Skill_Level_Year_State2(selectedSkill, selectedLevel, selectedYear, Class_State_Complete);
+            }
+        }
+
+        //Load Class By Skill, Level and Year
+        private void Load_Total_Class_By_Skill_Level_Year(string selectedSkill,string selectedLevel,string selectedYear)
+        {
+           
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass FROM classes WHERE class_in_study_year = @class_in_study_year && class_in_skill = @class_in_skill && class_in_level = @class_in_level";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Total_Class_By_Skill_Level_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+                    cmd.Parameters.AddWithValue("@class_in_skill", selectedSkill);
+                    cmd.Parameters.AddWithValue("@class_in_level", selectedLevel);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count = reader.GetInt32("TotalClass");
+
+                        Total_Subject_Count_State.Text = total_class_count.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+            }
+        }
+
+        //Load Class By Skill, Level, Year and State
+        private void Load_Total_Class_By_Skill_Level_Year_State(string selectedSkill, string selectedLevel, string selectedYear,string Class_State_Working)
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass FROM classes WHERE class_in_study_year = @class_in_study_year && class_in_skill = @class_in_skill && class_in_level = @class_in_level && Class_State = @Class_State";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Total_Class_By_Skill_Level_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+                    cmd.Parameters.AddWithValue("@class_in_skill", selectedSkill);
+                    cmd.Parameters.AddWithValue("@class_in_level", selectedLevel);
+                    cmd.Parameters.AddWithValue("@Class_State", Class_State_Working);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count = reader.GetInt32("TotalClass");
+
+                        Total_Class_Count_Subject_In_Process_State.Text = total_class_count.ToString();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+            }
+        }
+        private void Load_Total_Class_By_Skill_Level_Year_State2(string selectedSkill, string selectedLevel, string selectedYear, string Class_State_Complete)
+        {
+            string connectionString = _ConnectionString._connectionString.ToString();
+            string query = "SELECT COUNT(class_id) AS TotalClass FROM classes WHERE class_in_study_year = @class_in_study_year && class_in_skill = @class_in_skill && class_in_level = @class_in_level && Class_State = @Class_State";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                Debug.WriteLine(conn.ConnectionString + "Refresh Load_Total_Class_By_Skill_Level_Year Ok");
+                try
+                {
+                    conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_in_study_year", selectedYear);
+                    cmd.Parameters.AddWithValue("@class_in_skill", selectedSkill);
+                    cmd.Parameters.AddWithValue("@class_in_level", selectedLevel);
+                    cmd.Parameters.AddWithValue("@Class_State", Class_State_Complete);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int total_class_count = reader.GetInt32("TotalClass");
+
+                        Total_Class_Count_Subject_Completed_State.Text = total_class_count.ToString();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+            }
+        }
     }
 }

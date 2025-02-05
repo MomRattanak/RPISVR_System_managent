@@ -169,6 +169,9 @@ namespace RPISVR_Managements.Model
         public string Search_Class_In_Study_Type { get; set; }
         public int Search_Class_In_Study_Type_Select { get; set; }
 
+        public int Search_Class_In_Skill_Select_State { get; set; }
+        public int Search_Class_In_Level_Select_State { get; set; }
+
         //Prepare Student to class
         public string Total_Count_Students_Class {  get; set; }
         public string Total_Count_Female_Class { get; set; }

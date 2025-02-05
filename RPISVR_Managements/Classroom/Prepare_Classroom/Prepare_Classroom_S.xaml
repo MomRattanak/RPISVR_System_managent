@@ -8,7 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     xmlns:converters="using:RPISVR_Managements.Loading_View"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    >
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -236,9 +237,9 @@
                                 <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Study_Timeshift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_In_Study_Type}" Width="180" Style="{StaticResource Font_KH_Body}"/>
-                                <TextBlock Text="{Binding Max_Student_InClass}" Width="140"/>
-                                <TextBlock Text="{Binding Current_Student_InClass}" Width="160"/>
-                                <TextBlock Text="{Binding Current_Class_State}" Width="30"/>
+                                <TextBlock Text="{Binding Max_Student_InClass}" Width="130"/>
+                                <TextBlock Text="{Binding Current_Student_InClass}" Width="100"/>
+                                <TextBlock Text="{Binding Current_Class_State}" Width="100" Style="{StaticResource Font_KH_Body}"/>
                                 <TextBlock Text="{Binding Class_ID}" Width="50" Visibility="Visible"/>
                             </StackPanel>
                         </DataTemplate>
@@ -251,7 +252,7 @@
         <Grid Grid.Row="3" BorderBrush="Aqua" BorderThickness="3" CornerRadius="3">
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -436,16 +437,16 @@
                         <TabViewItem Header="ថ្នាក់រៀន" IsClosable="False">
                             <ScrollView>
                                 <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,0,0" CornerRadius="3">
-                                    <ComboBox x:Name="Class_StudyYear_Count"
+                                    <ComboBox x:Name="Class_StudyYear_Count_State"
                                                 Header="ឆ្នាំសិក្សា"
+                                                SelectionChanged="Study_Year_Selected_Class_State"
                                                 ItemsSource="{Binding EducationStudyYear_Combobox}"
                                                 DisplayMemberPath="Stu_StudyYear"
                                                 SelectedValuePath="Stu_StudyYear_ID"
                                                 RelativePanel.RightOf="Stu_School"
                                                 Style="{StaticResource Stye_KH_Combobox}"
                                                 Margin="5"
-                                                SelectedItem="{Binding Selectes_StudyYear_Class_Info,Mode=TwoWay}"
-                                                BorderBrush="{Binding Stu_StudyYear_BorderBrush}">
+                                              SelectedItem="{Binding Class_StudyYear_Count_State,Mode=TwoWay}">
                                     </ComboBox>
 
                                     <RelativePanel>
@@ -463,8 +464,8 @@
                                                                    FontSize="16" 
                                                                    TextAlignment="Center"
                                                                    FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Total_Student_Female_Count" 
-                                                                   Text="15"
+                                                    <TextBlock x:Name="Total_Class_Count_Select_Year" 
+                                                                   Text="0"
                                                                    Style="{StaticResource Font_KH_Title}"
                                                                    Foreground="Green" 
                                                                    FontSize="32" 
@@ -487,8 +488,8 @@
                                                                    FontSize="16" 
                                                                    TextAlignment="Center"
                                                                    FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Tot" 
-                                                                   Text="5"
+                                                    <TextBlock x:Name="Total_Class_Working" 
+                                                                   Text="0"
                                                                    Style="{StaticResource Font_KH_Title}"
                                                                    Foreground="Green" 
                                                                    FontSize="32" 
@@ -510,8 +511,8 @@
                                                                    FontSize="16" 
                                                                    TextAlignment="Center"
                                                                    FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Total_Class_Count_Completed" 
-                                                                   Text="10"
+                                                    <TextBlock x:Name="Total_Class_Complete" 
+                                                                   Text="0"
                                                                    Style="{StaticResource Font_KH_Title}"
                                                                    Foreground="Green" 
                                                                    FontSize="32" 
@@ -523,26 +524,28 @@
                                     </RelativePanel>
 
                                     <RelativePanel>
-                                        <ComboBox x:Name="Class_Subject_Count"
+                                        <ComboBox x:Name="Class_Subject_Count_State"
                                                     Header="ជំនាញ"    
                                                     ItemsSource="{Binding EducationSubjectSkill_Combobox}"
                                                     DisplayMemberPath="Stu_EducationSubjects"
                                                     SelectedValuePath="Stu_EducationSubject_ID"  
+                                                    SelectionChanged="Selected_Change_Skill"
                                                     Style="{StaticResource Stye_KH_Combobox}"
                                                     Margin="5,0,0,0"
                                                     BorderBrush="Green"
-                                                    SelectedItem="{Binding Search_Class_In_Skill_Select,Mode=TwoWay}">
+                                                    SelectedItem="{Binding Search_Class_In_Skill_Select_State,Mode=TwoWay}">
                                         </ComboBox>
-                                        <ComboBox x:Name="Class_Level_Count"
+                                        <ComboBox x:Name="Class_Level_Count_State"
                                                      Header="កម្រិតសិក្សា"
                                                      ItemsSource="{Binding EducationsLevel_Combobox}"
                                                      DisplayMemberPath="Stu_EducationLevels"
-                                                     SelectedValuePath="Stu_EducationLevels_ID"          
+                                                     SelectedValuePath="Stu_EducationLevels_ID"    
+                                                     SelectionChanged="Selected_Change_Level"
                                                      Style="{StaticResource Stye_KH_Combobox}"
                                                      Margin="5,0,0,0"
                                                      BorderBrush="Green"
-                                                     RelativePanel.RightOf="Class_Subject_Count"
-                                                     SelectedItem="{Binding Search_Class_In_Level_Select,Mode=TwoWay}">
+                                                     RelativePanel.RightOf="Class_Subject_Count_State"
+                                                     SelectedItem="{Binding Search_Class_In_Level_Select_State,Mode=TwoWay}">
                                         </ComboBox>
                                     </RelativePanel>
 
@@ -561,8 +564,8 @@
                                                                    FontSize="16" 
                                                                    TextAlignment="Center"
                                                                    FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Total_Subject_Count" 
-                                                                   Text="15"
+                                                    <TextBlock x:Name="Total_Subject_Count_State" 
+                                                                   Text="0"
                                                                    Style="{StaticResource Font_KH_Title}"
                                                                    Foreground="Green" 
                                                                    FontSize="32" 
@@ -585,8 +588,8 @@
                                                                FontSize="16" 
                                                                TextAlignment="Center"
                                                                FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Total_Class_Count_Subject_In_Process" 
-                                                               Text="5"
+                                                    <TextBlock x:Name="Total_Class_Count_Subject_In_Process_State" 
+                                                               Text="0"
                                                                Style="{StaticResource Font_KH_Title}"
                                                                Foreground="Green" 
                                                                FontSize="32" 
@@ -608,7 +611,7 @@
                                                                    FontSize="16" 
                                                                    TextAlignment="Center"
                                                                    FontWeight="Bold"/>
-                                                    <TextBlock x:Name="Total_Class_Count_Subject_Completed" 
+                                                    <TextBlock x:Name="Total_Class_Count_Subject_Completed_State" 
                                                                    Text="10"
                                                                    Style="{StaticResource Font_KH_Title}"
                                                                    Foreground="White" 
@@ -2548,9 +2551,86 @@
 
                                             </TabView.TabItems>
                                         </TabView>
+
+                                        
                                     </StackPanel>
                                 </StackPanel>
                                 
+                            </ScrollView>
+                        </TabViewItem>
+                        
+                        <!--Update Schedule State-->
+                        <TabViewItem x:Name="Table_State" Header="ស្ថានភាពថ្នាក់រៀន" Visibility="Visible">
+                            <ScrollView>
+                                <StackPanel BorderBrush="Aqua" BorderThickness="3" Margin="10,0,10,0" CornerRadius="3" Padding="5">
+                                    <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <ComboBox x:Name="Name_State"
+                                                  Header="ស្ថានភាពថ្នាក់រៀន"
+                                                  Style="{StaticResource Stye_KH_Combobox}"
+                                                  SelectedItem="{Binding Current_Class_State,Mode=TwoWay}">
+                                            <x:String>ដំណើរការ</x:String>
+                                            <x:String>បញ្ចប់</x:String>
+                                            <x:String>ផ្អាក</x:String>
+                                            <x:String>បញ្ឈប់</x:String>
+                                            <x:String>មិនទាន់ចាប់ផ្ដើម</x:String>
+                                        </ComboBox>
+                                        <TextBlock x:Name="Text_Error"
+                                                   Margin="10,37,0,0"
+                                                   Style="{StaticResource Font_KH_Body}"
+                                                   Text="{Binding ErrorMessage,Mode=TwoWay}"
+                                                   Foreground="{Binding MessageColor}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <Button x:Name="btn_save"
+                                                Style="{StaticResource Stye_KH_Button}"
+                                                Command="{Binding Command_Update_Class_State}">
+                                            <Button.Content>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <FontIcon Glyph="&#xE74E;" />
+                                                    <TextBlock Text="រក្សាទុក"
+                                                               Margin="20,0,0,0"
+                                                               Style="{StaticResource Font_KH_Body}"/>
+                                                </StackPanel>
+                                            </Button.Content>
+                                        </Button>
+                                        <TextBox x:Name="txt_search"
+                                                 Style="{StaticResource Style_KH_TextBox}"
+                                                 Text="{Binding Search_Class_State_Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PlaceholderText="ស្វែងរក">
+                                            
+                                        </TextBox>
+                                        <!-- Loading indicator -->
+                                        <ProgressRing x:Name="LoadingIndicator_classState"
+                                                    Margin="20,0,0,0"
+                                                    IsActive="{Binding IsLoading}"
+                                                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <ScrollView>
+                                        <StackPanel>
+                                            <ListView x:Name="List_Schedule_State" ItemsSource="{Binding Class_Info_State_Schedule}" SelectionMode="Single" SelectionChanged="TabViewChange" SelectedItem="{Binding Selected_class_in_Schedule_List,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderBrush="Red" BorderThickness="3">
+                                                <ListView.Header>
+                                                    <StackPanel Orientation="Horizontal" Background="Green">
+                                                        <TextBlock Text="លេខរៀង" Margin="10,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="190" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                        <TextBlock Text="លេខសម្កាល់" Width="120"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                    </StackPanel>
+                                                </ListView.Header>
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                            <TextBlock Text="{Binding No_Class}" Margin="10,0,0,0" Width="40"/>
+                                                            <TextBlock Text="{Binding Class_Name}" Width="180"/>
+                                                            <TextBlock Text="{Binding Current_Class_State}" Width="110" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding Class_ID}" Width="130"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </StackPanel>
+                                    </ScrollView>
+                                </StackPanel>
                             </ScrollView>
                         </TabViewItem>
                     </TabView.TabItems>
