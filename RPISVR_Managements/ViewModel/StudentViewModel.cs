@@ -312,6 +312,32 @@ namespace RPISVR_Managements.ViewModel
             Command_EditSchedule_SatSun = new RelayCommand(async () => await Click_Edit_Schedule_SatSun());
             Command_DeleteSchedule_SatSun = new RelayCommand(async () => await Delete_Schedule_SatSun());
             Command_ExportSchedule_SatSun_PDF = new RelayCommand(async () => await Export_Schedule_SatSun_PDF());
+            Command_Update_Class_State = new RelayCommand(async () => await Update_Class_State());
+            Class_Info_State_Schedule = new ObservableCollection<Student_Info>();
+
+            Class_StudyYear_Count_State = EducationStudyYear_Combobox.LastOrDefault();
+            OnPropertyChanged(nameof(Class_StudyYear_Count_State));
+
+            Search_Class_In_Skill_Select_State = EducationSubjectSkill_Combobox
+                .FirstOrDefault(skill => skill.Stu_EducationSubjects == "វិទ្យាសាស្ត្រកុំព្យូទ័រ");
+            OnPropertyChanged(nameof(Search_Class_In_Skill_Select_State));
+
+            Search_Class_In_Level_Select_State = EducationsLevel_Combobox
+                .FirstOrDefault(level => level.Stu_EducationLevels == "បរិញ្ញាបត្រ");
+            OnPropertyChanged(nameof(Search_Class_In_Level_Select_State));
+
+            //Student Score
+            Class_Score = new ObservableCollection<Class_Score>();
+            Class_Skill_Score_Info = new ObservableCollection<Class_Score>();
+            Class_Student_Score_Info = new ObservableCollection<Class_Score>();
+            Class_Skill_State_Info = new ObservableCollection<Class_Score>();
+            Student_Score_Show_Skill = new RelayCommand(async () => await Show_Skill_For_Insert_Student_Score());
+            Command_Save_Score = new RelayCommand(async () => await SaveStudentScore_Info());
+            Command_Edit_Student_Score = new RelayCommand(async () => await Edit_Student_Score());
+            Command_Unselect_and_Add = new RelayCommand(async () => await Unselect_and_Add());
+            Command_Clear_Student_Score = new RelayCommand(async () => await Clear_Student_Score_Info());
+            Command_Delete_Student_Score = new RelayCommand(async () => await Delete_Student_Score_Info());
+            Command_Export_Student_Score_PDF = new RelayCommand(async () => await  Export_Student_Score_PDF());
         }
         
 
@@ -327,6 +353,50 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Combobox Score Type
+        private ObservableCollection<Class_Score> _class_score;
+        public ObservableCollection<Class_Score> Class_Score
+        {
+            get { return _class_score; }
+            set
+            {
+                _class_score = value;
+                OnPropertyChanged(nameof(Class_Score));
+            }
+        }
+        //List Skill Score
+        private ObservableCollection<Class_Score> _Class_Skill_Score_Info;
+        public ObservableCollection<Class_Score> Class_Skill_Score_Info
+        {
+            get { return _Class_Skill_Score_Info; }
+            set
+            {
+                _Class_Skill_Score_Info = value;
+                OnPropertyChanged(nameof(Class_Skill_Score_Info));
+            }
+        }
+        //List Skill Score State
+        private ObservableCollection<Class_Score> _Class_Skill_State_Info;
+        public ObservableCollection<Class_Score> Class_Skill_State_Info
+        {
+            get { return _Class_Skill_State_Info; }
+            set
+            {
+                _Class_Skill_State_Info = value;
+                OnPropertyChanged(nameof(Class_Skill_State_Info));
+            }
+        }
+        //List Student, Score
+        private ObservableCollection<Class_Score> _Class_Student_Score_Info;
+        public ObservableCollection<Class_Score> Class_Student_Score_Info
+        {
+            get { return _Class_Student_Score_Info; }
+            set
+            {
+                _Class_Student_Score_Info = value;
+                OnPropertyChanged(nameof(Class_Student_Score_Info));
+            }
+        }
         //Get_data_to_combobox Province
         private ObservableCollection<Student_Info> _provinces;
         public ObservableCollection<Student_Info> Provinces_Combobox
@@ -470,7 +540,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
         //Load Data to Combobox EducationStudyYear
-        private void LoadData_to_Combobox_EducationStudyYear()
+        public void LoadData_to_Combobox_EducationStudyYear()
         {
             var EducationStudyYearList = _dbConnection.GetEducationStudyYear_toCombobox_Student_Info();
             foreach (var education_studyyear in EducationStudyYearList)
@@ -1133,6 +1203,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Class_Info_List_Selected_In_Schedule));
             }
         }
+        
         //List Student Display
         private ObservableCollection<Student_Info> _list_student_selected;
         public ObservableCollection<Student_Info> List_Students_Display
@@ -11071,14 +11142,16 @@ namespace RPISVR_Managements.ViewModel
 
                     Debug.WriteLine(IsItemSelected);
                     Debug.WriteLine(Seleceted_Schedule_SatSun);
-                    _ = Clear_Schedule_Sat_Sun();
+                    
                     // Unselect item when IsItemSelected is false
                     if (!_isItemSelected)
                     {
                         Seleceted_Schedule_SatSun = null;
                         Debug.WriteLine(IsItemSelected);
+                       
                         Debug.WriteLine(Seleceted_Schedule_SatSun);
                     }
+                    _ = Clear_Schedule_Sat_Sun();
                 }
             }
         }
@@ -11096,11 +11169,16 @@ namespace RPISVR_Managements.ViewModel
         //Method Load Schedule Info to Combobox
         private async void Load_Schedule_Info_Selected_List(int Schedule_ID)
         {
+
             var schedule_id = Schedule_ID;
             var get_info = _dbConnection.GetSchedule_Info_BySelectedTable(schedule_id);
-
+            Debug.WriteLine($"Schedule_ID: {schedule_id}");
             foreach (var item in get_info)
             {
+                Debug.WriteLine($"Sat1 : {item.SD_Skill_Name_Sat1}");
+                Debug.WriteLine($"Sat2 : {item.SD_Skill_Name_Sat2}");
+                Debug.WriteLine($"Sun1 : {item.SD_Skill_Name_Sun1}");
+                Debug.WriteLine($"Sun2 : {item.SD_Skill_Name_Sun2}");
                 if (item != null)
                 {
                     //Satureday01
@@ -11125,7 +11203,7 @@ namespace RPISVR_Managements.ViewModel
 
                     //Sunday01
                     SelectedSkill_SD_Sun1 = Schedule_Skill_Name_Combobox
-                        .FirstOrDefault(skill => skill.SD_Skill_Name == item.SD_Skill_Name_Sat2);
+                        .FirstOrDefault(skill => skill.SD_Skill_Name == item.SD_Skill_Name_Sun1);
                     OnPropertyChanged(nameof(SelectedSkill_SD_Sun1));
                     SelectedTeacher_SD_Sun1 = Schedule_Teacher_Name_Combobox
                         .FirstOrDefault(teacher => teacher.SD_Teacher_Name == item.SD_Teacher_Sun1);
@@ -11135,7 +11213,7 @@ namespace RPISVR_Managements.ViewModel
 
                     //Sunday02
                     SelectedSkill_SD_Sun2 = Schedule_Skill_Name_Combobox
-                        .FirstOrDefault(skill => skill.SD_Skill_Name == item.SD_Skill_Name_Sat2);
+                        .FirstOrDefault(skill => skill.SD_Skill_Name == item.SD_Skill_Name_Sun2);
                     OnPropertyChanged(nameof(SelectedSkill_SD_Sun2));
                     SelectedTeacher_SD_Sun2 = Schedule_Teacher_Name_Combobox
                         .FirstOrDefault(teacher => teacher.SD_Teacher_Name == item.SD_Teacher_Sun2);
@@ -11143,7 +11221,7 @@ namespace RPISVR_Managements.ViewModel
                     SD_TotalTime_Sun2 = item.SD_TotalTime_Sun2;
                     OnPropertyChanged(nameof(SD_TotalTime_Sun2));
 
-                    Schedule_ID = item.Schedule_ID;
+                    //Schedule_ID = item.Schedule_ID;
                     Schedule_Name = item.Schedule_Name;
                     SD_Building_Name = item.SD_Building_Name;
                     SD_Building_Room = item.SD_Building_Room;
@@ -11300,6 +11378,1116 @@ namespace RPISVR_Managements.ViewModel
             ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
             MessageColor = new SolidColorBrush(Colors.Green);
         }
+
+        //Schedule State
+        private string _Class_State;
+        public string Class_State
+        {
+            get => _Class_State;
+            set
+            {
+                _Class_State = value;
+                OnPropertyChanged(nameof(Class_State));
+            }
+        }
+
+        public ICommand Command_Update_Class_State { get; set; }
+
+        //Method Update Class State
+        public async Task Update_Class_State()
+        {
+            if(Current_Class_State == null)
+            {
+                Debug.WriteLine("No class state Selection");
+                ErrorMessage = "សូមជ្រើសរើសស្ថានភាពថ្នាក់រៀន ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Update_Class_State_Method();
+            ConfirmValue_Class_State();
+            _ = Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill,Search_Class_In_Level, Search_Class_In_Student_Year,Search_Class_Semester,Search_Class_In_Study_Timeshift,Search_Class_In_Study_Type);
+            _ = LoadClass_State_toListViews(Search_Class_State_Search);
+            await Task.CompletedTask;
+        }
+        private void ConfirmValue_Class_State()
+        {
+            Debug.WriteLine($"Selected Class State: {Class_State}");
+        }
+        public void Update_Class_State_Method()
+        {
+            if (SelectedClasses_Prepare_All == null || !SelectedClasses_Prepare_All.Any())
+            {
+                Debug.WriteLine("No class Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនក្នុងតារាងខាងលើ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                
+                //Class_Info_Add_Student_Selected.Clear();
+                foreach (var classes_edit in SelectedClasses_Prepare_All)
+                {
+                    Debug.WriteLine($"Selected :{classes_edit.Class_ID}");
+
+                    bool success = _dbConnection.Update_Class_State(classes_edit.Class_ID, Current_Class_State);
+
+                    if(success)
+                    {
+                        Debug.WriteLine($"Update class ID {classes_edit.Class_ID}, Current State: {Current_Class_State}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Update error class ID {classes_edit.Class_ID}, Current State: {Current_Class_State}");
+                        return;
+                    } 
+                }
+                ErrorMessage = $"ថ្នាក់រៀនបានផ្លាស់ប្ដូរស្ថានភាពទៅជា {Current_Class_State}";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+            }
+        }
+
+        //Class Schedule State
+        private ObservableCollection<Student_Info> _Class_Info_State_Schedule;
+        public ObservableCollection<Student_Info> Class_Info_State_Schedule
+        {
+            get => _Class_Info_State_Schedule;
+            set
+            {
+                _Class_Info_State_Schedule = value;
+                OnPropertyChanged(nameof(Class_Info_State_Schedule));
+            }
+        }
+
+        //Search Text
+        //
+        private string _Search_Class_State_Search;
+        public string Search_Class_State_Search
+        {
+            get => _Search_Class_State_Search;
+            set
+            {
+                if (_Search_Class_State_Search != value)
+                {
+                    _Search_Class_State_Search = value;
+                    OnPropertyChanged(nameof(Search_Class_State_Search));
+                    Debug.WriteLine($"Search class state : {_Search_Class_State_Search}");
+                    OnSearchTextChanged_Class_State(_Search_Class_State_Search);    
+                }
+            }
+        }
+        private async void OnSearchTextChanged_Class_State(string newText_Class_State)
+        {
+            Debug.WriteLine($"Search Class State And Class Name: {newText_Class_State}");
+            await LoadClass_State_toListViews(newText_Class_State);
+            await Task.CompletedTask;
+        }
+
+        //Method Load Class State
+        public async Task LoadClass_State_toListViews(string newText_Class_State)
+        {
+            IsLoading = true;
+            try
+            {
+                await Task.Delay(10);
+
+                var class_state_List = _dbConnection.GetClass_State_Info(newText_Class_State);
+                
+                Class_Info_State_Schedule.Clear();           
+                foreach (var class_info in class_state_List)
+                {
+                    Class_Info_State_Schedule.Add(class_info);
+                }
+
+                Class_Info_State_Schedule = new ObservableCollection<Student_Info>(class_state_List);
+
+            }
+            finally
+            {
+                // Hide the loading indicator
+                IsLoading = false;
+            }
+            await Task.CompletedTask;
+        }
+
+        //
+        private object _Class_StudyYear_Count_State;
+        public object Class_StudyYear_Count_State
+        {
+            get => _Class_StudyYear_Count_State;
+            set
+            {
+                _Class_StudyYear_Count_State = value;
+                OnPropertyChanged(nameof(Class_StudyYear_Count_State));
+            }
+        }
+        private Student_Info _Search_Class_In_Skill_Select_State;
+        public Student_Info Search_Class_In_Skill_Select_State
+        {
+            get => _Search_Class_In_Skill_Select_State;
+            set
+            {
+                _Search_Class_In_Skill_Select_State = value;
+                OnPropertyChanged(nameof(Search_Class_In_Skill_Select_State));
+            }
+        }
+        private Student_Info _Search_Class_In_Level_Select_State;
+        public Student_Info Search_Class_In_Level_Select_State
+        {
+            get => _Search_Class_In_Level_Select_State;
+            set
+            {
+                _Search_Class_In_Level_Select_State = value;
+                OnPropertyChanged(nameof(Search_Class_In_Level_Select_State));
+            }
+        }
+
+        //Student Score
+
+        private int _Score_Type_ID;
+        public int Score_Type_ID
+        {
+            get => _Score_Type_ID;
+            set
+            {
+                _Score_Type_ID = value;
+                OnPropertyChanged(nameof(Score_Type_ID));
+            }
+        }
+        private string _Score_Type_Name;
+        public string Score_Type_Name
+        {
+            get => _Score_Type_Name;
+            set
+            {
+                _Score_Type_Name = value;
+                OnPropertyChanged(nameof(Score_Type_Name));
+            }
+        }
+        private Class_Score _selectedScoreType;
+        public Class_Score Selected_Score_Type
+        {
+            get { return _selectedScoreType; }
+            set
+            {
+                if (_selectedScoreType != value)
+                {
+                    _selectedScoreType = value;
+                    OnPropertyChanged(nameof(Selected_Score_Type));
+
+                    
+                    if (_selectedScoreType == null)
+                    {
+                        Score_Type_Name = null;
+                        
+                    }
+                    else
+                    {
+                        Score_Type_Name = _selectedScoreType.Score_Type_Name;
+                    }
+                }
+            }
+        }
+        private int _Score_Skill_ID;
+        public int Score_Skill_ID
+        {
+            get => _Score_Skill_ID;
+            set
+            {
+                _Score_Skill_ID = value;
+                OnPropertyChanged(nameof(Score_Skill_ID));
+            }
+        }
+        private int _Score_Schedule_ID;
+        public int Score_Schedule_ID
+        {
+            get => _Score_Schedule_ID;
+            set
+            {
+                _Score_Schedule_ID = value;
+                OnPropertyChanged(nameof(Score_Schedule_ID));
+            }
+        }
+        private int _Score_Skill_TotalTime;
+        public int Score_Skill_TotalTime
+        {
+            get => _Score_Skill_TotalTime;
+            set
+            {
+                _Score_Skill_TotalTime = value;
+                OnPropertyChanged(nameof(Score_Skill_TotalTime));
+            }
+        }
+        private string _Score_Skill_Name;
+        public string Score_Skill_Name
+        {
+            get => _Score_Skill_Name;
+            set
+            {
+                _Score_Skill_Name = value;
+                OnPropertyChanged(nameof(Score_Skill_Name));
+            }
+        }
+        private string _Score_Skill_TeacherName;
+        public string Score_Skill_TeacherName
+        {
+            get => _Score_Skill_TeacherName;
+            set
+            {
+                _Score_Skill_TeacherName = value;
+                OnPropertyChanged(nameof(Score_Skill_TeacherName));
+            }
+        }
+        private string _Score_Skill_Day;
+        public string Score_Skill_Day
+        {
+            get => _Score_Skill_Day;
+            set
+            {
+                _Score_Skill_Day = value;
+                OnPropertyChanged(nameof(Score_Skill_Day));
+            }
+        }
+        private int _Score_Stu_ID;
+        public int Score_Stu_ID
+        {
+            get => _Score_Stu_ID;
+            set
+            {
+                _Score_Stu_ID = value;
+                OnPropertyChanged(nameof(Score_Stu_ID));
+            }
+        }
+        private string _Score_Student_ID;
+        public string Score_Student_ID
+        {
+            get => _Score_Student_ID;
+            set
+            {
+                _Score_Student_ID = value;
+                OnPropertyChanged(nameof(Score_Student_ID));
+            }
+        }
+        private string _Score_Student_Name;
+        public string Score_Student_Name
+        {
+            get => _Score_Student_Name;
+            set
+            {
+                _Score_Student_Name = value;
+                OnPropertyChanged(nameof(Score_Student_Name));
+            }
+        }
+        private string _Score_Student_Gender;
+        public string Score_Student_Gender
+        {
+            get => _Score_Student_Gender;
+            set
+            {
+                _Score_Student_Gender = value;
+                OnPropertyChanged(nameof(Score_Student_Gender));
+            }
+        }
+        private int _Student_Score;
+        public int Student_Score
+        {
+            get => _Student_Score;
+            set
+            {
+                _Student_Score = value;
+                OnPropertyChanged(nameof(Student_Score));
+            }
+        }
+        private string _Score_TimeShift;
+        public string Score_TimeShift
+        {
+            get => _Score_TimeShift;
+            set
+            {
+                _Score_TimeShift = value;
+                OnPropertyChanged(nameof(Score_TimeShift));
+            }
+        }
+        private Student_Info _Selected_Class_in_Student_Score;
+        public Student_Info Selected_Class_in_Student_Score
+        {
+            get => _Selected_Class_in_Student_Score;
+            set
+            {
+                
+                    _Selected_Class_in_Student_Score = value;
+                    OnPropertyChanged(nameof(Selected_Class_in_Student_Score));
+
+                    if (_Selected_Class_in_Student_Score == null)
+                    {
+                        Class_Name = null;
+                        Class_ID = null;
+                        Current_Class_State = null;
+                        Class_In_Study_Timeshift = null;
+                    }
+                    else
+                    {
+                        Class_Name = _Selected_Class_in_Student_Score.Class_Name;
+                        Class_ID = _Selected_Class_in_Student_Score.Class_ID;
+                        Current_Class_State = _Selected_Class_in_Student_Score.Current_Class_State;
+                        Class_In_Study_Timeshift = _Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+                    }
+                     
+            }
+        }
+        
+        private void Clear_Class_Score_Selected()
+        {
+            Class_ID = null;
+            Class_Name = null;
+            Current_Class_State = null;
+            Class_In_Study_Timeshift = null;
+        }
+        private void Load_Data_ScoreType()
+        {
+            var Score_Type = _dbConnection.GetScoreType_toCombobox_info();
+            Class_Score.Clear();
+            foreach (var score_type in Score_Type)
+            {
+                Class_Score.Add(score_type);
+            }
+        }
+        //Command For Student Score
+        public ICommand Student_Score_Show_Skill { get; set; }
+
+        public async Task Show_Skill_For_Insert_Student_Score()
+        {
+            Load_Data_ScoreType();
+            string class_id = Class_ID;
+            string class_timeshift = Class_In_Study_Timeshift;
+            Class_Skill_State_Info.Clear();
+
+            _ = Show_StudentName_And_Score_Info();
+            if (class_timeshift == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀន ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            try
+            {
+                Debug.WriteLine($"Selected Load Schedule Skill Info Class ID: {class_id}");
+
+                if(class_timeshift == "វេនសៅរ៍អាទិត្យ")
+                {
+                    Debug.WriteLine("Load Skill From Schedule Sat Sun.");
+
+                    var skill_satsun_table = _dbConnection.GetFetchSchedule_Skill_SatSunTable_Info(class_id);
+
+                    Class_Skill_Score_Info.Clear();
+
+                    foreach (var schedule_skill_ss_info in skill_satsun_table)
+                    {
+                        Class_Skill_Score_Info.Add(schedule_skill_ss_info);
+                    }
+                    Class_Skill_Score_Info = new ObservableCollection<Class_Score>(skill_satsun_table);
+                }
+                else
+                {
+                    Debug.WriteLine("Load Skill From Schedule Mon Fri");
+
+                    var skill_monfri_table = _dbConnection.GetFetchSchedule_Skill_MonFriTable_Info(class_id);
+
+                    Class_Skill_Score_Info.Clear();
+
+                    foreach (var schedule_skill_mn_info in skill_monfri_table)
+                    {
+                        Class_Skill_Score_Info.Add(schedule_skill_mn_info);
+                    }
+                    Class_Skill_Score_Info = new ObservableCollection<Class_Score>(skill_monfri_table);
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.StackTrace);
+            }
+
+            await Task.CompletedTask;
+        }
+        
+        public async Task Show_StudentName_And_Score_Info()
+        {
+            string class_id = Class_ID;
+            var student_score_info = _dbConnection.GetFetch_Student_Info_For_Score(class_id);
+
+            Class_Student_Score_Info.Clear();
+
+            foreach (var student_info in student_score_info)
+            {
+                Class_Student_Score_Info.Add(student_info);
+            }
+            Class_Student_Score_Info = new ObservableCollection<Class_Score>(student_score_info);
+            await Task.CompletedTask;
+        }
+        private Class_Score _Selected_Skill_Name;
+        public Class_Score Selected_Skill_Name
+        {
+            get { return  _Selected_Skill_Name; }
+            set
+            {
+                if(_Selected_Skill_Name != value)
+                {
+                    _Selected_Skill_Name = value;
+                    OnPropertyChanged(nameof(Selected_Skill_Name));
+                    if(_Selected_Skill_Name == null)
+                    {
+                        Score_Skill_Name = null;
+                        Score_Schedule_ID = 0;
+                    }
+                    else
+                    {
+                        Score_Skill_Name = _Selected_Skill_Name.Score_Skill_Name;
+                        Score_Schedule_ID = _Selected_Skill_Name.Score_Schedule_ID;
+                        Score_TimeShift = Class_In_Study_Timeshift;
+                        Debug.WriteLine($"Score_Skill_Name: {Score_Skill_Name},Score_Schedule_ID: {Score_Schedule_ID}, Score_TimeShift: {Score_TimeShift}");
+                        Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                    }   
+                }            
+            }
+        }
+        //Load State Score Type
+        private void Load_State_Score_Type(int Score_Schedule_ID,string Score_Skill_Name,string Score_TimeShift)
+        {
+            if (Score_TimeShift == "វេនសៅរ៍អាទិត្យ")
+            {
+                var skill_satsun_state_table = _dbConnection.GetFetchSchedule_Skill_SatSunTable_State_Info(Score_Schedule_ID, Score_Skill_Name);
+                Class_Skill_State_Info.Clear();
+                State_Score_Type = string.Empty;
+                foreach (var schedule_skill_ss_info in skill_satsun_state_table)
+                { 
+                    Class_Skill_State_Info.Add(schedule_skill_ss_info);
+                }
+                Class_Skill_State_Info = new ObservableCollection<Class_Score>(skill_satsun_state_table);
+            }
+            else
+            {
+                var skill_monfri_state_table = _dbConnection.GetFetchSchedule_Skill_MonFriTable_State_Info(Score_Schedule_ID, Score_Skill_Name);
+                Class_Skill_State_Info.Clear();
+                State_Score_Type = string.Empty;
+                foreach (var schedule_skill_mn_info in skill_monfri_state_table)
+                {
+                    Class_Skill_State_Info.Add(schedule_skill_mn_info);
+                }
+                Class_Skill_State_Info = new ObservableCollection<Class_Score>(skill_monfri_state_table);
+            }
+        }
+        //Selection Student Score List
+        private List<Class_Score> _selected_Student_Score;
+        public List<Class_Score> Multi_Selected_Student_Score
+        {
+            get => _selected_Student_Score;
+            set
+            {
+                _selected_Student_Score = value;
+                OnPropertyChanged(nameof(Multi_Selected_Student_Score));
+            }
+        }
+        //First Selected Student Score
+        private Class_Score _first_selected_Student_Score;
+        public Class_Score First_Selected_Student_Score
+        {
+            get => _first_selected_Student_Score;
+            set
+            {
+                _first_selected_Student_Score = value;
+                OnPropertyChanged(nameof(First_Selected_Student_Score));
+            }
+        }
+        //Command Save Score
+        public ICommand Command_Save_Score { get; set; }
+
+        //Method Save Student Score Info
+        public async Task SaveStudentScore_Info()
+        {
+            if (Score_Type_Name == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (Selected_Skill_Name == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសមុខវិជ្ជាត្រឹមត្រូវ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Multi_Selected_Student_Score == null || !Multi_Selected_Student_Score.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសនិស្សិត ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Confirm_Score_Info();
+            SaveScore_Information();
+
+            await Task.CompletedTask;
+
+        }
+        private bool _Can_Edit_Score_State;
+        public bool Can_Edit_Score_State
+        {
+            get => _Can_Edit_Score_State;
+            set
+            {
+                _Can_Edit_Score_State = value;
+                OnPropertyChanged(nameof(Can_Edit_Score_State));               
+            }
+        }
+        private async void SaveScore_Information()
+        {
+            Class_ID = this._Selected_Class_in_Student_Score.Class_ID;
+            Class_In_Study_Timeshift = this._Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+
+            Student_Score = 0;
+            Score_Type_Name = Selected_Score_Type.Score_Type_Name;
+
+            Score_Schedule_ID = this.Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = this.Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = this.Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = this.Selected_Skill_Name.Score_Skill_TeacherName;
+
+            if (Can_Edit_Score_State==true)
+            {
+                Debug.WriteLine("Update Mode.");
+
+                if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+                {
+                    foreach (var student_score in Multi_Selected_Student_Score)
+                    {
+                        Score_Stu_ID = student_score.Score_Stu_ID;
+                        Score_Student_ID = student_score.Score_Student_ID;
+                        Score_Student_Name = student_score.Score_Student_Name;
+                        Score_Student_Gender = student_score.Score_Student_Gender;
+                        Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                        Student_Score = student_score.Student_Score;
+                        Confirm_Score_Info();
+
+                        bool success = _dbConnection.Update_Student_Score_SatSun_Info(student_score, Class_ID, Score_Schedule_ID, Score_Skill_Name, Score_Type_Name);
+
+                        if (success)
+                        {
+                            Debug.WriteLine($"Success Update Student Score SatSun on Student ID {student_score.Score_Schedule_ID}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Update Student Score SatSun on Student ID {student_score.Score_Schedule_ID}");
+                            return;
+                        }
+
+                    }
+                    Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                    _ = Show_StudentName_And_Score_Info();
+
+                    ErrorMessage = "ពិន្ទុនិស្សិត បានធ្វើបច្ចុប្បន្នភាព ជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+
+                }
+                else
+                {
+                    foreach (var student_score in Multi_Selected_Student_Score)
+                    {
+                        Score_Stu_ID = student_score.Score_Stu_ID;
+                        Score_Student_ID = student_score.Score_Student_ID;
+                        Score_Student_Name = student_score.Score_Student_Name;
+                        Score_Student_Gender = student_score.Score_Student_Gender;
+                        Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                        Student_Score = student_score.Student_Score;
+                        Confirm_Score_Info();
+
+                        bool success = _dbConnection.Update_Student_Score_MonFri_Info(student_score, Class_ID, Score_Schedule_ID, Score_Skill_Name, Score_Type_Name);
+
+                        if (success)
+                        {
+                            Debug.WriteLine($"Success Update Student Score MonFri on Student ID {student_score.Score_Schedule_ID}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Update Student Score MonFri on Student ID {student_score.Score_Schedule_ID}");
+                            return;
+                        }
+
+                    }
+                    Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                    _ = Show_StudentName_And_Score_Info();
+
+                    ErrorMessage = "ពិន្ទុនិស្សិត បានធ្វើបច្ចុប្បន្នភាព ជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Insert Mode.");
+
+                if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+                {
+                    foreach (var student_score in Multi_Selected_Student_Score)
+                    {
+                        Score_Stu_ID = student_score.Score_Stu_ID;
+                        Score_Student_ID = student_score.Score_Student_ID;
+                        Score_Student_Name = student_score.Score_Student_Name;
+                        Score_Student_Gender = student_score.Score_Student_Gender;
+                        Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                        Student_Score = student_score.Student_Score;
+                        Confirm_Score_Info();
+
+                        //Check Before Insert
+                        var check_student_score_info = await _dbConnection.Check_Student_Score_SatSun_Info(student_score.Score_Student_ID, Score_Skill_Name, Score_Schedule_ID, Score_Type_Name);
+
+                        if (check_student_score_info.Score_Schedule_ID1 == Score_Schedule_ID &&
+                           check_student_score_info.Score_Student_ID1 == student_score.Score_Student_ID &&
+                           check_student_score_info.Score_Skill_Name1 == Score_Skill_Name &&
+                           check_student_score_info.Score_Type_Name1 == Score_Type_Name)
+                        {
+                            ErrorMessage = "មុខវិជ្ជា៖ " + Score_Skill_Name + " ប្រភេទពិន្ទុ៖ " + Score_Type_Name + "មានទិន្នន័យដូចគ្នារួចស្រេចហើយ !";
+                            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                            MessageColor = new SolidColorBrush(Colors.Red);
+                            return;
+                        }
+
+                        bool success = _dbConnection.Save_Student_Score_SatSun_Info(student_score, Class_ID, Score_Schedule_ID, Score_Skill_Name, Score_Skill_TotalTime, Score_Skill_TeacherName, Score_Type_Name);
+
+                        if (success)
+                        {
+                            Debug.WriteLine($"Success Save Student Score SatSun on Student ID {student_score.Score_Schedule_ID}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Save Student Score SatSun on Student ID {student_score.Score_Schedule_ID}");
+                            return;
+                        }
+
+                    }
+                    Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                    _ = Show_StudentName_And_Score_Info();
+
+                    Selected_Score_Type = Class_Score
+                       .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+                    OnPropertyChanged(nameof(Selected_Score_Type));
+
+                    ErrorMessage = "ពិន្ទុនិស្សិត បានរក្សាទុកដោយជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+
+                }
+                else
+                {    
+                    foreach (var student_score in Multi_Selected_Student_Score)
+                    {
+                        Score_Stu_ID = student_score.Score_Stu_ID;
+                        Score_Student_ID = student_score.Score_Student_ID;
+                        Score_Student_Name = student_score.Score_Student_Name;
+                        Score_Student_Gender = student_score.Score_Student_Gender;
+                        Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                        Student_Score = student_score.Student_Score;
+                        Confirm_Score_Info();
+
+                        //Check Before Insert
+                        var check_student_score_info = await _dbConnection.Check_Student_Score_MonFri_Info(student_score.Score_Student_ID, Score_Skill_Name, Score_Schedule_ID, Score_Type_Name);
+
+                        if (check_student_score_info.Score_Schedule_ID1 == Score_Schedule_ID &&
+                           check_student_score_info.Score_Student_ID1 == student_score.Score_Student_ID &&
+                           check_student_score_info.Score_Skill_Name1 == Score_Skill_Name &&
+                           check_student_score_info.Score_Type_Name1 == Score_Type_Name)
+                        {
+                            ErrorMessage = "មុខវិជ្ជា៖ " + Score_Skill_Name + "ប្រភេទពិន្ទុ៖ " + Score_Type_Name + "មានទិន្នន័យដូចគ្នារួចស្រេចហើយ !";
+                            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                            MessageColor = new SolidColorBrush(Colors.Red);
+                            return;
+                        }
+
+                        bool success = _dbConnection.Save_Student_Score_MonFri_Info(student_score, Class_ID, Score_Schedule_ID, Score_Skill_Name, Score_Skill_TotalTime, Score_Skill_TeacherName, Score_Type_Name);
+
+                        if (success)
+                        {
+                            Debug.WriteLine($"Success Save Student Score MonFri on Student ID {student_score.Score_Schedule_ID}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Save Student Score MonFri on Student ID {student_score.Score_Schedule_ID}");
+                            return;
+                        }
+
+                    }
+                    Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                    _ = Show_StudentName_And_Score_Info();
+
+                    Selected_Score_Type = Class_Score
+                        .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+                    OnPropertyChanged(nameof(Selected_Score_Type));
+
+                    ErrorMessage = "ពិន្ទុនិស្សិត បានរក្សាទុកដោយជោគជ័យ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+            }          
+        }
+        private void Confirm_Score_Info()
+        {
+            Debug.WriteLine($"Score_Type_Name: {Score_Type_Name}");
+            Debug.WriteLine($"Score_Skill_Name: {Score_Skill_Name}");
+            Debug.WriteLine($"Score_Stu_ID: {Score_Stu_ID}");
+            Debug.WriteLine($"Score_Student_ID: {Score_Student_ID}");
+            Debug.WriteLine($"Score_Student_Name: {Score_Student_Name}");
+            Debug.WriteLine($"Student_Score: {Student_Score}");
+        }
+
+        private string _Show_Score_Type;
+        public string Show_Score_Type
+        {
+            get => _Show_Score_Type;
+            set
+            {
+                _Show_Score_Type = value;
+                OnPropertyChanged(nameof(Show_Score_Type));
+            }
+        }
+        private string _State_Score_Type;
+        public string State_Score_Type
+        {
+            get => _State_Score_Type;
+            set
+            {
+                _State_Score_Type = value;
+                OnPropertyChanged(nameof(State_Score_Type));
+            }
+        }
+        private string _Score_Student_BirthDay;
+        public string Score_Student_BirthDay
+        {
+            get => _Score_Student_BirthDay;
+            set
+            {
+                _Score_Student_BirthDay = value;
+                OnPropertyChanged(nameof(Score_Student_BirthDay));
+            }
+        }
+        private Class_Score _Selected_State_Skill_Score_Type;
+        public Class_Score Selected_State_Skill_Score_Type
+        {
+            get => _Selected_State_Skill_Score_Type;
+            set
+            {
+                if(_Selected_State_Skill_Score_Type != value)
+                {
+                    _Selected_State_Skill_Score_Type = value;
+                    OnPropertyChanged(nameof(Selected_State_Skill_Score_Type));
+
+                    if(_Selected_State_Skill_Score_Type == null)
+                    {
+                        Show_Score_Type = string.Empty;
+                        State_Score_Type = string.Empty;
+                    }
+                    else
+                    {
+                        State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
+                        Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+                        Debug.WriteLine($"Selected Score State: {Show_Score_Type}, State: {State_Score_Type}");
+                    }
+                }
+            }
+        }
+        //Command Edit,Delete,Clear Student Score
+        public ICommand Command_Edit_Student_Score { get; set; }
+        public ICommand Command_Delete_Student_Score { get; set; }
+        public ICommand Command_Clear_Student_Score { get; set; }
+
+        //Method Edit Student Score
+        public async Task Edit_Student_Score()
+        {
+            if(Selected_State_Skill_Score_Type == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុក្នុងតារាង ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Score_Schedule_ID = Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = Selected_Skill_Name.Score_Skill_TeacherName;
+            State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
+            Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+
+            Load_Student_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
+            Can_Edit_Score_State = true;
+
+            await Task.CompletedTask;
+        }
+        
+        //Method Load Student Score
+        private void Load_Student_Score(string Class_ID,int Score_Schedule_ID,string Score_Skill_Name,string Show_Score_Type)
+        {
+            var student_score_info = _dbConnection.SelectFetch_Student_Info_For_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
+
+            Class_Student_Score_Info.Clear();
+
+            foreach (var student_info in student_score_info)
+            {
+                Class_Student_Score_Info.Add(student_info);
+                Score_Type_Name = student_info.Score_Type_Name;
+            }
+
+            Selected_Score_Type = Class_Score
+                .FirstOrDefault(score_state => score_state.Score_Type_Name == Score_Type_Name);
+            OnPropertyChanged(nameof(Selected_Score_Type));
+
+            Class_Student_Score_Info = new ObservableCollection<Class_Score>(student_score_info);
+        }
+
+        public ICommand Command_Unselect_and_Add { get; set; }
+        
+        //Method Unselect and Add
+        public async Task Unselect_and_Add()
+        {
+            Selected_State_Skill_Score_Type = null;
+            Can_Edit_Score_State = false;
+            _ = Show_StudentName_And_Score_Info();
+            Selected_Score_Type = Class_Score
+                .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+            OnPropertyChanged(nameof(Selected_Score_Type));
+
+            await Task.CompletedTask;
+        }
+
+        //Method Clear Student Score Info
+        public async Task Clear_Student_Score_Info()
+        {
+            Class_Student_Score_Info.Clear();
+            Selected_Score_Type = Class_Score
+                .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+            OnPropertyChanged(nameof(Selected_Score_Type));
+            await Task.CompletedTask;
+        }
+
+        //Method Delete Student Score Info
+        public async Task Delete_Student_Score_Info()
+        {
+            if (Selected_State_Skill_Score_Type == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុក្នុងតារាង ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+
+                if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+                {
+                    ErrorMessage_Delete = $"តើអ្នកពិតជាចង់លុបទិន្នន័យ {Show_Score_Type} នេះមែនទេ?";
+                    ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                    MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                    CurrentOperation = "Delete_Student_Score_Info_SatSun";
+                    OnPropertyChanged(nameof(CurrentOperation));
+                }
+                else
+                {
+                    ErrorMessage_Delete = $"តើអ្នកពិតជាចង់លុបទិន្នន័យ {Show_Score_Type} នេះមែនទេ?";
+                    ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                    MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                    CurrentOperation = "Delete_Student_Score_Info_MonFri";
+                    OnPropertyChanged(nameof(CurrentOperation));
+                }           
+            }
+            await Task.CompletedTask;
+        }
+
+        //Yes Delete MonFri
+        public void HandleYes_Delete_Student_Info_MonFri()
+        {
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Score_Schedule_ID = Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = Selected_Skill_Name.Score_Skill_TeacherName;
+            State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
+            Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+
+            bool success = _dbConnection.Delete_Student_Score_Info_MonFri(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
+
+            if (success)
+            {
+                ErrorMessage = "ទិន្នន័យពិន្ទុ៖ " + Show_Score_Type + " បានលុបដោយជោគជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+
+                Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                _ = Show_StudentName_And_Score_Info();
+
+                Selected_Score_Type = Class_Score
+                    .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+                OnPropertyChanged(nameof(Selected_Score_Type));
+
+            }
+            else
+            {
+                ErrorMessage = "ទិន្នន័យពិន្ទុ៖ " + Show_Score_Type + " លុបបរាជ៏យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Yellow);
+                return;
+            }
+        }
+
+        //Yes Delete SatSun
+        public void HandleYes_Delete_Student_Info_SatSun()
+        {
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Score_Schedule_ID = Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = Selected_Skill_Name.Score_Skill_TeacherName;
+            State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
+            Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+
+            bool success = _dbConnection.Delete_Student_Score_Info_SatSun(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
+
+            if (success)
+            {
+                ErrorMessage = "ទិន្នន័យពិន្ទុ៖ " + Show_Score_Type + " បានលុបដោយជោគជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+
+                Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
+                _ = Show_StudentName_And_Score_Info();
+
+                Selected_Score_Type = Class_Score
+                    .FirstOrDefault(score_state => score_state.Score_Type_Name == null);
+                OnPropertyChanged(nameof(Selected_Score_Type));
+
+            }
+            else
+            {
+                ErrorMessage = "ទិន្នន័យពិន្ទុ៖ " + Show_Score_Type + " លុបបរាជ៏យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Yellow);
+                return;
+            }
+        }
+
+        //Command Export PDF
+        public ICommand Command_Export_Student_Score_PDF { get; set; }
+
+        //Method Export Student Score PDF
+        public async Task Export_Student_Score_PDF()
+        {
+            if (Score_Type_Name == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (Selected_Skill_Name == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសមុខវិជ្ជាត្រឹមត្រូវ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (Multi_Selected_Student_Score == null || !Multi_Selected_Student_Score.Any())
+            {
+                ErrorMessage = "សូមជ្រើសរើសនិស្សិត ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Selected_State_Skill_Score_Type == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
+
+            if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញទិន្នន័យ {Show_Score_Type} នេះជាPDFមែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Student_Score_Info_SatSun_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+            else
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញទិន្នន័យ {Show_Score_Type} នេះជាPDFមែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Student_Score_Info_MonFri_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Yes Export PDF SatSun
+        public void HandleYes_Export_Student_Info_SatSun_PDF()
+        {
+
+        }
+
+        //Yes Export PDF MonFri
+        public void HandleYes_Export_Student_Info_MonFri_PDF()
+        {
+            Class_ID = this._Selected_Class_in_Student_Score.Class_ID;
+            Class_Name = this._Selected_Class_in_Student_Score.Class_Name;
+            Class_In_Skill = this._Selected_Class_in_Student_Score.Class_In_Skill;
+            Class_In_Study_Timeshift = this._Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Class_In_Level = this._Selected_Class_in_Student_Score.Class_In_Level;
+            Class_In_Student_Year = this._Selected_Class_in_Student_Score.Class_In_Student_Year;
+            Class_In_Study_Year = this._Selected_Class_in_Student_Score.Class_In_Study_Year;
+            Class_In_Semester = this._Selected_Class_in_Student_Score.Class_In_Semester;
+            Class_In_Generation = this._Selected_Class_in_Student_Score.Class_In_Generation;
+            Class_In_Study_Type = this._Selected_Class_in_Student_Score.Class_In_Study_Type;
+
+            Student_Score = 0;
+            Score_Type_Name = Selected_Score_Type.Score_Type_Name;
+
+            Score_Schedule_ID = this.Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = this.Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = this.Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = this.Selected_Skill_Name.Score_Skill_TeacherName;
+
+            foreach (var student_score in Multi_Selected_Student_Score)
+            {
+                Score_Stu_ID = student_score.Score_Stu_ID;
+                Score_Student_ID = student_score.Score_Student_ID;
+                Score_Student_Name = student_score.Score_Student_Name;
+                Score_Student_Gender = student_score.Score_Student_Gender;
+                Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                Student_Score = student_score.Student_Score;
+            }
+            //File Student_Score_toPDF.
+            PDFService_Generate_Student_Score_PDF.CreateReport(Multi_Selected_Student_Score, Class_Name, Class_In_Skill, Class_In_Study_Timeshift, Class_In_Level, Class_In_Study_Year, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Type, Score_Skill_Name, Score_Skill_TotalTime, Score_Skill_TeacherName, Score_Type_Name);
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

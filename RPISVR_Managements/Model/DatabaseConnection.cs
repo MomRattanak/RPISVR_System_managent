@@ -31,6 +31,10 @@ using RPISVR_Managements.ViewModel;
 using RPISVR_Managements.List_and_Reports.Curriculum;
 using RPISVR_Managements.List_and_Reports.Schedule;
 using System.Drawing;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using QuestPDF.Infrastructure;
+using DocumentFormat.OpenXml.Office2013.Excel;
 
 namespace RPISVR_Managements.Model
 {
@@ -1787,6 +1791,7 @@ namespace RPISVR_Managements.Model
         }
         //End Province_Info
 
+        
         //Start District
         //Get data to Combobox
         public List<Districts_Info> GetProvince_toCombobox()
@@ -5903,6 +5908,779 @@ namespace RPISVR_Managements.Model
                 return false;
             }
             
+        }
+
+        //Method Update Class State
+        public bool Update_Class_State(string class_id,string current_state)
+        {
+            try
+            {
+                string query = "UPDATE classes SET Class_State = @Class_State WHERE class_id = @class_id";
+
+                using(MySqlConnection  connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    {
+                        cmd.Parameters.AddWithValue("@class_id", class_id);
+                        cmd.Parameters.AddWithValue("@Class_State", current_state);
+                    }
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+
+            }catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database error Update_Class_State: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Update_Class_State: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Search class Name, Class State
+        public List<Student_Info> GetClass_State_Info(string Search_Class_Name_State)
+        {
+            List<Student_Info> class_info = new List<Student_Info>();
+            try
+            {
+                string query1 = "SELECT COUNT(*) AS TotalCount FROM classes";
+
+                string query = string.IsNullOrEmpty(Search_Class_Name_State)
+                            ? "SELECT * FROM classes ORDER BY class_id DESC"
+                            : "SELECT class_id,class_name,Class_State FROM classes WHERE class_name LIKE @Search_Class_Name_State || Class_State LIKE @Search_Class_Name_State ORDER BY class_id DESC";
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var cmd = new MySqlCommand(query1, connection))
+                    {
+                        No_Classes = Convert.ToInt32(cmd.ExecuteScalar()); // Assign the total count to No_Classes
+                    }
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        if (!string.IsNullOrWhiteSpace(Search_Class_Name_State))
+                        {
+                            cmd.Parameters.AddWithValue("@Search_Class_Name_State", $"%{Search_Class_Name_State}%");
+                        }
+
+                        cmd.CommandTimeout = 30;  // Set a timeout of 30 seconds
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+
+                            //int No_Classes = 1;
+                            while (reader.Read())
+                            {
+
+                                Student_Info classes = new Student_Info
+                                {
+                                    No_Class = No_Classes.ToString(),
+                                    Class_ID = reader.GetInt32("class_id").ToString(),
+                                    Class_Name = reader.IsDBNull(reader.GetOrdinal("class_name")) ? string.Empty : reader.GetString("class_name"),
+                                    Current_Class_State = reader.IsDBNull(reader.GetOrdinal("Class_State")) ? string.Empty : reader.GetString("Class_State"),
+
+                                };
+                                No_Classes--;
+                                class_info.Add(classes);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MySql GetClass_State_Info to ListView Error:{ex.Message}");
+            }
+            return class_info;
+        }
+
+        //Load Data Score Type
+        public List<Class_Score> GetScoreType_toCombobox_info()
+        {
+            List<Class_Score> score_type = new List<Class_Score>();
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT ID,score_type_kh FROM education_score_type";
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        score_type.Add(new Class_Score
+                        {
+                            Score_Type_ID = reader.GetInt32("ID"),
+                            Score_Type_Name = reader.GetString("score_type_kh")
+                        });
+                    }
+                }
+            }
+            return score_type;
+        }
+
+        //Load Skill Class Score SatSun
+        public List<Class_Score> GetFetchSchedule_Skill_SatSunTable_Info(string class_id)
+        {
+            List<Class_Score> class_skill_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = @"
+                SELECT DISTINCT Schedule_ID,Time,skill, day, Teacher 
+                FROM (
+                    SELECT ID as Schedule_ID,sd_totaltime_skill_sat1 as Time, sd_class_id, sd_skill_name_sat1 AS skill, sd_teacher_name_sat1 AS Teacher, 'ថ្ងៃសៅរ៍' AS day FROM class_schedule_sat_sun
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_sat2, sd_class_id, sd_skill_name_sat2, sd_teacher_name_sat1, 'ថ្ងៃសៅរ៍' FROM class_schedule_sat_sun
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_sun1, sd_class_id, sd_skill_name_sun1, sd_teacher_name_sun1, 'ថ្ងៃអាទិត្យ' FROM class_schedule_sat_sun
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_sun2, sd_class_id, sd_skill_name_sun2, sd_teacher_name_sun2, 'ថ្ងៃអាទិត្យ' FROM class_schedule_sat_sun           
+                ) AS skills_table
+                WHERE sd_class_id = @sd_class_id AND skill IS NOT NULL
+                ORDER BY day, skill";
+
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@sd_class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score schedule_info = new Class_Score()
+                                    {
+                                        Score_Schedule_ID = reader.GetInt32("Schedule_ID"),
+                                        Score_Skill_Day = reader.GetString("day"),
+                                        Score_Skill_TotalTime = reader.GetInt32("Time"),
+                                        Score_Skill_Name = reader.GetString("skill"),
+                                        Score_Skill_TeacherName = reader.GetString("Teacher"),
+                                    };
+                                    class_skill_info.Add(schedule_info);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data schedule SatSub error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_skill_info;
+            }
+        }
+
+        //Load Skill Class Score MonFri
+        public List<Class_Score> GetFetchSchedule_Skill_MonFriTable_Info(string class_id)
+        {
+            List<Class_Score> class_skill_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = @"
+                SELECT DISTINCT Schedule_ID,skill,Time, day, Teacher 
+                FROM (
+                    SELECT ID as Schedule_ID,sd_totaltime_skill_mon_1 as Time, sd_class_id, sd_mon_skill_1 AS skill, sd_name_teacher_mon_1 AS Teacher, 'ថ្ងៃចន្ទ' AS day FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_mon_2, sd_class_id, sd_mon_skill_2, sd_name_teacher_mon_2, 'ថ្ងៃចន្ទ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_tues_1, sd_class_id, sd_tues_skill_1, sd_name_teacher_tues_1, 'ថ្ងៃអង្គារ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_tues_2, sd_class_id, sd_tues_skill_2,sd_name_teacher_tues_2, 'ថ្ងៃអង្គារ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_wed_1, sd_class_id, sd_wed_skill_1, sd_name_teacher_wed_1, 'ថ្ងៃពុធ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_wed_2, sd_class_id, sd_wed_skill_2, sd_name_teacher_wed_2, 'ថ្ងៃពុធ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_thurs_1, sd_class_id, sd_thurs_skill_1, sd_name_teacher_thurs_1, 'ថ្ងៃព្រហ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_thurs_2, sd_class_id, sd_thurs_skill_2, sd_name_teacher_thurs_2, 'ថ្ងៃព្រហ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_fri_1, sd_class_id, sd_fri_skill_1, sd_name_teacher_fri_1, 'ថ្ងៃសុក្រ' FROM class_schedule_mon_fri_info
+                    UNION ALL
+                    SELECT ID,sd_totaltime_skill_fri_2, sd_class_id, sd_fri_skill_2, sd_name_teacher_fri_2, 'ថ្ងៃសុក្រ' FROM class_schedule_mon_fri_info
+                ) AS skills_table
+                WHERE sd_class_id = @sd_class_id AND skill IS NOT NULL
+                ORDER BY day, skill";
+
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@sd_class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score schedule_info = new Class_Score()
+                                    {
+                                        Score_Schedule_ID = reader.GetInt32("Schedule_ID"),
+                                        Score_Skill_Day = reader.GetString("day"),
+                                        Score_Skill_TotalTime = reader.GetInt32("Time"),
+                                        Score_Skill_Name = reader.GetString("skill"),
+                                        Score_Skill_TeacherName = reader.GetString("Teacher"),
+                                    };
+                                    class_skill_info.Add(schedule_info);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data schedule MonFri error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_skill_info;
+            }
+        }
+
+        //Load Student, Score to List
+        public List<Class_Score> GetFetch_Student_Info_For_Score(string class_id)
+        {
+            List<Class_Score> class_student_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        
+                        string query = "SELECT si.ID,si.stu_id,si.stu_firstname_kh,si.stu_lastname_kh,si.stu_gender,si.stu_birthday_dateonly FROM class_enrollments ce JOIN student_infomations si ON ce.stu_id = si.ID WHERE ce.class_id = @class_id";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score student_list_info = new Class_Score()
+                                    {
+                                        Score_Stu_ID = reader.GetInt32("ID"),
+                                        Score_Student_ID = reader.GetString("stu_id"),
+                                        Score_Student_Name = reader.GetString("stu_firstname_kh") + " " + reader.GetString("stu_lastname_kh"),
+                                        Score_Student_Gender = reader.GetString("stu_gender"),
+                                        Score_Student_BirthDay = reader.GetString("stu_birthday_dateonly")
+                                    };
+                                    class_student_info.Add(student_list_info);
+                                }
+                            }
+                        }
+                        conn.Close();
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Datasbase GetFetch_Student_Info_For_Score Error: {ex.Message}");
+                    return null;
+                }
+                return class_student_info;
+            }
+        }
+
+        //Save Student Score MonFri
+        public bool Save_Student_Score_MonFri_Info(Class_Score student_score_info,string Class_ID,int Score_Schedule_ID,string Score_Skill_Name,int Score_Skill_TotalTime,string Score_Skill_TeacherName,string Score_Type_Name)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO class_schedule_score_mon_fri_info(class_id, schedule_id, subject_name, total_subject_time, teacher_name, stu_id, student_id, student_name, student_gender,stu_birthday, student_score, student_score_type, insert_time, insert_user)" +
+                        "VALUES(@class_id, @schedule_id, @subject_name, @total_subject_time, @teacher_name, @stu_id, @student_id, @student_name, @student_gender,@stu_birthday, @student_score, @student_score_type, @insert_time, @insert_user)";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@class_id",Convert.ToInt32(Class_ID));
+                        cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                        cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                        cmd.Parameters.AddWithValue("@total_subject_time", Score_Skill_TotalTime);
+                        cmd.Parameters.AddWithValue("@teacher_name", Score_Skill_TeacherName);
+                        cmd.Parameters.AddWithValue("@stu_id", student_score_info.Score_Stu_ID);
+                        cmd.Parameters.AddWithValue("@student_id", student_score_info.Score_Student_ID);
+                        cmd.Parameters.AddWithValue("@student_name", student_score_info.Score_Student_Name);
+                        cmd.Parameters.AddWithValue("@student_gender", student_score_info.Score_Student_Gender);
+                        cmd.Parameters.AddWithValue("@stu_birthday", student_score_info.Score_Student_BirthDay);
+                        cmd.Parameters.AddWithValue("@student_score", student_score_info.Student_Score);
+                        cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+                        cmd.Parameters.AddWithValue("@insert_time", Create_Datetime);
+                        cmd.Parameters.AddWithValue("@insert_user", User_Create);
+
+                        int result = cmd.ExecuteNonQuery();
+                        return result == 1;
+                    };
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"MySQL Error in Save_Student_MonFri_Info: {ex.Number} - {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error in Save_Student_MonFri_Info: {ex.Message}");
+                return false;
+            }
+
+        }
+
+        //Save Student Score SatSun
+        public bool Save_Student_Score_SatSun_Info(Class_Score student_score_info, string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, int Score_Skill_TotalTime, string Score_Skill_TeacherName,string Score_Type_Name)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO class_schedule_score_sat_sun_info(class_id, schedule_id, subject_name, total_subject_time, teacher_name, stu_id, student_id, student_name, student_gender,stu_birthday, student_score, student_score_type, insert_time, insert_user)" +
+                        "VALUES(@class_id, @schedule_id, @subject_name, @total_subject_time, @teacher_name, @stu_id, @student_id, @student_name, @student_gender,@stu_birthday, @student_score, @student_score_type, @insert_time, @insert_user)";
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    cmd.Parameters.AddWithValue("@class_id",Convert.ToInt32(Class_ID));
+                    cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                    cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                    cmd.Parameters.AddWithValue("@total_subject_time", Score_Skill_TotalTime);
+                    cmd.Parameters.AddWithValue("@teacher_name", Score_Skill_TeacherName);
+                    cmd.Parameters.AddWithValue("@stu_id", student_score_info.Score_Stu_ID);
+                    cmd.Parameters.AddWithValue("@student_id", student_score_info.Score_Student_ID);
+                    cmd.Parameters.AddWithValue("@student_name", student_score_info.Score_Student_Name);
+                    cmd.Parameters.AddWithValue("@student_gender", student_score_info.Score_Student_Gender);
+                    cmd.Parameters.AddWithValue("@stu_birthday", student_score_info.Score_Student_BirthDay);
+                    cmd.Parameters.AddWithValue("@student_score", student_score_info.Student_Score);
+                    cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+                    cmd.Parameters.AddWithValue("@insert_time", Create_Datetime);
+                    cmd.Parameters.AddWithValue("@insert_user", User_Create);
+
+                    int result = cmd.ExecuteNonQuery();
+                    return result == 1;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Save_Student_SatSun_Info {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error Save_Student_SatSun_Info {ex.Message}");
+                return false;
+            }
+        }
+
+        //Load Skill Class Score State MonFri
+        public List<Class_Score> GetFetchSchedule_Skill_MonFriTable_State_Info(int Score_Schedule_ID,string Score_Skill_Name)
+        {
+            List<Class_Score> class_skill_state_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = @"SELECT DISTINCT student_score_type 
+                                FROM rpisvr_system.class_schedule_score_mon_fri_info
+                                WHERE subject_name = @subject_name 
+                                AND schedule_id = @schedule_id";
+
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                            cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score skill_state_info = new Class_Score()
+                                    {
+                                        Show_Score_Type = reader.GetString("student_score_type"),
+                                        State_Score_Type = "មាន"
+                                    };
+                                    
+                                    class_skill_state_info.Add(skill_state_info);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data skill state error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_skill_state_info;
+            }
+        }
+
+        //Load Skill Class Score State SatSun
+        public List<Class_Score> GetFetchSchedule_Skill_SatSunTable_State_Info(int Score_Schedule_ID, string Score_Skill_Name)
+        {
+            List<Class_Score> class_skill_state_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = @"SELECT DISTINCT student_score_type 
+                                FROM rpisvr_system.class_schedule_score_sat_sun_info
+                                WHERE subject_name = @subject_name 
+                                AND schedule_id = @schedule_id";
+
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                            cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score skill_state_info = new Class_Score()
+                                    {
+                                        Show_Score_Type = reader.GetString("student_score_type"),
+                                        State_Score_Type = "មាន"
+                                    };
+
+                                    class_skill_state_info.Add(skill_state_info);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data skill state error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_skill_state_info;
+            }
+        }
+
+        //Load Student Info, Score For Edit
+        public List<Class_Score> SelectFetch_Student_Info_For_Score(string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, string Show_Score_Type)
+        {
+            List<Class_Score> class_load_student_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = @"
+                SELECT stu_id, student_id, student_name, student_gender, stu_birthday, student_score, student_score_type 
+                FROM rpisvr_system.class_schedule_score_mon_fri_info
+                WHERE class_id = @class_id 
+                AND schedule_id = @schedule_id 
+                AND subject_name = @subject_name 
+                AND student_score_type = @student_score_type 
+                ORDER BY 
+                    CASE
+                        WHEN student_name REGEXP '^[ក-អ]' THEN 1
+                        WHEN student_name REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2
+                        ELSE 3
+                    END, 
+                    student_name ASC";
+
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                            cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                            cmd.Parameters.AddWithValue("@student_score_type", Show_Score_Type);
+                            if (int.TryParse(Class_ID, out int parsedClassID))
+                            {
+                                cmd.Parameters.AddWithValue("@class_id", parsedClassID);
+                            }
+                            else
+                            {
+                                Debug.WriteLine("Invalid Class_ID format");
+                                return null;
+                            }
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score load_student_info = new Class_Score()
+                                    {
+                                        Score_Stu_ID = reader.GetInt32("stu_id"),
+                                        Score_Student_ID = reader.GetString("student_id"),
+                                        Score_Student_Name = reader.GetString("student_name"),
+                                        Score_Student_Gender = reader.GetString("student_gender"),
+                                        Score_Student_BirthDay = reader.GetString("stu_birthday"),
+                                        Student_Score = reader.GetInt32("student_score"),
+                                        Score_Type_Name = reader.GetString("student_score_type")  
+                                    };
+
+                                    class_load_student_info.Add(load_student_info);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Database fetch data student info error: {ex.StackTrace}");
+                    return null;
+                }
+                return class_load_student_info;
+            }
+        }
+
+        //Update Student Score MonFri
+        public bool Update_Student_Score_MonFri_Info(Class_Score student_score_info, string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, string Score_Type_Name)
+        {
+            try
+            {
+                using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE class_schedule_score_mon_fri_info SET student_score = @student_score,update_time = @update_time,update_user = @update_user WHERE student_id = @student_id AND schedule_id = @schedule_id AND subject_name = @subject_name AND student_score_type = @student_score_type";
+
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+
+                        MySqlCommand cmd = new MySqlCommand(query, connection);
+                        {
+                            cmd.Parameters.AddWithValue("@student_score", student_score_info.Student_Score);
+                            cmd.Parameters.AddWithValue("@update_time", Update_Datetime);
+                            cmd.Parameters.AddWithValue("@update_user", User_Update);
+
+                            cmd.Parameters.AddWithValue("@student_id", student_score_info.Score_Student_ID);
+                            cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                            cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                            cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+                        }
+                        // Execute the query
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+
+                }
+            }catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Update error student score database: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Update error student score: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Update Student Score SatSun
+        public bool Update_Student_Score_SatSun_Info(Class_Score student_score_info, string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, string Score_Type_Name)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE class_schedule_score_sat_sun_info SET student_score = @student_score,update_time = @update_time,update_user = @update_user WHERE student_id = @student_id AND schedule_id = @schedule_id AND subject_name = @subject_name AND student_score_type = @student_score_type";
+
+                    using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+
+                        MySqlCommand cmd = new MySqlCommand(query, connection);
+                        {
+                            cmd.Parameters.AddWithValue("@student_score", student_score_info.Student_Score);
+                            cmd.Parameters.AddWithValue("@update_time", Update_Datetime);
+                            cmd.Parameters.AddWithValue("@update_user", User_Update);
+
+                            cmd.Parameters.AddWithValue("@student_id", student_score_info.Score_Student_ID);
+                            cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                            cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                            cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+                        }
+                        // Execute the query
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Update error student score database: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Update error student score: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method Check Student Score MonFri Type Before Insert
+        public async Task<(string Score_Student_ID1,string Score_Skill_Name1,int Score_Schedule_ID1,string Score_Type_Name1)> Check_Student_Score_MonFri_Info(string Score_Student_ID, string Score_Skill_Name, int Score_Schedule_ID, string Score_Type_Name)
+        {
+            const string query = "SELECT schedule_id,subject_name,student_id,student_score_type FROM class_schedule_score_mon_fri_info WHERE schedule_id = @schedule_id AND subject_name = @subject_name AND student_id = @student_id AND student_score_type = @student_score_type";
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+
+                    cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                    cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                    cmd.Parameters.AddWithValue("@student_id", Score_Student_ID);
+                    cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                Score_Student_ID1: reader["student_id"].ToString(),
+                                Score_Skill_Name1: reader["subject_name"].ToString(),
+                                Score_Schedule_ID1: reader.GetInt32("schedule_id"),
+                                Score_Type_Name1: reader["student_score_type"].ToString()
+                               
+                            );
+                        }
+                    }
+
+                }
+            }
+            return (null, null, 0, null);
+        }
+
+        //Method Check Student Score SatSun Type Before Insert
+        public async Task<(string Score_Student_ID1, string Score_Skill_Name1, int Score_Schedule_ID1, string Score_Type_Name1)> Check_Student_Score_SatSun_Info(string Score_Student_ID, string Score_Skill_Name, int Score_Schedule_ID, string Score_Type_Name)
+        {
+            const string query = "SELECT schedule_id,subject_name,student_id,student_score_type FROM class_schedule_score_sat_sun_info WHERE schedule_id = @schedule_id AND subject_name = @subject_name AND student_id = @student_id AND student_score_type = @student_score_type";
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+
+                    cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                    cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                    cmd.Parameters.AddWithValue("@student_id", Score_Student_ID);
+                    cmd.Parameters.AddWithValue("@student_score_type", Score_Type_Name);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                Score_Student_ID1: reader["student_id"].ToString(),
+                                Score_Skill_Name1: reader["subject_name"].ToString(),
+                                Score_Schedule_ID1: reader.GetInt32("schedule_id"),
+                                Score_Type_Name1: reader["student_score_type"].ToString()
+
+                            );
+                        }
+                    }
+
+                }
+            }
+            return (null, null, 0, null);
+        }
+
+        //Method Delete Student Score MonFri
+        public bool Delete_Student_Score_Info_MonFri(string Class_ID,int Score_Schedule_ID,string Score_Skill_Name,string Show_Score_Type)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM class_schedule_score_mon_fri_info WHERE class_id = @class_id AND schedule_id = @schedule_id AND subject_name = @subject_name AND student_score_type = @student_score_type";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@class_id", Class_ID);
+                    cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                    cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                    cmd.Parameters.AddWithValue("@student_score_type", Show_Score_Type);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Delete_Student_Info_MonFri: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Delete_Student_Info_MonFri: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method Delete Student Score SatSun
+        public bool Delete_Student_Score_Info_SatSun(string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, string Show_Score_Type)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM class_schedule_score_sat_sun_info WHERE class_id = @class_id AND schedule_id = @schedule_id AND subject_name = @subject_name AND student_score_type = @student_score_type";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@class_id", Class_ID);
+                    cmd.Parameters.AddWithValue("@schedule_id", Score_Schedule_ID);
+                    cmd.Parameters.AddWithValue("@subject_name", Score_Skill_Name);
+                    cmd.Parameters.AddWithValue("@student_score_type", Show_Score_Type);
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Delete_Student_Info_MonFri: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error Delete_Student_Info_MonFri: {ex.Message}");
+                return false;
+            }
         }
     }
 }
