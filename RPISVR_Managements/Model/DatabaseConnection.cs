@@ -35,6 +35,8 @@ using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using QuestPDF.Infrastructure;
 using DocumentFormat.OpenXml.Office2013.Excel;
+using MySqlX.XDevAPI;
+using static QuestPDF.Helpers.Colors;
 
 namespace RPISVR_Managements.Model
 {
@@ -3877,32 +3879,13 @@ namespace RPISVR_Managements.Model
             return student_class_show;
         }
 
-        public List<Student_Info> Display_Student_List_in_Class2(int Max_Student_InClass, string Class_In_Study_Year, string Class_In_Level, string Class_In_Skill, string Class_In_Student_Year, string Class_In_Study_Timeshift)
+        public List<Student_Info> Display_Student_List_in_Class2(string class_id)
         {
             List<Student_Info> student_class_show = new List<Student_Info>();
             try
-            {             
-                string query = @"
-                                SELECT * 
-                                FROM student_infomations 
-                                WHERE 
-                                    stu_study_year = @Class_In_Study_Year
-                                    AND stu_education_level = @Class_In_Level
-                                    AND stu_education_subject = @Class_In_Skill
-                                    AND stu_studying_time = @Class_In_Student_Year
-                                    AND stu_study_time_shift = @Class_In_Study_Timeshift
-                                    AND stu_classes IS NOT NULL                                   
-                                    AND (stu_firstname_kh REGEXP '^[ក-អ]' 
-                                    OR stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]')
-                                ORDER BY 
-                                    CASE 
-                                        WHEN stu_firstname_kh REGEXP '[ក-អ]' THEN 1
-                                        WHEN stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2
-                                        ELSE 3
-                                    END, 
-                                    stu_firstname_kh ASC
-                                    LIMIT @Max_Student_InClass";
-
+            {
+                string query = "SELECT si.*\r\nFROM student_infomations si\r\nJOIN class_enrollments ce ON si.ID = ce.stu_id\r\nWHERE ce.class_id = @class_id";
+                
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -3910,12 +3893,8 @@ namespace RPISVR_Managements.Model
 
                     using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@Class_In_Study_Year", Class_In_Study_Year);
-                        cmd.Parameters.AddWithValue("@Class_In_Level", Class_In_Level);
-                        cmd.Parameters.AddWithValue("@Class_In_Skill", Class_In_Skill);
-                        cmd.Parameters.AddWithValue("@Class_In_Student_Year", Class_In_Student_Year);
-                        cmd.Parameters.AddWithValue("@Class_In_Study_Timeshift", Class_In_Study_Timeshift);
-                        cmd.Parameters.AddWithValue("@Max_Student_InClass", Max_Student_InClass);
+                        cmd.Parameters.AddWithValue("@class_id", class_id);
+                        
                         cmd.CommandTimeout = 30;
 
                         using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -6679,6 +6658,588 @@ namespace RPISVR_Managements.Model
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error Delete_Student_Info_MonFri: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method to Get Student Info
+        public List<Class_Score> SelectFetch_Students_Info_Score(string class_id)
+        {
+            List<Class_Score> class_student_info = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = "SELECT si.ID,si.stu_id,si.stu_firstname_kh,si.stu_lastname_kh,si.stu_gender,si.stu_birthday_dateonly,si.stu_image_source FROM class_enrollments ce JOIN student_infomations si ON ce.stu_id = si.ID WHERE ce.class_id = @class_id ORDER BY CASE WHEN stu_firstname_kh REGEXP '^[ក-អ]' THEN 1 WHEN stu_firstname_kh REGEXP '^[អឥឦឧឩឪឫឬឭឮឯឰឱឲ]' THEN 2 ELSE 3 END, stu_firstname_kh ASC";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score student_list_info = new Class_Score()
+                                    {
+                                        Score_Stu_ID = reader.GetInt32("ID"),
+                                        Score_Student_ID = reader.GetString("stu_id"),
+                                        Score_Student_Name = reader.GetString("stu_firstname_kh") + " " + reader.GetString("stu_lastname_kh"),
+                                        Score_Student_Gender = reader.GetString("stu_gender"),
+                                        Score_Student_BirthDay = reader.GetString("stu_birthday_dateonly")
+                                        //ProfileImageBytes = reader.IsDBNull(reader.GetOrdinal("stu_image_source")) ? null : (byte[])reader["stu_image_source"]
+                                    };
+
+                                    // Read the image as byte array from MySQL
+                                // Stu_Image
+                                if (!reader.IsDBNull(reader.GetOrdinal("stu_image_source")))
+                                    {
+                                        // First, get the size of the image byte array from the database
+                                        long byteSize = reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, null, 0, 0);
+
+                                        if (byteSize > 0)
+                                        {
+                                            // Initialize the byte array with the correct size
+                                            byte[] imageBytes = new byte[byteSize];
+
+                                            // Now, read the image data into the byte array
+                                            reader.GetBytes(reader.GetOrdinal("stu_image_source"), 0, imageBytes, 0, (int)byteSize);
+
+                                            // If the image byte array is not empty, process it
+                                            if (imageBytes != null && imageBytes.Length > 0)
+                                            {
+                                                student_list_info.ProfileImageBytes = imageBytes;  // Store the image bytes for future use
+                                                student_list_info.Stu_Image_Source = ConvertBytesToImage(imageBytes);  // Convert the byte array to a BitmapImage
+                                            }
+                                            else
+                                            {
+                                                Debug.WriteLine("No image data found for student " + student_list_info.Score_Stu_ID);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Debug.WriteLine("Byte size is 0 for student " + student_list_info.Score_Stu_ID);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Debug.WriteLine("stu_image_source is NULL for student " + student_list_info.Score_Stu_ID);
+                                    }
+
+                                    class_student_info.Add(student_list_info);
+                                }
+                            }
+                        }
+                        conn.Close();
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Datasbase GetFetch_Student_Info_For_Score Error: {ex.Message}");
+                    return null;
+                }
+                return class_student_info;
+            }
+        }
+
+        //Method to get Score Type Info MonFri
+        public List<Class_Score> GetFetch_Student_Score_MonFri_Types_Total(string student_id,string class_id)
+        {
+            List<Class_Score> score_type = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = "SELECT subject_name,total_subject_time,student_score_type,student_score FROM class_schedule_score_mon_fri_info  WHERE class_id = @class_id AND student_id = @student_id ORDER BY subject_name";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", class_id);
+                            cmd.Parameters.AddWithValue("@student_id", student_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score student_list_info = new Class_Score()
+                                    {
+                                        Score_Skill_Name = reader.GetString("subject_name"),
+                                        Score_Skill_TotalTime = reader.GetInt32("total_subject_time"),
+                                        Show_Score_Type = reader.GetString("student_score_type"),
+                                        Student_Score = reader.GetInt32("student_score")
+                                    };
+                                    score_type.Add(student_list_info);
+                                }           
+                            }     
+                                
+                        }
+                        conn.Close();
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Datasbase GetFetch_Student_Info_ScoreType Error: {ex.Message}");
+                    return null;
+                }
+                return score_type;
+            }
+        }
+
+        //Method to get Score Type Info SatSun
+        public List<Class_Score> GetFetch_Student_Score_SatSun_Types_Total(string student_id, string class_id)
+        {
+            List<Class_Score> score_type = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+
+                        string query = "SELECT subject_name,total_subject_time,student_score_type,student_score FROM class_schedule_score_mon_fri_info  WHERE class_id = @class_id AND student_id = @student_id ORDER BY subject_name";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", class_id);
+                            cmd.Parameters.AddWithValue("@student_id", student_id);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score student_list_info = new Class_Score()
+                                    {
+                                        Score_Skill_Name = reader.GetString("subject_name"),
+                                        Score_Skill_TotalTime = reader.GetInt32("total_subject_time"),
+                                        Show_Score_Type = reader.GetString("student_score_type"),
+                                        Student_Score = reader.GetInt32("student_score")
+                                    };
+                                    score_type.Add(student_list_info);
+                                }
+                            }
+
+                        }
+                        conn.Close();
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Datasbase GetFetch_Student_Info_ScoreType Error: {ex.Message}");
+                    return null;
+                }
+                return score_type;
+            }
+        }
+
+        //Method to Save Setting Score
+        public bool Save_Setting_Score(Class_Score score_setting)
+        {
+            try
+            {
+                using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO class_setting_score (score_setting_first,score_setting_second,score_setting_letter_grade,score_setting_GPA_value,score_setting_grade_system) VALUES(@score_setting_first,@score_setting_second,@score_setting_letter_grade,@score_setting_GPA_value,@score_setting_grade_system)";
+
+                    using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@score_setting_first", score_setting.Setting_Score1);
+                        cmd.Parameters.AddWithValue("@score_setting_second", score_setting.Setting_Score2);
+                        cmd.Parameters.AddWithValue("@score_setting_letter_grade", score_setting.Setting_Letter_Grade);
+                        cmd.Parameters.AddWithValue("@score_setting_GPA_value", score_setting.Setting_GPA_Value);
+                        cmd.Parameters.AddWithValue("@score_setting_grade_system", score_setting.Setting_Grade_System);
+
+                        int result = cmd.ExecuteNonQuery();
+                        return result == 1;
+
+                    }
+                }
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Save_Setting_Score: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Save_Setting_Score: {ex.Message}");
+                return false;
+            }
+
+        }
+
+        //Method Load Setting Score
+        public List<Class_Score>Load_Setting_Score_ToTable()
+        {
+            List<Class_Score> setting_score_list = new List<Class_Score>();
+            {
+
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT * FROM class_setting_score";
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score setting_score = new Class_Score()
+                                    {
+                                        Setting_Score_ID = reader.GetInt32("ID"),
+                                        Setting_Score1 = reader.GetInt32("score_setting_first"),
+                                        Setting_Score2 = reader.GetInt32("score_setting_second"),
+                                        Setting_Letter_Grade = reader.GetString("score_setting_letter_grade"),
+                                        Setting_GPA_Value = reader.GetInt32("score_setting_GPA_value"),
+                                        Setting_Grade_System = reader.GetString("score_setting_grade_system")
+                                    };
+                                    setting_score_list.Add(setting_score);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database Load_Setting_Score_ToTable: {ex.Message}");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error Load_Setting_Score_ToTable: {ex.Message}");
+                    return null;
+                }
+                return setting_score_list;
+            }
+        }
+
+        //Method Update Setting Score
+        public bool Update_Setting_Score(Class_Score setting_score_info)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE class_setting_score SET score_setting_first = @score_setting_first, score_setting_second = @score_setting_second, score_setting_letter_grade = @score_setting_letter_grade, score_setting_GPA_value = @score_setting_GPA_value, score_setting_grade_system = @score_setting_grade_system WHERE ID = @ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    {
+                        cmd.Parameters.AddWithValue("@score_setting_first", setting_score_info.Setting_Score1);
+                        cmd.Parameters.AddWithValue("@score_setting_second", setting_score_info.Setting_Score2);
+                        cmd.Parameters.AddWithValue("@score_setting_letter_grade", setting_score_info.Setting_Letter_Grade);
+                        cmd.Parameters.AddWithValue("@score_setting_GPA_value", setting_score_info.Setting_GPA_Value);
+                        cmd.Parameters.AddWithValue("@score_setting_grade_system", setting_score_info.Setting_Grade_System);
+                        cmd.Parameters.AddWithValue("@ID", setting_score_info.Setting_Score_ID);
+                    }
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Update_Setting_Score: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error Update_Setting_Score: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method Delete Setting Score
+        public bool Delete_Setting_Score(int setting_score_id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "DELETE FROM class_setting_score WHERE ID = @ID";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@ID", setting_score_id);
+                    
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Delete_Setting_Score: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Delete_Setting_Score: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method get setting score
+        public List<Class_Score> GetSetting_Score_Info()
+        {
+            List<Class_Score> setting_score_value = new List<Class_Score>();
+            {
+                try
+                {
+                    using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                    {
+                        connection.Open();
+                        string query = "SELECT * FROM class_setting_score";
+                        using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                        {
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score setting_score = new Class_Score()
+                                    {
+                                        Setting_Score_ID = reader.GetInt32("ID"),
+                                        Setting_Score1 = reader.GetInt32("score_setting_first"),
+                                        Setting_Score2 = reader.GetInt32("score_setting_second"),
+                                        Setting_Letter_Grade = reader.GetString("score_setting_letter_grade"),
+                                        Setting_GPA_Value = reader.GetInt32("score_setting_GPA_value"),
+                                        Setting_Grade_System = reader.GetString("score_setting_grade_system")
+                                    };
+                                    setting_score_value.Add(setting_score);
+                                }
+                            }
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetSetting_Score_Info {ex.Message}");
+                    return null;
+                }catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error GetSetting_Score_Info {ex.Message}");
+                    return null;
+                }
+                return setting_score_value;
+            }
+        }
+
+        //Method to get total score monfri
+        public List<Class_Score> GetTotalStudents_Score_BySubject(string Score_Student_ID,string Class_ID)
+        {
+            List<Class_Score> class_score_list = new List<Class_Score>();
+            {
+                try
+                {
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT class_id,subject_name,student_id,student_name,SUM(student_score) AS Total_Score,COUNT(student_score_type) AS Count_Score_Type FROM class_schedule_score_mon_fri_info where student_id = @student_id AND class_id = @class_id group by class_id,subject_name,student_id,student_name order by subject_name,student_id;";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@student_id", Score_Student_ID);
+                            cmd.Parameters.AddWithValue("@class_id",Class_ID);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score setting_score = new Class_Score()
+                                    {
+                                        Score_Skill_Name = reader.GetString("subject_name"),
+                                        Total_Score = reader.GetInt32("Total_Score"),
+                                        Total_Count_Score_Type = reader.GetInt32("Count_Score_Type"),
+                                        Total_Score_Average = (float)reader.GetInt32("Total_Score") / reader.GetInt32("Count_Score_Type")
+                                    };
+                                    class_score_list.Add(setting_score);
+                                }
+                            }
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetTotalStudents_Score_BySubject: {ex.Message}");
+                    return null;
+                }catch(Exception ex)
+                {
+                    Debug.WriteLine($"Error GetTotalStudents_Score_BySubject: {ex.Message}");
+                    return null;
+                }
+                return class_score_list;
+            }
+        }
+
+        //Method to get total score satsun
+        public List<Class_Score> GetTotalStudents_Score_BySubject1(string Score_Student_ID, string Class_ID)
+        {
+            List<Class_Score> class_score_list = new List<Class_Score>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT class_id,subject_name,student_id,student_name,SUM(student_score) AS Total_Score,COUNT(student_score_type) AS Count_Score_Type FROM class_schedule_score_sat_sun_info where student_id = @student_id AND class_id = @class_id group by class_id,subject_name,student_id,student_name order by subject_name,student_id;";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@student_id", Score_Student_ID);
+                            cmd.Parameters.AddWithValue("@class_id", Class_ID);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Class_Score setting_score = new Class_Score()
+                                    {
+                                        Score_Skill_Name = reader.GetString("subject_name"),
+                                        Total_Score = reader.GetInt32("Total_Score"),
+                                        Total_Count_Score_Type = reader.GetInt32("Count_Score_Type"),
+                                        Total_Score_Average = (float)reader.GetInt32("Total_Score") / reader.GetInt32("Count_Score_Type")
+                                    };
+                                    class_score_list.Add(setting_score);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetTotalStudents_Score_BySubject: {ex.Message}");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error GetTotalStudents_Score_BySubject: {ex.Message}");
+                    return null;
+                }
+                return class_score_list;
+            }
+        }
+
+        //Method to get Student Rank
+        public List<Class_Score> GetStudents_Rank_Info(string class_id,string class_timeshift)
+        {
+            List<Class_Score> class_student_ranks = new List<Class_Score>();
+            {
+                try
+                {
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        if(class_timeshift == "វេនសៅរ៍អាទិត្យ")
+                        {
+                            string query = "WITH Score_Aggregate AS (\r\n    -- Calculate Total_Score_of_subject\r\n    SELECT \r\n        student_id, \r\n        student_name,\r\n        student_gender,\r\n        stu_birthday,\r\n        subject_name,\r\n        SUM(student_score) / COUNT(DISTINCT student_score_type) AS Total_Score_of_subject\r\n    FROM class_schedule_score_sat_sun_info\r\n    GROUP BY student_id, student_name, student_gender, stu_birthday, subject_name\r\n),\r\nTotal_Score_Calculation AS (\r\n    -- Calculate Total_Score\r\n    SELECT \r\n        student_id, \r\n        student_name,\r\n        student_gender,\r\n        stu_birthday,\r\n        SUM(Total_Score_of_subject)  AS Total_Score\r\n    FROM Score_Aggregate\r\n    GROUP BY student_id, student_name, student_gender, stu_birthday\r\n),\r\nAverage_Score AS (\r\n    -- Calculate the Average\r\n    SELECT \r\n        tsc.student_id,\r\n        tsc.student_name,\r\n        tsc.student_gender,\r\n        tsc.stu_birthday,\r\n        tsc.Total_Score,\r\n        tsc.Total_Score / (SELECT COUNT(DISTINCT subject_name) FROM class_schedule_score_mon_fri_info) AS Average\r\n    FROM Total_Score_Calculation tsc\r\n)\r\n-- Assign Rank\r\nSELECT \r\n    student_id,\r\n    student_name,\r\n    student_gender,\r\n    stu_birthday,\r\n    Total_Score,\r\n    Average,\r\n    RANK() OVER (ORDER BY Total_Score DESC) AS Ranks\r\nFROM Average_Score";
+
+
+                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                                using (MySqlDataReader reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        Class_Score student_score_rank = new Class_Score()
+                                        {
+                                            Score_Student_ID = reader.GetString("student_id"),
+                                            Score_Student_Name = reader.GetString("student_name"),
+                                            Score_Student_Gender = reader.GetString("student_gender"),
+                                            Score_Student_BirthDay = reader.GetString("stu_birthday"),
+                                            Total_Score_Average = reader.GetFloat("Total_Score"),
+                                            Average_Student = reader.GetFloat("Average"),
+                                            Rank_Student = reader.GetInt32("Ranks")
+
+                                        };
+                                        class_student_ranks.Add(student_score_rank);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string query = "WITH Score_Aggregate AS (\r\n    -- Calculate Total_Score_of_subject\r\n    SELECT \r\n        student_id, \r\n        student_name,\r\n        student_gender,\r\n        stu_birthday,\r\n        subject_name,\r\n        SUM(student_score) / COUNT(DISTINCT student_score_type) AS Total_Score_of_subject\r\n    FROM class_schedule_score_mon_fri_info\r\n    GROUP BY student_id, student_name, student_gender, stu_birthday, subject_name\r\n),\r\nTotal_Score_Calculation AS (\r\n    -- Calculate Total_Score\r\n    SELECT \r\n        student_id, \r\n        student_name,\r\n        student_gender,\r\n        stu_birthday,\r\n        SUM(Total_Score_of_subject)  AS Total_Score\r\n    FROM Score_Aggregate\r\n    GROUP BY student_id, student_name, student_gender, stu_birthday\r\n),\r\nAverage_Score AS (\r\n    -- Calculate the Average\r\n    SELECT \r\n        tsc.student_id,\r\n        tsc.student_name,\r\n        tsc.student_gender,\r\n        tsc.stu_birthday,\r\n        tsc.Total_Score,\r\n        tsc.Total_Score / (SELECT COUNT(DISTINCT subject_name) FROM class_schedule_score_mon_fri_info) AS Average\r\n    FROM Total_Score_Calculation tsc\r\n)\r\n-- Assign Rank\r\nSELECT \r\n    student_id,\r\n    student_name,\r\n    student_gender,\r\n    stu_birthday,\r\n    Total_Score,\r\n    Average,\r\n    RANK() OVER (ORDER BY Total_Score DESC) AS Ranks\r\nFROM Average_Score";
+                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                                using (MySqlDataReader reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        Class_Score student_score_rank = new Class_Score()
+                                        {
+                                            Score_Student_ID = reader.GetString("student_id"),
+                                            Score_Student_Name = reader.GetString("student_name"),
+                                            Score_Student_Gender = reader.GetString("student_gender"),
+                                            Score_Student_BirthDay = reader.GetString("stu_birthday"),
+                                            Total_Score_Average = reader.GetFloat("Total_Score"),
+                                            Average_Student = reader.GetFloat("Average"),
+                                            Rank_Student = reader.GetInt32("Ranks")
+
+                                        };
+                                        class_student_ranks.Add(student_score_rank);
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                }catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetStudents_Rank_Info: {ex.Message}");
+                    return null;
+                }catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error GetStudents_Rank_Info: {ex.Message}");
+                    return null;
+                }
+                return class_student_ranks;
+            }
+        }
+
+        //Method to Up Students Class
+        public bool Up_Students_Class(string Semester,string Student_Year,string Up_Study_Year,string Class_State,string Student_ID)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE student_infomations SET stu_semester = @stu_semester,stu_studying_time = @stu_studying_time,stu_study_year = @stu_study_year,stu_classes = @stu_classes WHERE stu_id = @stu_id";
+
+                    using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@stu_semester", Semester);
+                        cmd.Parameters.AddWithValue("@stu_studying_time", Student_Year);
+                        cmd.Parameters.AddWithValue("@stu_study_year", Up_Study_Year);
+                        cmd.Parameters.AddWithValue("@stu_id", Student_ID);
+
+                        // Check if Class_State is null or empty, then set it to NULL
+                        cmd.Parameters.AddWithValue("@stu_classes", string.IsNullOrEmpty(Class_State) ? (object)DBNull.Value : Class_State);
+
+
+                        // Execute the query
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Up_Students_Class: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Up_Students_Class: {ex.Message}");
                 return false;
             }
         }

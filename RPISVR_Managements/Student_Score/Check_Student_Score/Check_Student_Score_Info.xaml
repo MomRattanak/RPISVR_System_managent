@@ -246,7 +246,7 @@
 
         <Grid Grid.Row="3" BorderBrush="Aqua" BorderThickness="3" CornerRadius="3">
             <TabView x:Name="Insert_Score" IsAddTabButtonVisible="False">
-                <TabViewItem x:Name="Check_Student_Score" Header="ពិនិត្យពិន្ទុនិស្សិត" IsClosable="False" Background="Green">
+                <TabViewItem x:Name="Check_Student_Score" Header="ពិនិត្យពិន្ទុនិស្សិត" IsClosable="False" Background="Brown">
                     <ScrollView>
                         <Grid>
                             <Grid.RowDefinitions>
@@ -285,7 +285,7 @@
                                                  Width="220"
                                                  BorderBrush="Aqua"
                                                  BorderThickness="2"
-                                                 Command="{Binding Student_Score_Show_Skill}"
+                                                 Command="{Binding Command_Show_Student_In_Student_Score}"
                                                  Style="{StaticResource Stye_KH_Button}"
                                                     HorizontalAlignment="Center">
                                             <Button.Content>
@@ -307,32 +307,32 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel>
+                                <StackPanel Grid.Column="0">
                                     <ScrollView x:Name="Table_Schedule_Skill_Info" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
                                         <StackPanel>
                                             <!--Header-->
                                             <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
-                                                <TextBlock Text="មុខវិជ្ជា" Margin="50,0,0,0" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="ចំនួនម៉ោងសរុប" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="គ្រូបច្ចេកទេស" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="ថ្ងៃ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
-                                                <TextBlock Text="កាលវិភាគ ID" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="រូបភាព" Width="80" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ឈ្មោះ" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ថ្ងៃខែឆ្នាំកំណើត" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="លេខសម្គាល់" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
                                             </StackPanel>
 
-                                            <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" Height="180" VerticalScrollBarVisibility="Visible">
+                                            <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
 
 
                                                 <!--ListView-->
-                                                <ListView x:Name="Table_Schedule_Info_List" ItemsSource="{Binding Class_Skill_Score_Info}" SelectedItem="{Binding Selected_Skill_Name,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+                                                <ListView x:Name="Table_Schedule_Info_List" ItemsSource="{Binding Student_InClass_Score}" SelectedItem="{Binding Selected_Student_For_Show_Score,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
                                                     <ListView.ItemTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
-                                                                <TextBlock Text="{Binding Score_Skill_Name}" Margin="0,0,0,0" Width="180" Style="{StaticResource Font_KH_Body}"/>
-                                                                <TextBlock Text="{Binding Score_Skill_TotalTime}" Width="70"/>
-                                                                <TextBlock Text="{Binding Score_Skill_TeacherName}" Width="100" Style="{StaticResource Font_KH_Body}"/>
-                                                                <TextBlock Text="{Binding Score_Skill_Day}" Width="70" Style="{StaticResource Font_KH_Body}"/>
-                                                                <TextBlock Text="{Binding Score_Schedule_ID}" Width="70"/>
+                                                                <Image Source="{Binding Stu_Image_Source}" Width="70" Height="50"/>
+                                                                <TextBlock Text="{Binding Score_Student_Name}" Width="80" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Score_Student_Gender}" Width="40" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Score_Student_BirthDay}" Width="70" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Score_Student_ID}" Width="80"/>
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </ListView.ItemTemplate>
@@ -341,11 +341,428 @@ Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConver
                                         </StackPanel>
                                     </ScrollView>
                                 </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,30,0,10">
+                                        <StackPanel Orientation="Vertical" Width="150" Height="80" BorderBrush="Red" BorderThickness="3" CornerRadius="3">
+                                            <TextBlock Text="ពិន្ទុសរុប"
+                                                   HorizontalAlignment="Center"
+                                                    Style="{StaticResource Font_KH_Body}">
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Total_Score_Show,Mode=TwoWay}"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="Aqua"
+                                                       FontSize="26"/>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Vertical" Width="150" Margin="10,0,0,0" Height="80" BorderBrush="Red" BorderThickness="3" CornerRadius="3">
+                                            <TextBlock Text="មធ្យមភាគ"
+                                                       HorizontalAlignment="Center"
+                                                Style="{StaticResource Font_KH_Body}">
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Total_Score_Average_Show,Mode=TwoWay}"
+                                                      HorizontalAlignment="Center"
+                                                        Foreground="Aqua"
+                                                        FontSize="26"
+                                                       />
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Vertical" Width="150" Margin="10,0,0,0" Height="80" BorderBrush="Red" BorderThickness="3" CornerRadius="3">
+                                            <TextBlock Text="កម្រិត"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource Font_KH_Body}"/>
+                                            <TextBlock Text="{Binding Setting_Letter_Grade,Mode=TwoWay}"
+                                                       HorizontalAlignment="Center"
+                                                          Foreground="Aqua"
+                                                          FontSize="26"/>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Vertical" Width="150" Margin="10,0,0,0" Height="80" BorderBrush="Red" BorderThickness="3" CornerRadius="3">
+                                            <TextBlock Text="វាយតម្លៃ"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource Font_KH_Body}"/>
+                                            <TextBlock Text="{Binding Setting_Grade_System,Mode=TwoWay}"
+                                                       HorizontalAlignment="Center"
+                                                          Foreground="Aqua"
+                                                          FontSize="26"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <ScrollView x:Name="Table_Student_Score_Type_Info" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                                        <StackPanel>
+                                            <!--Header-->
+                                            <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                                <TextBlock Text="មុខវិជ្ជា" Width="130" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ចំនួនម៉ោង(h)" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ប្រភេទពិន្ទុ" Width="200" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ពិន្ទុ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+
+                                            </StackPanel>
+
+                                            <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+
+
+                                                <!--ListView-->
+                                                <ListView x:Name="Table_Student_Score_Info_List" ItemsSource="{Binding Student_Score_Type_Total}" SelectedItem="" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                <TextBlock Text="{Binding Score_Skill_Name}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Score_Skill_TotalTime}" Width="40" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Show_Score_Type}" Width="240" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Student_Score}" Width="80" Foreground="Aqua"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </ScrollView>
+                                        </StackPanel>
+                                    </ScrollView>
+
+                                    <ScrollView x:Name="Table_Total_Score_by_Subject" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                                        <StackPanel>
+                                            <!--Header-->
+                                            <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                                <TextBlock Text="មុខវិជ្ជា" Width="130" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ពិន្ទុសរុប" Width="50" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ពិន្ទុសរុបជាមធ្យមនៃមុខវិជ្ជា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="ចំនួនប្រភេទពិន្ទុសរុប" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="និទ្ទេស" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                                <TextBlock Text="វាយតម្លៃ" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            </StackPanel>
+
+                                            <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+
+
+                                                <!--ListView-->
+                                                <ListView x:Name="Table_Total_Student_Score_List" ItemsSource="{Binding Student_Total_Score_By_Subject}" SelectedItem="" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                                <TextBlock Text="{Binding Score_Skill_Name}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Total_Score}" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Total_Score_Average}" Width="140" Foreground="Aqua" Style="{StaticResource Font_KH_Body}"/>
+                                                                <TextBlock Text="{Binding Total_Count_Score_Type}" Width="80"/>
+                                                                <TextBlock Text="{Binding Grade_Letter}" Width="50" Foreground="Aqua"/>
+                                                                <TextBlock Text="{Binding Grade_System}" Width="80" Foreground="Aqua"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </ScrollView>
+                                        </StackPanel>
+                                    </ScrollView>
+                                    
+                                    
+
+
+                                </StackPanel>
                             </Grid>
                         </Grid>
-                        
-                        
-                        
+                    </ScrollView>
+                </TabViewItem>
+
+                <TabViewItem x:Name="Rank_Score" Header="ចំណាត់ថ្នាក់" IsClosable="False" Background="Brown">
+                    <ScrollView>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <StackPanel>
+                                    <RelativePanel>
+                                        <StackPanel x:Name="Class_Info_RankScore"
+                                                Margin="10,0,0,0">
+                                                <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                        <Run Text="ថ្នាក់ឈ្មោះ៖ "/>
+                                                        <Run Text="{Binding Class_Name,Mode=TwoWay}" Foreground="Aqua"/>
+                                                        <Run Text="   លេខសម្គាល់៖"/>
+                                                        <Run Text="{Binding Class_ID,Mode=TwoWay}" Foreground="Aqua"/>
+                                                </TextBlock>
+                                            <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                <Run Text=" ឆ្នាំសិក្សា៖ "/>
+                                                <Run Text="{Binding Class_In_Study_Year,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text=" ជំនាញ៖"/>
+                                                <Run Text="{Binding Class_In_Skill,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text=" ឆ្នាំទី៖ "/>
+                                                <Run Text="{Binding Class_In_Student_Year,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text=" ឆមាស៖ "/>
+                                                <Run Text="{Binding Class_In_Semester,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text=" ជំនាន់៖ "/>
+                                                <Run Text="{Binding Class_In_Generation,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text=" កម្រិត៖ "/>
+                                                <Run Text="{Binding Class_In_Level,Mode=TwoWay}" Foreground="Aqua"/>
+                                            </TextBlock>
+
+                                            <TextBlock Style="{StaticResource Font_KH_Body}">
+                                                        <Run Text="ស្ថានភាពថ្នាក់រៀន៖"/>
+                                                        <Run Text="{Binding Current_Class_State,Mode=TwoWay}" Foreground="Aqua"/>
+                                                        <Run Text="  វេនសិក្សា៖"/>
+                                                        <Run Text="{Binding Class_In_Study_Timeshift,Mode=TwoWay}" Foreground="Aqua"/>
+                                                <Run Text="ប្រភេទសិក្សា៖ "/>
+                                                <Run Text="{Binding Class_In_Study_Type,Mode=TwoWay}" Foreground="Aqua"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    RelativePanel.Below="Class_Info_RankScore"
+                                                    HorizontalAlignment="Center">
+                                            <Button x:Name="btn_show_rank"
+                                                    Margin="5,10,5,5"
+                                                    Width="220"
+                                                    BorderBrush="Aqua"
+                                                    BorderThickness="2"
+                                                    Command="{Binding Command_Show_Students_Rank}"
+                                                    Style="{StaticResource Stye_KH_Button}"
+                                                    HorizontalAlignment="Center">
+                                                <Button.Content>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <FontIcon Glyph="&#xE896;" />
+                                                        <TextBlock Text="បង្ហាញចំណាត់ថ្នាក់"
+                                                               Margin="10,0,0,0"
+                                                               Style="{StaticResource Font_KH_Body}"/>
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+
+                                            <Button x:Name="btn_Send_Pass_Student_Up_Class"
+                                                    Command="{Binding Command_Send_Student_Up_Class}"
+                                                        Style="{StaticResource Stye_KH_Button}"
+                                                        HorizontalAlignment="Right"
+                                                        Margin="5,10,5,5"
+                                                        Width="220"
+                                                        BorderBrush="Aqua"
+                                                        BorderThickness="2">
+                                                <Button.Content>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <FontIcon Glyph="&#xE752;" Margin="0,0,10,0"/>
+                                                        <TextBlock Text="បញ្ជូននិស្សិតឡើងថ្នាក់"
+                                                                   Style="{StaticResource Font_KH_Body}"/>
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                            
+                                            <ToggleButton x:Name="Select_all_stu_rank"
+                                                          Click="select_all_stu_rank"
+                                                          Style="{StaticResource Stye_KH_TogleButton}">
+                                                <ToggleButton.Content>
+                                                    <StackPanel>
+                                                        <FontIcon Glyph="&#xE73A;" />
+                                                    </StackPanel>
+                                                </ToggleButton.Content>
+                                            </ToggleButton>
+
+                                            <Button x:Name="btn_export_stu_rank_PDF"
+                                                    Command="{Binding Command_Export_Student_Rank_PDF}"
+                                                    Margin="5">
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                       <Image Source="/Assets/Report_Student_Info_Icon/icons8-pdf-96.png" Width="25" Height="25"/>
+
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                            <Button x:Name="btn_export_stu_rank_excel"
+                                                    Command="{Binding Command_Export_Student_Rank_Excel}" >
+                                                <Button.Content>
+                                                    <StackPanel>
+                                                        <Image Source="/Assets/Report_Student_Info_Icon/icons8-excel-96.png" Width="25" Height="25"/>
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+
+                                            
+                                        </StackPanel>
+                                    </RelativePanel>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Grid.Row="1">
+                                <ScrollView x:Name="Table_Student_Rank_Info" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                                    <StackPanel>
+                                        <!--Header-->
+                                        <StackPanel Orientation="Horizontal" Spacing="20" Background="Green" CornerRadius="3">
+                                            <TextBlock Text="លេខសម្គាល់" Width="90" Margin="50,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ឈ្មោះ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ភេទ" Width="40" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ថ្ងៃខែឆ្នាំកំណើត" Width="95" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+
+                                            <TextBlock Text="ពិន្ទុ" Width="55" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="មធ្យមភាគ" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ចំណាត់ថ្នាក់" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="និទ្ទេស" Width="65" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ស្ថានភាព" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="កម្រិតវាយតម្លៃ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        </StackPanel>
+
+                                        <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Visible">
+
+
+                                            <!--ListView-->
+                                            <ListView x:Name="Table_Students_Rank_List" ItemsSource="{Binding Students_Rank_List}" SelectionChanged="Selected_Students_Rank" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                            <TextBlock Text="{Binding Score_Student_ID}" Width="80"/>
+                                                            <TextBlock Text="{Binding Score_Student_Name}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding Score_Student_Gender}" Width="40" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding Score_Student_BirthDay}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+
+                                                            <TextBlock Text="{Binding Total_Score_Average}" Width="60"/>
+                                                            <TextBlock Text="{Binding Average_Student}" Width="80"/>
+                                                            <TextBlock Text="{Binding Rank_Student}" Width="60" Foreground="Aqua"/>
+
+                                                            <TextBlock Text="{Binding Grade_Letter}" Width="60"/>
+                                                            <TextBlock Text="{Binding Student_Pass_State}" Width="70" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding Grade_System}" Width="80"/>
+                                                           
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </ScrollView>
+                                    </StackPanel>
+                                </ScrollView>
+                            </Grid>
+                        </Grid>
+                    </ScrollView>
+                </TabViewItem>
+                
+                <TabViewItem x:Name="Setting_Score" Header="ការកំណត់ពិន្ទុ" IsClosable="False" Background="Brown">
+                    <ScrollView>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Grid.Row="0" Margin="10,0,0,0" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3" Orientation="Horizontal">
+                                <NumberBox x:Name="first_score"
+                                         Header="ចន្លោះមធ្យមភាគ១"
+                                         Height="65"
+                                           Margin="10,0,0,0"
+                                         Style="{StaticResource Stye_KH_NumberBox}"
+                                         Text="{Binding Setting_Score1,Mode=TwoWay}"/>
+                                <TextBlock Text="ចន្លោះ"
+                                           Margin="0,40,0,0"
+                                           Style="{StaticResource Font_KH_Body}"/>
+                                <NumberBox x:Name="second_score"
+                                         Header="ចន្លោះមធ្យមភាគ២"
+                                         Height="65"
+                                         Style="{StaticResource Stye_KH_NumberBox}"
+                                         Text="{Binding Setting_Score2,Mode=TwoWay}"/>
+                                <TextBox x:Name="letter_grade"
+                                         Header="អក្សរតំណាងកម្រិត"
+                                         Style="{StaticResource Style_KH_TextBox}"
+                                         Text="{Binding Setting_Letter_Grade,Mode=TwoWay}"/>
+                                <NumberBox x:Name="GPA_value"
+                                           Header="តម្លៃ GPA"
+                                           Height="65"
+                                           Style="{StaticResource Stye_KH_NumberBox}"
+                                           Text="{Binding Setting_GPA_Value,Mode=TwoWay}"/>
+                                <TextBox x:Name="grade_system"
+                                         Header="កម្រិតនិទ្ទេស"                 
+                                         Style="{StaticResource Style_KH_TextBox}"
+                                         Text="{Binding Setting_Grade_System,Mode=TwoWay}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
+                                <Button x:Name="btn_save"
+                                        Command="{Binding Command_Save_Setting_Score}"
+                                        Style="{StaticResource Stye_KH_Button}"
+                                        BorderBrush="Aqua"
+                                        BorderThickness="1">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <FontIcon Glyph="&#xE74E;" Margin="0,0,20,0"/>
+                                            <TextBlock Text="រក្សាទុក"
+                                                       Style="{StaticResource Font_KH_Body}"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+
+                                <Button x:Name="btn_clear"
+                                        Command="{Binding Command_Clear_Setting_Score}"
+                                        Style="{StaticResource Stye_KH_Button}"
+                                        BorderBrush="Red"
+                                        BorderThickness="1">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <FontIcon Glyph="&#xE894;" Margin="0,0,20,0"/>
+                                            <TextBlock Text="សម្អាត"
+                                                       Style="{StaticResource Font_KH_Body}"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <ScrollView x:Name="Table_Setting_Score" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                                    <StackPanel>
+                                        <!--Header-->
+                                        <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                            <TextBlock Text="អក្សរតំណាងកម្រិត" Width="110" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="មធ្យមភាគ១" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="មធ្យមភាគ២" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="តម្លៃ GPA" Width="100" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="កម្រិតនិទ្ទេស" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                        </StackPanel>
+
+                                        <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+
+
+                                            <!--ListView-->
+                                            <ListView x:Name="Table_Setting_Score_List" ItemsSource="{Binding Setting_Score_List}" SelectedItem="{Binding Seletecd_Setting_Score,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                            <TextBlock Text="{Binding Setting_Letter_Grade}" Margin="40,0,20,0" Width="80"/>
+                                                            <TextBlock Text="{Binding Setting_Score1}" Width="40"/>
+                                                            <TextBlock Text="-" Width="10"/>
+                                                            <TextBlock Text="{Binding Setting_Score2}" Width="70"/>
+                                                            <TextBlock Text="{Binding Setting_GPA_Value}" Width="80"/>
+                                                            <TextBlock Text="{Binding Setting_Grade_System}" Width="80"/>
+                                                            <TextBlock Text="{Binding Setting_Score_ID}" Width="80" Visibility="Collapsed"/>
+
+                                                            <Button x:Name="btn_edit_score"
+                                                                    Command="{Binding DataContext.Command_Edit_Setting_Score, ElementName=Table_Setting_Score_List}">
+                                                                <Button.Content>
+                                                                    <StackPanel>
+                                                                        <FontIcon Glyph="&#xE70F;" Foreground="Aqua"/>
+                                                                    </StackPanel>
+                                                                </Button.Content>
+                                                            </Button>
+                                                            <Button x:Name="btn_delete_score"
+                                                                     Command="{Binding DataContext.Command_Delete_Setting_Score, ElementName=Table_Setting_Score_List}"
+                                                                        CommandParameter="{Binding}">
+                                                                <Button.Content>
+                                                                    <StackPanel>
+                                                                        <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
+                                                                    </StackPanel>
+                                                                </Button.Content>
+                                                            </Button>
+                                                            
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </ScrollView>
+                                    </StackPanel>
+                                </ScrollView>
+                            </StackPanel>
+                        </Grid>
                     </ScrollView>
                 </TabViewItem>
             </TabView>

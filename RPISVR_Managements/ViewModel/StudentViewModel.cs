@@ -36,6 +36,9 @@ using Org.BouncyCastle.Tsp;
 using Microsoft.UI.Xaml.Data;
 using RPISVR_Managements.List_and_Reports.Schedule;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Presentation;
+using System.Globalization;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -338,6 +341,24 @@ namespace RPISVR_Managements.ViewModel
             Command_Clear_Student_Score = new RelayCommand(async () => await Clear_Student_Score_Info());
             Command_Delete_Student_Score = new RelayCommand(async () => await Delete_Student_Score_Info());
             Command_Export_Student_Score_PDF = new RelayCommand(async () => await  Export_Student_Score_PDF());
+
+            //Student Score
+            Student_InClass_Score = new ObservableCollection<Class_Score>();
+            Student_Score_Type_Total = new ObservableCollection<Class_Score>();
+            Command_Show_Student_In_Student_Score = new RelayCommand(async () => await Show_Student_in_Student_Score());
+            Student_Total_Score_By_Subject = new ObservableCollection<Class_Score>();
+            //Setting Score
+            Command_Save_Setting_Score = new RelayCommand(async () => await Save_Setting_Score());
+            Setting_Score_List = new ObservableCollection<Class_Score>();
+            _ = Load_Setting_Score();
+            Command_Clear_Setting_Score = new RelayCommand(async () => await Clear_Setting_Score_Box());
+            Command_Edit_Setting_Score = new RelayCommand(async () => await Select_Setting_Score_Edit());
+            Command_Delete_Setting_Score = new RelayCommand(async () => await Delete_Setting_Score());
+            Students_Rank_List = new ObservableCollection<Class_Score>();
+            Command_Show_Students_Rank = new RelayCommand(async () => await Show_Students_Rank());
+            Command_Export_Student_Rank_PDF = new RelayCommand(async () => await Export_Students_Rank_PDF());
+            Command_Export_Student_Rank_Excel = new RelayCommand(async () => await Export_Students_Rank_Excel());
+            Command_Send_Student_Up_Class = new RelayCommand(async () => await Send_Student_Class_Up());
         }
         
 
@@ -350,6 +371,62 @@ namespace RPISVR_Managements.ViewModel
             {
                 _CurrentOperation = value;
                 OnPropertyChanged(nameof(CurrentOperation));
+            }
+        }
+        //List Students Rank
+        private ObservableCollection<Class_Score> _Students_Rank_List;
+        public ObservableCollection<Class_Score> Students_Rank_List
+        {
+            get { return _Students_Rank_List; }
+            set
+            {
+                _Students_Rank_List = value;
+                OnPropertyChanged(nameof(Students_Rank_List));
+            }
+        }
+        //List Setting Score
+        private ObservableCollection<Class_Score> _Setting_Score_List;
+        public ObservableCollection<Class_Score> Setting_Score_List
+        {
+            get { return _Setting_Score_List; }
+            set
+            {
+                _Setting_Score_List = value;
+                OnPropertyChanged(nameof(Setting_Score_List));
+            }
+        }
+
+        //List Student Total Score By Subject
+        private ObservableCollection<Class_Score> _Student_Total_Score_By_Subject;
+        public ObservableCollection<Class_Score> Student_Total_Score_By_Subject
+        {
+            get { return _Student_Total_Score_By_Subject; }
+            set
+            {
+                _Student_Total_Score_By_Subject = value;
+                OnPropertyChanged(nameof(Student_Total_Score_By_Subject));
+            }
+        }
+        //List Student Score Type
+        private ObservableCollection<Class_Score> _Student_Score_Type_Total;
+        public ObservableCollection<Class_Score> Student_Score_Type_Total
+        {
+            get { return _Student_Score_Type_Total; }
+            set
+            {
+                _Student_Score_Type_Total = value;
+                OnPropertyChanged(nameof(Student_Score_Type_Total));
+            }
+        }
+        //List Student For Score
+        private ObservableCollection<Class_Score> _Student_InClass_Score;
+        public ObservableCollection<Class_Score> Student_InClass_Score
+        {
+            get { return _Student_InClass_Score; }
+            set
+            {
+                _Student_InClass_Score = value;
+                OnPropertyChanged(nameof(Student_InClass_Score));
             }
         }
 
@@ -6196,6 +6273,17 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SelectedClasses_Prepare_All));
             }
         }
+        //Multi Select All Student Rank
+        private List<Class_Score> _MultiSelectAllStudent_Rank;
+        public List<Class_Score> MultiSelectAllStudent_Rank
+        {
+            get => _MultiSelectAllStudent_Rank;
+            set
+            {
+                _MultiSelectAllStudent_Rank = value;
+                OnPropertyChanged(nameof(MultiSelectAllStudent_Rank));
+            }
+        }
         //First Selection Insert Class
         private Student_Info _firstSelectedClass;
         public Student_Info FirstSelectedClass
@@ -6726,6 +6814,7 @@ namespace RPISVR_Managements.ViewModel
         public async Task Get_Student_to_ListClassPrepare()
         {
             var viewModel = new StudentViewModel();
+            Class_ID = SelectedClass_Add_Student.Class_ID;
 
             if (string.IsNullOrEmpty(Class_Name))
             {
@@ -6751,6 +6840,14 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
+            if(string.IsNullOrEmpty(Class_ID))
+            {
+                Debug.WriteLine("No Class Selection");
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
             else
             {
                 IsLoading = true;
@@ -6760,7 +6857,7 @@ namespace RPISVR_Managements.ViewModel
 
                     //
                     var classList_Displays = _dbConnection.Display_Student_List_in_Class(Max_Student_InClass, Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
-                    var studentList_Displays = _dbConnection.Display_Student_List_in_Class2(Max_Student_InClass, Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
+                    var studentList_Displays = _dbConnection.Display_Student_List_in_Class2(Class_ID);
                     // Clear the existing list to prepare for the new page data
                     List_Students_Display.Clear();
                     List_Student_In_Class_Display.Clear();
@@ -11711,6 +11808,26 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Score_TimeShift));
             }
         }
+        private float _Total_Score_Show;
+        public float Total_Score_Show
+        {
+            get => _Total_Score_Show;
+            set
+            {
+                _Total_Score_Show = value;
+                OnPropertyChanged(nameof(Total_Score_Show));
+            }
+        }
+        private float _Total_Score_Average_Show;
+        public float Total_Score_Average_Show
+        {
+            get => _Total_Score_Average_Show;
+            set
+            {
+                _Total_Score_Average_Show = value;
+                OnPropertyChanged(nameof(Total_Score_Average_Show));
+            }
+        }
         private Student_Info _Selected_Class_in_Student_Score;
         public Student_Info Selected_Class_in_Student_Score
         {
@@ -11718,23 +11835,39 @@ namespace RPISVR_Managements.ViewModel
             set
             {
                 
-                    _Selected_Class_in_Student_Score = value;
-                    OnPropertyChanged(nameof(Selected_Class_in_Student_Score));
+                 _Selected_Class_in_Student_Score = value;
+                 OnPropertyChanged(nameof(Selected_Class_in_Student_Score));
 
-                    if (_Selected_Class_in_Student_Score == null)
-                    {
+                 if (_Selected_Class_in_Student_Score == null)
+                 {
                         Class_Name = null;
                         Class_ID = null;
                         Current_Class_State = null;
                         Class_In_Study_Timeshift = null;
-                    }
-                    else
-                    {
+                        Class_In_Study_Type = null;
+                        Class_In_Generation = null;
+                        Class_In_Semester = null;
+                        Class_In_Student_Year = null;
+                        Class_In_Study_Year = null;
+                        Class_In_Level = null;
+                        Class_In_Skill = null;
+                 }
+                 else
+                 {
                         Class_Name = _Selected_Class_in_Student_Score.Class_Name;
                         Class_ID = _Selected_Class_in_Student_Score.Class_ID;
                         Current_Class_State = _Selected_Class_in_Student_Score.Current_Class_State;
                         Class_In_Study_Timeshift = _Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
-                    }
+
+                    Class_In_Study_Type = _Selected_Class_in_Student_Score.Class_In_Study_Type;
+                    Class_In_Generation = _Selected_Class_in_Student_Score.Class_In_Generation;
+                    Class_In_Semester = _Selected_Class_in_Student_Score.Class_In_Semester;
+                    Class_In_Student_Year = _Selected_Class_in_Student_Score.Class_In_Student_Year;
+                    Class_In_Study_Year = _Selected_Class_in_Student_Score.Class_In_Study_Year;
+                    Class_In_Level = _Selected_Class_in_Student_Score.Class_In_Level;
+                    Class_In_Skill = _Selected_Class_in_Student_Score.Class_In_Skill;
+
+                 }
                      
             }
         }
@@ -12178,6 +12311,87 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Score_Student_BirthDay));
             }
         }
+        private int _Total_Score;
+        public int Total_Score
+        {
+            get => _Total_Score;
+            set
+            {
+                _Total_Score = value;
+                OnPropertyChanged(nameof(Total_Score));
+            }
+        }
+        private float _Total_Score_Average;
+        public float Total_Score_Average
+        {
+            get => _Total_Score_Average;
+            set
+            {
+                _Total_Score_Average = value;
+                OnPropertyChanged(nameof(Total_Score_Average));
+            }
+        }
+        private float _Average_Student;
+        public float Average_Student
+        {
+            get => _Average_Student;
+            set
+            {
+                _Average_Student = value;
+                OnPropertyChanged(nameof(Average_Student));
+            }
+        }
+        private int _Rank_Student;
+        public int Rank_Student
+        {
+            get => _Rank_Student;
+            set
+            {
+                _Rank_Student = value;
+                OnPropertyChanged(nameof(Rank_Student));
+
+            }
+        }
+        private string _Grade_Letter;
+        public string Grade_Letter
+        {
+            get => _Grade_Letter;
+            set
+            {
+                _Grade_Letter = value;
+                OnPropertyChanged(nameof(Grade_Letter));
+            }
+        }
+        private int _GPA_Value;
+        public int GPA_Value
+        {
+            get => _GPA_Value;
+            set
+            {
+                _GPA_Value = value;
+                OnPropertyChanged(nameof(GPA_Value));
+            }
+        }
+        private string _Grade_System;
+        public string Grade_System
+        {
+            get => _Grade_System;
+            set
+            {
+                _Grade_System = value;
+                OnPropertyChanged(nameof(Grade_System));
+            }
+        }
+        private int _Total_Students;
+        public int Total_Students
+        {
+            get => _Total_Students;
+            set
+            {
+                _Total_Students = value;
+                OnPropertyChanged(nameof(Total_Students));
+            }
+        }
         private Class_Score _Selected_State_Skill_Score_Type;
         public Class_Score Selected_State_Skill_Score_Type
         {
@@ -12226,8 +12440,9 @@ namespace RPISVR_Managements.ViewModel
             Score_Skill_TeacherName = Selected_Skill_Name.Score_Skill_TeacherName;
             State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
             Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
-
+            
             Load_Student_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
+            //Load_Student_Info_For_Check_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
             Can_Edit_Score_State = true;
 
             await Task.CompletedTask;
@@ -12446,7 +12661,39 @@ namespace RPISVR_Managements.ViewModel
         //Yes Export PDF SatSun
         public void HandleYes_Export_Student_Info_SatSun_PDF()
         {
+            Class_ID = this._Selected_Class_in_Student_Score.Class_ID;
+            Class_Name = this._Selected_Class_in_Student_Score.Class_Name;
+            Class_In_Skill = this._Selected_Class_in_Student_Score.Class_In_Skill;
+            Class_In_Study_Timeshift = this._Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Class_In_Level = this._Selected_Class_in_Student_Score.Class_In_Level;
+            Class_In_Student_Year = this._Selected_Class_in_Student_Score.Class_In_Student_Year;
+            Class_In_Study_Year = this._Selected_Class_in_Student_Score.Class_In_Study_Year;
+            Class_In_Semester = this._Selected_Class_in_Student_Score.Class_In_Semester;
+            Class_In_Generation = this._Selected_Class_in_Student_Score.Class_In_Generation;
+            Class_In_Study_Type = this._Selected_Class_in_Student_Score.Class_In_Study_Type;
 
+            Student_Score = 0;
+            Score_Type_Name = Selected_Score_Type.Score_Type_Name;
+
+            Score_Schedule_ID = this.Selected_Skill_Name.Score_Schedule_ID;
+            Score_Skill_Name = this.Selected_Skill_Name.Score_Skill_Name;
+            Score_Skill_TotalTime = this.Selected_Skill_Name.Score_Skill_TotalTime;
+            Score_Skill_TeacherName = this.Selected_Skill_Name.Score_Skill_TeacherName;
+
+            foreach (var student_score in Multi_Selected_Student_Score)
+            {
+                Score_Stu_ID = student_score.Score_Stu_ID;
+                Score_Student_ID = student_score.Score_Student_ID;
+                Score_Student_Name = student_score.Score_Student_Name;
+                Score_Student_Gender = student_score.Score_Student_Gender;
+                Score_Student_BirthDay = student_score.Score_Student_BirthDay;
+                Student_Score = student_score.Student_Score;
+            }
+            //File Student_Score_toPDF.
+            PDFService_Generate_Student_Score_PDF.CreateReport(Multi_Selected_Student_Score, Class_Name, Class_In_Skill, Class_In_Study_Timeshift, Class_In_Level, Class_In_Study_Year, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Type, Score_Skill_Name, Score_Skill_TotalTime, Score_Skill_TeacherName, Score_Type_Name);
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
         }
 
         //Yes Export PDF MonFri
@@ -12487,6 +12734,927 @@ namespace RPISVR_Managements.ViewModel
             MessageColor = new SolidColorBrush(Colors.Green);
         }
 
+        //Select Student For Show Score
+        private Class_Score _Selected_Student_For_Show_Score;
+        public Class_Score Selected_Student_For_Show_Score
+        {
+            get { return _Selected_Student_For_Show_Score; }
+            set
+            {
+                if (_Selected_Student_For_Show_Score != value)
+                {
+                    _Selected_Student_For_Show_Score = value;
+                    OnPropertyChanged(nameof(Selected_Student_For_Show_Score));
+
+                    if (_Selected_Student_For_Show_Score == null)
+                    {
+                        ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀន ជាមុនសិន  !";
+                        ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                        MessageColor = new SolidColorBrush(Colors.Red);
+                        return;
+                    }
+                    else
+                    {
+                        Load_Student_Score(_Selected_Student_For_Show_Score.Score_Student_ID);
+                    }
+
+                }
+            }
+        }
+
+
+        //Command Show Student
+        public ICommand Command_Show_Student_In_Student_Score { get; set; }
+
+        //Show Student in Student Score
+        public async Task Show_Student_in_Student_Score()
+        {
+            if (Selected_Class_in_Student_Score == null)
+            {
+                ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀន ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Class_ID = Selected_Class_in_Student_Score.Class_ID;
+
+                Student_InClass_Score.Clear();
+                try
+                {
+                    Load_Student_Info_For_Check_Score(Class_ID);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.StackTrace);
+                }
+            }
+            
+
+            await Task.CompletedTask;
+        }
+
+        private void Load_Student_Info_For_Check_Score(string Class_ID)
+        {
+            var student_check_score_info = _dbConnection.SelectFetch_Students_Info_Score(Class_ID);
+
+            Student_InClass_Score.Clear();
+
+            foreach (var student_info in student_check_score_info)
+            {
+                Student_InClass_Score.Add(student_info);
+            }
+
+            Student_InClass_Score = new ObservableCollection<Class_Score>(student_check_score_info);
+        }
+        
+        //Load Student Score
+        private void Load_Student_Score(string Score_Student_ID)
+        {
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Debug.WriteLine($"Your Selected Student: {Score_Student_ID},{Class_ID},{Class_In_Study_Timeshift}");
+            Setting_Letter_Grade = null;
+            Setting_Grade_System = null;
+            Total_Score_Average = 0;
+            int Total_Score_Cont = 0;
+
+            var select_setting_score = _dbConnection.GetSetting_Score_Info();
+
+            if (Class_In_Study_Timeshift == "វេនសៅរ៍អាទិត្យ")
+            {
+                //Total Score By Subject
+                Student_Total_Score_By_Subject.Clear();
+
+                var get_total_score_bysubject = _dbConnection.GetTotalStudents_Score_BySubject1(Score_Student_ID, Class_ID);
+
+                if (get_total_score_bysubject == null)
+                {
+                    Debug.WriteLine("No score return.");
+                    return;
+                }
+
+                foreach (var total_score_info in get_total_score_bysubject)
+                {
+                    string gradeLetter = "N/A";  // Default to "N/A"
+                    string gradeSystem = "N/A";  // Default in case no match is found
+
+                    Debug.WriteLine($"🔍 Checking for Score_Skill_Name: {total_score_info.Score_Skill_Name}, Total_Score_Average: {total_score_info.Total_Score_Average}");
+
+                    foreach (var setting_score in select_setting_score)
+                    {
+                        int Score1 = setting_score.Setting_Score1;
+                        int Score2 = setting_score.Setting_Score2;
+                        string Grade = setting_score.Setting_Letter_Grade;
+                        string System = setting_score.Setting_Grade_System;
+
+                        Debug.WriteLine($"📌 Checking range: {Score1} - {Score2} for Grade: {Grade}");
+
+                        // Ensure the grade is correctly assigned
+                        if (total_score_info.Total_Score_Average >= Score1 && total_score_info.Total_Score_Average <= Score2)
+                        {
+                            gradeLetter = Grade;  // Assign the correct grade
+                            gradeSystem = System;  // Assign grade system if needed
+
+                            Debug.WriteLine($"✅ Match Found! Grade Assigned: {gradeLetter}");
+                            break;  // Stop searching once a match is found
+                        }
+                    }
+
+                    // Assign the grade to the total_score_info object
+                    total_score_info.Grade_Letter = gradeLetter;
+                    total_score_info.Grade_System = gradeSystem;
+
+                    Debug.WriteLine($"🎯 Final Grade for {total_score_info.Score_Skill_Name}: {total_score_info.Grade_Letter}");
+
+                    // Add to observable collection
+                    Student_Total_Score_By_Subject.Add(total_score_info);
+                }
+
+                Student_Total_Score_By_Subject = new ObservableCollection<Class_Score>(get_total_score_bysubject);
+
+                //Score Type
+                Student_Score_Type_Total.Clear();
+                var score_type = _dbConnection.GetFetch_Student_Score_SatSun_Types_Total(Score_Student_ID, Class_ID);
+                if (score_type == null)
+                {
+                    ErrorMessage = "និស្សិតមិនទាន់មានពិន្ទុទេ​ សូមបញ្ចូលពិន្ទុជាមុនសិន  !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+                foreach (var score_info in score_type)
+                {
+                    Student_Score_Type_Total.Add(score_info);
+                }
+                Student_Score_Type_Total = new ObservableCollection<Class_Score>(score_type);
+
+                //Total Score
+                Total_Score = 0;
+                Total_Students = 0;
+                Total_Score_Average = 0;
+
+                foreach (var score_info in score_type)
+                {
+                    Total_Score = Total_Score + score_info.Student_Score;
+                }
+
+                Total_Score_Cont = score_type.Count;
+
+                if (Total_Score_Cont == 0)
+                {
+                    ErrorMessage = "និស្សិតមិនទាន់មានពិន្ទុទេ​ សូមបញ្ចូលពិន្ទុជាមុនសិន  !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+                Total_Score_Average = (float)Total_Score / Total_Score_Cont;
+
+                //Grade
+                foreach (var compare_info in select_setting_score)
+                {
+                    if (Total_Score_Average >= compare_info.Setting_Score1 && Total_Score_Average <= compare_info.Setting_Score2)
+                    {
+                        Setting_Letter_Grade = compare_info.Setting_Letter_Grade;
+                        Setting_Grade_System = compare_info.Setting_Grade_System;
+                        Debug.WriteLine(compare_info.Setting_Letter_Grade);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                //Total Score By Subject
+                Student_Total_Score_By_Subject.Clear();
+
+                var get_total_score_bysubject = _dbConnection.GetTotalStudents_Score_BySubject(Score_Student_ID, Class_ID);
+               
+                if (get_total_score_bysubject == null)
+                {
+                    Debug.WriteLine("No score return.");
+                    return;
+                }
+                foreach (var total_score_info in get_total_score_bysubject)
+                {
+                    string gradeLetter = "N/A";  // Default to "N/A"
+                    string gradeSystem = "N/A";  // Default in case no match is found
+
+                    Debug.WriteLine($"🔍 Checking for Score_Skill_Name: {total_score_info.Score_Skill_Name}, Total_Score_Average: {total_score_info.Total_Score_Average}");
+
+                    foreach (var setting_score in select_setting_score)
+                    {
+                        int Score1 = setting_score.Setting_Score1;
+                        int Score2 = setting_score.Setting_Score2;
+                        string Grade = setting_score.Setting_Letter_Grade;
+                        string System = setting_score.Setting_Grade_System;
+
+                        Debug.WriteLine($"📌 Checking range: {Score1} - {Score2} for Grade: {Grade}");
+
+                        // Ensure the grade is correctly assigned
+                        if (total_score_info.Total_Score_Average >= Score1 && total_score_info.Total_Score_Average <= Score2)
+                        {
+                            gradeLetter = Grade;  // Assign the correct grade
+                            gradeSystem = System;  // Assign grade system if needed
+
+                            Debug.WriteLine($"✅ Match Found! Grade Assigned: {gradeLetter}");
+                            break;  // Stop searching once a match is found
+                        }
+                    }
+
+                    // Assign the grade to the total_score_info object
+                    total_score_info.Grade_Letter = gradeLetter;
+                    total_score_info.Grade_System = gradeSystem;
+
+                    Debug.WriteLine($"🎯 Final Grade for {total_score_info.Score_Skill_Name}: {total_score_info.Grade_Letter}");
+
+                    // Add to observable collection
+                    Student_Total_Score_By_Subject.Add(total_score_info);
+                }
+
+                Student_Total_Score_By_Subject = new ObservableCollection<Class_Score>(get_total_score_bysubject);
+
+                //Score Type
+                Student_Score_Type_Total.Clear();
+                var score_type = _dbConnection.GetFetch_Student_Score_MonFri_Types_Total(Score_Student_ID, Class_ID);
+                if (score_type == null)
+                {
+                    ErrorMessage = "និស្សិតមិនទាន់មានពិន្ទុទេ​ សូមបញ្ចូលពិន្ទុជាមុនសិន  !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+                foreach (var score_info in score_type)
+                {
+                    Student_Score_Type_Total.Add(score_info);
+                }
+                Student_Score_Type_Total = new ObservableCollection<Class_Score>(score_type);
+
+                //Total Score
+                Total_Score_Show = 0;
+                Total_Students = 0;
+                Total_Score_Average = 0;
+
+                foreach (var score_info in get_total_score_bysubject)
+                {
+                    Total_Score_Show = Total_Score_Show + score_info.Total_Score_Average;
+                }
+
+                Total_Score_Cont = get_total_score_bysubject.Count;
+
+                if (Total_Score_Cont == 0)
+                {
+                    ErrorMessage = "និស្សិតមិនទាន់មានពិន្ទុទេ​ សូមបញ្ចូលពិន្ទុជាមុនសិន  !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+                Total_Score_Average_Show = (float)Total_Score_Show / Total_Score_Cont;
+
+                //Grade
+                foreach (var compare_info in select_setting_score)
+                {
+                    if (Total_Score_Average_Show >= compare_info.Setting_Score1 && Total_Score_Average_Show <= compare_info.Setting_Score2)
+                    {
+                        Setting_Letter_Grade = compare_info.Setting_Letter_Grade;
+                        Setting_Grade_System = compare_info.Setting_Grade_System;
+                        Debug.WriteLine(compare_info.Setting_Letter_Grade);
+                        return;
+                    }
+                }
+            }
+            
+        }
+
+        //Setting_Score
+        private int _Setting_Score_ID;
+        public int Setting_Score_ID
+        {
+            get => _Setting_Score_ID;
+            set
+            {
+                _Setting_Score_ID = value;
+                OnPropertyChanged(nameof(Setting_Score_ID));
+            }
+        }
+        private int _Setting_Score1;
+        public int Setting_Score1
+        {
+            get => _Setting_Score1;
+            set
+            {
+                _Setting_Score1 = value;
+                OnPropertyChanged(nameof(Setting_Score1));
+            }
+        }
+        private int _Setting_Score2;
+        public int Setting_Score2
+        {
+            get => _Setting_Score2;
+            set
+            {
+                _Setting_Score2 = value;
+                OnPropertyChanged(nameof(Setting_Score2));
+            }
+        }
+        private string _Setting_Letter_Grade;
+        public string Setting_Letter_Grade
+        {
+            get => _Setting_Letter_Grade;
+            set
+            {
+                _Setting_Letter_Grade = value;
+                OnPropertyChanged(nameof(Setting_Letter_Grade));
+            }
+        }
+        private int _Setting_GPA_Value;
+        public int Setting_GPA_Value
+        {
+            get => _Setting_GPA_Value;
+            set
+            {
+                _Setting_GPA_Value = value;
+                OnPropertyChanged(nameof(Setting_GPA_Value));
+            }
+        }
+        private string _Setting_Grade_System;
+        public string Setting_Grade_System
+        {
+            get => _Setting_Grade_System;
+            set
+            {
+                _Setting_Grade_System = value;
+                OnPropertyChanged(nameof(Setting_Grade_System));
+            }
+        }
+        private bool _Can_Edit_Setting_Score;
+        public bool Can_Edit_Setting_Score
+        {
+            get=> _Can_Edit_Setting_Score;
+            set
+            {
+                _Can_Edit_Setting_Score = value;
+                OnPropertyChanged(nameof(Can_Edit_Setting_Score));
+            }
+        }
+
+        public ICommand Command_Save_Setting_Score { get; set; }
+        public ICommand Command_Clear_Setting_Score { get; set; }
+
+        public async Task Clear_Setting_Score_Box()
+        {
+            Setting_Score1 = 0;
+            Setting_Score2 = 0;
+            Setting_Letter_Grade = null;
+            Setting_GPA_Value = 0;
+            Setting_Grade_System = null;
+            Setting_Score_ID = 0;
+
+            Can_Edit_Setting_Score = false;
+            Seletecd_Setting_Score = null;
+            await Task.CompletedTask;
+        }
+        public async Task Save_Setting_Score()
+        {
+            Setting_Score1 = this.Setting_Score1;
+            Setting_Score2 = this.Setting_Score2;
+            Setting_Letter_Grade = this.Setting_Letter_Grade;
+            Setting_GPA_Value = this.Setting_GPA_Value;
+            Setting_Grade_System = this.Setting_Grade_System;
+
+            if(Setting_Score2 ==0) 
+            {
+                ErrorMessage = "សូមពិនិត្យបញ្ចូលពិន្ទុ ជាមុនសិន  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Setting_Score1 < 0 || Setting_Score2 < 0)
+            {
+                ErrorMessage = "ពិន្ទុចាំបាច់ត្រូវតែធំជាង 0  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Setting_Score1 >= 100 || Setting_Score2 >= 101)
+            {
+                ErrorMessage = "ពិន្ទុចាំបាច់ត្រូវតែតូចជាង ឬស្នើ 100  !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Setting_Letter_Grade == null)
+            {
+                ErrorMessage = "សូមបំពេញតួអក្សរនិទ្ទេស ជាមុនសិន";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Setting_GPA_Value<0 || Setting_GPA_Value>20)
+            {
+                ErrorMessage = "សូមបំពេញតម្លៃ GPA អោយបានត្រឹមត្រូវ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Setting_Grade_System == null)
+            {
+                ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេស ជាមុនសិន";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Confirm_Value_Setting_Score();
+            SaveSetting_Score();
+            _ = Load_Setting_Score();
+            _ = Clear_Setting_Score_Box();
+
+            await Task.CompletedTask;
+        }
+
+        //Connfirm Value
+        private void Confirm_Value_Setting_Score()
+        {
+            
+            Debug.WriteLine(Setting_Score1);
+            Debug.WriteLine(Setting_Score2);
+            Debug.WriteLine(Setting_Letter_Grade);
+            Debug.WriteLine(Setting_GPA_Value);
+            Debug.WriteLine(Setting_Grade_System);
+
+        }
+
+        //Method Load Setting Score
+        public async Task Load_Setting_Score()
+        {
+            Setting_Score_List.Clear();
+
+            var setting_score = _dbConnection.Load_Setting_Score_ToTable();
+
+            foreach ( var item in setting_score )
+            {
+                Setting_Score_List.Add(item);
+               
+            }
+            Setting_Score_List = new ObservableCollection<Class_Score>(setting_score);
+
+            await Task.CompletedTask;
+        }
+        
+        //Method Save Settting Score
+        public void SaveSetting_Score()
+        {
+            if(Can_Edit_Setting_Score == true)
+            {
+                //Update Mode
+                Class_Score update_score_setting = new Class_Score()
+                {
+                    Setting_Score_ID = Seletecd_Setting_Score.Setting_Score_ID,
+                    Setting_Score1 = this.Setting_Score1,
+                    Setting_Score2 = this.Setting_Score2,
+                    Setting_Letter_Grade = this.Setting_Letter_Grade,
+                    Setting_GPA_Value = this.Setting_GPA_Value,
+                    Setting_Grade_System = this.Setting_Grade_System
+                };
+
+                bool success = _dbConnection.Update_Setting_Score(update_score_setting);
+
+                if (success)
+                {
+                    Can_Edit_Setting_Score = false;
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានធ្វើបច្ចុប្បន្នភាព ជោគជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានធ្វើបច្ចុប្បន្នភាព បរាជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+            }
+            else
+            {
+                //Insert Mode
+                Class_Score setting_score = new Class_Score()
+                {
+                    Setting_Score1 = this.Setting_Score1,
+                    Setting_Score2 = this.Setting_Score2,
+                    Setting_Letter_Grade = this.Setting_Letter_Grade,
+                    Setting_GPA_Value = this.Setting_GPA_Value,
+                    Setting_Grade_System = this.Setting_Grade_System
+
+                };
+                bool success = _dbConnection.Save_Setting_Score(setting_score);
+
+                if (success)
+                {
+                    Can_Edit_Setting_Score = false;
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានរក្សាទុក ជោគជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានរក្សាទុក បរាជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+            }
+            
+        }
+
+        //Update Delete
+        public ICommand Command_Edit_Setting_Score { get; set; }
+        public ICommand Command_Delete_Setting_Score { get; set; }
+
+        private Class_Score _Seletecd_Setting_Score;
+        public Class_Score Seletecd_Setting_Score
+        {
+            get => _Seletecd_Setting_Score;
+            set
+            {
+                if(_Seletecd_Setting_Score != value)
+                {
+                    _Seletecd_Setting_Score = value;
+                    OnPropertyChanged(nameof(Seletecd_Setting_Score));               
+                }
+            }
+        }
+        public async Task Select_Setting_Score_Edit()
+        {
+            if(Seletecd_Setting_Score != null)
+            {
+                Can_Edit_Setting_Score = true;
+                Setting_Score_ID = Seletecd_Setting_Score.Setting_Score_ID;
+                Setting_Score1 = Seletecd_Setting_Score.Setting_Score1;
+                Setting_Score2 = Seletecd_Setting_Score.Setting_Score2;
+                Setting_Letter_Grade = Seletecd_Setting_Score.Setting_Letter_Grade;
+                Setting_GPA_Value = Seletecd_Setting_Score.Setting_GPA_Value;
+                Setting_Grade_System = Seletecd_Setting_Score.Setting_Grade_System;
+
+                Debug.WriteLine(Setting_Score_ID);
+            }
+            else
+            {
+                Can_Edit_Setting_Score = false;
+                Setting_Score_ID = 0;
+
+                ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេសក្នុងតារាង ជាមុនសិន";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            await Task.CompletedTask;
+        }
+
+        //Method Delete Setting Score
+        public async Task Delete_Setting_Score()
+        {
+            if (Seletecd_Setting_Score != null)
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់លុបទិន្នន័យនេះមែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Delete_Student_Score";
+                OnPropertyChanged(nameof(CurrentOperation));
+                Can_Edit_Setting_Score = true;
+
+            }
+            else
+            {           
+                ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេសក្នុងតារាង ជាមុនសិន";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            await Task.CompletedTask;
+        }
+
+        //Method Click Yes to Delete
+        public void HandleYesDelete_Setting_Score()
+        {
+            Setting_Score_ID = Seletecd_Setting_Score.Setting_Score_ID;
+            if (Can_Edit_Setting_Score == true)
+            {
+                bool success = _dbConnection.Delete_Setting_Score(Setting_Score_ID);
+
+                if (success)
+                {
+                    _ = Load_Setting_Score();
+                    _ = Clear_Setting_Score_Box();
+                    Can_Edit_Setting_Score = false;
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានលុប ជោគជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    ErrorMessage = $" ការកំណត់លើប្រភេទពិន្ទុបានលុប បរាជ័យ {Setting_Grade_System}";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+            }
+            else
+            {
+                ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេសក្នុងតារាង ជាមុនសិន";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+
+        private int _Total_Count_Score_Type;
+        public int Total_Count_Score_Type
+        {
+            get => _Total_Count_Score_Type;
+            set
+            {
+                _Total_Count_Score_Type = value;
+                OnPropertyChanged(nameof(Total_Count_Score_Type));
+            }
+        }
+        private string _Student_Pass_State;
+        public string Student_Pass_State
+        {
+            get => _Student_Pass_State;
+            set
+            {
+                _Student_Pass_State = value;
+                OnPropertyChanged(nameof(Student_Pass_State));
+            }
+        }
+        public ICommand Command_Show_Students_Rank { get; set; }
+
+        //Method Show Student Rank
+        public async Task Show_Students_Rank()
+        {
+            Class_Name = Selected_Class_in_Student_Score.Class_Name;
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Current_Class_State = Selected_Class_in_Student_Score.Current_Class_State;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+
+            Class_In_Study_Type = Selected_Class_in_Student_Score.Class_In_Study_Type;
+            Class_In_Generation = Selected_Class_in_Student_Score.Class_In_Generation;
+            Class_In_Semester = Selected_Class_in_Student_Score.Class_In_Semester;
+            Class_In_Student_Year = Selected_Class_in_Student_Score.Class_In_Student_Year;
+            Class_In_Study_Year = Selected_Class_in_Student_Score.Class_In_Study_Year;
+            Class_In_Level = Selected_Class_in_Student_Score.Class_In_Level;
+            Class_In_Skill = Selected_Class_in_Student_Score.Class_In_Skill;
+
+            Students_Rank_List.Clear();
+            //int Total_Score_Cont = 0;
+
+            var select_setting_score = _dbConnection.GetSetting_Score_Info();
+            var show_student_rank = _dbConnection.GetStudents_Rank_Info(Class_ID, Class_In_Study_Timeshift);
+
+            foreach(var student_rank in show_student_rank)
+            {
+                string gradeLetter = "N/A";  
+                string gradeSystem = "N/A";
+
+                //Debug.WriteLine($"🔍 Checking for Score_Skill_Name: {total_score_info.Score_Skill_Name}, Total_Score_Average: {total_score_info.Total_Score_Average}");
+
+                foreach (var setting_score in select_setting_score)
+                {
+                    int Score1 = setting_score.Setting_Score1;
+                    int Score2 = setting_score.Setting_Score2;
+                    string Grade = setting_score.Setting_Letter_Grade;
+                    string System = setting_score.Setting_Grade_System;
+
+                    Debug.WriteLine($"📌 Checking range: {Score1} - {Score2} for Grade: {Grade}");
+
+                    if(student_rank.Average_Student >= 50.00)
+                    {
+                        Student_Pass_State = "ជាប់";
+                    }
+                    if(student_rank.Average_Student < 50.00)
+                    {
+                        Student_Pass_State = "ធ្លាក់";
+                    }
+
+                    // Ensure the grade is correctly assigned
+                    if (student_rank.Average_Student >= Score1 && student_rank.Average_Student <= Score2)
+                    {
+                        gradeLetter = Grade;  // Assign the correct grade
+                        gradeSystem = System;  // Assign grade system if needed
+
+                        Debug.WriteLine($"✅ Match Found! Grade Assigned: {gradeLetter}");
+                        break;  // Stop searching once a match is found
+                    }
+                }
+
+                // Assign the grade to the total_score_info object
+                student_rank.Grade_Letter = gradeLetter;
+                student_rank.Grade_System = gradeSystem;
+                student_rank.Student_Pass_State = Student_Pass_State;
+                Students_Rank_List.Add(student_rank);
+            }
+            Students_Rank_List = new ObservableCollection<Class_Score>(show_student_rank);
+            await Task.CompletedTask;
+        }
+
+        //Method Export Student Eank
+        public ICommand Command_Export_Student_Rank_PDF { get; set; }
+        public ICommand Command_Export_Student_Rank_Excel { get; set; }
+
+        //Student Rank PDF
+        public async Task Export_Students_Rank_PDF()
+        {
+            if(MultiSelectAllStudent_Rank != null)
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញយកទិន្នន័យចំណាត់ថ្នាក់នេះជាប្រភេទ PDF មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Students_Rank_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
+                //Can_Edit_Setting_Score = true;    
+            }
+            else
+            {
+                ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+
+            await Task.CompletedTask;
+        }
+
+        public void HandleYes_Export_Student_Rank_PDF()
+        {
+            Class_Name = Selected_Class_in_Student_Score.Class_Name;
+            Class_ID = Selected_Class_in_Student_Score.Class_ID;
+            Current_Class_State = Selected_Class_in_Student_Score.Current_Class_State;
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+
+            Class_In_Study_Type = Selected_Class_in_Student_Score.Class_In_Study_Type;
+            Class_In_Generation = Selected_Class_in_Student_Score.Class_In_Generation;
+            Class_In_Semester = Selected_Class_in_Student_Score.Class_In_Semester;
+            Class_In_Student_Year = Selected_Class_in_Student_Score.Class_In_Student_Year;
+            Class_In_Study_Year = Selected_Class_in_Student_Score.Class_In_Study_Year;
+            Class_In_Level = Selected_Class_in_Student_Score.Class_In_Level;
+            Class_In_Skill = Selected_Class_in_Student_Score.Class_In_Skill;
+
+            //File Student_Rank_toPDF.
+            PDFService_Generate_Students_Rank_PDF.CreateReport(MultiSelectAllStudent_Rank, Class_Name, Class_In_Skill, Class_In_Study_Timeshift, Class_In_Level, Class_In_Study_Year, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Type);
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        //Student Rank Excel
+        public async Task Export_Students_Rank_Excel()
+        {
+            if (MultiSelectAllStudent_Rank != null)
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញយកទិន្នន័យចំណាត់ថ្នាក់នេះជាប្រភេទ Excel មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Students_Rank_Excel";
+                OnPropertyChanged(nameof(CurrentOperation));
+                //Can_Edit_Setting_Score = true;    
+            }
+            else
+            {
+                ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            await Task.CompletedTask;
+        }
+
+        public void HandleYes_Export_Students_Rank_Excel()
+        {
+            Export_Excel_Students_Rank.ExportToExcel(MultiSelectAllStudent_Rank, Class_Name, Class_In_Skill, Class_In_Study_Timeshift, Class_In_Level, Class_In_Study_Year, Class_In_Student_Year, Class_In_Semester, Class_In_Generation, Class_In_Study_Type);
+
+            ErrorMessage = "ឯកសារ Excel ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
+
+        //Send Student Up Class
+        public ICommand Command_Send_Student_Up_Class { get; set; }
+
+        public async Task Send_Student_Class_Up()
+        {
+            if (MultiSelectAllStudent_Rank == null || !MultiSelectAllStudent_Rank.Any())
+            {
+                ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+                 
+            }
+            else
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ដំឡើងកម្រិតថ្នាក់ចំពោះនិស្សិតដែលមានលទ្ធផល(ជាប់) មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Send_Students_Class_Up";
+                OnPropertyChanged(nameof(CurrentOperation));
+                //Can_Edit_Setting_Score = true;   
+            }
+            await Task.CompletedTask;
+        }
+        public void Handle_Yes_Send_Student_Up_Class()
+        {
+            
+            Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+            Class_In_Semester = Selected_Class_in_Student_Score.Class_In_Semester;
+            Class_In_Student_Year = Selected_Class_in_Student_Score.Class_In_Student_Year;
+            Class_In_Study_Year = Selected_Class_in_Student_Score.Class_In_Study_Year;
+            //Null In Class
+
+            foreach(var student_up_info in MultiSelectAllStudent_Rank)
+            {
+                if(student_up_info.Student_Pass_State=="ជាប់")
+                {
+                    if(Class_In_Semester == "1")
+                    {
+                        int Up_Semester = int.Parse(Class_In_Semester) + 1;
+                        string Semester = Up_Semester.ToString();
+                        string Up_Study_Year = Class_In_Study_Year;
+                        int Up_Student_Year = int.Parse(Class_In_Student_Year);
+                        string Student_Year = Up_Student_Year.ToString();
+                        string Class_State = null;
+
+                        bool success = _dbConnection.Up_Students_Class(Semester, Student_Year, Up_Study_Year, Class_State, student_up_info.Score_Student_ID);
+                        if(success )
+                        {
+                            Debug.WriteLine($"Success Student ID: {student_up_info.Score_Student_ID} Passed.Semester = {Up_Semester}, Study Year: {Up_Study_Year}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Student Up Class: {student_up_info.Score_Student_ID}");
+                            break;
+                        }
+                    }
+                    else if(Class_In_Semester == "2")
+                    {
+                        int Up_Semester = int.Parse(Class_In_Semester) - 1;
+                        string Semester = Up_Semester.ToString();
+                        int Up_Student_Year = int.Parse(Class_In_Student_Year)+1;
+                        string Student_Year = Up_Student_Year.ToString();
+                        string Class_State = null;
+                        if(Up_Student_Year>5)
+                        {
+                            Debug.WriteLine($"Student Year Can't up to {Up_Student_Year}");
+                            break;
+                        }
+                        string Up_Study = Class_In_Study_Year;
+                        // Split the string, increment the first year, and update the second year accordingly
+                        string[] years = Up_Study.Split('-');
+                        int firstYear = int.Parse(years[0]) + 1;
+                        int secondYear = int.Parse(years[1]) + 1;
+
+                        string Up_Study_Year = $"{firstYear}-{secondYear}";
+
+                        bool success = _dbConnection.Up_Students_Class(Semester, Student_Year, Up_Study_Year, Class_State, student_up_info.Score_Student_ID);
+                        if (success)
+                        {
+                            Debug.WriteLine($"Success Student ID: {student_up_info.Score_Student_ID} Passed.Semester = {Up_Semester}, Study Year: {Up_Study_Year}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Error Student Up Class: {student_up_info.Score_Student_ID}");
+                            break;
+                        }
+                    }
+                    
+                }
+                if (student_up_info.Student_Pass_State == "ធ្លាក់")
+                {
+                    int Up_Semester = int.Parse(Class_In_Semester);
+                    string Semester = Up_Semester.ToString();
+                    string Up_Study_Year = Class_In_Study_Year;
+                    int Up_Student_Year = int.Parse(Class_In_Student_Year);
+                    string Student_Year = Up_Student_Year.ToString();
+                    string Class_State = null;
+
+                    bool success = _dbConnection.Up_Students_Class(Semester, Student_Year, Up_Study_Year, Class_State, student_up_info.Score_Student_ID);
+                    if (success)
+                    {
+                        Debug.WriteLine($"Success Student ID: {student_up_info.Score_Student_ID} Passed.Semester = {Up_Semester}, Study Year: {Up_Study_Year}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Error Student Up Class: {student_up_info.Score_Student_ID}");
+                        break;
+                    }
+                    Debug.WriteLine($"Student ID: {student_up_info.Score_Student_ID} Failed.");
+                }
+            }
+            
+            ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
