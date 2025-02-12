@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Media.Imaging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,5 +35,31 @@ namespace RPISVR_Managements.Model
         public string Score_Student_Gender { get; set; }
         public string Score_Student_BirthDay { get; set; }
         public int Student_Score { get;set; }
+        public byte[] ProfileImageBytes { get; set; }
+        public BitmapImage Stu_Image_Source { get; set; }
+
+        //Setting Score
+        public int Setting_Score_ID { get; set; }
+        public int Setting_Score1 { get; set; }
+        public int Setting_Score2 { get; set; }
+        public string Setting_Letter_Grade { get; set; }
+        public int Setting_GPA_Value { get;set; }
+        public string Setting_Grade_System { get;set; }
+
+        //Calculate Score
+        public int Total_Score { get; set; }
+        public int Total_Count_Score_Type { get; set; }
+        public float Total_Score_Average { get; set; }
+        public float Average_Student { get; set; }
+        public int Rank_Student { get; set; }
+        public string Grade_Letter { get; set; }
+        public int GPA_Value { get; set; }
+        public string Grade_System { get; set; }
+        public int Total_Students { get; set; }
+
+        public float Total_Score_Show { get; set; }
+        public float Total_Score_Average_Show { get; set; }
+        public string Student_Pass_State { get; set; }
+
     }
 }

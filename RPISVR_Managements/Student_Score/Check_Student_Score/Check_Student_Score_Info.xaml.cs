@@ -18,9 +18,6 @@ using Microsoft.UI.Text;
 using System.ComponentModel;
 using System.Diagnostics;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace RPISVR_Managements.Student_Score.Check_Student_Score
 {   
     public sealed partial class Check_Student_Score_Info : Page
@@ -146,6 +143,22 @@ namespace RPISVR_Managements.Student_Score.Check_Student_Score
                     else if (viewModel.CurrentOperation == "Export_Student_Score_Info_MonFri_PDF")
                     {
                         viewModel.HandleYes_Export_Student_Info_MonFri_PDF();
+                    }
+                    else if(viewModel.CurrentOperation == "Delete_Student_Score")
+                    {
+                        viewModel.HandleYesDelete_Setting_Score();
+                    }
+                    else if( viewModel.CurrentOperation == "Export_Students_Rank_PDF")
+                    {
+                        viewModel.HandleYes_Export_Student_Rank_PDF();
+                    }
+                    else if(viewModel.CurrentOperation == "Export_Students_Rank_Excel")
+                    {
+                        viewModel.HandleYes_Export_Students_Rank_Excel();
+                    }
+                    else if(viewModel.CurrentOperation == "Send_Students_Class_Up")
+                    {
+                        viewModel.Handle_Yes_Send_Student_Up_Class();
                     }
 
 
@@ -297,5 +310,43 @@ namespace RPISVR_Managements.Student_Score.Check_Student_Score
             }
         }
 
+        private void select_all_stu_rank(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleButton toggleButton)
+            {
+                // Check if the ListView has items
+                if (Table_Students_Rank_List.ItemsSource is IEnumerable<object> items)
+                {
+                    if (toggleButton.IsChecked == true) // If ToggleButton is checked
+                    {
+                        // Select all items
+                        Table_Students_Rank_List.SelectedItems.Clear();
+                        foreach (var item in items)
+                        {
+                            Table_Students_Rank_List.SelectedItems.Add(item);
+                        }
+                    }
+                    else // If ToggleButton is unchecked
+                    {
+                        // Deselect all items
+                        Table_Students_Rank_List.SelectedItems.Clear();
+                    }
+                }
+            }
+        }
+
+        private void Selected_Students_Rank(object sender, SelectionChangedEventArgs e)
+        {
+            var listView = sender as ListView;
+            var selectedItems_StudentRank = listView.SelectedItems.Cast<Class_Score>().ToList();
+            //var FirstClassSelectedItem = listView.SelectedItems.Cast<Student_Info>().FirstOrDefault();
+
+            if (DataContext is StudentViewModel viewModel)
+            {
+                //viewModel.Selected_Class_in_Student_Score = FirstClassSelectedItem;
+                viewModel.MultiSelectAllStudent_Rank = selectedItems_StudentRank;
+            }
+            
+        }
     }
 }
