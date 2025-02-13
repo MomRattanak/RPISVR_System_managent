@@ -359,6 +359,9 @@ namespace RPISVR_Managements.ViewModel
             Command_Export_Student_Rank_PDF = new RelayCommand(async () => await Export_Students_Rank_PDF());
             Command_Export_Student_Rank_Excel = new RelayCommand(async () => await Export_Students_Rank_Excel());
             Command_Send_Student_Up_Class = new RelayCommand(async () => await Send_Student_Class_Up());
+
+            //
+            Command_Export_PDF_Certificate_of_Education = new RelayCommand(async () => await Export_Certificate_of_Education_PDF());
         }
         
 
@@ -13656,6 +13659,41 @@ namespace RPISVR_Managements.ViewModel
             MessageColor = new SolidColorBrush(Colors.Green);
         }
 
+        //Command Certificate_of_Education_Info
+        public ICommand Command_Export_PDF_Certificate_of_Education { get; set; }
+        public ICommand Command_Export_Word_Certificate_of_Education { get; set; }
+
+        //Method Export Certificate_of_Education PDF
+        public async Task Export_Certificate_of_Education_PDF()
+        {
+            if(SelectedStudent_CheckStudent == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់បង្កើតលិខិតបញ្ជាក់ការសិក្សារបស់និស្សិតនេះ មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Certificate_of_Education_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));  
+            }
+            
+            await Task.CompletedTask;
+        }
+        public void HandleYes_Yes_Export_Student_Certificate_of_Education()
+        {
+            // Convert date to Khmer format and assign it to a property in _selectedStudent
+            _selectedStudent.Stu_BirthdayDateShow = ConvertToKhmerDate(_selectedStudent.Stu_BirthdayDateOnly);
+            PDFService_Generate_Certificate_Student_Info.CreateReport(SelectedStudent_CheckStudent);
+            ErrorMessage = "PDF លិខិតបញ្ជាក់ការសិក្សា ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+            Debug.WriteLine("Export_Certificate_of_Education_PDF OK");
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
