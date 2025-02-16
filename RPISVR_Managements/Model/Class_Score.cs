@@ -61,5 +61,16 @@ namespace RPISVR_Managements.Model
         public float Total_Score_Average_Show { get; set; }
         public string Student_Pass_State { get; set; }
 
+        //Report Transcript
+        public string Report_StudyYear { get; set; }
+        public string Report_Student_Year { get; set; }
+        public string Report_Study_Semester { get; set; }
+        public string Report_Study_Subject { get; set; }
+        public int Report_Study_Credit { get; set; }
+        //public string Report_TotalScore { get; set; }
+        //public string Report_Study_Description { get; set; }
+        //public string Report_Status { get; set; }
+        //public string Report_Date { get; set; }
+
     }
 }

@@ -123,6 +123,7 @@ namespace RPISVR_Managements.Model
         public string Stu_Delete_Info { get; set; }
 
         //Classes
+        public int Class_ID_Show { get; set; }
         public string No_Class { get; set; }
         public string Class_ID { get; set; }
         public string Class_Name { get; set; }
@@ -180,7 +181,14 @@ namespace RPISVR_Managements.Model
         public string Current_Class_State { get; set; }
 
         
-
+        //Report English
+        public string Stu_Skill_English { get; set; }
+        public string Stu_Gender_English { get; set; }
+        public string Stu_Place_Birth_English { get;set; }
+        public string Stu_Degree_English { get;set; }
+        public string Stu_Date_Graduation { get;set; }
+        public string Stu_Internship_Text { get; set; }
+        public int Stu_Internship_Credit { get;set; }
 
     }
 }

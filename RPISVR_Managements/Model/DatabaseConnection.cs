@@ -7243,6 +7243,326 @@ namespace RPISVR_Managements.Model
                 return false;
             }
         }
+
+        //Method to get class info for students transcript
+        public List<Student_Info> Get_Class_Student_Transcript(int Student_ID)
+        {
+            List<Student_Info> class_infos_list = new List<Student_Info>();
+            {
+
+
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT c.*\r\nFROM classes c\r\nJOIN class_enrollments ce ON c.class_id = ce.class_id\r\nWHERE ce.stu_id = @stu_id";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@stu_id", Student_ID);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Student_Info class_info = new Student_Info()
+                                    {
+                                        Class_ID_Show = reader.GetInt32("class_id"),
+                                        Class_Name = reader.GetString("class_name"),
+                                        Class_In_Skill = reader.GetString("class_in_skill"),
+                                        Class_In_Student_Year = reader.GetString("class_in_student_year"),
+                                        Class_In_Semester = reader.GetString("class_in_semester"),
+                                        Class_In_Study_Year = reader.GetString("class_in_study_year"),
+                                        Current_Class_State = reader.GetString("Class_State")
+                                    };
+                                    class_infos_list.Add(class_info);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database Get_Class_Student_Transcript: {ex.Message}");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error Get_Class_Student_Transcript: {ex.Message}");
+                    return null;
+                }
+                return class_infos_list;
+            }
+        }
+
+        //Method to get subject, score students transcript
+        public List<Class_Score> GetSubject_Score_Transcript(int class_id, string student_id)
+        {
+            List<Class_Score> class_infos_transcript = new List<Class_Score>();
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                SELECT 
+                    c.class_in_study_year,
+                    c.class_in_student_year,
+                    c.class_in_semester,
+                    cs.subject_name,
+                    cs.total_subject_time,
+                    cs.student_id,
+                    cs.student_name,
+                    SUM(cs.student_score) AS Total_Score,
+                    COUNT(cs.student_score_type) AS Count_Score_Type
+                FROM 
+                    (
+                        SELECT class_id, schedule_id, subject_name, total_subject_time, teacher_name, 
+                        stu_id, student_id, student_name, student_gender, stu_birthday, student_score, 
+                        student_score_type, insert_time, insert_user, update_time, update_user
+                        FROM class_schedule_score_mon_fri_info
+
+                        UNION ALL
+
+                        SELECT class_id, schedule_id, subject_name, total_subject_time, teacher_name, 
+                        stu_id, student_id, student_name, student_gender, stu_birthday, student_score, 
+                        student_score_type, insert_time, insert_user, update_time, update_user
+                        FROM class_schedule_score_sat_sun_info
+                    ) cs
+                JOIN 
+                    classes c ON cs.class_id = c.class_id
+                WHERE 
+                    cs.student_id = @student_id 
+                    AND cs.class_id = @class_id
+                GROUP BY 
+                    cs.class_id, c.class_in_study_year, c.class_in_student_year, 
+                    c.class_in_semester, cs.subject_name, cs.student_id, cs.student_name
+                ORDER BY 
+                    c.class_in_semester";
+
+                    Debug.WriteLine($"Executing SQL Query: {query}");
+                    Debug.WriteLine($"Query Parameters: student_id = {student_id}, class_id = {class_id}");
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@student_id", student_id);
+                        cmd.Parameters.AddWithValue("@class_id", class_id);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (!reader.HasRows)
+                            {
+                                Debug.WriteLine("SQL Query returned no data.");
+                            }
+
+                            while (reader.Read())
+                            {
+                                Class_Score class_info = new Class_Score()
+                                {
+                                    Report_StudyYear = reader.GetString("class_in_study_year"),
+                                    Report_Student_Year = reader.GetString("class_in_student_year"),
+                                    Report_Study_Semester = reader.GetString("class_in_semester"),
+                                    Report_Study_Subject = reader.GetString("subject_name"),
+                                    Total_Score = reader.GetInt32("Total_Score"),
+                                    Total_Count_Score_Type = reader.GetInt32("Count_Score_Type"),
+                                    Total_Score_Average = (float)reader.GetInt32("Total_Score") / reader.GetInt32("Count_Score_Type"),
+                                    Score_Skill_TotalTime = reader.GetInt32("total_subject_time")
+                                };
+                                class_infos_transcript.Add(class_info);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error: {ex.Message}");
+            }
+
+            return class_infos_transcript;
+        }
+
+        //Method to get stu skill in english
+        public string GetStu_SkillInfo_English(string stu_skill)
+        {
+            string Stu_Skill_English = ""; // Local variable to store the skill name
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT edu_skill_name_en FROM education_skill_info WHERE edu_skill_name_kh = @edu_skill_name_kh";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@edu_skill_name_kh", stu_skill);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            if (reader.Read()) // Check if data exists
+                            {
+                                Stu_Skill_English = reader.GetString("edu_skill_name_en"); // Get value
+                            }
+                            else
+                            {
+                                Debug.WriteLine("No skill found for the given Khmer skill name.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error GetStu_SkillInfo_English: {ex.Message}");
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error GetStu_SkillInfo_English: {ex.Message}");
+                return "Error";
+            }
+
+            return Stu_Skill_English; 
+        }
+
+        //Method to get stu gender in english
+        public string GetStu_Gender_English(string stu_gender)
+        {
+            string Stu_Gender_English = ""; // Local variable to store the skill name
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT Name_EN FROM gender WHERE Name_KH = @Name_KH";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Name_KH", stu_gender);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            if (reader.Read()) // Check if data exists
+                            {
+                                Stu_Gender_English = reader.GetString("Name_EN"); // Get value
+                            }
+                            else
+                            {
+                                Debug.WriteLine("No gender found for the given Khmer gender name.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error GetStu_Gender_English: {ex.Message}");
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error GetStu_Gender_English: {ex.Message}");
+                return "Error";
+            }
+
+            return Stu_Gender_English;
+        }
+
+        //Method to get stu birth place in english
+        public string GetStu_BirthPlace_English(string stu_provice)
+        {
+            string Stu_Provice_English = ""; // Local variable to store the skill name
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT province_name_en FROM province_info WHERE province_name_kh = @province_name_kh";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@province_name_kh", stu_provice);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            if (reader.Read()) // Check if data exists
+                            {
+                                Stu_Provice_English = reader.GetString("province_name_en"); // Get value
+                            }
+                            else
+                            {
+                                Debug.WriteLine("No province_name_en found for the given Khmer province_name_en.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error GetStu_BirthPlace_English: {ex.Message}");
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error GetStu_BirthPlace_English: {ex.Message}");
+                return "Error";
+            }
+
+            return Stu_Provice_English;
+        }
+
+        //Method to get stu degree in english
+        public string GetStu_Degree_English(string stu_degree)
+        {
+            string Stu_Degree_English = "";
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT edu_level_name_en FROM education_level_info WHERE edu_level_name_kh = @edu_level_name_kh";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@edu_level_name_kh", stu_degree);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            if (reader.Read()) // Check if data exists
+                            {
+                                Stu_Degree_English = reader.GetString("edu_level_name_en"); // Get value
+                            }
+                            else
+                            {
+                                Debug.WriteLine("No edu_level_name_en found for the given Khmer edu_level_name_kh.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error GetStu_Degree_English: {ex.Message}");
+                return "Error";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"General Error GetStu_Degree_English: {ex.Message}");
+                return "Error";
+            }
+
+            return Stu_Degree_English;
+        }
     }
 }
 
