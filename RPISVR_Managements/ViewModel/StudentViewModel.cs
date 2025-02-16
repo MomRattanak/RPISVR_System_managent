@@ -362,6 +362,11 @@ namespace RPISVR_Managements.ViewModel
 
             //
             Command_Export_PDF_Certificate_of_Education = new RelayCommand(async () => await Export_Certificate_of_Education_PDF());
+            Command_Show_Student_Class = new RelayCommand(async () => await ShowStudents_Class_Transcript());
+            Transcript_Class_Info = new ObservableCollection<Student_Info>();
+            Transcript_Score_Info = new ObservableCollection<Class_Score>();
+            Command_Show_Score_andSubject = new RelayCommand(async () => await Show_Subject_and_Score_Transcript());
+            Command_Export_Transcript_PDF = new RelayCommand(async () => await Export_Transcript_PDF());
         }
         
 
@@ -376,6 +381,29 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(CurrentOperation));
             }
         }
+        //List Score Transcript
+        private ObservableCollection<Class_Score> _Transcript_Score_Info;
+        public ObservableCollection<Class_Score> Transcript_Score_Info
+        {
+            get { return _Transcript_Score_Info; }
+            set
+            {
+                _Transcript_Score_Info = value;
+                OnPropertyChanged(nameof(Transcript_Score_Info));
+            }
+        }
+        //List Class Transcript
+        private ObservableCollection<Student_Info> _Transcript_Class_Info;
+        public ObservableCollection<Student_Info> Transcript_Class_Info
+        {
+            get { return _Transcript_Class_Info; }
+            set
+            {
+                _Transcript_Class_Info = value;
+                OnPropertyChanged(nameof(Transcript_Class_Info));
+            }
+        }
+
         //List Students Rank
         private ObservableCollection<Class_Score> _Students_Rank_List;
         public ObservableCollection<Class_Score> Students_Rank_List
@@ -2753,7 +2781,84 @@ namespace RPISVR_Managements.ViewModel
                 }
             }
         }
+        //Stu_Skill_English
+        private string _Stu_Skill_English;
+        public string Stu_Skill_English
+        {
+            get => _Stu_Skill_English;
+            set
+            {
+                _Stu_Skill_English = value;
+                OnPropertyChanged(nameof(Stu_Skill_English));
+            }
+        }
+        //Stu_Gender_English
+        private string _Stu_Gender_English;
+        public string Stu_Gender_English
+        {
+            get => _Stu_Gender_English;
+            set
+            {
+                _Stu_Gender_English = value;
+                OnPropertyChanged(nameof(Stu_Gender_English));
+            }
+        }
+        //Stu_Place_Birth_English
+        private string _Stu_Place_Birth_English;
+        public string Stu_Place_Birth_English
+        {
+            get => _Stu_Place_Birth_English;
+            set
+            {
+                _Stu_Place_Birth_English = value;
+                OnPropertyChanged(nameof(Stu_Place_Birth_English));
+            }
+        }
+        //Stu_Degree_English
+        private string _Stu_Degree_English;
+        public string Stu_Degree_English
+        {
+            get => _Stu_Degree_English;
+            set
+            {
+                _Stu_Degree_English = value;
+                OnPropertyChanged(nameof(Stu_Degree_English));
+            }
+        }
+        //Stu_Date_Graduation
+        private string _Stu_Date_Graduation;
+        public string Stu_Date_Graduation
+        {
+            get => _Stu_Date_Graduation;
+            set
+            {
+                _Stu_Date_Graduation = value;
+                OnPropertyChanged(nameof(Stu_Date_Graduation));
+            }
 
+        }
+        //Stu_Internship_Text
+        private string _Stu_Internship_Text;
+        public string Stu_Internship_Text
+        {
+            get => _Stu_Internship_Text;
+            set
+            {
+                _Stu_Internship_Text = value;
+                OnPropertyChanged(nameof(Stu_Internship_Text));
+            }
+        }
+        //Stu_Internship_Credit
+        private int _Stu_Internship_Credit;
+        public int Stu_Internship_Credit
+        {
+            get => _Stu_Internship_Credit;
+            set
+            {
+                _Stu_Internship_Credit = value;
+                OnPropertyChanged(nameof(Stu_Internship_Credit));
+            }
+        }
         //Stu_Mother_Name
         private string _Stu_Mother_Name;
         public string Stu_Mother_Name
@@ -6264,7 +6369,7 @@ namespace RPISVR_Managements.ViewModel
                 _selectedClasses_Edit_Delete = value;
                 OnPropertyChanged(nameof(SelectedClasses_Edit_Delete));
             }
-        }
+        }       
         //Multi Select Class Prepare
         private List<Student_Info> _selectedClasses_Prepare_All = new List<Student_Info>();
         public List<Student_Info> SelectedClasses_Prepare_All
@@ -6817,7 +6922,7 @@ namespace RPISVR_Managements.ViewModel
         public async Task Get_Student_to_ListClassPrepare()
         {
             var viewModel = new StudentViewModel();
-            Class_ID = SelectedClass_Add_Student.Class_ID;
+            
 
             if (string.IsNullOrEmpty(Class_Name))
             {
@@ -6857,7 +6962,7 @@ namespace RPISVR_Managements.ViewModel
                 try
                 {
                     await Task.Delay(10);
-
+                    Class_ID = SelectedClass_Add_Student.Class_ID;
                     //
                     var classList_Displays = _dbConnection.Display_Student_List_in_Class(Max_Student_InClass, Class_In_Study_Year, Class_In_Level, Class_In_Skill, Class_In_Student_Year, Class_In_Study_Timeshift);
                     var studentList_Displays = _dbConnection.Display_Student_List_in_Class2(Class_ID);
@@ -13694,6 +13799,290 @@ namespace RPISVR_Managements.ViewModel
             MessageColor = new SolidColorBrush(Colors.Green);
             Debug.WriteLine("Export_Certificate_of_Education_PDF OK");
         }
+        //Internship
+        private string _Stu_Internship_Grade;
+        public string Stu_Internship_Grade
+        {
+            get => _Stu_Internship_Grade;
+            set
+            {
+                _Stu_Internship_Grade = value;
+                OnPropertyChanged(nameof(Stu_Internship_Grade));
+            }
+        }
+        //Command Transcript List
+        public ICommand Command_Show_Student_Class { get; set; }
+
+        private int _Class_ID_Show;
+        public int Class_ID_Show
+        {
+            get => _Class_ID_Show;
+            set
+            {
+                _Class_ID_Show = value;
+                OnPropertyChanged(nameof(Class_ID_Show));
+            }
+        }
+        //Method show class
+        public async Task ShowStudents_Class_Transcript()
+        {
+            if (SelectedStudent_CheckStudent == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine(SelectedStudent_CheckStudent.ID);
+                Debug.WriteLine($"{SelectedStudent_CheckStudent.Stu_EducationSubjects},{SelectedStudent_CheckStudent.Stu_EducationLevels},{SelectedStudent_CheckStudent.Stu_Gender},{SelectedStudent_CheckStudent.Stu_Birth_Province}");
+
+                Full_Name_EN = SelectedStudent_CheckStudent.Stu_FirstName_EN+" "+SelectedStudent_CheckStudent.Stu_LastName_EN;
+                Stu_Internship_Text = "Internship";
+                //Student Info in English
+                var get_stu_skill_english = _dbConnection.GetStu_SkillInfo_English(SelectedStudent_CheckStudent.Stu_EducationSubjects);
+                if(!string.IsNullOrEmpty(get_stu_skill_english))
+                {
+                    Stu_Skill_English = get_stu_skill_english;
+                }
+
+                //Student Gender in English
+                var get_stu_gender_eng = _dbConnection.GetStu_Gender_English(SelectedStudent_CheckStudent.Stu_Gender);
+                if (!string.IsNullOrEmpty(get_stu_gender_eng))
+                {
+                    Stu_Gender_English = get_stu_gender_eng;
+                }
+
+                //Student Birth Place
+                var get_stu_birth_place = _dbConnection.GetStu_BirthPlace_English(SelectedStudent_CheckStudent.Stu_Birth_Province);
+                if (!string.IsNullOrEmpty(get_stu_birth_place))
+                {
+                    Stu_Place_Birth_English = get_stu_birth_place;
+                }
+
+                //Student Degree
+                var get_stu_degree_eng = _dbConnection.GetStu_Degree_English(SelectedStudent_CheckStudent.Stu_EducationLevels);
+                if (!string.IsNullOrEmpty(get_stu_degree_eng))
+                {
+                    Stu_Degree_English = get_stu_degree_eng;
+                }
+
+                var get_stu_class = _dbConnection.Get_Class_Student_Transcript(SelectedStudent_CheckStudent.ID);
+                if (get_stu_class != null)
+                {
+                    Transcript_Class_Info.Clear();
+                    foreach (var class_info in get_stu_class)
+                    {
+                        Transcript_Class_Info.Add(class_info);
+                    }
+                    Transcript_Class_Info = new ObservableCollection<Student_Info>(get_stu_class);
+                }
+                else
+                {
+                    ErrorMessage = $" Error ទិន្នន័យមកពី Database !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+            }
+
+
+
+            await Task.CompletedTask;
+        }
+        //Multi Select Class Transcript
+        private List<Student_Info> _Selected_All_Class_Transcript = new List<Student_Info>();
+        public List<Student_Info> Selected_All_Class_Transcript
+        {
+            get => _Selected_All_Class_Transcript;
+            set
+            {
+                _Selected_All_Class_Transcript = value;
+                OnPropertyChanged(nameof(Selected_All_Class_Transcript));
+            }
+        }
+        //Command Show Score Info
+        public ICommand Command_Show_Score_andSubject { get; set; }
+
+        public async Task Show_Subject_and_Score_Transcript()
+        {
+            if (Selected_All_Class_Transcript == null || !Selected_All_Class_Transcript.Any())
+            {
+                ErrorMessage = $" សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Transcript_Score_Info.Clear(); // Clear existing data
+            int value_credit = 0;
+            foreach (var classinfo in Selected_All_Class_Transcript)
+            {
+                
+
+                Debug.WriteLine($"Select Class ID: {classinfo.Class_ID_Show}, Student ID: {SelectedStudent_CheckStudent.Stu_ID}");
+
+                var list_subject_score = _dbConnection.GetSubject_Score_Transcript(classinfo.Class_ID_Show, SelectedStudent_CheckStudent.Stu_ID);
+                var select_setting_score = _dbConnection.GetSetting_Score_Info();
+
+                if (list_subject_score == null || !list_subject_score.Any())
+                {
+                    Debug.WriteLine("None Data Return.");
+                    continue; // Continue instead of breaking the loop
+                }
+
+                foreach(var subject_score in list_subject_score)
+                {
+                    string gradeLetter = "N/A";
+                    string gradeSystem = "N/A";
+
+                    foreach (var setting_score in select_setting_score)
+                    {
+                        int Score1 = setting_score.Setting_Score1;
+                        int Score2 = setting_score.Setting_Score2;
+                        string Grade = setting_score.Setting_Letter_Grade;
+                        string System = setting_score.Setting_Grade_System;
+
+                        // Ensure the grade is correctly assigned
+                        if (subject_score.Total_Score_Average >= Score1 && subject_score.Total_Score_Average <= Score2)
+                        {
+                            gradeLetter = Grade;  // Assign the correct grade
+                            gradeSystem = System;  // Assign grade system if needed
+
+                            Debug.WriteLine($"✅ Match Found! Grade Assigned: {gradeLetter}");
+                            break;  // Stop searching once a match is found
+                        }
+
+                        
+                    }
+                    if (subject_score.Score_Skill_TotalTime <= 30)
+                    {
+                        value_credit = 2;
+                    }
+                    else if (subject_score.Score_Skill_TotalTime >= 45 || subject_score.Score_Skill_TotalTime <89)
+                    {
+                        value_credit = 3;
+                    }
+                    else if (subject_score.Score_Skill_TotalTime >= 90)
+                    {
+                        value_credit = 4;
+                    }
+
+                    // Assign the grade to the total_score_info object
+                    subject_score.Report_Study_Credit = value_credit;
+                    subject_score.Grade_Letter = gradeLetter;
+                    subject_score.Grade_System = gradeSystem;
+                    Transcript_Score_Info.Add(subject_score);
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+        //Export Transcript PDF
+        public ICommand Command_Export_Transcript_PDF { get; set; }
+
+        //Method 
+        public async Task Export_Transcript_PDF()
+        {
+            if (Selected_Transcript_Items == null || !Selected_Transcript_Items.Any())
+            {
+                ErrorMessage = $" សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់បង្កើតលិខិតបញ្ជាក់ការសិក្សារបស់និស្សិតនេះ មែនទេ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Red);
+                CurrentOperation = "Export_Transcript_of_Education_PDF";
+                OnPropertyChanged(nameof(CurrentOperation));
+            }
+            await Task.CompletedTask;
+        }
+
+        //HandleYes_Export_Transcript_PDF
+        public void HandleYesExport_PDF_Transcript()
+        {
+            
+            // Convert date to Khmer format and assign it to a property in _selectedStudent
+            _selectedStudent.Stu_BirthdayDateShow = ConvertToKhmerDate(_selectedStudent.Stu_BirthdayDateOnly);
+            PDFService_Generation_Student_Transcript.CreateReport(Selected_Transcript_Items, SelectedStudent_CheckStudent,Full_Name_EN, Stu_Skill_English, Stu_Gender_English, Stu_Place_Birth_English, Stu_Degree_English, Stu_Date_Graduation, Stu_Internship_Text, Stu_Internship_Credit, Stu_Internship_Grade);
+            ErrorMessage = "PDF លិខិតព្រឹត្តិបត្រពិន្ទុ ត្រូវបានទាញចេញដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+            Debug.WriteLine("Export_Transcript_of_Education_PDF OK");
+        }
+
+
+        //Report Transcript
+        private int _Report_Study_Credit;
+        public int Report_Study_Credit
+        {
+            get => _Report_Study_Credit;
+            set
+            {
+                _Report_Study_Credit = value;
+                OnPropertyChanged(nameof(Report_Study_Credit));
+            }
+        }
+        private string _Report_StudyYear;
+        public string Report_StudyYear
+        {
+            get => _Report_StudyYear;
+            set
+            {
+                _Report_StudyYear = value;
+                OnPropertyChanged(nameof(Report_StudyYear));
+            }
+        }
+        private string _Report_Student_Year;
+        public string Report_Student_Year
+        {
+            get => _Report_Student_Year;
+            set
+            {
+                _Report_Student_Year = value;
+                OnPropertyChanged(nameof(Report_Student_Year));
+            }
+        }
+        private string _Report_Study_Semester;
+        public string Report_Study_Semester
+        {
+            get => _Report_Study_Semester;
+            set
+            {
+                _Report_Study_Semester = value;
+                OnPropertyChanged(nameof(Report_Study_Semester));
+            }
+        }
+        private string _Report_Study_Subject;
+        public string Report_Study_Subject
+        {
+            get => _Report_Study_Subject;
+            set
+            {
+                _Report_Study_Subject = value;
+                OnPropertyChanged(nameof(Report_Study_Subject));
+            }
+        }
+        
+        //Multi Select Transcript Items
+        private List<Class_Score> _Selected_Transcript_Items;
+        public List<Class_Score> Selected_Transcript_Items
+        {
+            get { return _Selected_Transcript_Items; }
+            set
+            {
+                _Selected_Transcript_Items = value;
+                OnPropertyChanged(nameof(Selected_Transcript_Items));
+            }
+        }
+
+        
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
