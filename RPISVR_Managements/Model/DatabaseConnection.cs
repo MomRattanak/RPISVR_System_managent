@@ -7563,6 +7563,690 @@ namespace RPISVR_Managements.Model
 
             return Stu_Degree_English;
         }
+
+        //Method to get class for teacher Time
+        public List<Class_Schedule> GetClasses_Progress(string Class_In_Study_Year,string Class_Seletecd_Date,string Class_In_Study_Timeshift,string Current_Class_State)
+        {
+            List<Class_Schedule> class_infos = new List<Class_Schedule>();
+            {
+                try
+                {
+                    string query = "";
+                    if(Class_Seletecd_Date =="ថ្ងៃចន្ទ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_name_teacher_mon_1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_mon_skill_1 = cs.sd_mon_skill_2 THEN cs.sd_mon_skill_1  -- Show only one if same subject
+                                        ELSE cs.sd_mon_skill_2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_mon_skill_1 = cs.sd_mon_skill_2 THEN cs.sd_totaltime_skill_mon_1 + cs.sd_totaltime_skill_mon_2  
+                                        ELSE cs.sd_totaltime_skill_mon_2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_1,
+                                    cs.sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_mon_skill_1 = cs.sd_mon_skill_2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_2) - TIME_TO_SEC(cs.sd_start_time_1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_mon_fri_info cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date =="ថ្ងៃអង្គារ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_name_teacher_tues_1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_tues_skill_1 = cs.sd_tues_skill_2 THEN cs.sd_tues_skill_1  -- Show only one if same subject
+                                        ELSE cs.sd_tues_skill_2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_tues_1 = cs.sd_totaltime_skill_tues_2 THEN cs.sd_totaltime_skill_tues_1 + cs.sd_totaltime_skill_tues_2  
+                                        ELSE cs.sd_totaltime_skill_tues_2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_1,
+                                    cs.sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_tues_skill_1 = cs.sd_tues_skill_2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_2) - TIME_TO_SEC(cs.sd_start_time_1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_mon_fri_info cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date == "ថ្ងៃពុធ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_name_teacher_wed_1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_wed_skill_1 = cs.sd_wed_skill_2 THEN cs.sd_wed_skill_1  -- Show only one if same subject
+                                        ELSE cs.sd_wed_skill_2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_wed_1 = cs.sd_totaltime_skill_wed_2 THEN cs.sd_totaltime_skill_wed_1 + cs.sd_totaltime_skill_wed_2  
+                                        ELSE cs.sd_totaltime_skill_wed_2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_1,
+                                    cs.sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_wed_skill_1 = cs.sd_wed_skill_2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_2) - TIME_TO_SEC(cs.sd_start_time_1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_mon_fri_info cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date == "ថ្ងៃព្រហស្បត្តិ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_name_teacher_thurs_1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_thurs_skill_1 = cs.sd_thurs_skill_2 THEN cs.sd_thurs_skill_1  -- Show only one if same subject
+                                        ELSE cs.sd_thurs_skill_2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_thurs_1 = cs.sd_totaltime_skill_thurs_2 THEN cs.sd_totaltime_skill_thurs_1 + cs.sd_totaltime_skill_thurs_2  
+                                        ELSE cs.sd_totaltime_skill_thurs_2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_1,
+                                    cs.sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_thurs_skill_1 = cs.sd_thurs_skill_2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_2) - TIME_TO_SEC(cs.sd_start_time_1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_mon_fri_info cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date == "ថ្ងៃសុក្រ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_name_teacher_fri_1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_fri_skill_1 = cs.sd_fri_skill_2 THEN cs.sd_fri_skill_1  -- Show only one if same subject
+                                        ELSE cs.sd_fri_skill_2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_fri_1 = cs.sd_totaltime_skill_fri_2 THEN cs.sd_totaltime_skill_fri_1 + cs.sd_totaltime_skill_fri_2  
+                                        ELSE cs.sd_totaltime_skill_fri_2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_1,
+                                    cs.sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_fri_skill_1 = cs.sd_fri_skill_2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_2) - TIME_TO_SEC(cs.sd_start_time_1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_2) - TIME_TO_SEC(cs.sd_end_time_1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_mon_fri_info cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date == "ថ្ងៃសៅរ៍")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_teacher_name_sat1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_skill_name_sat1 = cs.sd_skill_name_sat2 THEN cs.sd_skill_name_sat1  -- Show only one if same subject
+                                        ELSE cs.sd_skill_name_sat2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_sat1 = cs.sd_totaltime_skill_sat2 THEN cs.sd_totaltime_skill_sat1 + cs.sd_totaltime_skill_sat2  
+                                        ELSE cs.sd_totaltime_skill_sat2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_ss1 AS sd_start_time_1,
+                                    cs.sd_end_time_ss2 AS sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_skill_name_sat1 = cs.sd_skill_name_sat2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_ss2) - TIME_TO_SEC(cs.sd_start_time_ss1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_ss2) - TIME_TO_SEC(cs.sd_end_time_ss1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_ss2) - TIME_TO_SEC(cs.sd_end_time_ss1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_sat_sun cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+                    else if(Class_Seletecd_Date == "ថ្ងៃអាទិត្យ")
+                    {
+                        query = @"SELECT 
+                                    cs.sd_teacher_name_sun1 AS teacher_name,
+                                    CASE 
+                                        WHEN cs.sd_skill_name_sun1 = cs.sd_skill_name_sun2 THEN cs.sd_skill_name_sun1  -- Show only one if same subject
+                                        ELSE cs.sd_skill_name_sun2  -- Show second subject if different
+                                    END AS subject_name,
+                                    CASE 
+                                        WHEN cs.sd_totaltime_skill_sun1 = cs.sd_totaltime_skill_sun2 THEN cs.sd_totaltime_skill_sun1 + cs.sd_totaltime_skill_sun2  
+                                        ELSE cs.sd_totaltime_skill_sun2  
+                                    END AS total_time_skill,
+                                    cs.sd_start_time_ss1 AS sd_start_time_1,
+                                    cs.sd_end_time_ss2 AS sd_end_time_2,
+                                    CASE 
+                                        WHEN cs.sd_skill_name_sat1 = cs.sd_skill_name_sat2 
+                                        THEN HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_end_time_ss2) - TIME_TO_SEC(cs.sd_start_time_ss1) 
+                                                - (TIME_TO_SEC(cs.sd_start_time_ss2) - TIME_TO_SEC(cs.sd_end_time_ss1))
+                                            )
+                                        ) 
+                                        ELSE HOUR(
+                                            SEC_TO_TIME(
+                                                TIME_TO_SEC(cs.sd_start_time_ss2) - TIME_TO_SEC(cs.sd_end_time_ss1)
+                                            )
+                                        )
+                                    END AS time_today,
+                                    c.class_in_skill,
+                                    c.class_in_student_year,
+                                    c.class_in_semester,
+                                    c.class_in_generation,
+                                    cs.ID,
+                                    cs.sd_class_id
+                                FROM class_schedule_sat_sun cs
+                                JOIN classes c ON cs.sd_class_id = c.class_id
+                                WHERE 
+                                    c.class_in_study_year = @class_in_study_year
+                                    AND cs.sd_class_timeshift = @sd_class_timeshift 
+                                    AND c.Class_State = @class_state;
+                        ";
+                    }
+
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_in_study_year", Class_In_Study_Year);
+                            cmd.Parameters.AddWithValue("@sd_class_timeshift", Class_In_Study_Timeshift);
+                            cmd.Parameters.AddWithValue("@class_state", Current_Class_State);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                int Index_N = 1;
+                                bool IsAttendent = true;
+                                while (reader.Read())
+                                {
+                                    Class_Schedule class_info = new Class_Schedule()
+                                    {
+                                        Index = Index_N,
+                                        IsAttendent = IsAttendent,
+                                        SD_Teacher_Name = reader.GetString("teacher_name"),
+                                        SD_Skill_Name = reader.GetString("subject_name"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("total_time_skill"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("sd_start_time_1"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("sd_end_time_2"),
+                                        TotalTime_Calculate = reader.GetInt32("time_today"),
+
+                                        Class_In_Skill = reader.GetString("class_in_skill"),
+                                        Class_In_Study_Year = reader.GetString("class_in_student_year"),
+                                        Class_In_Semester = reader.GetString("class_in_semester"),
+                                        Class_In_Generation = reader.GetInt32("class_in_generation"),
+                                        Schedule_ID = reader.GetInt32("ID"),
+                                        Class_ID_Schedule = reader.GetInt32("sd_class_id"),
+
+                                    };
+                                    Index_N++;
+                                    class_infos.Add(class_info);
+                                }
+                            }
+
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetClasses_Progress: {ex.Message}");
+                    return null;
+                }catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error GetClasses_Progress: {ex.Message}");
+                    return null;
+                }
+                return class_infos;
+            }
+        }
+
+        //Method Save Teacher Attendent
+        public bool Save_TeacherAttendent(Class_Schedule teacher_attendent,string Class_In_Study_Year,string DateTime_Attendent,string Class_Seletecd_Date,string Class_In_Study_Timeshift,string Current_Class_State)
+        {
+            try
+            {
+                int TotalTime_Calculate = 0;
+                if (teacher_attendent.IsAttendent == false)
+                {
+                    TotalTime_Calculate = 0;
+                }
+                else
+                {
+                    TotalTime_Calculate = teacher_attendent.TotalTime_Calculate;
+                }
+                using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO teacher_attendent_info(class_id, is_attendent, teacher_name, subject_name, subject_time, subject_time_today, time_start, time_stop, skill_name, stu_year, stu_semester, stu_generation, study_year, day_attendent, study_timeshift, class_state, date_attendent, text_reason, user_insert, time_insert)" +
+                        "VALUES(@class_id, @is_attendent, @teacher_name, @subject_name, @subject_time, @subject_time_today, @time_start, @time_stop, @skill_name, @stu_year, @stu_semester, @stu_generation, @study_year, @day_attendent, @study_timeshift, @class_state, @date_attendent, @text_reason, @user_insert, @time_insert)";
+                        
+                    using(MySqlCommand cmd = new MySqlCommand(query,conn))
+                    {
+                        cmd.Parameters.AddWithValue("@class_id", teacher_attendent.Class_ID_Schedule);
+                        cmd.Parameters.AddWithValue("@is_attendent", teacher_attendent.IsAttendent);
+                        cmd.Parameters.AddWithValue("@teacher_name", teacher_attendent.SD_Teacher_Name);
+                        cmd.Parameters.AddWithValue("@subject_name", teacher_attendent.SD_Skill_Name);
+                        cmd.Parameters.AddWithValue("@subject_time", teacher_attendent.SD_TotalTime_Mon2);
+                        cmd.Parameters.AddWithValue("@subject_time_today",TotalTime_Calculate);
+                        cmd.Parameters.AddWithValue("@time_start", teacher_attendent.SD_Start_DateTime_MF1);
+                        cmd.Parameters.AddWithValue("@time_stop", teacher_attendent.SD_End_DateTime_MF2);
+                        cmd.Parameters.AddWithValue("@skill_name", teacher_attendent.Class_In_Skill);
+                        cmd.Parameters.AddWithValue("@stu_year", teacher_attendent.Class_In_Study_Year);
+                        cmd.Parameters.AddWithValue("@stu_semester", teacher_attendent.Class_In_Semester);
+                        cmd.Parameters.AddWithValue("@stu_generation", teacher_attendent.Class_In_Generation);
+                        cmd.Parameters.AddWithValue("@study_year", Class_In_Study_Year);
+                        cmd.Parameters.AddWithValue("@day_attendent", Class_Seletecd_Date);
+                        cmd.Parameters.AddWithValue("@study_timeshift", Class_In_Study_Timeshift);
+                        cmd.Parameters.AddWithValue("@class_state", Current_Class_State);
+                        cmd.Parameters.AddWithValue("@date_attendent", DateTime_Attendent);
+                        cmd.Parameters.AddWithValue("@text_reason", teacher_attendent.Text_Reason_Attendent);
+                        cmd.Parameters.AddWithValue("@user_insert", User_Create);
+                        cmd.Parameters.AddWithValue("@time_insert", Create_Datetime);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Datebase Save_TeacherAttendent: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Save_TeacherAttendent: {ex.Message}");
+                return false;
+            }
+            return true;
+        }
+
+        //Method Check Teacher Attendent Before Insert
+        public async Task<(string DateTime_Attendent1, string Class_In_Study_Year1, string Class_Seletecd_Date1, string Class_In_Study_Timeshift1, int Class_ID_Schedule1, string Current_Class_State1 )> Check_Teacher_Attendent_Info(string DateTime_Attendent, string Class_In_Study_Year, string Class_Seletecd_Date, string Class_In_Study_Timeshift, int Class_ID_Schedule, string Current_Class_State)
+        {
+            const string query = "SELECT date_attendent,study_year,day_attendent,study_timeshift,class_state,class_id FROM teacher_attendent_info WHERE date_attendent = @date_attendent AND study_year = @study_year AND day_attendent = @day_attendent AND study_timeshift = @study_timeshift AND class_state = @class_state AND class_id = @class_id";
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+
+                    cmd.Parameters.AddWithValue("@date_attendent", DateTime_Attendent);
+                    cmd.Parameters.AddWithValue("@study_year", Class_In_Study_Year);
+                    cmd.Parameters.AddWithValue("@day_attendent", Class_Seletecd_Date);
+                    cmd.Parameters.AddWithValue("@study_timeshift", Class_In_Study_Timeshift);
+                    cmd.Parameters.AddWithValue("@class_state", Current_Class_State);
+                    cmd.Parameters.AddWithValue("@class_id", Class_ID_Schedule);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                DateTime_Attendent1: reader["date_attendent"].ToString(),
+                                Class_In_Study_Year1: reader["study_year"].ToString(),
+                                Class_Seletecd_Date1: reader["day_attendent"].ToString(),
+                                Class_In_Study_Timeshift1: reader["study_timeshift"].ToString(),
+                                Class_ID_Schedule1: reader.GetInt32("class_id"),
+                                Current_Class_State1: reader["class_state"].ToString()
+                            );
+                        }
+                    }
+
+                }
+            }
+            return (null, null, null,null,0,null);
+        }
+
+        //Method to search date
+        public List<Class_Schedule> GetDate_Search_Teacher_Attendent(string FormattedDate_SelectedDate_Search)
+        {
+            List<Class_Schedule> date_search_info = new List<Class_Schedule>();
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    // Corrected SQL query
+                    string query = "SELECT DISTINCT date_attendent FROM teacher_attendent_info WHERE date_attendent LIKE @SearchPattern ORDER BY date_attendent DESC";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        // Corrected parameter usage (appending % to search for matches)
+                        cmd.Parameters.AddWithValue("@SearchPattern", $"%{FormattedDate_SelectedDate_Search}%");
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            while (reader.Read())
+                            {
+                                // Create an instance of Class_Schedule and populate the data
+                                Class_Schedule schedule = new Class_Schedule
+                                {
+                                    DateTime_Attendent = reader.GetString("date_attendent")
+                                };
+
+                                date_search_info.Add(schedule);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error in GetDate_Search_Teacher_Attendent: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetDate_Search_Teacher_Attendent: {ex.Message}");
+                return null;
+            }
+
+            return date_search_info;
+        }
+
+        //Method to Load data when open
+        public List<Class_Schedule> LoadDate_Search_Teacher_Attendent()
+        {
+            List<Class_Schedule> date_search_info = new List<Class_Schedule>();
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    // Corrected SQL query
+                    string query = "SELECT DISTINCT date_attendent FROM teacher_attendent_info ORDER BY date_attendent DESC LIMIT 31";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        
+                        using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                        {
+                            while (reader.Read())
+                            {
+                                // Create an instance of Class_Schedule and populate the data
+                                Class_Schedule schedule = new Class_Schedule
+                                {
+                                    DateTime_Attendent = reader.GetString("date_attendent")
+                                };
+
+                                date_search_info.Add(schedule);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Debug.WriteLine($"Database Error in LoadDate_Search_Teacher_Attendent: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in LoadDate_Search_Teacher_Attendent: {ex.Message}");
+                return null;
+            }
+
+            return date_search_info;
+        }
+
+        //Method to Load data by click date
+        public List<Class_Schedule> Get_DataInfo_From_ClickDate(string DateTime_Attendent)
+        {
+            List<Class_Schedule> date_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT * FROM teacher_attendent_info WHERE date_attendent = @date_attendent ORDER BY study_timeshift DESC";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query,conn))
+                        {
+                            cmd.Parameters.AddWithValue("@date_attendent", DateTime_Attendent);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                int Index_N = 1;
+                                //bool IsAttendent = true;
+                                while (reader.Read())
+                                {
+                                    Class_Schedule class_info = new Class_Schedule()
+                                    {
+                                        Index = Index_N,
+                                        ID_Show = reader.GetInt32("ID"),
+                                        IsAttendent = reader.GetBoolean("is_attendent"),
+                                        SD_Teacher_Name = reader.GetString("teacher_name"),
+                                        SD_Skill_Name = reader.GetString("subject_name"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("subject_time"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("time_start"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("time_stop"),
+                                        TotalTime_Calculate = reader.GetInt32("subject_time_today"),
+
+                                        Class_In_Skill = reader.GetString("skill_name"),
+                                        Class_In_Study_Year_Show = reader.GetInt32("stu_year"),
+                                        Class_In_Semester_Show = reader.GetInt32("stu_semester"),
+                                        Class_In_Generation = reader.GetInt32("stu_generation"),
+                                        Text_Reason_Attendent = reader.IsDBNull(reader.GetOrdinal("text_reason")) ? string.Empty : reader.GetString("text_reason"),
+
+                                        SD_Class_Study_Year = reader.GetString("study_year"),
+                                        Class_Seletecd_Date = reader.GetString("day_attendent"),
+                                        SD_Class_TimeShift = reader.GetString("study_timeshift"),
+                                        Current_Class_State = reader.GetString("class_state"),
+                                        DateTime_Attendent = reader.GetString("date_attendent"),
+
+                                        Schedule_ID = reader.GetInt32("ID"),
+                                        Class_ID_Schedule = reader.GetInt32("class_id"),
+
+                                    };
+                                    Index_N++;
+                                    date_info.Add(class_info);
+                                }
+                            }
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database Get_DataInfo_From_ClickDate: {ex.Message}");
+                    return null;
+                }catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error Get_DataInfo_From_ClickDate: {ex.Message}");
+                    return null;
+                }
+            }return date_info;
+        }
+
+        //Method to delete data by click date
+        public bool Delete_DataClick_Date(string DateTime_Attendent)
+        {
+            try
+            {
+                using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "DELETE FROM teacher_attendent_info WHERE date_attendent = @date_attendent";
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@date_attendent", DateTime_Attendent);
+
+                    // Execute the query
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Optionally, you can check if any rows were affected to confirm the delete happened
+                    return rowsAffected > 0;
+  
+                }
+
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Delete_DataClick_Date: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Delete_DataClick_Date: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Method to update data
+        public bool Update_Teacher_Info_Attendent_Info(Class_Schedule update_info)
+        {
+            try
+            {
+                using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE teacher_attendent_info SET is_attendent = @is_attendent, subject_time_today = @subject_time_today,text_reason = @text_reason,user_update = @user_update,time_update = @time_update WHERE ID = @ID";
+
+                    using(MySqlCommand cmd = new MySqlCommand(query,conn))
+                    {
+                        cmd.Parameters.AddWithValue("@is_attendent", update_info.IsAttendent);
+                        cmd.Parameters.AddWithValue("@subject_time_today", update_info.TotalTime_Calculate);
+                        cmd.Parameters.AddWithValue("@text_reason", update_info.Text_Reason_Attendent);
+                        cmd.Parameters.AddWithValue("@user_update", User_Update);
+                        cmd.Parameters.AddWithValue("@time_update", Update_Datetime);
+                        cmd.Parameters.AddWithValue("@ID", update_info.ID_Show);
+
+                        // Execute the query
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }catch(MySqlException ex)
+            {
+                Debug.WriteLine($"Error Database Update_Teacher_Info_Attendent_Info: {ex.Message}");
+                return false;
+            }catch(Exception ex)
+            {
+                Debug.WriteLine($"Error Update_Teacher_Info_Attendent_Info: {ex.Message}");
+                return false;
+            }       
+        }       
     }
 }
 

@@ -132,6 +132,8 @@ namespace RPISVR_Managements.ViewModel
             DisplayedStudentCards = new ObservableCollection<Student_Info>();
             //Classs
             Classes_Info = new ObservableCollection<Student_Info>();
+            Classes_Info_Attendence = new ObservableCollection<Class_Schedule>();
+            Classes_Info_Attendence_S = new ObservableCollection<Class_Schedule>();
             //Prepare Edit Class 
             Class_Info_Edit_Selected = new ObservableCollection<Student_Info>();
             //Add Student to Class 
@@ -246,10 +248,10 @@ namespace RPISVR_Managements.ViewModel
 
             //Load Curriculum to list view
             Curriculum_Info_List = new ObservableCollection<Curriculum_Info>();
-            _ =LoadCurriculum_ListView(SearchCurriculumInfo);
+            _ = LoadCurriculum_ListView(SearchCurriculumInfo);
             Curriculum_Info_List_Table = new ObservableCollection<Curriculum_Info>();
             Curriculum_TotalTime_List_Table = new ObservableCollection<Curriculum_Info>();
-            
+
             //Command Edit Curriculum 
             Command_Edit_Curriculum = new RelayCommand(async () => await Edit_Curriculum_Info());
 
@@ -340,7 +342,7 @@ namespace RPISVR_Managements.ViewModel
             Command_Unselect_and_Add = new RelayCommand(async () => await Unselect_and_Add());
             Command_Clear_Student_Score = new RelayCommand(async () => await Clear_Student_Score_Info());
             Command_Delete_Student_Score = new RelayCommand(async () => await Delete_Student_Score_Info());
-            Command_Export_Student_Score_PDF = new RelayCommand(async () => await  Export_Student_Score_PDF());
+            Command_Export_Student_Score_PDF = new RelayCommand(async () => await Export_Student_Score_PDF());
 
             //Student Score
             Student_InClass_Score = new ObservableCollection<Class_Score>();
@@ -367,8 +369,23 @@ namespace RPISVR_Managements.ViewModel
             Transcript_Score_Info = new ObservableCollection<Class_Score>();
             Command_Show_Score_andSubject = new RelayCommand(async () => await Show_Subject_and_Score_Transcript());
             Command_Export_Transcript_PDF = new RelayCommand(async () => await Export_Transcript_PDF());
+
+            //Teacher Attendance
+            Command_Show_Class_For_Attendene = new RelayCommand(async () => await ShowClass_For_Teacher_Attendence());
+            Command_Save_Teacher_Attendent = new RelayCommand(async () => await SaveTeacher_Attendent());
+            IsAttendent = true;
+            SelectedDate_Attendent = DateTimeOffset.Now;
+            Command_Search_Date_Teacher_Info = new RelayCommand(async () => await Search_Date_Teacher_Attendents_Info());
+            Date_Teacher_Info_Attendence = new ObservableCollection<Class_Schedule>();
+            _ = Load_Date_Teacher_Attendents_Info();
+            Command_ShowData_Click_Date = new RelayCommand(async () => await ShowData_Click_Date());
+            Command_Delete_Date_Click_Date = new RelayCommand(async () => await Delete_Date_Click_Date());
+            Command_Clear_Data_Teacher_Info = new RelayCommand(async () => await Clear_Search_Date());
+            Command_Edit_Teacher_Attendent_Info = new RelayCommand(async () => await Edit_Teacher_Attendent_Info());
+            Command_Update_Teacher_Attendent = new RelayCommand(async () => await Update_Teacher_Attendent_Info());
+            Command_Clear_Teacher_Attendent_Info = new RelayCommand(async () => await Clear_List_Teacher_Attendent());
         }
-        
+
 
         //For click Yes in Delete
         private string _CurrentOperation;
@@ -380,6 +397,17 @@ namespace RPISVR_Managements.ViewModel
                 _CurrentOperation = value;
                 OnPropertyChanged(nameof(CurrentOperation));
             }
+        }
+        private string _Status;
+        public string Status
+        {
+            get => _Status;
+            set
+            {
+                _Status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+
         }
         //List Score Transcript
         private ObservableCollection<Class_Score> _Transcript_Score_Info;
@@ -610,6 +638,17 @@ namespace RPISVR_Managements.ViewModel
             {
                 _education_subject_skill = value;
                 OnPropertyChanged(nameof(EducationSubjectSkill_Combobox));
+            }
+        }
+        //Attendent
+        private ObservableCollection<Class_Schedule> _Teacher_Attedent_Combobox;
+        public ObservableCollection<Class_Schedule> Teacher_Attedent_Combobox
+        {
+            get { return _Teacher_Attedent_Combobox; }
+            set
+            {
+                _Teacher_Attedent_Combobox = value;
+                OnPropertyChanged(nameof(Teacher_Attedent_Combobox));
             }
         }
 
@@ -1278,6 +1317,36 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Classes_Info));
             }
         }
+        private ObservableCollection<Class_Schedule> _Classes_Info_Attendence;
+        public ObservableCollection<Class_Schedule> Classes_Info_Attendence
+        {
+            get { return _Classes_Info_Attendence; }
+            set
+            {
+                _Classes_Info_Attendence = value;
+                OnPropertyChanged(nameof(Classes_Info_Attendence));
+            }
+        }
+        private ObservableCollection<Class_Schedule> _Classes_Info_Attendence_S;
+        public ObservableCollection<Class_Schedule> Classes_Info_Attendence_S
+        {
+            get { return _Classes_Info_Attendence_S; }
+            set
+            {
+                _Classes_Info_Attendence_S = value;
+                OnPropertyChanged(nameof(Classes_Info_Attendence_S));
+            }
+        }
+        private ObservableCollection<Class_Schedule> _Date_Teacher_Info_Attendence;
+        public ObservableCollection<Class_Schedule> Date_Teacher_Info_Attendence
+        {
+            get { return _Date_Teacher_Info_Attendence; }
+            set
+            {
+                _Date_Teacher_Info_Attendence = value;
+                OnPropertyChanged(nameof(Date_Teacher_Info_Attendence));
+            }
+        }
         //Edit Prepare Class
         private ObservableCollection<Student_Info> _seleceted_class_edit;
         public ObservableCollection<Student_Info> Class_Info_Edit_Selected
@@ -1311,7 +1380,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Class_Info_List_Selected_In_Schedule));
             }
         }
-        
+
         //List Student Display
         private ObservableCollection<Student_Info> _list_student_selected;
         public ObservableCollection<Student_Info> List_Students_Display
@@ -2180,6 +2249,7 @@ namespace RPISVR_Managements.ViewModel
                     OnPropertyChanged(nameof(Stu_Birthday)); // Notify binding update
                     OnPropertyChanged(nameof(Stu_BirthdayInKhmer)); // Update the Khmer date
                     OnPropertyChanged(nameof(Stu_BirthdayDateOnly)); // Notify that the date-only property has changed
+                    OnPropertyChanged(nameof(DateTime_Attendent_Value));
                 }
             }
         }
@@ -2203,7 +2273,7 @@ namespace RPISVR_Managements.ViewModel
             get => SelectedDate?.ToString("dd/MM/yyyy") ?? "No Date Selected";
         }
 
-        
+
         //Stu_BirthdayDateShow
         private string _Stu_BirthdayDateShow;
         public string Stu_BirthdayDateShow
@@ -4139,6 +4209,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 try
                 {
+                    //1
                     // Set the SelectedDate property
                     SelectedDate = new DateTime(SelectedYear, month, SelectedDay);
                 }
@@ -5070,14 +5141,7 @@ namespace RPISVR_Managements.ViewModel
                 PDFService_Report_Student_Solarship.CreateReport(SelectedStudents_Report, SearchText_Education_StudyType, Education_Level_Text, Education_Start_Date, SearchText_Education_StudyYear);
                 Debug.WriteLine("PDF reports generated for all selected students.");
             }
-            //foreach (var student in SelectedStudents_Report)
-            //{
-            //    // Convert the birthday date for each student
-            //    student.Stu_BirthdayDateShow = ConvertToKhmerDate(student.Stu_BirthdayDateOnly);
-
-            //    PDFService_Report_Student_Solarship.CreateReport(student);
-            //    await Task.Delay(1000); // 1-second delay
-            //}
+            
 
             await Task.CompletedTask;
         }
@@ -6369,7 +6433,7 @@ namespace RPISVR_Managements.ViewModel
                 _selectedClasses_Edit_Delete = value;
                 OnPropertyChanged(nameof(SelectedClasses_Edit_Delete));
             }
-        }       
+        }
         //Multi Select Class Prepare
         private List<Student_Info> _selectedClasses_Prepare_All = new List<Student_Info>();
         public List<Student_Info> SelectedClasses_Prepare_All
@@ -6761,14 +6825,14 @@ namespace RPISVR_Managements.ViewModel
                 Max_Student_InClass = 0;
                 Current_Student_InClass = 0;
                 Current_Class_State = null;
-                
+
             }
             OnPropertyChanged(nameof(SelectedClass_Add_Student));
             // Clear the selection
             SelectedClass_Add_Student = null;
             List_Students_Display.Clear();
             List_Student_In_Class_Display.Clear();
-            
+
             Debug.WriteLine("Clear Class in ListView Success.");
 
             // Provide feedback to the user
@@ -6922,7 +6986,7 @@ namespace RPISVR_Managements.ViewModel
         public async Task Get_Student_to_ListClassPrepare()
         {
             var viewModel = new StudentViewModel();
-            
+
 
             if (string.IsNullOrEmpty(Class_Name))
             {
@@ -6948,7 +7012,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(string.IsNullOrEmpty(Class_ID))
+            if (string.IsNullOrEmpty(Class_ID))
             {
                 Debug.WriteLine("No Class Selection");
                 ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
@@ -7519,7 +7583,7 @@ namespace RPISVR_Managements.ViewModel
                 _SelectedCurriculum_Level_ID = value;
                 OnPropertyChanged(nameof(SelectedCurriculum_Level_ID));
 
-                if(SelectedCurriculum_Level_ID == null)
+                if (SelectedCurriculum_Level_ID == null)
                 {
                     Curriculum_Level_ID = 0;
                     ValidateCurriculum_Level_ID();
@@ -7830,7 +7894,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red); // Error: Red color
                 return;
             }
-            if(SelectedCurriculum_Level_ID == null)
+            if (SelectedCurriculum_Level_ID == null)
             {
                 ErrorMessage = "កម្រិតសិក្សា ត្រូវតែជ្រើសរើស  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -7903,7 +7967,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(CurriculumTeacher_Combobox));
             }
         }
-       
+
         //Load Data to Combobox Teacher Curriculum
         private void LoadData_to_Combobox_Teacher_Curriculum()
         {
@@ -7937,7 +8001,7 @@ namespace RPISVR_Managements.ViewModel
         }
         //Get data to ListView
         private ObservableCollection<Curriculum_Info> _Curriculum_Info_List;
-        public ObservableCollection<Curriculum_Info > Curriculum_Info_List
+        public ObservableCollection<Curriculum_Info> Curriculum_Info_List
         {
             get { return _Curriculum_Info_List; }
             set
@@ -7957,7 +8021,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
         private ObservableCollection<Curriculum_Info> _Curriculum_TotalTime_List_Table;
-        public ObservableCollection <Curriculum_Info> Curriculum_TotalTime_List_Table
+        public ObservableCollection<Curriculum_Info> Curriculum_TotalTime_List_Table
         {
             get { return _Curriculum_TotalTime_List_Table; }
             set
@@ -7966,12 +8030,12 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Curriculum_TotalTime_List_Table));
             }
         }
-        
+
         //Load data to Combobox Skill 
         private void LoadData_to_Combobox_Skill_InCurriculum()
         {
             var skillList = _dbConnection.GetSkillInfo_List_Curriculum();
-            foreach(var skill_list in  skillList)
+            foreach (var skill_list in skillList)
             {
                 CurriculumSkill_Combobox.Add(skill_list);
             }
@@ -7990,14 +8054,14 @@ namespace RPISVR_Managements.ViewModel
         public async void SaveCurriculum_Infomation()
         {
             //Check Curriculum Info Before
-            var curriculum_check_first = await _dbConnection.GetCurriculum_Info_Check(Curriculum_Name_KH, Curriculum_Name_EN, Curriculum_Skill_ID, Curriculum_Teacher_ID, Curriculum_Study_Year, Curriculum_Semester, Curriculum_Total_Time,Curriculum_Total_Score, Curriculum_Level_ID);
+            var curriculum_check_first = await _dbConnection.GetCurriculum_Info_Check(Curriculum_Name_KH, Curriculum_Name_EN, Curriculum_Skill_ID, Curriculum_Teacher_ID, Curriculum_Study_Year, Curriculum_Semester, Curriculum_Total_Time, Curriculum_Total_Score, Curriculum_Level_ID);
 
-            if(curriculum_check_first.Curriculum_Name_KH1 == Curriculum_Name_KH &&
+            if (curriculum_check_first.Curriculum_Name_KH1 == Curriculum_Name_KH &&
                 curriculum_check_first.Curriculum_Name_EN1 == Curriculum_Name_EN &&
                 curriculum_check_first.Curriculum_Skill_ID1 == Curriculum_Skill_ID &&
                 curriculum_check_first.Curriculum_Level_ID1 == Curriculum_Level_ID)
             {
-                ErrorMessage = "កម្មវិធីសិក្សាមុខវិជ្ជា៖ " + Curriculum_Name_KH +" មានទិន្នន័យរួចស្រេចហើយ !";
+                ErrorMessage = "កម្មវិធីសិក្សាមុខវិជ្ជា៖ " + Curriculum_Name_KH + " មានទិន្នន័យរួចស្រេចហើយ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
@@ -8005,7 +8069,7 @@ namespace RPISVR_Managements.ViewModel
 
             //Update Method
             var UpdateCurriculum = Curriculum_Info_List.FirstOrDefault(s => s.Curriculum_ID == Curriculum_ID);
-            if(UpdateCurriculum != null)
+            if (UpdateCurriculum != null)
             {
                 UpdateCurriculum.Curriculum_ID = Curriculum_ID;
                 UpdateCurriculum.Curriculum_Name_KH = Curriculum_Name_KH;
@@ -8022,13 +8086,13 @@ namespace RPISVR_Managements.ViewModel
 
                 bool success = _dbConnection.Update_Curriculum_Info(UpdateCurriculum);
 
-                if(success)
+                if (success)
                 {
                     Debug.WriteLine("Update success.");
 
                     //Enable Button
                     IsInsertEnabled = true;
-                    IsUpdateEnabled = false;      
+                    IsUpdateEnabled = false;
 
                     ErrorMessage = "កម្មវិធីសិក្សាមុខវិជ្ជា៖ " + Curriculum_Name_KH + " បានធ្វើបច្ចុប្បន្នភាពជោគជ័យ !";
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -8083,7 +8147,7 @@ namespace RPISVR_Managements.ViewModel
                 Get_CurriculumID();
                 _ = LoadCurriculum_ListView(SearchCurriculumInfo);
             }
-            
+
             await Task.CompletedTask;
         }
 
@@ -8094,7 +8158,7 @@ namespace RPISVR_Managements.ViewModel
             get => _search_curriculum_info;
             set
             {
-                if(_search_curriculum_info != value)
+                if (_search_curriculum_info != value)
                 {
                     _search_curriculum_info = value;
                     OnPropertyChanged(nameof(SearchCurriculumInfo));
@@ -8112,13 +8176,13 @@ namespace RPISVR_Managements.ViewModel
         //Load Curriculum List
         public async Task LoadCurriculum_ListView(string newText_SearchCurriculum)
         {
-            if(string.IsNullOrEmpty(newText_SearchCurriculum))
+            if (string.IsNullOrEmpty(newText_SearchCurriculum))
             {
                 Debug.WriteLine("Search Text Null.");
 
                 var curriculum_list = _dbConnection.GetFetchCurriculum_Info(newText_SearchCurriculum);
                 Curriculum_Info_List.Clear();
-                foreach(var curriculum_info in curriculum_list)
+                foreach (var curriculum_info in curriculum_list)
                 {
                     Curriculum_Info_List.Add(curriculum_info);
                 }
@@ -8163,7 +8227,7 @@ namespace RPISVR_Managements.ViewModel
 
         //Selection Curriculum List
         private List<Curriculum_Info> _selected_Curriculum;
-        public List<Curriculum_Info>Multi_Selected_Curriculum
+        public List<Curriculum_Info> Multi_Selected_Curriculum
         {
             get => _selected_Curriculum;
             set
@@ -8198,7 +8262,7 @@ namespace RPISVR_Managements.ViewModel
         //Command Edit, Delete, Clear
         public ICommand Command_Edit_Curriculum { get; set; }
         public ICommand Command_Delete_Curriculum { get; set; }
-        public ICommand Command_Clear_Curriculum { get;set; }
+        public ICommand Command_Clear_Curriculum { get; set; }
         public ICommand Command_Clear_Search_Year { get; set; }
 
         //Method Clear Search Year
@@ -8211,7 +8275,7 @@ namespace RPISVR_Managements.ViewModel
         }
         //Method Clear Curriculum
         public async Task Clear_Curriculum_Info()
-        {          
+        {
             Curriculum_Name_KH = null;
             Curriculum_Name_EN = null;
 
@@ -8272,7 +8336,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Edit Curriculum
         public async Task Edit_Curriculum_Info()
         {
-            if(First_Select_Curriculum == null)
+            if (First_Select_Curriculum == null)
             {
                 ErrorMessage = "សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាក្នុងកម្មវិធីសិក្សាជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -8319,7 +8383,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Delete Curriculum_Info
         public async Task Delete_Curriculum_Info()
         {
-            if(Multi_Selected_Curriculum == null || !Multi_Selected_Curriculum.Any())
+            if (Multi_Selected_Curriculum == null || !Multi_Selected_Curriculum.Any())
             {
                 ErrorMessage = "សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាក្នុងកម្មវិធីសិក្សាជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -8344,7 +8408,7 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine("Yes response handled in ViewModel");
             Debug.WriteLine("Delete Mode.");
 
-            foreach(var curriculum_id in Multi_Selected_Curriculum)
+            foreach (var curriculum_id in Multi_Selected_Curriculum)
             {
                 bool success = _dbConnection.Delete_Curriculum_Info(curriculum_id.Curriculum_ID);
                 if (success)
@@ -8386,7 +8450,7 @@ namespace RPISVR_Managements.ViewModel
                 _Selected_Search_Curriculum_Skill_ID = value;
                 OnPropertyChanged(nameof(Selected_Search_Curriculum_Skill_ID));
 
-                if(Selected_Search_Curriculum_Skill_ID == null)
+                if (Selected_Search_Curriculum_Skill_ID == null)
                 {
                     Curriculum_Skill_Name = null;
                 }
@@ -8416,7 +8480,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _Selected_Search_Curriculum_Level_ID = value;
                 OnPropertyChanged(nameof(Selected_Search_Curriculum_Level_ID));
-                if(Selected_Search_Curriculum_Level_ID == null)
+                if (Selected_Search_Curriculum_Level_ID == null)
                 {
                     Curriculum_Level_Name = null;
                 }
@@ -8437,7 +8501,7 @@ namespace RPISVR_Managements.ViewModel
                 _Curriculum_Search_Study_Year = value;
                 OnPropertyChanged(nameof(Curriculum_Search_Study_Year));
 
-                if(Curriculum_Search_Study_Year == null)
+                if (Curriculum_Search_Study_Year == null)
                 {
                     Search_Study_Year_Curr = null;
                     Text_Year = "1,2,3,4";
@@ -8449,7 +8513,7 @@ namespace RPISVR_Managements.ViewModel
                 }
                 OnPropertyChanged(nameof(Text_Year));
                 OnPropertyChanged(nameof(Search_Study_Year_Curr));
-                _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name,Curriculum_Search_Study_Year);
+                _ = OnSearchTextChanged_Curriculum_Info_Table(Curriculum_Skill_Name, Curriculum_Level_Name, Curriculum_Search_Study_Year);
             }
         }
         private string _Search_Study_Year_Curr;
@@ -8580,7 +8644,7 @@ namespace RPISVR_Managements.ViewModel
         //Method to Select Curriculum Table
         public async Task FetchCurriculum_Info_Table_TotalTime()
         {
-            if(string.IsNullOrEmpty(Search_Study_Year_Curr))
+            if (string.IsNullOrEmpty(Search_Study_Year_Curr))
             {
                 var curriculum_table = _dbConnection.GetFetchCurriculum_Table_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
                 var curriculum_totaltime = _dbConnection.GetFetchCurriculum_TotalTime_Info(Curriculum_Level_Name, Curriculum_Skill_Name, Search_Study_Year_Curr);
@@ -8598,7 +8662,7 @@ namespace RPISVR_Managements.ViewModel
                 }
                 return;
             }
-            
+
             try
             {
                 await Task.Delay(10);
@@ -8624,12 +8688,12 @@ namespace RPISVR_Managements.ViewModel
             {
                 Debug.WriteLine(ex.ToString());
             }
-            
+
             await Task.CompletedTask;
         }
 
         //Command Export Currriculum to PDf
-        public ICommand Command_Export_Curriclum_To_PDF {  get; set; }
+        public ICommand Command_Export_Curriclum_To_PDF { get; set; }
         //Command Export Curriculum to Excel
         public ICommand Command_Export_Curricum_To_Excel { get; set; }
 
@@ -8673,20 +8737,20 @@ namespace RPISVR_Managements.ViewModel
                 CurrentOperation = "Export_Curriculum_PDF";
                 OnPropertyChanged(nameof(CurrentOperation));
             }
-            
+
             await Task.CompletedTask;
         }
 
         //Method Export Curr.. PDF Click Yes   
         public void HandleYesResponseExport_Curriculum_PDF()
         {
-            
+
             Debug.WriteLine("Export Yes.");
 
             string curriculum_skill_select = Selected_Search_Curriculum_Skill_ID.Curriculum_Skill_Name;
             string curriculum_level_select = Selected_Search_Curriculum_Level_ID.Curriculum_Level_Name;
             string curriculum_study_year_select;
-            if(Search_Study_Year_Curr == null)
+            if (Search_Study_Year_Curr == null)
             {
                 curriculum_study_year_select = "1,2,3,4";
             }
@@ -8696,7 +8760,7 @@ namespace RPISVR_Managements.ViewModel
             }
 
             //File Curriculum_toPDF.
-            PDFService_Generate_Curriculum_Info.CreateReport(Multi_Selected_Curriculum_Export,curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
+            PDFService_Generate_Curriculum_Info.CreateReport(Multi_Selected_Curriculum_Export, curriculum_skill_select, curriculum_level_select, curriculum_study_year_select);
             ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
             ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
             MessageColor = new SolidColorBrush(Colors.Green);
@@ -8801,7 +8865,7 @@ namespace RPISVR_Managements.ViewModel
 
                 }
                 OnPropertyChanged(nameof(Class_In_Study_Timeshift));
-                if(Class_In_Study_Timeshift == "វេនចន្ទសុក្រ (ព្រឹក)")
+                if (Class_In_Study_Timeshift == "វេនចន្ទសុក្រ (ព្រឹក)")
                 {
                     //SetTime
                     SD_Start_DateTime_MF1 = TimeSpan.Parse("07:30:00");
@@ -8809,7 +8873,7 @@ namespace RPISVR_Managements.ViewModel
                     SD_Start_DateTime_MF2 = TimeSpan.Parse("09:45:00");
                     SD_End_DateTime_MF2 = TimeSpan.Parse("11:45:00");
                 }
-                if(Class_In_Study_Timeshift == "វេនចន្ទសុក្រ (រសៀល)")
+                if (Class_In_Study_Timeshift == "វេនចន្ទសុក្រ (រសៀល)")
                 {
                     //SetTime
                     SD_Start_DateTime_MF1 = TimeSpan.Parse("13:00:00");
@@ -8826,10 +8890,10 @@ namespace RPISVR_Managements.ViewModel
                     SD_End_DateTime_SS2 = TimeSpan.Parse("17:00:00");
                 }
                 LoadData_to_Combobox_Schedule_Skill_Name_Combobox(Class_In_Skill, Class_In_Level, Class_In_Student_Year, Class_In_Semester);
-                
+
             }
         }
-        
+
         //Command Clear Class in Schedule
         public ICommand CommandClear_Class_in_Schedule { get; set; }
 
@@ -8929,11 +8993,11 @@ namespace RPISVR_Managements.ViewModel
             get => _SD_End_DateTime_MF1;
             set
             {
-                if(_SD_End_DateTime_MF1!= value)
+                if (_SD_End_DateTime_MF1 != value)
                 {
                     _SD_End_DateTime_MF1 = value;
                     OnPropertyChanged(nameof(SD_End_DateTime_MF1));
-                }               
+                }
             }
         }
         private TimeSpan? _SD_End_DateTime_SS1;
@@ -9060,7 +9124,7 @@ namespace RPISVR_Managements.ViewModel
                     {
                         SD_Skill_Name_Mon1 = SelectedSkill_SD_Mon1.SD_Skill_Name;
                         Debug.WriteLine($"Skill Mon Select: {SD_Skill_Name_Mon1}");
-                        LoadTeacher_andTime_BySelectSkill_Mon1(SD_Skill_Name_Mon1);  
+                        LoadTeacher_andTime_BySelectSkill_Mon1(SD_Skill_Name_Mon1);
                     }
                 }
             }
@@ -9091,7 +9155,7 @@ namespace RPISVR_Managements.ViewModel
                         Debug.WriteLine($"Skill Mon Select2: {SD_Skill_Name_Mon2}");
                         LoadTeacher_andTime_BySelectSkill_Mon2(SD_Skill_Name_Mon2);
                     }
-                        
+
                 }
             }
         }
@@ -9105,13 +9169,13 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(SelectedSkill_SD_Tues1));
                 if (_SelectedSkill_SD_Tues1 != null)
                 {
-                    if(Schedule_State == "មិនមាន")
+                    if (Schedule_State == "មិនមាន")
                     {
                         SD_Skill_Name_Tues1 = SelectedSkill_SD_Tues1.SD_Skill_Name;
                         Debug.WriteLine($"Skill Tues Select1: {SD_Skill_Name_Tues1}");
                         LoadTeacher_andTime_BySelectSkill_Tues1(SD_Skill_Name_Tues1);
                     }
-                    
+
                 }
             }
         }
@@ -9346,7 +9410,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _SelectedTeacher_SD_Mon1 = value;
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Mon1));
-                if(_SelectedTeacher_SD_Mon1 != value)
+                if (_SelectedTeacher_SD_Mon1 != value)
                 {
                     SD_Teacher_Mon01 = SelectedTeacher_SD_Mon1.SD_Teacher_Name;
                     Debug.WriteLine($"Teacher name Mon select: {SD_Teacher_Mon01}");
@@ -9915,7 +9979,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
         private ObservableCollection<Class_Schedule> _teacher_class_schedule;
-        public ObservableCollection<Class_Schedule>Schedule_Teacher_Name_Combobox
+        public ObservableCollection<Class_Schedule> Schedule_Teacher_Name_Combobox
         {
             get { return _teacher_class_schedule; }
             set
@@ -10022,7 +10086,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _SelectedTeacher_SD_Sat1 = value;
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Sat1));
-                if(_SelectedTeacher_SD_Sat1 != null)
+                if (_SelectedTeacher_SD_Sat1 != null)
                 {
                     SD_Teacher_Sat1 = _SelectedTeacher_SD_Sat1.SD_Teacher_Name;
                     OnPropertyChanged(nameof(SD_Teacher_Sat1));
@@ -10037,7 +10101,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _SelectedTeacher_SD_Sat2 = value;
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Sat2));
-                if(_SelectedTeacher_SD_Sat2 != null)
+                if (_SelectedTeacher_SD_Sat2 != null)
                 {
                     SD_Teacher_Sat2 = _SelectedTeacher_SD_Sat2.SD_Teacher_Name;
                     OnPropertyChanged(nameof(SD_Teacher_Sat2));
@@ -10092,7 +10156,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _SelectedTeacher_SD_Sun1 = value;
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Sun1));
-                if(_SelectedTeacher_SD_Sun1 != null)
+                if (_SelectedTeacher_SD_Sun1 != null)
                 {
                     SD_Teacher_Sun1 = _SelectedTeacher_SD_Sun1.SD_Teacher_Name;
                     OnPropertyChanged(nameof(SD_Teacher_Name));
@@ -10107,7 +10171,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 _SelectedTeacher_SD_Sun2 = value;
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Sun2));
-                if(_SelectedTeacher_SD_Sun2 != null)
+                if (_SelectedTeacher_SD_Sun2 != null)
                 {
                     SD_Teacher_Sun2 = _SelectedTeacher_SD_Sun2.SD_Teacher_Name;
                     OnPropertyChanged(nameof(SD_Teacher_Sun2));
@@ -10135,7 +10199,7 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
-        private void LoadData_to_Combobox_Schedule_Skill_Name_Combobox(string Class_In_Skill, string Class_In_Level, string Class_In_Student_Year,string Class_In_Semester)
+        private void LoadData_to_Combobox_Schedule_Skill_Name_Combobox(string Class_In_Skill, string Class_In_Level, string Class_In_Student_Year, string Class_In_Semester)
         {
             var skill_id = Class_In_Skill;
             var class_level = Class_In_Level;
@@ -10154,7 +10218,7 @@ namespace RPISVR_Managements.ViewModel
         {
             var TeacherList = _dbConnection.GetTeacher_toCombobox_Class_Schedule();
             Schedule_Teacher_Name_Combobox.Clear();
-            foreach(var teacher_SD in TeacherList)
+            foreach (var teacher_SD in TeacherList)
             {
                 Schedule_Teacher_Name_Combobox.Add(teacher_SD);
             }
@@ -10170,8 +10234,8 @@ namespace RPISVR_Managements.ViewModel
         //Method Save Schedule
         public async Task SaveSchedule()
         {
-            
-            if(Class_ID_Schedule == 0)
+
+            if (Class_ID_Schedule == 0)
             {
                 ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -10220,7 +10284,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(SelectedSkill_SD_Mon1 == null)
+            if (SelectedSkill_SD_Mon1 == null)
             {
                 ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃចន្ទជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -10299,7 +10363,7 @@ namespace RPISVR_Managements.ViewModel
         DateTime Create_Datetime = DateTime.Now;
         public void ConfirmValue()
         {
-            
+
             Debug.WriteLine($"Class_ID_Schedule: {Class_ID_Schedule}");
             Debug.WriteLine($"Schedule Time Start1: {SD_Start_DateTime_MF1}");
             Debug.WriteLine($"Schedule Time End1: {SD_End_DateTime_MF1}");
@@ -10308,10 +10372,10 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"Schedule Start Date: {DateTime_Start_Schedule_Strating}");
             Debug.WriteLine($"Schedule Create Time: {Create_Datetime}");
         }
-      
+
         public void SaveScheduleToDatabase()
         {
-            if(Schedule_State == "មាន" && Schedule_ID !=0)
+            if (Schedule_State == "មាន" && Schedule_ID != 0)
             {
                 //Update Mode
                 Class_Schedule class_Schedule_update = new Class_Schedule()
@@ -10362,7 +10426,7 @@ namespace RPISVR_Managements.ViewModel
 
                 bool success = _dbConnection.UpdateSchedule(class_Schedule_update);
 
-                if(success)
+                if (success)
                 {
                     ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " បានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ !";
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -10377,7 +10441,7 @@ namespace RPISVR_Managements.ViewModel
                     return;
                 }
                 Debug.WriteLine($"You can update schedule. {Schedule_ID}");
-                
+
             }
             else
             {
@@ -10442,10 +10506,10 @@ namespace RPISVR_Managements.ViewModel
                     MessageColor = new SolidColorBrush(Colors.Red);
                     return;
                 }
-                
+
             }
 
-            
+
         }
         //Command Load
         public ICommand Command_Load_Schedule { get; set; }
@@ -10471,7 +10535,7 @@ namespace RPISVR_Managements.ViewModel
             _ = ClearSchedule();
             foreach (var schedule_info in schedule_table)
             {
-                if(schedule_info.Schedule_ID != 0)
+                if (schedule_info.Schedule_ID != 0)
                 {
                     Schedule_State = "មាន";
                     Schedule_ID = schedule_info.Schedule_ID;
@@ -10482,8 +10546,8 @@ namespace RPISVR_Managements.ViewModel
                 SelectedTeacher_SD_Mon1 = null;
                 SD_TotalTime_Mon1 = 0;
 
-                 SelectedSkill_SD_Mon1 = Schedule_Skill_Name_Combobox
-                    .FirstOrDefault(skill_mon1 => skill_mon1.SD_Skill_Name == schedule_info.SD_Skill_Name_Mon1);
+                SelectedSkill_SD_Mon1 = Schedule_Skill_Name_Combobox
+                   .FirstOrDefault(skill_mon1 => skill_mon1.SD_Skill_Name == schedule_info.SD_Skill_Name_Mon1);
                 OnPropertyChanged(nameof(SelectedSkill_SD_Mon1));
                 SelectedTeacher_SD_Mon1 = Schedule_Teacher_Name_Combobox
                     .FirstOrDefault(teacher => teacher.SD_Teacher_Name == schedule_info.SD_Teacher_Mon01);
@@ -10524,7 +10588,7 @@ namespace RPISVR_Managements.ViewModel
                 SelectedTeacher_SD_Wed1 = Schedule_Teacher_Name_Combobox
                     .FirstOrDefault(teacher => teacher.SD_Teacher_Name == schedule_info.SD_Teacher_Wed1);
                 OnPropertyChanged(nameof(SelectedTeacher_SD_Wed1));
-                SD_TotalTime_Wed1= schedule_info.SD_TotalTime_Wed1;
+                SD_TotalTime_Wed1 = schedule_info.SD_TotalTime_Wed1;
                 OnPropertyChanged(nameof(SD_TotalTime_Wed1));
 
                 SelectedSkill_SD_Wed2 = Schedule_Skill_Name_Combobox
@@ -10585,7 +10649,7 @@ namespace RPISVR_Managements.ViewModel
                     // Handle parsing error if the string does not match the expected format
                     Debug.WriteLine("Invalid date format for DateTime_Start_Schedule_Strating.");
                 }
-                
+
                 SD_Building_Name = schedule_info.SD_Building_Name;
                 SD_Building_Room = schedule_info.SD_Building_Room;
             }
@@ -10693,28 +10757,28 @@ namespace RPISVR_Managements.ViewModel
 
             await Task.CompletedTask;
         }
-        
+
         //Method Delete Schedule
         public async Task DeleteSchedule()
         {
             var schedule_id = Schedule_ID;
 
-            if(schedule_id == 0)
+            if (schedule_id == 0)
             {
                 ErrorMessage = "សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(schedule_id != 0)
+            if (schedule_id != 0)
             {
                 ErrorMessage_Delete = $"តើអ្នកពិតជាចង់លុបទិន្នន័យកាលវិភាគថ្នាក់ {SD_Class_Name} នេះមែនទេ?";
-                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));          
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
                 MessageColor_Delete = new SolidColorBrush(Colors.Red);
                 CurrentOperation = "Delete_Schedule";
                 OnPropertyChanged(nameof(CurrentOperation));
             }
-            
+
             await Task.CompletedTask;
         }
 
@@ -10992,7 +11056,7 @@ namespace RPISVR_Managements.ViewModel
         public ICommand Command_EditSchedule_SatSun { get; set; }
         public ICommand Command_DeleteSchedule_SatSun { get; set; }
         public ICommand Command_ExportSchedule_SatSun_PDF { get; set; }
-       
+
         private Class_Schedule _seleceted_Schedule_SatSun;
         public Class_Schedule Seleceted_Schedule_SatSun
         {
@@ -11019,14 +11083,14 @@ namespace RPISVR_Managements.ViewModel
         //Method Save
         public async Task SaveSchedule_SatSun()
         {
-            if(SelectedSkill_SD_Sat1 == null)
+            if (SelectedSkill_SD_Sat1 == null)
             {
                 ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃសៅរ៍ ពេលព្រឹកជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(SelectedSkill_SD_Sat2 == null)
+            if (SelectedSkill_SD_Sat2 == null)
             {
                 ErrorMessage = "សូមបំពេញកាលវិភាគថ្ងៃសៅរ៍ ពេលរសៀលជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -11047,7 +11111,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(SD_Building_Name == null)
+            if (SD_Building_Name == null)
             {
                 ErrorMessage = "សូមបំពេញឈ្មោះអគារ ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -11061,7 +11125,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Schedule_Name == null)
+            if (Schedule_Name == null)
             {
                 ErrorMessage = "សូមបំពេញឈ្មោះកាលវិភាគ ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -11071,7 +11135,7 @@ namespace RPISVR_Managements.ViewModel
             ConfirmValueSS();
             _ = SaveSchedule_Sat_Sun();
             _ = Load_Schedule_Sat_Sun_ToList(Class_ID);
-            
+
             await Task.CompletedTask;
         }
 
@@ -11090,14 +11154,14 @@ namespace RPISVR_Managements.ViewModel
             Debug.WriteLine($"SS1 TotalTime: {SD_TotalTime_Sun1}");
             Debug.WriteLine($"SS2 TotalTime: {SD_TotalTime_Sun2}");
         }
-     
+
         //Method Save Schedule Sat-Sun
         public async Task SaveSchedule_Sat_Sun()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
-            if (seleceted_Schedule_CanUpdate == true && Schedule_ID !=0)
+            if (seleceted_Schedule_CanUpdate == true && Schedule_ID != 0)
             {
-                
+
                 Class_Schedule schedule_ss_items_update = new Class_Schedule()
                 {
                     Schedule_ID = this.Schedule_ID,
@@ -11121,12 +11185,12 @@ namespace RPISVR_Managements.ViewModel
                     DateTime_Start_Schedule_Strating = this.DateTime_Start_Schedule_Strating,
                     SD_Building_Name = this.SD_Building_Name,
                     SD_Building_Room = this.SD_Building_Room
-                   
+
                 };
 
                 bool success = _dbConnection.UpdateSchedule_SatSun(schedule_ss_items_update);
 
-                if(success)
+                if (success)
                 {
                     ErrorMessage = "កាលវិភាគថ្នាក់រៀន៖ " + SD_Class_Name + " បានធ្វើបច្ចុប្បន្ន ជោគជ័យ !";
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -11141,7 +11205,7 @@ namespace RPISVR_Managements.ViewModel
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
                     MessageColor = new SolidColorBrush(Colors.Red);
                     return;
-                }        
+                }
             }
             else
             {
@@ -11299,13 +11363,13 @@ namespace RPISVR_Managements.ViewModel
 
                 Schedule_List_Sat_Sun.Clear();
 
-                foreach(var schedule_ss_info in schedule_satsun_table)
+                foreach (var schedule_ss_info in schedule_satsun_table)
                 {
                     Schedule_List_Sat_Sun.Add(schedule_ss_info);
                 }
                 Schedule_List_Sat_Sun = new ObservableCollection<Class_Schedule>(schedule_satsun_table);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.StackTrace);
             }
@@ -11347,13 +11411,13 @@ namespace RPISVR_Managements.ViewModel
 
                     Debug.WriteLine(IsItemSelected);
                     Debug.WriteLine(Seleceted_Schedule_SatSun);
-                    
+
                     // Unselect item when IsItemSelected is false
                     if (!_isItemSelected)
                     {
                         Seleceted_Schedule_SatSun = null;
                         Debug.WriteLine(IsItemSelected);
-                       
+
                         Debug.WriteLine(Seleceted_Schedule_SatSun);
                     }
                     _ = Clear_Schedule_Sat_Sun();
@@ -11470,13 +11534,13 @@ namespace RPISVR_Managements.ViewModel
             if (success)
             {
                 Schedule_Name = Seleceted_Schedule_SatSun.Schedule_Name;
-                ErrorMessage = "កាលវិភាគ"+ Schedule_Name+" ថ្នាក់រៀន៖ " + SD_Class_Name + " បានលុបដោយជោគជ័យ !";
+                ErrorMessage = "កាលវិភាគ" + Schedule_Name + " ថ្នាក់រៀន៖ " + SD_Class_Name + " បានលុបដោយជោគជ័យ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
                 MessageColor = new SolidColorBrush(Colors.Green);
                 seleceted_Schedule_CanUpdate = false;
 
                 _ = Load_Schedule_Sat_Sun_ToList(Class_ID);
-               
+
                 Seleceted_Schedule_SatSun = null;
                 Schedule_ID = 0;
             }
@@ -11601,7 +11665,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Update Class State
         public async Task Update_Class_State()
         {
-            if(Current_Class_State == null)
+            if (Current_Class_State == null)
             {
                 Debug.WriteLine("No class state Selection");
                 ErrorMessage = "សូមជ្រើសរើសស្ថានភាពថ្នាក់រៀន ជាមុនសិន  !";
@@ -11611,7 +11675,7 @@ namespace RPISVR_Managements.ViewModel
             }
             Update_Class_State_Method();
             ConfirmValue_Class_State();
-            _ = Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill,Search_Class_In_Level, Search_Class_In_Student_Year,Search_Class_Semester,Search_Class_In_Study_Timeshift,Search_Class_In_Study_Type);
+            _ = Search_Class_Information(Search_Class_In_Study_Year, Search_Class_In_Skill, Search_Class_In_Level, Search_Class_In_Student_Year, Search_Class_Semester, Search_Class_In_Study_Timeshift, Search_Class_In_Study_Type);
             _ = LoadClass_State_toListViews(Search_Class_State_Search);
             await Task.CompletedTask;
         }
@@ -11631,7 +11695,7 @@ namespace RPISVR_Managements.ViewModel
             }
             else
             {
-                
+
                 //Class_Info_Add_Student_Selected.Clear();
                 foreach (var classes_edit in SelectedClasses_Prepare_All)
                 {
@@ -11639,7 +11703,7 @@ namespace RPISVR_Managements.ViewModel
 
                     bool success = _dbConnection.Update_Class_State(classes_edit.Class_ID, Current_Class_State);
 
-                    if(success)
+                    if (success)
                     {
                         Debug.WriteLine($"Update class ID {classes_edit.Class_ID}, Current State: {Current_Class_State}");
                     }
@@ -11647,7 +11711,7 @@ namespace RPISVR_Managements.ViewModel
                     {
                         Debug.WriteLine($"Update error class ID {classes_edit.Class_ID}, Current State: {Current_Class_State}");
                         return;
-                    } 
+                    }
                 }
                 ErrorMessage = $"ថ្នាក់រៀនបានផ្លាស់ប្ដូរស្ថានភាពទៅជា {Current_Class_State}";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
@@ -11680,7 +11744,7 @@ namespace RPISVR_Managements.ViewModel
                     _Search_Class_State_Search = value;
                     OnPropertyChanged(nameof(Search_Class_State_Search));
                     Debug.WriteLine($"Search class state : {_Search_Class_State_Search}");
-                    OnSearchTextChanged_Class_State(_Search_Class_State_Search);    
+                    OnSearchTextChanged_Class_State(_Search_Class_State_Search);
                 }
             }
         }
@@ -11700,8 +11764,8 @@ namespace RPISVR_Managements.ViewModel
                 await Task.Delay(10);
 
                 var class_state_List = _dbConnection.GetClass_State_Info(newText_Class_State);
-                
-                Class_Info_State_Schedule.Clear();           
+
+                Class_Info_State_Schedule.Clear();
                 foreach (var class_info in class_state_List)
                 {
                     Class_Info_State_Schedule.Add(class_info);
@@ -11783,11 +11847,11 @@ namespace RPISVR_Managements.ViewModel
                     _selectedScoreType = value;
                     OnPropertyChanged(nameof(Selected_Score_Type));
 
-                    
+
                     if (_selectedScoreType == null)
                     {
                         Score_Type_Name = null;
-                        
+
                     }
                     else
                     {
@@ -11942,30 +12006,30 @@ namespace RPISVR_Managements.ViewModel
             get => _Selected_Class_in_Student_Score;
             set
             {
-                
-                 _Selected_Class_in_Student_Score = value;
-                 OnPropertyChanged(nameof(Selected_Class_in_Student_Score));
 
-                 if (_Selected_Class_in_Student_Score == null)
-                 {
-                        Class_Name = null;
-                        Class_ID = null;
-                        Current_Class_State = null;
-                        Class_In_Study_Timeshift = null;
-                        Class_In_Study_Type = null;
-                        Class_In_Generation = null;
-                        Class_In_Semester = null;
-                        Class_In_Student_Year = null;
-                        Class_In_Study_Year = null;
-                        Class_In_Level = null;
-                        Class_In_Skill = null;
-                 }
-                 else
-                 {
-                        Class_Name = _Selected_Class_in_Student_Score.Class_Name;
-                        Class_ID = _Selected_Class_in_Student_Score.Class_ID;
-                        Current_Class_State = _Selected_Class_in_Student_Score.Current_Class_State;
-                        Class_In_Study_Timeshift = _Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
+                _Selected_Class_in_Student_Score = value;
+                OnPropertyChanged(nameof(Selected_Class_in_Student_Score));
+
+                if (_Selected_Class_in_Student_Score == null)
+                {
+                    Class_Name = null;
+                    Class_ID = null;
+                    Current_Class_State = null;
+                    Class_In_Study_Timeshift = null;
+                    Class_In_Study_Type = null;
+                    Class_In_Generation = null;
+                    Class_In_Semester = null;
+                    Class_In_Student_Year = null;
+                    Class_In_Study_Year = null;
+                    Class_In_Level = null;
+                    Class_In_Skill = null;
+                }
+                else
+                {
+                    Class_Name = _Selected_Class_in_Student_Score.Class_Name;
+                    Class_ID = _Selected_Class_in_Student_Score.Class_ID;
+                    Current_Class_State = _Selected_Class_in_Student_Score.Current_Class_State;
+                    Class_In_Study_Timeshift = _Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
 
                     Class_In_Study_Type = _Selected_Class_in_Student_Score.Class_In_Study_Type;
                     Class_In_Generation = _Selected_Class_in_Student_Score.Class_In_Generation;
@@ -11975,11 +12039,11 @@ namespace RPISVR_Managements.ViewModel
                     Class_In_Level = _Selected_Class_in_Student_Score.Class_In_Level;
                     Class_In_Skill = _Selected_Class_in_Student_Score.Class_In_Skill;
 
-                 }
-                     
+                }
+
             }
         }
-        
+
         private void Clear_Class_Score_Selected()
         {
             Class_ID = null;
@@ -12019,7 +12083,7 @@ namespace RPISVR_Managements.ViewModel
             {
                 Debug.WriteLine($"Selected Load Schedule Skill Info Class ID: {class_id}");
 
-                if(class_timeshift == "វេនសៅរ៍អាទិត្យ")
+                if (class_timeshift == "វេនសៅរ៍អាទិត្យ")
                 {
                     Debug.WriteLine("Load Skill From Schedule Sat Sun.");
 
@@ -12047,7 +12111,7 @@ namespace RPISVR_Managements.ViewModel
                     }
                     Class_Skill_Score_Info = new ObservableCollection<Class_Score>(skill_monfri_table);
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -12056,7 +12120,7 @@ namespace RPISVR_Managements.ViewModel
 
             await Task.CompletedTask;
         }
-        
+
         public async Task Show_StudentName_And_Score_Info()
         {
             string class_id = Class_ID;
@@ -12074,14 +12138,14 @@ namespace RPISVR_Managements.ViewModel
         private Class_Score _Selected_Skill_Name;
         public Class_Score Selected_Skill_Name
         {
-            get { return  _Selected_Skill_Name; }
+            get { return _Selected_Skill_Name; }
             set
             {
-                if(_Selected_Skill_Name != value)
+                if (_Selected_Skill_Name != value)
                 {
                     _Selected_Skill_Name = value;
                     OnPropertyChanged(nameof(Selected_Skill_Name));
-                    if(_Selected_Skill_Name == null)
+                    if (_Selected_Skill_Name == null)
                     {
                         Score_Skill_Name = null;
                         Score_Schedule_ID = 0;
@@ -12093,12 +12157,12 @@ namespace RPISVR_Managements.ViewModel
                         Score_TimeShift = Class_In_Study_Timeshift;
                         Debug.WriteLine($"Score_Skill_Name: {Score_Skill_Name},Score_Schedule_ID: {Score_Schedule_ID}, Score_TimeShift: {Score_TimeShift}");
                         Load_State_Score_Type(Score_Schedule_ID, Score_Skill_Name, Score_TimeShift);
-                    }   
-                }            
+                    }
+                }
             }
         }
         //Load State Score Type
-        private void Load_State_Score_Type(int Score_Schedule_ID,string Score_Skill_Name,string Score_TimeShift)
+        private void Load_State_Score_Type(int Score_Schedule_ID, string Score_Skill_Name, string Score_TimeShift)
         {
             if (Score_TimeShift == "វេនសៅរ៍អាទិត្យ")
             {
@@ -12106,7 +12170,7 @@ namespace RPISVR_Managements.ViewModel
                 Class_Skill_State_Info.Clear();
                 State_Score_Type = string.Empty;
                 foreach (var schedule_skill_ss_info in skill_satsun_state_table)
-                { 
+                {
                     Class_Skill_State_Info.Add(schedule_skill_ss_info);
                 }
                 Class_Skill_State_Info = new ObservableCollection<Class_Score>(skill_satsun_state_table);
@@ -12165,7 +12229,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Multi_Selected_Student_Score == null || !Multi_Selected_Student_Score.Any())
+            if (Multi_Selected_Student_Score == null || !Multi_Selected_Student_Score.Any())
             {
                 ErrorMessage = "សូមជ្រើសរើសនិស្សិត ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -12186,7 +12250,7 @@ namespace RPISVR_Managements.ViewModel
             set
             {
                 _Can_Edit_Score_State = value;
-                OnPropertyChanged(nameof(Can_Edit_Score_State));               
+                OnPropertyChanged(nameof(Can_Edit_Score_State));
             }
         }
         private async void SaveScore_Information()
@@ -12202,7 +12266,7 @@ namespace RPISVR_Managements.ViewModel
             Score_Skill_TotalTime = this.Selected_Skill_Name.Score_Skill_TotalTime;
             Score_Skill_TeacherName = this.Selected_Skill_Name.Score_Skill_TeacherName;
 
-            if (Can_Edit_Score_State==true)
+            if (Can_Edit_Score_State == true)
             {
                 Debug.WriteLine("Update Mode.");
 
@@ -12328,7 +12392,7 @@ namespace RPISVR_Managements.ViewModel
 
                 }
                 else
-                {    
+                {
                     foreach (var student_score in Multi_Selected_Student_Score)
                     {
                         Score_Stu_ID = student_score.Score_Stu_ID;
@@ -12377,7 +12441,7 @@ namespace RPISVR_Managements.ViewModel
                     ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
                     MessageColor = new SolidColorBrush(Colors.Green);
                 }
-            }          
+            }
         }
         private void Confirm_Score_Info()
         {
@@ -12506,12 +12570,12 @@ namespace RPISVR_Managements.ViewModel
             get => _Selected_State_Skill_Score_Type;
             set
             {
-                if(_Selected_State_Skill_Score_Type != value)
+                if (_Selected_State_Skill_Score_Type != value)
                 {
                     _Selected_State_Skill_Score_Type = value;
                     OnPropertyChanged(nameof(Selected_State_Skill_Score_Type));
 
-                    if(_Selected_State_Skill_Score_Type == null)
+                    if (_Selected_State_Skill_Score_Type == null)
                     {
                         Show_Score_Type = string.Empty;
                         State_Score_Type = string.Empty;
@@ -12533,7 +12597,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Edit Student Score
         public async Task Edit_Student_Score()
         {
-            if(Selected_State_Skill_Score_Type == null)
+            if (Selected_State_Skill_Score_Type == null)
             {
                 ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុក្នុងតារាង ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -12548,16 +12612,16 @@ namespace RPISVR_Managements.ViewModel
             Score_Skill_TeacherName = Selected_Skill_Name.Score_Skill_TeacherName;
             State_Score_Type = _Selected_State_Skill_Score_Type.State_Score_Type;
             Show_Score_Type = _Selected_State_Skill_Score_Type.Show_Score_Type;
-            
+
             Load_Student_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
             //Load_Student_Info_For_Check_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
             Can_Edit_Score_State = true;
 
             await Task.CompletedTask;
         }
-        
+
         //Method Load Student Score
-        private void Load_Student_Score(string Class_ID,int Score_Schedule_ID,string Score_Skill_Name,string Show_Score_Type)
+        private void Load_Student_Score(string Class_ID, int Score_Schedule_ID, string Score_Skill_Name, string Show_Score_Type)
         {
             var student_score_info = _dbConnection.SelectFetch_Student_Info_For_Score(Class_ID, Score_Schedule_ID, Score_Skill_Name, Show_Score_Type);
 
@@ -12577,7 +12641,7 @@ namespace RPISVR_Managements.ViewModel
         }
 
         public ICommand Command_Unselect_and_Add { get; set; }
-        
+
         //Method Unselect and Add
         public async Task Unselect_and_Add()
         {
@@ -12630,7 +12694,7 @@ namespace RPISVR_Managements.ViewModel
                     MessageColor_Delete = new SolidColorBrush(Colors.Red);
                     CurrentOperation = "Delete_Student_Score_Info_MonFri";
                     OnPropertyChanged(nameof(CurrentOperation));
-                }           
+                }
             }
             await Task.CompletedTask;
         }
@@ -12736,7 +12800,7 @@ namespace RPISVR_Managements.ViewModel
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Selected_State_Skill_Score_Type == null)
+            if (Selected_State_Skill_Score_Type == null)
             {
                 ErrorMessage = "សូមជ្រើសរើសប្រភេទពិន្ទុ ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -12898,7 +12962,7 @@ namespace RPISVR_Managements.ViewModel
                     Debug.WriteLine(ex.StackTrace);
                 }
             }
-            
+
 
             await Task.CompletedTask;
         }
@@ -12916,7 +12980,7 @@ namespace RPISVR_Managements.ViewModel
 
             Student_InClass_Score = new ObservableCollection<Class_Score>(student_check_score_info);
         }
-        
+
         //Load Student Score
         private void Load_Student_Score(string Score_Student_ID)
         {
@@ -13037,7 +13101,7 @@ namespace RPISVR_Managements.ViewModel
                 Student_Total_Score_By_Subject.Clear();
 
                 var get_total_score_bysubject = _dbConnection.GetTotalStudents_Score_BySubject(Score_Student_ID, Class_ID);
-               
+
                 if (get_total_score_bysubject == null)
                 {
                     Debug.WriteLine("No score return.");
@@ -13131,7 +13195,7 @@ namespace RPISVR_Managements.ViewModel
                     }
                 }
             }
-            
+
         }
 
         //Setting_Score
@@ -13198,7 +13262,7 @@ namespace RPISVR_Managements.ViewModel
         private bool _Can_Edit_Setting_Score;
         public bool Can_Edit_Setting_Score
         {
-            get=> _Can_Edit_Setting_Score;
+            get => _Can_Edit_Setting_Score;
             set
             {
                 _Can_Edit_Setting_Score = value;
@@ -13230,42 +13294,42 @@ namespace RPISVR_Managements.ViewModel
             Setting_GPA_Value = this.Setting_GPA_Value;
             Setting_Grade_System = this.Setting_Grade_System;
 
-            if(Setting_Score2 ==0) 
+            if (Setting_Score2 == 0)
             {
                 ErrorMessage = "សូមពិនិត្យបញ្ចូលពិន្ទុ ជាមុនសិន  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Setting_Score1 < 0 || Setting_Score2 < 0)
+            if (Setting_Score1 < 0 || Setting_Score2 < 0)
             {
                 ErrorMessage = "ពិន្ទុចាំបាច់ត្រូវតែធំជាង 0  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Setting_Score1 >= 100 || Setting_Score2 >= 101)
+            if (Setting_Score1 >= 100 || Setting_Score2 >= 101)
             {
                 ErrorMessage = "ពិន្ទុចាំបាច់ត្រូវតែតូចជាង ឬស្នើ 100  !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Setting_Letter_Grade == null)
+            if (Setting_Letter_Grade == null)
             {
                 ErrorMessage = "សូមបំពេញតួអក្សរនិទ្ទេស ជាមុនសិន";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Setting_GPA_Value<0 || Setting_GPA_Value>20)
+            if (Setting_GPA_Value < 0 || Setting_GPA_Value > 20)
             {
                 ErrorMessage = "សូមបំពេញតម្លៃ GPA អោយបានត្រឹមត្រូវ !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
             }
-            if(Setting_Grade_System == null)
+            if (Setting_Grade_System == null)
             {
                 ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេស ជាមុនសិន";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -13283,7 +13347,7 @@ namespace RPISVR_Managements.ViewModel
         //Connfirm Value
         private void Confirm_Value_Setting_Score()
         {
-            
+
             Debug.WriteLine(Setting_Score1);
             Debug.WriteLine(Setting_Score2);
             Debug.WriteLine(Setting_Letter_Grade);
@@ -13299,20 +13363,20 @@ namespace RPISVR_Managements.ViewModel
 
             var setting_score = _dbConnection.Load_Setting_Score_ToTable();
 
-            foreach ( var item in setting_score )
+            foreach (var item in setting_score)
             {
                 Setting_Score_List.Add(item);
-               
+
             }
             Setting_Score_List = new ObservableCollection<Class_Score>(setting_score);
 
             await Task.CompletedTask;
         }
-        
+
         //Method Save Settting Score
         public void SaveSetting_Score()
         {
-            if(Can_Edit_Setting_Score == true)
+            if (Can_Edit_Setting_Score == true)
             {
                 //Update Mode
                 Class_Score update_score_setting = new Class_Score()
@@ -13371,7 +13435,7 @@ namespace RPISVR_Managements.ViewModel
                     return;
                 }
             }
-            
+
         }
 
         //Update Delete
@@ -13384,16 +13448,16 @@ namespace RPISVR_Managements.ViewModel
             get => _Seletecd_Setting_Score;
             set
             {
-                if(_Seletecd_Setting_Score != value)
+                if (_Seletecd_Setting_Score != value)
                 {
                     _Seletecd_Setting_Score = value;
-                    OnPropertyChanged(nameof(Seletecd_Setting_Score));               
+                    OnPropertyChanged(nameof(Seletecd_Setting_Score));
                 }
             }
         }
         public async Task Select_Setting_Score_Edit()
         {
-            if(Seletecd_Setting_Score != null)
+            if (Seletecd_Setting_Score != null)
             {
                 Can_Edit_Setting_Score = true;
                 Setting_Score_ID = Seletecd_Setting_Score.Setting_Score_ID;
@@ -13432,7 +13496,7 @@ namespace RPISVR_Managements.ViewModel
 
             }
             else
-            {           
+            {
                 ErrorMessage = "សូមបំពេញកម្រិតនិទ្ទេសក្នុងតារាង ជាមុនសិន";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
@@ -13519,9 +13583,9 @@ namespace RPISVR_Managements.ViewModel
             var select_setting_score = _dbConnection.GetSetting_Score_Info();
             var show_student_rank = _dbConnection.GetStudents_Rank_Info(Class_ID, Class_In_Study_Timeshift);
 
-            foreach(var student_rank in show_student_rank)
+            foreach (var student_rank in show_student_rank)
             {
-                string gradeLetter = "N/A";  
+                string gradeLetter = "N/A";
                 string gradeSystem = "N/A";
 
                 //Debug.WriteLine($"🔍 Checking for Score_Skill_Name: {total_score_info.Score_Skill_Name}, Total_Score_Average: {total_score_info.Total_Score_Average}");
@@ -13535,11 +13599,11 @@ namespace RPISVR_Managements.ViewModel
 
                     Debug.WriteLine($"📌 Checking range: {Score1} - {Score2} for Grade: {Grade}");
 
-                    if(student_rank.Average_Student >= 50.00)
+                    if (student_rank.Average_Student >= 50.00)
                     {
                         Student_Pass_State = "ជាប់";
                     }
-                    if(student_rank.Average_Student < 50.00)
+                    if (student_rank.Average_Student < 50.00)
                     {
                         Student_Pass_State = "ធ្លាក់";
                     }
@@ -13572,7 +13636,7 @@ namespace RPISVR_Managements.ViewModel
         //Student Rank PDF
         public async Task Export_Students_Rank_PDF()
         {
-            if(MultiSelectAllStudent_Rank != null)
+            if (MultiSelectAllStudent_Rank != null)
             {
                 ErrorMessage_Delete = $"តើអ្នកពិតជាចង់ទាញយកទិន្នន័យចំណាត់ថ្នាក់នេះជាប្រភេទ PDF មែនទេ?";
                 ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
@@ -13657,7 +13721,7 @@ namespace RPISVR_Managements.ViewModel
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
                 MessageColor = new SolidColorBrush(Colors.Red);
                 return;
-                 
+
             }
             else
             {
@@ -13672,18 +13736,18 @@ namespace RPISVR_Managements.ViewModel
         }
         public void Handle_Yes_Send_Student_Up_Class()
         {
-            
+
             Class_In_Study_Timeshift = Selected_Class_in_Student_Score.Class_In_Study_Timeshift;
             Class_In_Semester = Selected_Class_in_Student_Score.Class_In_Semester;
             Class_In_Student_Year = Selected_Class_in_Student_Score.Class_In_Student_Year;
             Class_In_Study_Year = Selected_Class_in_Student_Score.Class_In_Study_Year;
             //Null In Class
 
-            foreach(var student_up_info in MultiSelectAllStudent_Rank)
+            foreach (var student_up_info in MultiSelectAllStudent_Rank)
             {
-                if(student_up_info.Student_Pass_State=="ជាប់")
+                if (student_up_info.Student_Pass_State == "ជាប់")
                 {
-                    if(Class_In_Semester == "1")
+                    if (Class_In_Semester == "1")
                     {
                         int Up_Semester = int.Parse(Class_In_Semester) + 1;
                         string Semester = Up_Semester.ToString();
@@ -13693,7 +13757,7 @@ namespace RPISVR_Managements.ViewModel
                         string Class_State = null;
 
                         bool success = _dbConnection.Up_Students_Class(Semester, Student_Year, Up_Study_Year, Class_State, student_up_info.Score_Student_ID);
-                        if(success )
+                        if (success)
                         {
                             Debug.WriteLine($"Success Student ID: {student_up_info.Score_Student_ID} Passed.Semester = {Up_Semester}, Study Year: {Up_Study_Year}");
                         }
@@ -13703,14 +13767,14 @@ namespace RPISVR_Managements.ViewModel
                             break;
                         }
                     }
-                    else if(Class_In_Semester == "2")
+                    else if (Class_In_Semester == "2")
                     {
                         int Up_Semester = int.Parse(Class_In_Semester) - 1;
                         string Semester = Up_Semester.ToString();
-                        int Up_Student_Year = int.Parse(Class_In_Student_Year)+1;
+                        int Up_Student_Year = int.Parse(Class_In_Student_Year) + 1;
                         string Student_Year = Up_Student_Year.ToString();
                         string Class_State = null;
-                        if(Up_Student_Year>5)
+                        if (Up_Student_Year > 5)
                         {
                             Debug.WriteLine($"Student Year Can't up to {Up_Student_Year}");
                             break;
@@ -13734,7 +13798,7 @@ namespace RPISVR_Managements.ViewModel
                             break;
                         }
                     }
-                    
+
                 }
                 if (student_up_info.Student_Pass_State == "ធ្លាក់")
                 {
@@ -13758,7 +13822,7 @@ namespace RPISVR_Managements.ViewModel
                     Debug.WriteLine($"Student ID: {student_up_info.Score_Student_ID} Failed.");
                 }
             }
-            
+
             ErrorMessage = "ឯកសារ PDF ត្រូវបានទាញចេញដោយជោគជ័យ";
             ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
             MessageColor = new SolidColorBrush(Colors.Green);
@@ -13771,7 +13835,7 @@ namespace RPISVR_Managements.ViewModel
         //Method Export Certificate_of_Education PDF
         public async Task Export_Certificate_of_Education_PDF()
         {
-            if(SelectedStudent_CheckStudent == null)
+            if (SelectedStudent_CheckStudent == null)
             {
                 ErrorMessage = $" សូមជ្រើសរើសនិស្សិតជាមុនសិន !";
                 ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
@@ -13784,9 +13848,9 @@ namespace RPISVR_Managements.ViewModel
                 ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
                 MessageColor_Delete = new SolidColorBrush(Colors.Red);
                 CurrentOperation = "Export_Certificate_of_Education_PDF";
-                OnPropertyChanged(nameof(CurrentOperation));  
+                OnPropertyChanged(nameof(CurrentOperation));
             }
-            
+
             await Task.CompletedTask;
         }
         public void HandleYes_Yes_Export_Student_Certificate_of_Education()
@@ -13838,11 +13902,11 @@ namespace RPISVR_Managements.ViewModel
                 Debug.WriteLine(SelectedStudent_CheckStudent.ID);
                 Debug.WriteLine($"{SelectedStudent_CheckStudent.Stu_EducationSubjects},{SelectedStudent_CheckStudent.Stu_EducationLevels},{SelectedStudent_CheckStudent.Stu_Gender},{SelectedStudent_CheckStudent.Stu_Birth_Province}");
 
-                Full_Name_EN = SelectedStudent_CheckStudent.Stu_FirstName_EN+" "+SelectedStudent_CheckStudent.Stu_LastName_EN;
+                Full_Name_EN = SelectedStudent_CheckStudent.Stu_FirstName_EN + " " + SelectedStudent_CheckStudent.Stu_LastName_EN;
                 Stu_Internship_Text = "Internship";
                 //Student Info in English
                 var get_stu_skill_english = _dbConnection.GetStu_SkillInfo_English(SelectedStudent_CheckStudent.Stu_EducationSubjects);
-                if(!string.IsNullOrEmpty(get_stu_skill_english))
+                if (!string.IsNullOrEmpty(get_stu_skill_english))
                 {
                     Stu_Skill_English = get_stu_skill_english;
                 }
@@ -13902,6 +13966,28 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Selected_All_Class_Transcript));
             }
         }
+        //Select all Attendent Teacher
+        private List<Class_Schedule> _Selected_Teacher_Attendent;
+        public List<Class_Schedule> Selected_Teacher_Attendent
+        {
+            get => _Selected_Teacher_Attendent;
+            set
+            {
+                _Selected_Teacher_Attendent = value;
+                OnPropertyChanged(nameof(Selected_Teacher_Attendent));
+            }
+        }
+        //Select All Teacher Info Attendent
+        private List<Class_Schedule> _Selected_Teacher_Info_Attendent;
+        public List<Class_Schedule> Selected_Teacher_Info_Attendent
+        {
+            get => _Selected_Teacher_Info_Attendent;
+            set
+            {
+                _Selected_Teacher_Info_Attendent = value;
+                OnPropertyChanged(nameof(Selected_Teacher_Info_Attendent));
+            }
+        }
         //Command Show Score Info
         public ICommand Command_Show_Score_andSubject { get; set; }
 
@@ -13919,7 +14005,7 @@ namespace RPISVR_Managements.ViewModel
             int value_credit = 0;
             foreach (var classinfo in Selected_All_Class_Transcript)
             {
-                
+
 
                 Debug.WriteLine($"Select Class ID: {classinfo.Class_ID_Show}, Student ID: {SelectedStudent_CheckStudent.Stu_ID}");
 
@@ -13932,7 +14018,7 @@ namespace RPISVR_Managements.ViewModel
                     continue; // Continue instead of breaking the loop
                 }
 
-                foreach(var subject_score in list_subject_score)
+                foreach (var subject_score in list_subject_score)
                 {
                     string gradeLetter = "N/A";
                     string gradeSystem = "N/A";
@@ -13954,13 +14040,13 @@ namespace RPISVR_Managements.ViewModel
                             break;  // Stop searching once a match is found
                         }
 
-                        
+
                     }
                     if (subject_score.Score_Skill_TotalTime <= 30)
                     {
                         value_credit = 2;
                     }
-                    else if (subject_score.Score_Skill_TotalTime >= 45 || subject_score.Score_Skill_TotalTime <89)
+                    else if (subject_score.Score_Skill_TotalTime >= 45 || subject_score.Score_Skill_TotalTime < 89)
                     {
                         value_credit = 3;
                     }
@@ -14007,10 +14093,10 @@ namespace RPISVR_Managements.ViewModel
         //HandleYes_Export_Transcript_PDF
         public void HandleYesExport_PDF_Transcript()
         {
-            
+
             // Convert date to Khmer format and assign it to a property in _selectedStudent
             _selectedStudent.Stu_BirthdayDateShow = ConvertToKhmerDate(_selectedStudent.Stu_BirthdayDateOnly);
-            PDFService_Generation_Student_Transcript.CreateReport(Selected_Transcript_Items, SelectedStudent_CheckStudent,Full_Name_EN, Stu_Skill_English, Stu_Gender_English, Stu_Place_Birth_English, Stu_Degree_English, Stu_Date_Graduation, Stu_Internship_Text, Stu_Internship_Credit, Stu_Internship_Grade);
+            PDFService_Generation_Student_Transcript.CreateReport(Selected_Transcript_Items, SelectedStudent_CheckStudent, Full_Name_EN, Stu_Skill_English, Stu_Gender_English, Stu_Place_Birth_English, Stu_Degree_English, Stu_Date_Graduation, Stu_Internship_Text, Stu_Internship_Credit, Stu_Internship_Grade);
             ErrorMessage = "PDF លិខិតព្រឹត្តិបត្រពិន្ទុ ត្រូវបានទាញចេញដោយជោគជ័យ";
             ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
             MessageColor = new SolidColorBrush(Colors.Green);
@@ -14069,7 +14155,7 @@ namespace RPISVR_Managements.ViewModel
                 OnPropertyChanged(nameof(Report_Study_Subject));
             }
         }
-        
+
         //Multi Select Transcript Items
         private List<Class_Score> _Selected_Transcript_Items;
         public List<Class_Score> Selected_Transcript_Items
@@ -14082,7 +14168,622 @@ namespace RPISVR_Managements.ViewModel
             }
         }
 
+        //Teacher Attendance
+        private string _Class_Seletecd_Date;
+        public string Class_Seletecd_Date
+        {
+            get => _Class_Seletecd_Date;
+            set
+            {
+                _Class_Seletecd_Date = value;
+                OnPropertyChanged(nameof(Class_Seletecd_Date));
+            }
+        }
+        private int _TotalTime_Calculate;
+        public int TotalTime_Calculate
+        {
+            get => _TotalTime_Calculate;
+            set
+            {
+                _TotalTime_Calculate = value;
+                OnPropertyChanged(nameof(TotalTime_Calculate));
+            }
+        }
+        private int _Index;
+        public int Index
+        {
+            get => _Index;
+            set
+            {
+                _Index = value;
+                OnPropertyChanged(nameof(Index));
+            }
+        }
+        private string _Text_Reason_Attendent;
+        public string Text_Reason_Attendent
+        {
+            get => _Text_Reason_Attendent;
+            set
+            {
+                _Text_Reason_Attendent = value;
+                OnPropertyChanged(nameof(Text_Reason_Attendent));
+            }
+        }
+        private string _Teacher_Attendent_Show;
+        public string Teacher_Attendent_Show
+        {
+            get => _Teacher_Attendent_Show;
+            set
+            {
+                _Teacher_Attendent_Show = value;
+                OnPropertyChanged(nameof(Teacher_Attendent_Show));
+            }
+        }
+        private bool _IsAttendent;
+        public bool IsAttendent
+        {
+            get => _IsAttendent;
+            set
+            {
+                if (_IsAttendent != value)
+                {
+                    _IsAttendent = value;
+                    Debug.WriteLine($"IsAttendent changed to: {_IsAttendent}");
+                    OnPropertyChanged(nameof(IsAttendent));
+                }
+                OnPropertyChanged(nameof(IsAttendent));
+            }
+        }
+        private DateTimeOffset? _SelectedDate_Attendent;
+        public DateTimeOffset? SelectedDate_Attendent
+        {
+            get => _SelectedDate_Attendent;
+            set
+            {
+                if (_SelectedDate_Attendent != value)
+                {
+                    _SelectedDate_Attendent = value;
+                    OnPropertyChanged(nameof(SelectedDate_Attendent));
+
+                    // Optional: Update other properties if needed
+                    OnPropertyChanged(nameof(DateTime_Attendent_Value));
+                }
+            }
+        }
+
+
+        public string DateTime_Attendent_Value
+        {
+            
+            get => SelectedDate_Attendent?.ToString("dd/MM/yyyy") ?? "No Date Selected";
+        }
+
+
+
+        //Command Show Class
+        public ICommand Command_Show_Class_For_Attendene { get; set; }
+
+        public async Task ShowClass_For_Teacher_Attendence()
+        {
+            if(Class_In_Study_Year_Select == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសឆ្នាំសិក្សា ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(Class_In_Study_Timeshift_Select == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសវេនសិក្សា ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if(string.IsNullOrEmpty(Current_Class_State))
+            {
+                ErrorMessage = $" សូមជ្រើសរើសស្ថានភាពថ្នាក់រៀន ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Comfirm_Value_Attendence();      
+            Classes_Info_Attendence.Clear();
+
+            var get_class_progress = _dbConnection.GetClasses_Progress(Class_In_Study_Year, Class_Seletecd_Date, Class_In_Study_Timeshift, Current_Class_State);
+
+            foreach(var class_progrss in  get_class_progress)
+            {
+                Classes_Info_Attendence.Add(class_progrss);
+            }
+            Classes_Info_Attendence = new ObservableCollection<Class_Schedule>(get_class_progress);
+            await Task.CompletedTask;
+        }
+        public void Comfirm_Value_Attendence()
+        {
+            Class_In_Study_Year =this. Class_In_Study_Year_Select.Stu_StudyYear;
+            Class_Seletecd_Date = this.Class_Seletecd_Date;
+            Class_In_Study_Timeshift =this. Class_In_Study_Timeshift_Select.Stu_StudyTimeShift;
+            Current_Class_State = this.Current_Class_State;
+            
+
+            Debug.WriteLine($"Current_Class_State: {Current_Class_State}");
+            Debug.WriteLine($"Class_In_Study_Timeshift: {Class_In_Study_Timeshift}");
+            Debug.WriteLine($"Class_Seletecd_Date: {Class_Seletecd_Date}");
+            Debug.WriteLine($"Class_In_Study_Year: {Class_In_Study_Year}");
+        }
         
+        //Save Teacher Attendent
+        public ICommand Command_Save_Teacher_Attendent { get; set; }
+
+        //Method Save
+        public async Task SaveTeacher_Attendent()
+        {
+            UpdateSelectedDate();
+            if (Selected_Teacher_Attendent == null || !Selected_Teacher_Attendent.Any())
+            {
+                ErrorMessage = $" សូមជ្រើសរើសទិន្នន័យគ្រូបច្ចេកទេស ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            if (DateTime_Attendent_Value == null || DateTime_Attendent_Value == "No Date Selected")
+            {
+                ErrorMessage = $" សូមជ្រើសរើសពេលវេលាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                Debug.WriteLine($"DateTime_Attendent_Value: {DateTime_Attendent_Value}");
+                _ = SaveTeacher_Time_Attendent();
+            }
+            await Task.CompletedTask;
+        }
+        
+        public async Task SaveTeacher_Time_Attendent()
+        {
+            Class_In_Study_Year = this.Class_In_Study_Year_Select.Stu_StudyYear;
+            string DateTime_Attendent = this.DateTime_Attendent_Value;
+            Class_Seletecd_Date = this.Class_Seletecd_Date;
+            Class_In_Study_Timeshift = this.Class_In_Study_Timeshift_Select.Stu_StudyTimeShift;
+            Current_Class_State = this.Current_Class_State;
+
+            
+
+            Debug.WriteLine($"DateTime_Start_Schedule_Strating: {DateTime_Start_Schedule_Strating}");
+            Debug.WriteLine($"Test Date: {DateTime_Attendent}");
+
+            foreach(var save_info in Selected_Teacher_Attendent)
+            {
+                //Check Before Insert
+                var check_teacher_attendent_info = await _dbConnection.Check_Teacher_Attendent_Info(DateTime_Attendent, Class_In_Study_Year, Class_Seletecd_Date, Class_In_Study_Timeshift, save_info.Class_ID_Schedule, Current_Class_State);
+
+                if (check_teacher_attendent_info.DateTime_Attendent1 == DateTime_Attendent &&
+                   check_teacher_attendent_info.Class_In_Study_Year1 == Class_In_Study_Year &&
+                   check_teacher_attendent_info.Class_Seletecd_Date1 == Class_Seletecd_Date &&
+                   check_teacher_attendent_info.Class_In_Study_Timeshift1 == Class_In_Study_Timeshift &&
+                   check_teacher_attendent_info.Class_ID_Schedule1 == save_info.Class_ID_Schedule &&
+                   check_teacher_attendent_info.Current_Class_State1 == Current_Class_State)
+                {
+                    ErrorMessage = "កាលបរិច្ឆេទ៖ " + DateTime_Attendent + "មានទិន្នន័យដូចគ្នារួចស្រេចហើយ !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-fail-96.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+                bool success = _dbConnection.Save_TeacherAttendent(save_info, Class_In_Study_Year, DateTime_Attendent, Class_Seletecd_Date, Class_In_Study_Timeshift, Current_Class_State);
+                if(success )
+                {
+                    Debug.WriteLine($"Save_TeacherAttendent Success. {save_info.SD_Skill_Name}");          
+                }
+                else
+                {
+                    ErrorMessage = $" ទិន្នន័យវត្តមានគ្រូបច្ចេកទេសបានរក្សាទុក បរាជ័យ!";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+                
+            }
+            ErrorMessage = " ទិន្នន័យវត្តមានគ្រូបច្ចេកទេសបានរក្សាទុក ដោយជោគជ័យ";
+            ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+            MessageColor = new SolidColorBrush(Colors.Green);
+
+            _ = Load_Date_Teacher_Attendents_Info();
+            Classes_Info_Attendence.Clear();
+        }
+
+        private DateTimeOffset? _SelectedDate_Search;
+        public DateTimeOffset? SelectedDate_Search
+        {
+            get => _SelectedDate_Search;
+            set
+            {
+                if (_SelectedDate_Search != value)
+                {
+                    _SelectedDate_Search = value;
+                    OnPropertyChanged(nameof(SelectedDate_Search));
+                    OnPropertyChanged(nameof(FormattedDate_SelectedDate_Search));
+                }
+            }
+        }
+        public string FormattedDate_SelectedDate_Search
+        {
+            get => SelectedDate_Search?.ToString("MM/yyyy") ?? "No Date Selected";
+        }
+
+        //Command Search
+        public ICommand Command_Search_Date_Teacher_Info { get; set; }
+        public ICommand Command_Clear_Data_Teacher_Info { get; set; }
+
+        //Method Search
+        public async Task Search_Date_Teacher_Attendents_Info()
+        {
+            if(FormattedDate_SelectedDate_Search == null || FormattedDate_SelectedDate_Search == "No Date Selected")
+            {
+                ErrorMessage = $" សូមជ្រើសរើសពេលវេលាជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            var search_date = _dbConnection.GetDate_Search_Teacher_Attendent(FormattedDate_SelectedDate_Search);
+            if (search_date == null)
+            {
+                ErrorMessage = $" Error ក្នុងការទាញយកទិន្នន័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Date_Teacher_Info_Attendence.Clear();
+
+                foreach(var date in search_date)
+                {
+                    Date_Teacher_Info_Attendence.Add(date);
+                }
+                Date_Teacher_Info_Attendence = new ObservableCollection<Class_Schedule>(search_date);
+
+            
+            Debug.WriteLine($"FormattedDate_SelectedDate_Search: {FormattedDate_SelectedDate_Search}");
+            await Task.CompletedTask;
+        }
+
+        //Method Clear Attendent
+        public async Task Clear_Search_Date()
+        {
+            SelectedDate_Search = null;
+            _=Load_Date_Teacher_Attendents_Info();
+            await Task.CompletedTask;
+        }
+        //Method load Data Teacher_Attendents
+        public async Task Load_Date_Teacher_Attendents_Info()
+        {
+            var search_date = _dbConnection.LoadDate_Search_Teacher_Attendent();
+            if (search_date == null)
+            {
+                ErrorMessage = $" Error ក្នុងការទាញយកទិន្នន័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Date_Teacher_Info_Attendence.Clear();
+
+            foreach (var date in search_date)
+            {
+                Date_Teacher_Info_Attendence.Add(date);
+            }
+            Date_Teacher_Info_Attendence = new ObservableCollection<Class_Schedule>(search_date);
+
+            await Task.CompletedTask;
+        }
+
+        private string _DateTime_Attendent;
+        public string DateTime_Attendent
+        {
+            get => _DateTime_Attendent;
+            set
+            {
+                _DateTime_Attendent = value;
+                OnPropertyChanged(nameof(DateTime_Attendent));
+            }
+        }
+        //Command Show Data Info from click date
+        public ICommand Command_ShowData_Click_Date { get; set; }
+        public ICommand Command_Delete_Date_Click_Date { get; set; }
+
+        //Select in ListView
+        private Class_Schedule _Selected_Date_Items_Show_Info;
+        public Class_Schedule Selected_Date_Items_Show_Info
+        {
+            get => _Selected_Date_Items_Show_Info;
+            set
+            {
+                if(_Selected_Date_Items_Show_Info != value)
+                {
+                    _Selected_Date_Items_Show_Info = value;
+                    OnPropertyChanged(nameof(Selected_Date_Items_Show_Info));
+
+                    if(_Selected_Date_Items_Show_Info == null)
+                    {
+                        DateTime_Attendent = string.Empty;
+                    }
+                    else
+                    {
+                        DateTime_Attendent = _Selected_Date_Items_Show_Info.DateTime_Attendent;
+                        
+                    }
+                }
+            }
+        }
+        private int _Class_In_Study_Year_Show;
+        public int Class_In_Study_Year_Show
+        {
+            get => _Class_In_Study_Year_Show;
+            set
+            {
+                _Class_In_Study_Year_Show = value;
+                OnPropertyChanged(nameof(Class_In_Study_Year_Show));
+            }
+        }
+        private int _Class_In_Semester_Show;
+        public int Class_In_Semester_Show
+        {
+            get => _Class_In_Semester_Show;
+            set
+            {
+                _Class_In_Semester_Show = value;
+                OnPropertyChanged(nameof(Class_In_Semester_Show));
+            }
+        }
+        //Method Show Date Info from click date
+        public async Task ShowData_Click_Date()
+        {
+            if(Selected_Date_Items_Show_Info == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសពេលវេលាក្នុងតារាង ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            DateTime_Attendent = _Selected_Date_Items_Show_Info.DateTime_Attendent;
+            Debug.WriteLine($"Selected_Date_Items_Show_Info: {DateTime_Attendent}");
+
+            var data_info_from_click_date = _dbConnection.Get_DataInfo_From_ClickDate(DateTime_Attendent);
+
+            if(data_info_from_click_date == null)
+            {
+                ErrorMessage = $" Error ក្នុងការទាញយកទិន្នន័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Classes_Info_Attendence_S.Clear();
+
+            foreach(var data_info in data_info_from_click_date)
+            {
+                Classes_Info_Attendence_S.Add(data_info);
+            }
+            Classes_Info_Attendence_S = new ObservableCollection<Class_Schedule>(data_info_from_click_date);
+            await Task.CompletedTask;
+        }
+
+        //Method Delete Data Info from click date
+        public async Task Delete_Date_Click_Date()
+        {
+            if (Selected_Date_Items_Show_Info == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសពេលវេលាក្នុងតារាង ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            else
+            {
+                ErrorMessage_Delete = $"តើអ្នកពិតជាចង់លុបទិន្នន័យទាំងនេះមែនទេ ({Selected_Date_Items_Show_Info.DateTime_Attendent}) ?";
+                ErrorImageSource_Delete = new BitmapImage(new Uri("ms-appx:///Assets/Setting/icons8-question.gif"));
+                MessageColor_Delete = new SolidColorBrush(Colors.Yellow);
+                CurrentOperation = "Delete_Data_DateAttendent";
+            }
+            
+
+            await Task.CompletedTask;
+        }
+
+        //Handle Yes Delete Attendent
+        public void HandleYes_Delete_Data_Attendent_Info()
+        {
+            DateTime_Attendent = _Selected_Date_Items_Show_Info.DateTime_Attendent;
+
+            bool success_delete = _dbConnection.Delete_DataClick_Date(DateTime_Attendent);
+            if (success_delete)
+            {
+                ErrorMessage = " ទិន្នន័យវត្តមានគ្រូបច្ចេកទេសបានលុប ដោយជោគជ័យ";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+
+                _ = Load_Date_Teacher_Attendents_Info();
+            }
+            else
+            {
+                ErrorMessage = $" ទិន្នន័យលុបបរាជ័យ !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+        }
+
+        private Class_Schedule _First_Selected_Teacher_Info_Attendent;
+        public Class_Schedule First_Selected_Teacher_Info_Attendent
+        {
+            get => _First_Selected_Teacher_Info_Attendent;
+            set
+            {
+                _First_Selected_Teacher_Info_Attendent = value;
+                OnPropertyChanged(nameof(First_Selected_Teacher_Info_Attendent));
+            }
+        }
+        //Command Edit Delete Teacher Attendent
+        public ICommand Command_Edit_Teacher_Attendent_Info { get; set; }
+        public ICommand Command_Delete_Teacher_Attendent_Info { get; set; }
+
+        //Can Edit
+        private bool _Can_Edit_Attendet;
+        public bool Can_Edit_Attendet
+        {
+            get => _Can_Edit_Attendet;
+            set
+            {
+                _Can_Edit_Attendet = value;
+                OnPropertyChanged(nameof(Can_Edit_Attendet));
+            }
+        }
+        //Method Edit Teacher Attendet
+        public async Task Edit_Teacher_Attendent_Info()
+        {
+            if(Selected_Teacher_Info_Attendent == null || !Selected_Teacher_Info_Attendent.Any())
+            {
+                Can_Edit_Attendet = false;
+                ErrorMessage = $" សូមជ្រើសរើសទិន្នន័យក្នុងតារាងជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            Classes_Info_Attendence.Clear();
+            foreach (var select_item in Selected_Teacher_Info_Attendent)
+            {
+                select_item.Class_In_Study_Year = select_item.Class_In_Study_Year_Show.ToString();
+                select_item.Class_In_Semester = select_item.Class_In_Semester_Show.ToString();
+                Classes_Info_Attendence.Add(select_item);
+
+                Class_In_Study_Year_Select = EducationStudyYear_Combobox
+               .FirstOrDefault(stu_year => stu_year.Stu_StudyYear == select_item.SD_Class_Study_Year);
+                OnPropertyChanged(nameof(Class_In_Study_Year_Select));
+
+                Class_Seletecd_Date = select_item.Class_Seletecd_Date;
+
+                Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+               .FirstOrDefault(stu_timeshift => stu_timeshift.Stu_StudyTimeShift == select_item.SD_Class_TimeShift);
+                OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+                Current_Class_State = select_item.Current_Class_State;
+                SetSelectedDate(select_item.DateTime_Attendent);
+
+                Can_Edit_Attendet = true;
+            }
+            await Task.CompletedTask;
+        }
+        private int _ID_Show;
+        public int ID_Show
+        {
+            get => _ID_Show;
+            set
+            {
+                _ID_Show = value;
+                OnPropertyChanged(nameof(ID_Show));
+            }
+        }
+        public void SetSelectedDate(string dateString)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(dateString))
+                {
+                    // Convert "20/02/2025" (DD/MM/YYYY) to DateTimeOffset
+                    DateTime parsedDate = DateTime.ParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                    SelectedDate_Attendent = new DateTimeOffset(parsedDate);
+                }
+            }
+            catch (FormatException)
+            {
+                Debug.WriteLine($"Invalid date format: {dateString}");
+                SelectedDate_Attendent = null;
+            }
+        }
+
+        //Commmand Clear
+        public ICommand Command_Clear_Teacher_Attendent_Info { get; set; }
+
+        //Method Clear
+        public async Task Clear_List_Teacher_Attendent()
+        {
+            Classes_Info_Attendence.Clear();
+            Class_Seletecd_Date = null;
+
+            Class_In_Study_Timeshift_Select = EducationStudyTimeShift_Combobox
+           .FirstOrDefault(stu_timeshift => stu_timeshift.Stu_StudyTimeShift == null);
+            OnPropertyChanged(nameof(Class_In_Study_Timeshift_Select));
+
+            Current_Class_State = null;
+            SelectedDate_Attendent = DateTimeOffset.Now;
+            Can_Edit_Attendet = false;
+
+            await Task.CompletedTask;
+        }
+
+        //Update Teacher Attendent
+        public ICommand Command_Update_Teacher_Attendent { get; set; }
+
+        //Method Update
+        public async Task Update_Teacher_Attendent_Info()
+        {
+            if(Can_Edit_Attendet == true)
+            {
+                if(Selected_Teacher_Attendent == null || !Selected_Teacher_Attendent.Any())
+                {
+                    ErrorMessage = $" សូមជ្រើសរើសទិន្នន័យក្នុងតារាងជាមុនសិន !";
+                    ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                    MessageColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+                Class_In_Study_Year = this.Class_In_Study_Year_Select.Stu_StudyYear;
+                string DateTime_Attendent = this.DateTime_Attendent_Value;
+                Class_Seletecd_Date = this.Class_Seletecd_Date;
+                Class_In_Study_Timeshift = this.Class_In_Study_Timeshift_Select.Stu_StudyTimeShift;
+                Current_Class_State = this.Current_Class_State;
+
+
+                foreach (var update_info in Selected_Teacher_Attendent)
+                {
+                    Debug.WriteLine("Can Edit OK");
+                    Debug.WriteLine(update_info.ID_Show);
+
+                    bool success = _dbConnection.Update_Teacher_Info_Attendent_Info(update_info);
+
+                    if(success)
+                    {
+                        Debug.WriteLine($"Update {update_info.ID_Show} Success.");
+                    }
+                    else
+                    {
+                        ErrorMessage = $" ធ្វើបច្ចុប្បន្នភាពបរាជ័យ !";
+                        ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                        MessageColor = new SolidColorBrush(Colors.Red);
+                        return;
+                    }
+
+                }
+                _ = Clear_List_Teacher_Attendent();
+                ErrorMessage = " ទិន្នន័យវត្តមានគ្រូបច្ចេកទេសបានធ្វើបច្ចុប្បន្នភាព ដោយជោគជ័យ";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-check-96.png"));
+                MessageColor = new SolidColorBrush(Colors.Green);
+
+            }
+            else
+            {
+                Debug.WriteLine("No Edit.");
+                return;
+            }
+            
+            await Task.CompletedTask;
+        }
+            
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
