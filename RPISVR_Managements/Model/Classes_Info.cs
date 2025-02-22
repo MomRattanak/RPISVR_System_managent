@@ -37,5 +37,7 @@ namespace RPISVR_Managements.Model
 
         public string Class_In_Study_Timeshift { get; set; }
         public int Class_In_Study_Timeshift_Select { get; set; }
+
+        public string Class_Seletecd_Date { get; set; }
     }
 }

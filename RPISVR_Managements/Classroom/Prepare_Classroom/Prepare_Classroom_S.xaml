@@ -15,9 +15,6 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
 
-    
-
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="Search_Class" Height="Auto"/>

@@ -156,6 +156,7 @@ namespace RPISVR_Managements.Model
         public string Class_In_Study_Type { get; set; }
         public int Class_In_Study_Type_Select { get; set; }
 
+        public string Class_Seletecd_Date { get; set; }
         //Search Class
         public string Search_Class_In_Skill { get; set; }
         public int Search_Class_In_Skill_Select { get; set; }
