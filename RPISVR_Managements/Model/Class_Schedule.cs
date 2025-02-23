@@ -32,6 +32,9 @@ namespace RPISVR_Managements.Model
         public TimeSpan SD_End_DateTime_SS2 { get; set; }
 
         public int TotalTime_Calculate { get; set; }
+        public int Number_of_Hours_left { get; set; }
+        public int Number_of_Hours_Current { get; set; }
+
         public string Text_Reason_Attendent { get; set; }
         public string Teacher_Attendent { get; set; }
         public string Teacher_Attendent_Show { get; set; }

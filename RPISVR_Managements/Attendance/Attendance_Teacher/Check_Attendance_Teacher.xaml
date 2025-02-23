@@ -7,9 +7,454 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:converters="using:RPISVR_Managements.Loading_View"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Search_Class" Height="Auto"/>
+            <RowDefinition x:Name="Text_Header_Table" Height="Auto"/>
+            <RowDefinition x:Name="Table_List" Height="Auto"/>
+            <RowDefinition x:Name="Data_Info" Height="*"/>
+        </Grid.RowDefinitions>
 
+        <StackPanel x:Name="Search_Info" Grid.Row="0" Margin="5" Padding="5" CornerRadius="3">
+            <ScrollView x:Name="Scroll_P_Insert" MaxHeight="260" ContentOrientation="Horizontal" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Visible">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="Search_ByID"
+              Text="{Binding Search_Class_Search_Name_Generation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              Header="ស្វែងរក ឈ្មោះថ្នាក់ និងជំនាន់"
+              Style="{StaticResource Style_KH_TextBox}"
+              Margin="0,0,5,0"
+              CornerRadius="3"/>
+
+                    <ComboBox x:Name="Class_Study_Year_Search"
+                 Header="ឆ្នាំសិក្សា"
+                 ItemsSource="{Binding EducationStudyYear_Combobox}"
+                 DisplayMemberPath="Stu_StudyYear"
+                 SelectedValuePath="Stu_StudyYear_ID"
+                 Style="{StaticResource Stye_KH_Combobox}"
+                 Margin="0"
+                 SelectedItem="{Binding Search_Class_In_Study_Year_Select,Mode=TwoWay}">
+                    </ComboBox>
+
+                    <Button x:Name="btn_clear_edu_studyyear"  
+            Content="x"
+            Margin="0,25,0,0"  
+            Foreground="Red"
+            Click="Clear_Class_Study_Year_Searchr"/>
+                    <ComboBox x:Name="Class_Subject_Search"
+            Header="ជំនាញ"    
+            ItemsSource="{Binding EducationSubjectSkill_Combobox}"
+            DisplayMemberPath="Stu_EducationSubjects"
+            SelectedValuePath="Stu_EducationSubject_ID"  
+            Style="{StaticResource Stye_KH_Combobox}"
+            Margin="5,0,0,0"
+            SelectedItem="{Binding Search_Class_In_Skill_Select,Mode=TwoWay}">
+                    </ComboBox>
+                    <Button x:Name="btn_clear_subject"  
+            Content="x"
+            Foreground="Red"
+            Margin="0,25,0,0" 
+            Click="Clear_Class_Skill"/>
+                    <ComboBox x:Name="Class_Edu_Level_Class"
+             Header="កម្រិតសិក្សា"
+             ItemsSource="{Binding EducationsLevel_Combobox}"
+             DisplayMemberPath="Stu_EducationLevels"
+             SelectedValuePath="Stu_EducationLevels_ID"          
+             Style="{StaticResource Stye_KH_Combobox}"
+             Margin="5,0,0,0"
+             SelectedItem="{Binding Search_Class_In_Level_Select,Mode=TwoWay}">
+                    </ComboBox>
+                    <Button x:Name="btn_clear_level"  
+             Content="x"
+             Foreground="Red"                                          
+             Margin="0,25,0,0" 
+             Click="Clear_Class_Level"/>
+                    <ComboBox x:Name="Class_Studying_Class"
+            Header="ឆ្នាំទី" 
+            Style="{StaticResource Stye_KH_Combobox}"
+            Margin="5,0,0,0" 
+            SelectedItem="{Binding Search_Class_In_Student_Year,Mode=TwoWay}">
+                        <x:String>1</x:String>
+                        <x:String>2</x:String>
+                        <x:String>3</x:String>
+                        <x:String>4</x:String>
+                        <x:String>4.5</x:String>
+                    </ComboBox>
+                    <Button x:Name="btn_clear_study_year"
+            Content="x"
+            Foreground="Red"                                          
+            Margin="0,25,0,0" 
+            Click="Clear_Class_Study_Year"/>
+                    <ComboBox x:Name="Search_Class_Semester"
+              Header="ឆមាស"
+              Style="{StaticResource Stye_KH_Combobox}"
+              Margin="5,0,0,0"                          
+              SelectedItem="{Binding Search_Class_Semester,Mode=TwoWay}">
+                        <x:String>1</x:String>
+                        <x:String>2</x:String>
+                    </ComboBox>
+                    <Button x:Name="btn_clear_semester"
+            Content="x"
+            Foreground="Red"                                                                     
+            Margin="0,25,0,0" 
+            Click="Clear_Class_Semester"/>
+                    <ComboBox x:Name="Search_Class_StudyTime"
+            Header="វេនសិក្សា"
+            ItemsSource="{Binding EducationStudyTimeShift_Combobox}"
+            DisplayMemberPath="Stu_StudyTimeShift"
+            SelectedValuePath="Stu_StudyTimeShift_ID"                      
+            Style="{StaticResource Stye_KH_Combobox}"
+            Margin="5,0,0,0"
+            SelectedItem="{Binding Search_Class_In_Study_Timeshift_Select,Mode=TwoWay}">
+                    </ComboBox>
+                    <Button x:Name="btn_clear_studytime"
+            Content="x"
+            Foreground="Red"                                                           
+            Margin="0,25,0,0" 
+            Click="Clear_Class_StudyTime"/>
+                    <ComboBox x:Name="Search_Class_TypeStudy"
+            Header="ប្រភេទសិក្សា"
+            ItemsSource="{Binding EducationStudyType_Combobox}"
+            DisplayMemberPath="Stu_EducationType"
+            SelectedValuePath="Stu_EducationType_ID"       
+            Style="{StaticResource Stye_KH_Combobox}"
+            Margin="5,0,0,0"
+            SelectedItem="{Binding Search_Class_In_Student_Type_Select,Mode=TwoWay}">
+                    </ComboBox>
+                    <Button x:Name="btn_clear_studytype"
+            Content="x"
+            Foreground="Red"                                          
+            Margin="0,25,0,0" 
+            Click="Clear_Class_StudyType"/>
+
+
+                    <Button x:Name="Class_Search_Button"  
+            Command="{Binding Search_Class_Info}"
+            Style="{StaticResource Stye_KH_Button}"
+            Margin="5,15,0,0"
+            CornerRadius="3"
+            Width="120" >
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Check_Student_Info_Icon/icons8-search-96.png" Width="28" Height="28"/>
+                                <TextBlock Text="ស្វែងរក" Padding="19,5,0,0" Style="{StaticResource Font_KH_Body}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                    <Button x:Name="Class_Clear_Button"
+            Style="{StaticResource Stye_KH_Button}"
+             Margin="5,15,0,0"
+             CornerRadius="3"
+             Width="120">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Assets/Student_Info_Icon/icons8-broom-96.png" Width="28" Height="28"/>
+                                <TextBlock Text="លុប" Padding="19,5,0,0" Style="{StaticResource Font_KH_Body}"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </ScrollView>
+        </StackPanel>
+
+        <StackPanel x:Name="Table_Stu_Info_Header" Grid.Row="1"  Orientation="Horizontal" >
+            <TextBlock HorizontalAlignment="Left" Text="តារាងទិន្នន័យថ្នាក់រៀន" Style="{StaticResource Font_KH_Title}" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="40,0,0,0">
+                <Button Command="{Binding NextPageCommand_Class}">
+                    <Button.Content>
+                        <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-left-96.png" Width="20" Height="20"/>
+                    </Button.Content>
+                </Button>
+                <TextBlock Text="{Binding CurrentPage_Class}" Margin="5,5,0,0"/>
+                <TextBlock Text="/" Margin="5,5,0,0"/>
+                <TextBlock Text="{Binding TotalPage_Class}" Margin="5,5,5,0"/>
+                <Button Command="{Binding PreviousPageCommand_Class}" >
+                    <Button.Content>
+                        <ImageIcon Source="/Assets/Student_Info_Icon/icons8-double-right-96.png" Width="20" Height="20"/>
+                    </Button.Content>
+                </Button>
+
+                <!-- Loading indicator -->
+                <ProgressRing x:Name="LoadingIndicator"
+                Margin="20,0,0,0"
+                IsActive="{Binding IsLoading}"
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollView x:Name="Table_Class_Infos" Grid.Row="2" Height="200" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+            <StackPanel>
+                <!--Header-->
+                <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                    <TextBlock Text="លេខរៀង" Margin="50,0,0,0" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ឈ្មោះថ្នាក់រៀន" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ឆ្នាំសិក្សា" Width="80"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ជំនាញសិក្សា" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="កម្រិតសិក្សា" Width="170" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ឆ្នាំទី" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ឆមាស" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ជំនាន់ទី" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="វេនសិក្សា" Width="130" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ប្រភេទសិក្សា" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ចំនួននិស្សិតកំណត់ក្នុងថ្នាក់" Width="150" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ចំនួននិស្សិតជាក់ស្ដែង" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ស្ថានភាពថ្នាក់រៀន" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                    <TextBlock Text="ID" Width="30"  Style="{StaticResource Font_KH_Body}" FontWeight="Bold" Visibility="Visible"/>
+                </StackPanel>
+
+                <ScrollView ContentOrientation="Vertical" VerticalScrollMode="Auto" Height="180" VerticalScrollBarVisibility="Visible">
+
+
+                    <!--ListView-->
+                    <ListView x:Name="Classes_Info_List" ItemsSource="{Binding Classes_Info}" SelectionChanged="PrepareClass_SelectionChanged" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+
+                                    <TextBlock Text="{Binding No_Class}" Margin="20,0,0,0" Width="40"/>
+                                    <TextBlock Text="{Binding Class_Name}" Width="160"/>
+                                    <TextBlock Text="{Binding Class_In_Study_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Skill}" Width="150" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Level}" Width="180" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Student_Year}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Semester}" Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Generation}" Width="50" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Study_Timeshift}" Width="140" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_In_Study_Type}" Width="180" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Max_Student_InClass}" Width="130"/>
+                                    <TextBlock Text="{Binding Current_Student_InClass}" Width="100"/>
+                                    <TextBlock Text="{Binding Current_Class_State}" Width="100" Style="{StaticResource Font_KH_Body}"/>
+                                    <TextBlock Text="{Binding Class_ID}" Width="50" Visibility="Visible"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollView>
+            </StackPanel>
+        </ScrollView>
+
+        <Grid Grid.Row="3" BorderBrush="Aqua" BorderThickness="2" CornerRadius="2">
+            <ScrollViewer>
+                <Grid>
+                    
+               
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel HorizontalAlignment="Left" Margin="10,10,0,0" Orientation="Horizontal" >
+
+                        <DatePicker DayVisible="False" Date="{Binding SelectedDate_Search_Attendent,Mode=TwoWay}" Header="ស្វែងរកទិន្នន័យអវត្កមានគ្រូបច្ចេកទេស" Style="{StaticResource Stye_KH_Picker}"/>
+                        <Button Command="{Binding Command_Search_Attendent_Teacher_Info}" Margin="10,24,0,0" Background="Green">
+                            <StackPanel>
+                                <FontIcon Glyph="&#xF78B;" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding Command_Clear_Attendent_Teacher_Info}" Margin="10,24,0,0" Background="Yellow">
+                            <StackPanel>
+                                <FontIcon Glyph="&#xED62;" Foreground="Blue"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1" Width="500">
+                    <ScrollView x:Name="Table_DateTime" Margin="10,0,0,0" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                        <StackPanel>
+                            <!--Header-->
+                            <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                <TextBlock Text="               កាលបរិច្ឆេទ" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="គ្រូបច្ចេកទេស" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="មូលហេតុ" Margin="30,0,0,0" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="វត្តមាន" Margin="10,0,0,0" Width="70" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ជំនាញ" Width="100" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ឆ្នាំទី" Width="30" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ឆមាស" Width="40" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ជំនាន់" Width="90" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="មុខវិជ្ជា" Width="90" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោង" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ម៉ោងចាប់ផ្ដើម" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ម៉ោងបញ្ចប់" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="វេនសិក្សា" Margin="30,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                            </StackPanel>
+
+                            <ScrollView  ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+                                <!--ListView-->
+                                <ListView x:Name="Table_DateTime_List" ItemsSource="{Binding Teacher_Info_MissAttendence}" SelectedItem="{Binding Selected_Date_Items_Show_Info,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+                                                <TextBlock Text="{Binding DateTime_Attendent}"  Width="70" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Teacher_Name}"  Width="90" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                        <TextBlock Text="{Binding Text_Reason_Attendent}" Foreground="Red" Width="120" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding IsAttendent}"  Width="40" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Skill}"  Width="120" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Study_Year_Show}"  Width="30" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Semester_Show}"  Width="30" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Generation}"  Width="30" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Skill_Name}"  Width="170" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_TotalTime_Mon2}"  Width="40" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Start_DateTime_MF1}"  Width="100" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_End_DateTime_MF2}"  Width="70" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Class_TimeShift}"  Width="120" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </ScrollView>
+                        </StackPanel>
+                    </ScrollView>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel Margin="5,28,0,0">
+                        <Button BorderBrush="Green" Command="{Binding Command_Show_DateTime_Subject}" Style="{StaticResource Stye_KH_Button}">
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE896;"/>
+                                <TextBlock Text="បង្ហាញមុខវិជ្ជា"  Margin="10,0,0,0"
+                                           Style="{StaticResource Font_KH_Body}"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <ScrollView x:Name="Table_DateTime_Info" Margin="10,0,0,0" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                        <StackPanel>
+                            <!--Header-->
+                            <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                <TextBlock Text="      ឈ្មោះគ្រូបច្ចេកទេស" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="មុខវិជ្ជា" Width="140" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោងសរុប" Width="90" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោងកំពុងដំណើរការ" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោងនៅសល់" Width="100" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="វេនសិក្សា" Width="70" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោងចាប់ផ្ដើម" Width="100" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ចំនួនម៉ោងបញ្ចប់" Width="90" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+
+                                <TextBlock Text="ជំនាញ" Width="120" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ឆ្នាំទី" Width="40" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ឆមាស" Width="70" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                <TextBlock Text="ជំនាន់់" Width="60" Margin="0,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+
+                            </StackPanel>
+
+                            <ScrollView  ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible" Height="300">
+                                <!--ListView-->
+                                        <ListView x:Name="Table_DateTime_Class_Subject_List" ItemsSource="{Binding TotalTime_Subject_Teacher_Info}" SelectedItem="{Binding Selected_Subject_Items_Info_Date,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+
+                                                <TextBlock Text="{Binding SD_Teacher_Name}"  Width="90" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Skill_Name}"  Width="170" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_TotalTime_Mon2}"  Width="100" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Number_of_Hours_Current}" Foreground="Aqua" Width="90" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                        <TextBlock Text="{Binding Number_of_Hours_left}" Foreground="Red" Width="40" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Class_TimeShift}"  Width="100" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_Start_DateTime_MF1}"  Width="80" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding SD_End_DateTime_MF2}"  Width="70" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+
+                                                <TextBlock Text="{Binding Class_In_Skill}"  Width="120" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Study_Year_Show}"  Width="50" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Semester_Show}"  Width="50" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                <TextBlock Text="{Binding Class_In_Generation}"  Width="50" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </ScrollView>
+                        </StackPanel>
+                    </ScrollView>
+                </Grid>
+
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <StackPanel Orientation="Horizontal" Margin="10,10,0,10">
+                                    <Button BorderBrush="Green" x:Name="btn_show_info" Command="{Binding Command_Show_Date_Info_Click_Subject}">
+                                        <StackPanel>
+                                            <FontIcon Glyph="&#xF19D;" />
+                                            <TextBlock Text="ពិនិត្យកាលបរិច្ឆេទ" Style="{StaticResource Font_KH_Body}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Grid.Row="1">
+                                <ScrollView x:Name="Table_DateTime_Info1" Margin="10,0,0,0" ContentOrientation="Horizontal" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" HorizontalScrollBarVisibility="Visible" >
+                                    <StackPanel>
+                                        <!--Header-->
+                                        <StackPanel Orientation="Horizontal" Spacing="20" Background="Green">
+                                            <TextBlock Text="ថ្ងៃ" Width="60" Margin="40,0,0,0" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="កាលបរិច្ឆេទ" Width="80" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="ចំនូនម៉ោង" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="វត្តមាន" Width="60" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            <TextBlock Text="មូលហេតុ" Width="120" Style="{StaticResource Font_KH_Body}" FontWeight="Bold"/>
+                                            
+                                        </StackPanel>
+
+                                        <ScrollView  ContentOrientation="Vertical" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Visible">
+                                            <!--ListView-->
+                                            <ListView x:Name="Table_DateTime_Class_Subject_List1" ItemsSource="{Binding TotalTime1_Subject_Teacher_Info}" SelectedItem="{Binding Selected_Subject_Items_Info_Date,Mode=TwoWay}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CornerRadius="3" BorderBrush="Red" BorderThickness="3"
+Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="True">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="20" Margin="5">
+
+                                                            <TextBlock Text="{Binding Class_Seletecd_Date,Mode=TwoWay}" Width="70" Margin="10,0,0,0" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding DateTime_Attendent}"  Width="90" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Width="50" Style="{StaticResource Font_KH_Body}">
+                                                                <Run Text="{Binding TotalTime_Calculate}" Foreground="Aqua"/>
+                                                                <Run Text="(h)"/>
+                                                            </TextBlock>
+                                                            <TextBlock Text="{Binding IsAttendent}" Foreground="Aqua" Width="60" Style="{StaticResource Font_KH_Body}"/>
+                                                            <TextBlock Text="{Binding Text_Reason_Attendent}" Foreground="Red" Width="500" Style="{StaticResource Font_KH_Body}"/>
+                                                            
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </ScrollView>
+                                    </StackPanel>
+                                </ScrollView>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

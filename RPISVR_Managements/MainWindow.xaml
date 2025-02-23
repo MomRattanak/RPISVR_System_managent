@@ -256,9 +256,9 @@
                                 </NavigationViewItem>
 
                                 <!--Report Attendance-->
-                                <NavigationViewItem x:Name="Report_Attendance_All" Content="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
+                        <NavigationViewItem x:Name="Report_Attendance_All" Content="របាយការណ៍ចំនួនម៉ោង" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
                                     <ToolTipService.ToolTip>
-                                        <TextBlock Text="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Tooltip}"/>
+                                        <TextBlock Text="របាយការណ៍ចំនួនម៉ោង" Style="{StaticResource KH_Tooltip}"/>
                                     </ToolTipService.ToolTip>
                                     <NavigationViewItem.Icon>
                                         <FontIcon Glyph="&#xE73D;" />
@@ -496,9 +496,9 @@
                                 </NavigationViewItem>
 
                         <!--Report_Attendance-->
-                        <NavigationViewItem x:Name="Report_Attendance_All_Info" Content="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
+                        <NavigationViewItem x:Name="Report_Attendance_All_Info" Content="របាយការណ៍ចំនួនម៉ោង" Style="{StaticResource KH_Font_NavigationView}" Tag="Report_Attendance_All">
                                     <ToolTipService.ToolTip>
-                                        <TextBlock Text="របាយការណ៍វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Tooltip}"/>
+                                <TextBlock Text="របាយការណ៍ចំនួនម៉ោង" Style="{StaticResource KH_Tooltip}"/>
                                     </ToolTipService.ToolTip>
                                     <NavigationViewItem.Icon>
                                         <ImageIcon Source="/Assets/icons8-schedule-48.png" />

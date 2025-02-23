@@ -36,12 +36,9 @@ namespace RPISVR_Managements
             // Use only one windows
             if (MainAppWindow == null)
             {
-                MainAppWindow = new MainWindow();  // Create and assign the window
+                MainAppWindow = new Login_Window();  // Create and assign the window
                 MainAppWindow.Activate();  // Activate the window
             }
-            //Old
-            //m_window = new MainWindow();
-            //m_window.Activate();
         }
         // Helper method to access MainWindow-specific methods
         public static MainWindow GetMainWindow()
@@ -49,8 +46,6 @@ namespace RPISVR_Managements
             return MainAppWindow as MainWindow;  // Safe cast to MainWindow
         }
         //public static MainWindow m_window { get; private set; }
-        
-
-        
+  
     }
 }

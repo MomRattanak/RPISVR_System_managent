@@ -8247,6 +8247,236 @@ namespace RPISVR_Managements.Model
                 return false;
             }       
         }       
+
+        //Method to get MissAttendent
+        public List<Class_Schedule> Get_MissAttendent(string FormattedDate_SelectedDate_Search_Attendent,bool IsAttendent)
+        {
+            List<Class_Schedule> data_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT date_attendent,teacher_name,is_attendent,text_reason,subject_name,subject_time,time_start,time_stop,skill_name,stu_year,stu_semester,stu_generation,study_timeshift FROM teacher_attendent_info WHERE is_attendent = @is_attendent AND date_attendent LIKE @SearchPattern";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query,conn))
+                        {
+                            cmd.Parameters.AddWithValue("@SearchPattern", $"%{FormattedDate_SelectedDate_Search_Attendent}%");
+                            cmd.Parameters.AddWithValue("@is_attendent", IsAttendent);
+                            using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                            {
+                                while (reader.Read())
+                                {
+                                    // Create an instance of Class_Schedule and populate the data
+                                    Class_Schedule miss_attendent = new Class_Schedule
+                                    {
+                                        
+                                        IsAttendent = reader.GetBoolean("is_attendent"),
+                                        SD_Teacher_Name = reader.GetString("teacher_name"),
+                                        SD_Skill_Name = reader.GetString("subject_name"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("subject_time"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("time_start"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("time_stop"),
+
+                                        Class_In_Skill = reader.GetString("skill_name"),
+                                        Class_In_Study_Year_Show = reader.GetInt32("stu_year"),
+                                        Class_In_Semester_Show = reader.GetInt32("stu_semester"),
+                                        Class_In_Generation = reader.GetInt32("stu_generation"),
+                                        Text_Reason_Attendent = reader.IsDBNull(reader.GetOrdinal("text_reason")) ? string.Empty : reader.GetString("text_reason"),
+                                        SD_Class_TimeShift = reader.GetString("study_timeshift"),     
+                                        DateTime_Attendent = reader.GetString("date_attendent"),
+                                    };
+
+                                    data_info.Add(miss_attendent);
+                                }
+                            }
+
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database Get_MissAttendent: {ex.Message}");
+                    return null;
+                }catch(Exception ex)
+                {
+                    Debug.WriteLine($"Error Get_MissAttendent: {ex.Message}");
+                    return null;
+                }       
+            }
+            return data_info;
+        }
+
+        //Method to Load MissAttendent
+        public List<Class_Schedule> GetLoad_Data_Teacher_MissAttendent(bool IsAttendent)
+        {
+            List<Class_Schedule> data_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT date_attendent,teacher_name,is_attendent,text_reason,subject_name,subject_time,time_start,time_stop,skill_name,stu_year,stu_semester,stu_generation,study_timeshift FROM teacher_attendent_info WHERE is_attendent = @is_attendent ORDER BY date_attendent DESC LIMIT 31";
+
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@is_attendent", IsAttendent);
+                            using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                            {
+                                while (reader.Read())
+                                {
+                                    // Create an instance of Class_Schedule and populate the data
+                                    Class_Schedule miss_attendent = new Class_Schedule
+                                    {
+
+                                        IsAttendent = reader.GetBoolean("is_attendent"),
+                                        SD_Teacher_Name = reader.GetString("teacher_name"),
+                                        SD_Skill_Name = reader.GetString("subject_name"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("subject_time"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("time_start"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("time_stop"),
+
+                                        Class_In_Skill = reader.GetString("skill_name"),
+                                        Class_In_Study_Year_Show = reader.GetInt32("stu_year"),
+                                        Class_In_Semester_Show = reader.GetInt32("stu_semester"),
+                                        Class_In_Generation = reader.GetInt32("stu_generation"),
+                                        Text_Reason_Attendent = reader.IsDBNull(reader.GetOrdinal("text_reason")) ? string.Empty : reader.GetString("text_reason"),
+                                        SD_Class_TimeShift = reader.GetString("study_timeshift"),
+                                        DateTime_Attendent = reader.GetString("date_attendent"),
+                                    };
+
+                                    data_info.Add(miss_attendent);
+                                }
+                            }
+
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database Get_MissAttendent: {ex.Message}");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error Get_MissAttendent: {ex.Message}");
+                    return null;
+                }
+            }
+            return data_info;
+        }
+
+        //Method to load DateTime Subject
+        public List<Class_Schedule> GetTotal_Subject_Time_Info(int Class_ID_Schedule)
+        {
+            List<Class_Schedule> data_info = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT \r\n    teacher_name,subject_name,subject_time,\r\n    SUM(subject_time_today) AS total_subject_time,\r\n    (subject_time - SUM(subject_time_today)) AS count_total,\r\n    study_timeshift,time_start,time_stop,skill_name,stu_year,stu_semester,stu_generation\r\nFROM teacher_attendent_info \r\nWHERE class_id = @class_id \r\nGROUP BY subject_name, subject_time order by stu_year desc";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@class_id", Class_ID_Schedule);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                            {
+                                while (reader.Read())
+                                {
+                                    // Create an instance of Class_Schedule and populate the data
+                                    Class_Schedule time_subject = new Class_Schedule
+                                    {
+                                        SD_Teacher_Name = reader.GetString("teacher_name"),
+                                        SD_Skill_Name = reader.GetString("subject_name"),
+                                        SD_TotalTime_Mon2 = reader.GetInt32("subject_time"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        SD_Start_DateTime_MF1 = reader.GetTimeSpan("time_start"),
+                                        SD_End_DateTime_MF2 = reader.GetTimeSpan("time_stop"),
+
+                                        Class_In_Skill = reader.GetString("skill_name"),
+                                        Class_In_Study_Year_Show = reader.GetInt32("stu_year"),
+                                        Class_In_Semester_Show = reader.GetInt32("stu_semester"),
+                                        Class_In_Generation = reader.GetInt32("stu_generation"),
+                                        SD_Class_TimeShift = reader.GetString("study_timeshift"),
+
+                                        Number_of_Hours_Current = reader.GetInt32("total_subject_time"),
+                                        Number_of_Hours_left = reader.GetInt32("count_total")
+                                    };
+
+                                    data_info.Add(time_subject);
+                                }
+                            }
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetTotal_Subject_Time_Info: {ex.Message}");
+                    return null;
+                }catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error GetTotal_Subject_Time_Info: {ex.Message}");
+                    return null;
+                }
+                return data_info;
+            }
+        }
+
+        //Method load GetDateTime_Info_BySubject
+        public List<Class_Schedule> GetDateTime_Info_BySubject(string SD_Skill_Name,int SD_TotalTime_Mon2,string Class_In_Skill,int Class_In_Study_Year_Show,int Class_In_Semester_Show)
+        {
+            List<Class_Schedule> data_datetime = new List<Class_Schedule>();
+            {
+                try
+                {
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        string query = "SELECT date_attendent,day_attendent,subject_time_today,is_attendent,text_reason FROM teacher_attendent_info WHERE skill_name = @skill_name AND subject_time = @subject_time AND subject_name = @subject_name AND stu_year = @stu_year AND stu_semester = @stu_semester";
+
+                        using(MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@skill_name", Class_In_Skill);
+                            cmd.Parameters.AddWithValue("@subject_time", SD_TotalTime_Mon2);
+                            cmd.Parameters.AddWithValue("@subject_name", SD_Skill_Name);
+                            cmd.Parameters.AddWithValue("@stu_year", Class_In_Study_Year_Show);
+                            cmd.Parameters.AddWithValue("@stu_semester", Class_In_Semester_Show);
+
+                            using (MySqlDataReader reader = cmd.ExecuteReader()) // Execute query
+                            {
+                                while (reader.Read())
+                                {
+                                    // Create an instance of Class_Schedule and populate the data
+                                    Class_Schedule data_time_subject = new Class_Schedule
+                                    {
+                                        DateTime_Attendent = reader.GetString("date_attendent"),
+                                        Class_Seletecd_Date = reader.GetString("day_attendent"),
+                                        TotalTime_Calculate = reader.GetInt32("subject_time_today"), //SD_TotalTime_Mon2 For all Total time of Monday
+                                        IsAttendent = reader.GetBoolean("is_attendent"),
+                                        Text_Reason_Attendent = reader.IsDBNull(reader.GetOrdinal("text_reason")) ? string.Empty : reader.GetString("text_reason")
+
+                                    };
+
+                                    data_datetime.Add(data_time_subject);
+                                }
+                            }
+
+                        }
+                    }
+                }catch(MySqlException ex)
+                {
+                    Debug.WriteLine($"Error Database GetDateTime_Info_BySubject: {ex.Message}");
+                    return null;
+                }catch(Exception ex)
+                {
+                    Debug.WriteLine($"Error GetDateTime_Info_BySubject: {ex.Message}");
+                    return null;
+                }
+                return data_datetime;
+            }
+        }
     }
 }
 

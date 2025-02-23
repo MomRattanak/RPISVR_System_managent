@@ -39,6 +39,8 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Presentation;
 using System.Globalization;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using RPISVR_Managements.Attendance.Attendance_Report;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 
 namespace RPISVR_Managements.ViewModel
@@ -384,6 +386,16 @@ namespace RPISVR_Managements.ViewModel
             Command_Edit_Teacher_Attendent_Info = new RelayCommand(async () => await Edit_Teacher_Attendent_Info());
             Command_Update_Teacher_Attendent = new RelayCommand(async () => await Update_Teacher_Attendent_Info());
             Command_Clear_Teacher_Attendent_Info = new RelayCommand(async () => await Clear_List_Teacher_Attendent());
+            Command_Search_Attendent_Teacher_Info = new RelayCommand(async () => await Search_Attendent_Teacher_Info());
+            Teacher_Info_MissAttendence = new ObservableCollection<Class_Schedule>();
+            Command_Clear_Attendent_Teacher_Info = new RelayCommand(async () => await Clear_Data_Search_Attendent());
+            _ = Load_Data_Teacher_MissAttendents_Info();
+            Command_Show_DateTime_Subject = new RelayCommand(async () => await ShowTotal_Time_Subject_Info());
+            TotalTime_Subject_Teacher_Info = new ObservableCollection<Class_Schedule>();
+            Command_Show_Date_Info_Click_Subject = new RelayCommand(async () => await Show_Date_Info_Click_Subject());
+            TotalTime1_Subject_Teacher_Info = new ObservableCollection<Class_Schedule>();
+
+
         }
 
 
@@ -14781,8 +14793,220 @@ namespace RPISVR_Managements.ViewModel
             
             await Task.CompletedTask;
         }
-            
 
+        private DateTimeOffset? _SelectedDate_Search_Attendent;
+        public DateTimeOffset? SelectedDate_Search_Attendent
+        {
+            get => _SelectedDate_Search_Attendent;
+            set
+            {
+                if (_SelectedDate_Search_Attendent != value)
+                {
+                    _SelectedDate_Search_Attendent = value;
+                    OnPropertyChanged(nameof(SelectedDate_Search_Attendent));
+                    OnPropertyChanged(nameof(FormattedDate_SelectedDate_Search_Attendent));
+                }
+            }
+        }
+        public string FormattedDate_SelectedDate_Search_Attendent
+        {
+            get => SelectedDate_Search_Attendent?.ToString("MM/yyyy") ?? "No Date Selected";
+        }
+
+        private ObservableCollection<Class_Schedule> _Teacher_Info_MissAttendence;
+        public ObservableCollection<Class_Schedule> Teacher_Info_MissAttendence
+        {
+            get => _Teacher_Info_MissAttendence;
+            set
+            {
+                _Teacher_Info_MissAttendence = value;
+                OnPropertyChanged(nameof(Teacher_Info_MissAttendence));
+            }
+        }
+
+        private int _Number_of_Hours_left;
+        public int Number_of_Hours_left
+        {
+            get => _Number_of_Hours_left;
+            set
+            {
+                _Number_of_Hours_left = value;
+                OnPropertyChanged(nameof(Number_of_Hours_left));
+            }
+        }
+        private int _Number_of_Hours_Current;
+        public int Number_of_Hours_Current
+        {
+            get => _Number_of_Hours_Current;
+            set
+            {
+                _Number_of_Hours_Current = value;
+                OnPropertyChanged(nameof(Number_of_Hours_Current));
+            }
+        }
+        private ObservableCollection<Class_Schedule> _TotalTime_Subject_Teacher_Info;
+        public ObservableCollection<Class_Schedule> TotalTime_Subject_Teacher_Info
+        {
+            get => _TotalTime_Subject_Teacher_Info;
+            set
+            {
+                _TotalTime_Subject_Teacher_Info = value;
+                OnPropertyChanged(nameof(TotalTime_Subject_Teacher_Info));
+            }
+        }
+        private ObservableCollection<Class_Schedule> _TotalTime1_Subject_Teacher_Info;
+        public ObservableCollection<Class_Schedule> TotalTime1_Subject_Teacher_Info
+        {
+            get => _TotalTime1_Subject_Teacher_Info;
+            set
+            {
+                _TotalTime1_Subject_Teacher_Info = value;
+                OnPropertyChanged(nameof(TotalTime1_Subject_Teacher_Info));
+            }
+        }
+        public List<Student_Info> _Selected_Class_Info_TotalTime_Subject;
+        public List<Student_Info> Selected_Class_Info_TotalTime_Subject
+        {
+            get => _Selected_Class_Info_TotalTime_Subject;
+            set
+            {
+                _Selected_Class_Info_TotalTime_Subject = value;
+                OnPropertyChanged(nameof(Selected_Class_Info_TotalTime_Subject));
+            }
+        }
+        //Command Search Attendent Info
+        public ICommand Command_Search_Attendent_Teacher_Info { get; set; }
+        public ICommand Command_Clear_Attendent_Teacher_Info { get; set; }
+            
+        //Method Search MissAttendent
+        public async Task Search_Attendent_Teacher_Info()
+        {
+            if(FormattedDate_SelectedDate_Search_Attendent == null || FormattedDate_SelectedDate_Search_Attendent == "No Date Selected")
+            {
+                ErrorMessage = $" សូមជ្រើសរើសខែឆ្នាំ ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            Teacher_Info_MissAttendence.Clear();
+            var show_miss_attendent = _dbConnection.Get_MissAttendent(FormattedDate_SelectedDate_Search_Attendent,IsAttendent=false);
+
+            foreach(var show_info in show_miss_attendent)
+            {
+                Teacher_Info_MissAttendence.Add(show_info);
+            }
+            Teacher_Info_MissAttendence = new ObservableCollection<Class_Schedule>(show_miss_attendent);
+            await Task.CompletedTask;
+        }
+
+        //Method Clear MissAttendent
+        public async Task Clear_Data_Search_Attendent()
+        {
+            SelectedDate_Search_Attendent = null;
+            _ = Load_Data_Teacher_MissAttendents_Info();
+            await Task.CompletedTask;
+        }
+
+        //Load Data MissAttendent
+        public async Task Load_Data_Teacher_MissAttendents_Info()
+        {
+            Teacher_Info_MissAttendence.Clear();
+            var load_data = _dbConnection.GetLoad_Data_Teacher_MissAttendent(IsAttendent = false);
+            foreach(var data in load_data)
+            {
+                Teacher_Info_MissAttendence.Add(data);
+            }
+            Teacher_Info_MissAttendence = new ObservableCollection<Class_Schedule>(load_data);
+            await Task.CompletedTask;
+        }
+
+        //Command Show Subject in Class
+        public ICommand Command_Show_DateTime_Subject { get; set; }
+
+        //Method Show subject
+        public async Task ShowTotal_Time_Subject_Info()
+        {
+            if(Selected_Class_Info_TotalTime_Subject == null || !Selected_Class_Info_TotalTime_Subject.Any())
+            {
+                ErrorMessage = $" សូមជ្រើសរើសថ្នាក់រៀនខាងលើ ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+            TotalTime_Subject_Teacher_Info.Clear();
+
+            foreach (var class_info in Selected_Class_Info_TotalTime_Subject)
+            {
+                Debug.WriteLine($"Class ID: {class_info.Class_ID}");
+
+                Class_ID_Schedule =int.Parse(class_info.Class_ID);
+                Debug.WriteLine($"Class ID 2: {Class_ID_Schedule}");
+                var get_subject_time = _dbConnection.GetTotal_Subject_Time_Info(Class_ID_Schedule);
+
+                foreach (var data in get_subject_time)
+                {
+                    TotalTime_Subject_Teacher_Info.Add(data);
+                }
+            }
+            //TotalTime_Subject_Teacher_Info = new ObservableCollection<Class_Schedule>(get_subject_time);
+            await Task.CompletedTask;
+        }
+
+        private Class_Schedule _Selected_Subject_Items_Info_Date;
+        public Class_Schedule Selected_Subject_Items_Info_Date
+        {
+            get => _Selected_Subject_Items_Info_Date;
+            set
+            {
+                _Selected_Subject_Items_Info_Date = value;
+                OnPropertyChanged(nameof(Selected_Subject_Items_Info_Date));
+                if(Selected_Subject_Items_Info_Date == null)
+                {
+                    SD_Skill_Name = null;
+                    SD_TotalTime_Mon2 = 0;
+                    Class_In_Skill = null;
+                    Class_In_Study_Year_Show = 0;
+                    Class_In_Semester_Show = 0;
+                }
+                else
+                {
+                    SD_Skill_Name = Selected_Subject_Items_Info_Date.SD_Skill_Name;
+                    SD_TotalTime_Mon2 = Selected_Subject_Items_Info_Date.SD_TotalTime_Mon2;
+                    Class_In_Skill = Selected_Subject_Items_Info_Date.Class_In_Skill;
+                    Class_In_Study_Year_Show = Selected_Subject_Items_Info_Date.Class_In_Study_Year_Show;
+                    Class_In_Semester_Show = Selected_Subject_Items_Info_Date.Class_In_Semester_Show;
+                }
+            }
+        }
+
+        //Command Show Date Info
+        public ICommand Command_Show_Date_Info_Click_Subject { get; set; }
+
+        //Method Show
+        public async Task Show_Date_Info_Click_Subject()
+        {
+            if(Selected_Subject_Items_Info_Date == null)
+            {
+                ErrorMessage = $" សូមជ្រើសរើសទិន្នន័យមុខវិជ្ជាខាងលើ ជាមុនសិន !";
+                ErrorImageSource = new BitmapImage(new Uri("ms-appx:///Assets/icons8-warning-100.png"));
+                MessageColor = new SolidColorBrush(Colors.Red);
+                return;
+            }
+
+            TotalTime1_Subject_Teacher_Info.Clear();
+
+            var data_info = _dbConnection.GetDateTime_Info_BySubject(SD_Skill_Name, SD_TotalTime_Mon2, Class_In_Skill, Class_In_Study_Year_Show, Class_In_Semester_Show);
+            foreach(var data in data_info)
+            {
+                TotalTime1_Subject_Teacher_Info.Add(data);
+            }
+            TotalTime1_Subject_Teacher_Info = new ObservableCollection<Class_Schedule>(data_info);
+            Debug.WriteLine($"SD_Skill_Name: {SD_Skill_Name}");
+            Debug.WriteLine($"SD_TotalTime_Mon2: {SD_TotalTime_Mon2}");
+
+            await Task.CompletedTask;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
