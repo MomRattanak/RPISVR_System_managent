@@ -7,9 +7,39 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:converters="using:RPISVR_Managements.Loading_View"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
 
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackPanel>
+                <Expander x:Name="Report_Attendent_Mon" HorizontalAlignment="Stretch" Grid.Row="1">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/Report_Student_Info_Icon/icons8-case-stu-total-report.png" Width="28" Height="28"/>
+                            <TextBlock Text="របាយការណ៍ចំនួនម៉ោងប្រចាំខែ"                                       
+                         Padding="10,5,0,0"
+                         Style="{StaticResource Font_KH_Body}"/>
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <Expander.Content>
+                        <Grid HorizontalAlignment="Left">
+
+                        </Grid>
+                    </Expander.Content>
+                </Expander>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

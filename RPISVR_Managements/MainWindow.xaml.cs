@@ -446,7 +446,7 @@ namespace RPISVR_Managements
                     break;
 
                 case "Report_Attendance_All":
-                    AddTabIfNotExists("របាយការណ៍វត្តមាន និងអវត្តមាន",typeof(Report_Attendance_All),iconSource);
+                    AddTabIfNotExists("របាយការណ៍ចំនួនម៉ោង",typeof(Report_Attendance_All),iconSource);
                     Debug.WriteLine("Open Page Report_Attendance_All");
                     break;
 
@@ -536,7 +536,7 @@ namespace RPISVR_Managements
                     break;
 
                 case "Report_Attendance_All_Info":
-                    AddTabIfNotExists("របាយការណ៍វត្តមាន និងអវត្តមាន",typeof(Report_Attendance_All),iconSource);
+                    AddTabIfNotExists("របាយការណ៍ចំនួនម៉ោង",typeof(Report_Attendance_All),iconSource);
                     break;
 
                 case "Report_Attendance_Teacher_Late_Info":
