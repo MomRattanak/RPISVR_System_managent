@@ -23,11 +23,14 @@ namespace RPISVR_Managements
     
     public partial class App : Application
     {
+        public static string LoggedInUser { get; set; } = "Guest";  // Default value
+        public static string UserRole { get; set; } = "Unknown";    // Default value
+
         public App()
         {
             this.InitializeComponent();
         }
-        public static Window MainAppWindow { get; private set; }
+        public static Window MainAppWindow { get; set; }
 
         public static StudentViewModel SharedViewModel { get; } = new StudentViewModel();
         public string StudentID { get; set; }

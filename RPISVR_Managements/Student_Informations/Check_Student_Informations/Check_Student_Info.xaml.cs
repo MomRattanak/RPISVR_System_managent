@@ -298,7 +298,6 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
                 }
             }
         }
-
         //Graph total student
         private void LoadTotalStudent()
         {
@@ -333,6 +332,7 @@ namespace RPISVR_Managements.Student_Informations.Check_Student_Informations
                 }
             }
         }
+
         //Graph show Total Student by StudyTime
         private void LoadTotalStu_byStudyTime()
         {

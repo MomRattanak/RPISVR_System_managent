@@ -68,11 +68,16 @@ namespace RPISVR_Managements
     
     public sealed partial class MainWindow : Window
     {
+        //Set User Role
+        private readonly string _userRole;
+
         private AppWindow m_AppWindow;
-        public MainWindow()
+        public MainWindow(string userRole)
         {
             this.InitializeComponent();
-           
+            _userRole = userRole;
+            SetNavigationVisibility();
+            MaximizeWindow();
 
             m_AppWindow = this.AppWindow;
             m_AppWindow.Changed += AppWindow_Changed;
@@ -89,8 +94,86 @@ namespace RPISVR_Managements
 
             //Call Tab Close Event
             TabView.TabCloseRequested += TabView_TabClosing;
-
             
+        }
+
+        private void MaximizeWindow()
+        {
+            IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+
+            if (appWindow.Presenter is OverlappedPresenter presenter)
+            {
+                presenter.Maximize(); // 🔹 Maximizes the window without hiding the title bar
+            }
+        }
+
+        private void SetNavigationVisibility()
+        {
+            // Example logic based on role
+            switch (_userRole)
+            {
+                case "Developer":
+                    // Developer can see all items.
+                    HomePage.Visibility = Visibility.Visible;
+                    Student_Information.Visibility = Visibility.Visible;
+                    Class_Room_Info.Visibility = Visibility.Visible;
+
+                    Student_Score_Info.Visibility= Visibility.Visible;
+                    Teacher_Attendent_Info.Visibility = Visibility.Visible;
+                    Request_Absence.Visibility = Visibility.Visible;
+                    Department_Info.Visibility = Visibility.Visible;
+                    Administrative_Letter.Visibility = Visibility.Visible;
+                    System_List_and_Reports.Visibility = Visibility.Visible;
+                    System_Settings.Visibility = Visibility.Visible;
+                    System_Helps_Info.Visibility = Visibility.Visible;
+
+                    break;
+                case "គណៈគ្រប់គ្រងវិទ្យាស្ថាន":
+                    // គណៈគ្រប់គ្រងវិទ្យាស្ថាន users shouldn't see Developer items.
+                    HomePage.Visibility = Visibility.Visible;
+                    Student_Information.Visibility = Visibility.Visible;
+                    Class_Room_Info.Visibility = Visibility.Visible;
+                    Student_Score_Info.Visibility = Visibility.Visible;
+                    Teacher_Attendent_Info.Visibility = Visibility.Visible;
+                    Request_Absence.Visibility = Visibility.Collapsed;
+                    Department_Info.Visibility = Visibility.Visible;
+                    Administrative_Letter.Visibility = Visibility.Visible;
+                    System_List_and_Reports.Visibility = Visibility.Collapsed;
+                    System_Settings.Visibility = Visibility.Visible;
+                    System_Helps_Info.Visibility = Visibility.Visible;
+                    break;
+                case "គ្រូបច្ចេកទេស":
+                    // Guests see only guest items.
+                    HomePage.Visibility = Visibility.Visible;
+                    Student_Information.Visibility = Visibility.Visible;
+                    Class_Room_Info.Visibility = Visibility.Visible;
+
+                    Student_Score_Info.Visibility = Visibility.Visible;
+                    Teacher_Attendent_Info.Visibility = Visibility.Collapsed;
+                    Request_Absence.Visibility = Visibility.Collapsed;
+                    Department_Info.Visibility = Visibility.Visible;
+                    Administrative_Letter.Visibility = Visibility.Collapsed;
+                    System_List_and_Reports.Visibility = Visibility.Collapsed;
+                    System_Settings.Visibility = Visibility.Visible;
+                    System_Helps_Info.Visibility = Visibility.Visible;
+                    break;
+                default:
+                    // Default case: Hide sensitive items.
+                    HomePage.Visibility = Visibility.Visible;
+                    Student_Information.Visibility = Visibility.Collapsed;
+                    Class_Room_Info.Visibility = Visibility.Collapsed;
+                    Student_Score_Info.Visibility = Visibility.Visible;
+                    Teacher_Attendent_Info.Visibility = Visibility.Collapsed;
+                    Request_Absence.Visibility = Visibility.Collapsed;
+                    Department_Info.Visibility = Visibility.Collapsed;
+                    Administrative_Letter.Visibility = Visibility.Collapsed;
+                    System_List_and_Reports.Visibility = Visibility.Collapsed;
+                    System_Settings.Visibility = Visibility.Visible;
+                    System_Helps_Info.Visibility = Visibility.Visible;
+                    break;
+            }
         }
         private void TabView_TabClosing(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
@@ -628,7 +711,7 @@ namespace RPISVR_Managements
             var frame = new Frame();
             frame.Navigate(typeof(HomePage));
             tabViewItem.Content = frame;
-
+            tabViewItem.IsSelected = true;
             TabView.TabItems.Add(tabViewItem);
             
             TabView.SelectedIndex = 1;
