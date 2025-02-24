@@ -110,8 +110,11 @@ namespace RPISVR_Managements.Setting.System_Setting
         {
             this.InitializeComponent();
             this.DataContext = this;
-           
-            
+
+            // Set text from App variables
+            setting_user_name.Text = "អ្នកប្រើប្រាស់: " + App.LoggedInUser;
+            setting_user_role.Text = "សិទ្ធិប្រើប្រាស់: " + App.UserRole;
+
             // Subscribe to the network status change event
             NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
 

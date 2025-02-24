@@ -7,9 +7,408 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:converters="using:RPISVR_Managements.Loading_View"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+    
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-    </Grid>
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel>
+                        <ComboBox x:Name="Class_StudyYear_Count_State"
+                                Header="ឆ្នាំសិក្សា"
+                                SelectionChanged="Study_Year_Selected_Class_State"
+                                ItemsSource="{Binding EducationStudyYear_Combobox}"
+                                DisplayMemberPath="Stu_StudyYear"
+                                SelectedValuePath="Stu_StudyYear_ID"
+                                Style="{StaticResource Stye_KH_Combobox}"
+                                Margin="10"
+                                BorderBrush="Aqua"                                 
+                              SelectedItem="{Binding Class_StudyYear_Count_State,Mode=TwoWay}">
+                        </ComboBox>
+                        <TextBlock x:Name="Text_Total_Stu_Info" Text="ទិន្នន័យសិស្សនិស្សិតសរុប (នាក់)"
+                                Style="{StaticResource Font_KH_Title}"
+                                Margin="10,10,0,0"
+                                FontFamily="Khmer OS Muol Light"/>
+                    </StackPanel>
+                    
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" 
+      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- Card 1 -->
+                        <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-student-100.png" Width="50" Height="50" />
+                                    <TextBlock x:Name="Total_Student_Count" 
+                                   Text="" 
+                                   Style="{StaticResource Font_KH_Title}"
+                                   FontFamily="Khmer OS Muol Light"
+                                   Foreground="Blue" 
+                                   FontSize="20" 
+                                   FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Female_Count" 
+                               Text=""
+                               Style="{StaticResource Font_KH_Title}"
+                                Foreground="Green" 
+                                FontSize="16" 
+                                FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count" 
+                               Text=""
+                               Style="{StaticResource Font_KH_Title}"
+                                Foreground="Green" 
+                                FontSize="16" 
+                                FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- Card 2 -->
+                        <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-flying-mortarboard-100.png" Width="50" Height="50" />
+                                    <TextBlock x:Name="Total_Stu_Count_Bachelor"
+                               Text="" 
+                               Style="{StaticResource Font_KH_Title}"
+                               FontFamily="Khmer OS Muol Light"
+                               Foreground="Blue" 
+                               FontSize="20" 
+                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_Bachelor" 
+                               Text=""
+                                Style="{StaticResource Font_KH_Title}"
+                                Foreground="Green" 
+                                FontSize="16" 
+                                FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_Bachelor" 
+                                Text=""
+                                Style="{StaticResource Font_KH_Title}"
+                                Foreground="Green" 
+                                FontSize="16" 
+                                FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- Card 3 -->
+                        <Border Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <Image Source="/Assets/Check_Student_Info_Icon/icons8-diploma-100.png" Width="50" Height="50" />
+                                    <TextBlock x:Name="Total_Stu_Count_Associate"
+                               Text="" 
+                               Style="{StaticResource Font_KH_Title}"
+                               FontFamily="Khmer OS Muol Light"
+                               Foreground="Blue" 
+                               FontSize="20" 
+                               FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_Associate" 
+                               Text=""
+                        Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_Associate" 
+                               Text=""
+                            Style="{StaticResource Font_KH_Title}"
+                            Foreground="Green" 
+                            FontSize="16" 
+                            FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- Card 4 -->
+                        <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                        <TextBlock Text="C3"
+                        Foreground="OrangeRed" 
+                        FontSize="30" 
+                        FontWeight="Bold"/>
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="Total_Stu_Count_C3"
+                        Text="" 
+                       Style="{StaticResource Font_KH_Title}"
+                       FontFamily="Khmer OS Muol Light"
+                       Foreground="Blue" 
+                       FontSize="18" 
+                       FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_C3" 
+                               Text=""
+                        Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_C3"
+                               Text=""
+                        Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- Card 5 -->
+                        <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                        <TextBlock Text="C2"
+                                Foreground="OrangeRed" 
+                                FontSize="30" 
+                                FontWeight="Bold"/>
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="Total_Stu_Count_C2" 
+                               Text="" 
+                       Style="{StaticResource Font_KH_Title}"
+                       FontFamily="Khmer OS Muol Light"
+                       Foreground="Blue" 
+                       FontSize="18" 
+                       FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_C2" 
+                               Text=""
+                       Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_C2" 
+                               Text=""
+                       Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                        <!-- Card 6 -->
+                        <Border Background="Green" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50" />
+                                        <TextBlock Text="C1"
+                        Foreground="OrangeRed" 
+                        FontSize="30" 
+                        FontWeight="Bold"/>
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="Total_Stu_Count_C1" 
+                               Text="" 
+                           Style="{StaticResource Font_KH_Title}"
+                           FontFamily="Khmer OS Muol Light"
+                           Foreground="Blue" 
+                           FontSize="18" 
+                           FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_C1" 
+                               Text=""
+                            Style="{StaticResource Font_KH_Title}"
+                            Foreground="Green" 
+                            FontSize="16" 
+                            FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_C1" 
+                               Text=""
+                            Style="{StaticResource Font_KH_Title}"
+                            Foreground="Green" 
+                            FontSize="16" 
+                            FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                        <!-- Card 7 -->
+                        <Border Background="Blue" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                            <Border Background="Aqua" Padding="10" BorderBrush="Red" BorderThickness="3" CornerRadius="10">
+                                <!-- Inner Border: Aqua with your content inside -->
+                                <StackPanel Height="150" >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/Check_Student_Info_Icon/icons8-degree-103.png" Width="50" Height="50"/>
+                                        <TextBlock Text="1.5M"
+                               Foreground="Purple" 
+                                FontSize="30" 
+                                FontWeight="Bold"/>
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="Total_Stu_Count_1_5M" 
+                               Text="" 
+                       Style="{StaticResource Font_KH_Title}"
+                       FontFamily="Khmer OS Muol Light"
+                       Foreground="Blue" 
+                       FontSize="18" 
+                       FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Stu_Female_Count_1_5M" 
+                               Text=""
+                        Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                    <TextBlock x:Name="Total_Student_Male_Count_1_5M" 
+                               Text=""
+                        Style="{StaticResource Font_KH_Title}"
+                        Foreground="Green" 
+                        FontSize="16" 
+                        FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Row="2" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3" Margin="10">
+                    <StackPanel>
+                        <TextBlock x:Name="Text_Total_Stu" Text="ទិន្នន័យសិស្សនិស្សិតសរុប តាមជំនាញនីមួយៗ (នាក់)"
+           Style="{StaticResource Font_KH_Title}"
+           Margin="10,10,0,0"
+           FontFamily="Khmer OS Muol Light"/>
+                        <ScrollViewer x:Name="Student_BarGraph" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RelativePanel.Below="Text_Total_Stu" >
+
+                            <StackPanel Width="2000" Height="400">
+
+                                <Canvas Name="ChartCanvas" Background="Gray"/>
+                            </StackPanel>
+
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <ScrollViewer>
+                        <StackPanel Orientation="Horizontal">
+                            <!--Total Class-->
+                            <Border x:Name="Show_Total_Class" Height="180" Width="300" Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                                <Border Background="#8ADDE8" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                    <!-- Inner Border: Aqua with your content inside -->
+                                    <StackPanel >
+                                        <Image Source="/Assets/Classes/icons8-class-96.png" Width="50" Height="50" />
+                                        <TextBlock x:Name="Total_Class_Count" 
+           Text="ចំនួនថ្នាក់រៀនសរុប" 
+           Style="{StaticResource Font_KH_Title}"
+           FontFamily="Khmer OS Muol Light"
+           Foreground="Blue" 
+           FontSize="16" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+                                        <TextBlock x:Name="Total_Class_Count_Select_Year" 
+           Text="0"
+           Style="{StaticResource Font_KH_Title}"
+           Foreground="Green" 
+           FontSize="32" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <!--Class In Processing-->
+                            <Border x:Name="Show_Total_Class_In_Process" RelativePanel.RightOf="Show_Total_Class" Height="180" Width="300" Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                                <Border Background="#8ADDE8" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                    <StackPanel>
+                                        <Image Source="/Assets/Classes/icons8-process.gif" Width="50" Height="50" />
+                                        <TextBlock x:Name="Total_Class_Count_In_Process_Text" 
+           Text="ចំនួនថ្នាក់រៀនកំពុងដំណើរការ" 
+           Style="{StaticResource Font_KH_Title}"
+           FontFamily="Khmer OS Muol Light"
+           Foreground="Blue" 
+           FontSize="16" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+                                        <TextBlock x:Name="Total_Class_Working" 
+           Text="0"
+           Style="{StaticResource Font_KH_Title}"
+           Foreground="Green" 
+           FontSize="32" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                            <!--Class Completed-->
+                            <Border x:Name="Show_Total_Class_Completed" RelativePanel.RightOf="Show_Total_Class_In_Process" Height="180" Width="300" Background="Red" Padding="5" BorderBrush="Aqua" BorderThickness="3" CornerRadius="15" Margin="10">
+                                <Border Background="#8ADDE8" Padding="10" BorderBrush="Blue" BorderThickness="3" CornerRadius="10">
+                                    <StackPanel>
+                                        <Image Source="/Assets/Classes/icons8-complete-96.png" Width="50" Height="50" />
+                                        <TextBlock x:Name="Total_Class_Count_Completed_Text" 
+           Text="ចំនួនថ្នាក់រៀនបានបញ្ចប់" 
+           Style="{StaticResource Font_KH_Title}"
+           FontFamily="Khmer OS Muol Light"
+           Foreground="Blue" 
+           FontSize="16" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+                                        <TextBlock x:Name="Total_Class_Complete" 
+           Text="0"
+           Style="{StaticResource Font_KH_Title}"
+           Foreground="Green" 
+           FontSize="32" 
+           TextAlignment="Center"
+           FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <Grid Grid.Row="4" BorderBrush="Aqua" BorderThickness="2" CornerRadius="3" Margin="10">
+                    <StackPanel>
+                        <TextBlock x:Name="Text_Total_Stu_by_StudyTime" 
+           Text="ទិន្នន័យសិស្សនិស្សិតសរុប តាមវេនសិក្សានីមួយៗ (នាក់)"
+           Style="{StaticResource Font_KH_Title}"
+           Margin="10,10,0,0"
+           FontFamily="Khmer OS Muol Light"
+           RelativePanel.Below="btn_report_stu_info"
+           />
+
+                        <ScrollViewer x:Name="Student_BarGraph_By_StudyTime" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+
+                            <StackPanel Width="2000" Height="400" Margin="10,5,0,0">
+                                <Canvas Name="ChartCanvas_Show_By_StudyTime" Background="Gray"/>
+                            </StackPanel>
+
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+                
+                
+            </Grid>
+                
+        </Grid>
+   </ScrollViewer>
 </Page>

@@ -49,10 +49,12 @@
                 MaxWidth="600"/>
             <PersonPicture x:Name="PersonAccountPic" 
                 Grid.Column="6" 
+                           
                 Height="32" Margin="0,0,16,0"/>
             
         </Grid>
 
+        <!--Main_Navigation-->
         <!--NavigationView-->
         <NavigationView x:Name="Main_Navigation"  Grid.Row="1"          
                 FontFamily="Khmer OS Battambang"
@@ -111,7 +113,7 @@
                         </NavigationViewItem>
 
                         <!--Classroom-->
-                        <NavigationViewItem Content="ថ្នាក់រៀន"  Style="{StaticResource KH_Font_NavigationView}" Tag="">
+                        <NavigationViewItem x:Name="Class_Room_Info" Content="ថ្នាក់រៀន"  Style="{StaticResource KH_Font_NavigationView}" Tag="">
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xF57F;" />
                             </NavigationViewItem.Icon>
@@ -164,7 +166,7 @@
                         </NavigationViewItem>
 
                         <!--Student Score-->
-                        <NavigationViewItem Content="ពិន្ទុសិស្សនិស្សិត" Icon="Calculator" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                        <NavigationViewItem x:Name="Student_Score_Info" Content="ពិន្ទុសិស្សនិស្សិត" Icon="Calculator" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
                             <ToolTipService.ToolTip>
                                 <TextBlock Text="ពិន្ទុសិស្សនិស្សិត (បញ្ចូល,ពិនិត្យ,របាយការណ៍)" Style="{StaticResource KH_Tooltip}"/>
                             </ToolTipService.ToolTip>
@@ -202,7 +204,7 @@
                         </NavigationViewItem>
 
                         <!--Attendance List-->
-                        <NavigationViewItem Content="វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                        <NavigationViewItem x:Name="Teacher_Attendent_Info" Content="វត្តមាន និងអវត្តមាន" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xE73A;" />
                             </NavigationViewItem.Icon>
@@ -266,7 +268,9 @@
                                 </NavigationViewItem>
                             </NavigationViewItem.MenuItems>
                         </NavigationViewItem>
-                        <NavigationViewItem Content="ការសុំច្បាប់" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+
+                        <!--Request for leave of absence-->
+                        <NavigationViewItem x:Name="Request_Absence" Content="ការសុំច្បាប់" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xE9D5;" />
                             </NavigationViewItem.Icon>
@@ -330,7 +334,7 @@
                         </NavigationViewItem>
                         
                         <!--Teacher_Information-->
-                        <NavigationViewItem Content="ដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Font_NavigationView}" Icon="Calendar" Tag="SamplePage4">
+                        <NavigationViewItem x:Name="Department_Info" Content="ដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Font_NavigationView}" Icon="Calendar" Tag="SamplePage4">
                             <ToolTipService.ToolTip>
                                     <TextBlock Text="ដេប៉ាតឺម៉ង់" Style="{StaticResource KH_Tooltip}"/>
                             </ToolTipService.ToolTip>
@@ -363,7 +367,7 @@
                         </NavigationViewItem>
 
                         <!--Administrative letter-->
-                        <NavigationViewItem Content="លិខិតរដ្ឋបាល" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
+                        <NavigationViewItem x:Name="Administrative_Letter" Content="លិខិតរដ្ឋបាល" Style="{StaticResource KH_Font_NavigationView}" Tag="SamplePage4">
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xE8BF;" />
                             </NavigationViewItem.Icon>

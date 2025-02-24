@@ -30,7 +30,7 @@
 
         <StackPanel>
             <StackPanel x:Name="T_Header" Grid.Row="0">
-                <TextBlock Text="ពិនិត្យទិន្នន័យសិស្សនិស្សិត"
+                <TextBlock Text="ពិនិត្យទិន្នន័យសិស្សនិស្សិត (ទាំងអស់)"
                            Style="{StaticResource Font_KH_Body}"
                            Margin="10"
                            FontFamily="Khmer OS Muol Light"/>

@@ -34,12 +34,12 @@
                                FontSize="16" 
                                FontWeight="Bold"/>
                     <TextBlock x:Name="setting_user_name"
-                               Text="ឈ្មោះ មុំ រតនៈ"
+                               Text=""
                                Style="{StaticResource Font_KH_Body}" 
                                FontSize="12" 
                                />
                     <TextBlock x:Name="setting_user_role"
-                               Text="តួនាទី និស្សិត"
+                               Text=""
                                Style="{StaticResource Font_KH_Body}"
                                FontSize="12" 
                               />
